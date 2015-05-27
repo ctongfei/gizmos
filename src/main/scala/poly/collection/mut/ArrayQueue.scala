@@ -4,12 +4,13 @@ import poly.collection._
 import poly.collection.exception._
 import poly.collection.factory._
 import poly.collection.impl._
+import scala.reflect._
 
 /**
  * An array-backed circular queue that supports amortized O(1) time for both insertion and deletion.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class ArrayQueue[@specialized(Int, Double) T] private(private val data: ResizableArray[T]) extends Cue[T] {
+class ArrayQueue[@specialized(Int, Double) T] private(private val data: ResizableArray[T]) extends Queue[T] {
 
   private var frontPtr = 0
   private var backPtr = data.length
@@ -32,7 +33,7 @@ class ArrayQueue[@specialized(Int, Double) T] private(private val data: Resizabl
     else backPtr - frontPtr + data.capacity
   }
 
-  def enqueue(x: T) = {
+  def push(x: T) = {
     if (isFull) { // extend the buffer by 2
       //       R F
       // [ 6 7 - 1 2 3 4 5 ]
@@ -48,7 +49,7 @@ class ArrayQueue[@specialized(Int, Double) T] private(private val data: Resizabl
     backPtr = (backPtr + 1) % data.capacity
   }
 
-  def dequeue(): T = {
+  def pop(): T = {
     val x = front
     frontPtr = (frontPtr + 1) % data.capacity
     x
@@ -58,7 +59,7 @@ class ArrayQueue[@specialized(Int, Double) T] private(private val data: Resizabl
 
 object ArrayQueue extends TaggedCollectionFactory[ArrayQueue] {
 
-  implicit def newBuilder[T: Tag]: CollectionBuilder[T, ArrayQueue] = new CollectionBuilder[T, ArrayQueue] {
+  implicit def newBuilder[T: ClassTag]: CollectionBuilder[T, ArrayQueue] = new CollectionBuilder[T, ArrayQueue] {
     var a: ResizableArray[T] = new ResizableArray[T]()
     def sizeHint(n: Int) = a.ensureCapacity(n)
     def +=(x: T) = a.append(x)

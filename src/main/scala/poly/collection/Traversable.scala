@@ -193,7 +193,7 @@ trait Traversable[+T] { self =>
 
   def sum[X >: T](implicit G: AdditiveSemigroup[X]): X = reduce(G.add)
 
-  def product[X >: T](implicit G: MultiplicativeGroup[X]): X = reduce(G.mul)
+  def product[X >: T](implicit G: MultiplicativeSemigroup[X]): X = reduce(G.mul)
 
   def min[X >: T](implicit O: WeakOrder[X]): X = ??? //TODO: reduce(O.min)
 

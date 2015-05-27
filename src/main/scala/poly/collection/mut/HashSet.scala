@@ -13,6 +13,6 @@ abstract class HashSet[T] private(val data: HashTable[T]) extends MutSet[T] {
 
   def remove(x: T) = data.remove(x)
 
-  def contains[U >: T](x: U) = data.locate(x.asInstanceOf[T]) != -1
+  def contains(x: T) = data.locate(x) != -1
 
 }

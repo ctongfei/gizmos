@@ -10,7 +10,7 @@ class TreeNode[T](
   var data: T,
   var parent: TreeNode[T] = null,
   var children: Seq[TreeNode[T]] = null
-) extends Node[T] {
+) extends BidiNode[T] {
 
   def ancestors = ListSeq(parent)
   def descendants = children

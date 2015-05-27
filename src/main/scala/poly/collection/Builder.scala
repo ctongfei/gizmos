@@ -1,5 +1,7 @@
 package poly.collection
 
+import scala.language.higherKinds
+
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
  */

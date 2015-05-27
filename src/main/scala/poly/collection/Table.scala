@@ -13,6 +13,9 @@ trait Table[+T] extends ((Int, Int) => T) {
 
   def size = numRows * numCols
 
+  def rows: Enumerable[Enumerable[T]]
+
+  def cols: Enumerable[Enumerable[T]]
 
   override def equals(that: Any) = that match {
     case other: Table[T] => ???

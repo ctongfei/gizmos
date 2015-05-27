@@ -59,7 +59,7 @@ class ListSeq[T] private() extends MutSeq[T] {
 
 object ListSeq extends SeqFactory[ListSeq] {
 
-  implicit def newBuilder[T: Tag]: CollectionBuilder[T, ListSeq] = new CollectionBuilder[T, ListSeq] {
+  implicit def newBuilder[T]: CollectionBuilder[T, ListSeq] = new CollectionBuilder[T, ListSeq] {
     val a = new DoublyLinkedList[T]()
     def sizeHint(n: Int) = {}
     def +=(x: T) = a.append(x)

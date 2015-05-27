@@ -1,6 +1,7 @@
 package poly.collection.impl
 
 import poly.collection._
+import poly.collection.mut._
 
 /**
  * A doubly linked list.
@@ -8,7 +9,9 @@ import poly.collection._
  */
 class DoublyLinkedList[T] {
 
-  private[poly] val dummy = new DoublyLinkedListNode[T](default[T])
+  type Node = DoublyLinkedList.Node[T]
+
+  private[poly] val dummy = new Node(default[T])
   private[poly] var length: Int = 0
   dummy.prev = dummy
   dummy.next = dummy
@@ -19,7 +22,7 @@ class DoublyLinkedList[T] {
    * @param i Index
    * @return The node that contains the ''i''-th element.
    */
-  def locate(i: Int): DoublyLinkedListNode[T] = { //TODO: for i >= length / 2, find backwards for faster speed
+  def locate(i: Int): Node = { //TODO: for i >= length / 2, find backwards for faster speed
     if (i < 0 | i >= length) throw new IndexOutOfBoundsException
     var curr = dummy.next
     var j = 0
@@ -35,7 +38,7 @@ class DoublyLinkedList[T] {
    * @param x The element to be appended
    */
   def append(x: T) = {
-    val node = new DoublyLinkedListNode(x, dummy.prev, dummy)
+    val node = new Node(x, dummy.prev, dummy)
     node.prev.next = node
     node.next.prev = node
     length += 1
@@ -46,7 +49,7 @@ class DoublyLinkedList[T] {
    * @param x The element to be prepended.
    */
   def prepend(x: T) = {
-    val node = new DoublyLinkedListNode(x, dummy, dummy.next)
+    val node = new Node(x, dummy, dummy.next)
     node.prev.next = node
     node.next.prev = node
     length += 1
@@ -76,7 +79,7 @@ class DoublyLinkedList[T] {
    */
   def insert(i: Int, x: T) = {
     val p = locate(i)
-    val node = new DoublyLinkedListNode(x, p.prev, p)
+    val node = new Node(x, p.prev, p)
     node.prev.next = node
     node.next.prev = node
     length += 1
@@ -99,6 +102,20 @@ class DoublyLinkedList[T] {
     p.prev.next = p.next
     p.next.prev = p.prev
     length -= 1
+  }
+
+}
+
+object DoublyLinkedList {
+  class Node[T] (
+    var data: T,
+    private[poly] var prev: Node[T] = null,
+    private[poly] var next: Node[T] = null
+  ) extends BidiNode[T] {
+
+    def descendants = ListSeq(next)
+    def ancestors = ListSeq(prev)
+
   }
 
 }

@@ -37,20 +37,20 @@ trait CollectionFactory[C[_]] {
 trait TaggedCollectionFactory[C[_]] {
 
   /** Returns a new builder of this collection type. */
-  implicit def newBuilder[T: Tag]: CollectionBuilder[T, C]
+  implicit def newBuilder[T: ClassTag]: CollectionBuilder[T, C]
 
   /** Creates an empty collection. */
-  def empty[T: Tag]: C[T] = newBuilder[T].result
+  def empty[T: ClassTag]: C[T] = newBuilder[T].result
 
   /** Creates a collection by adding the arguments into it. */
-  def apply[T: Tag](xs: T*): C[T] = {
+  def apply[T: ClassTag](xs: T*): C[T] = {
     val b = newBuilder[T]
     b ++= xs
     b.result
   }
 
   /** Creates a collection by adding all the elements in the specific traversable sequence. */
-  def from[T: Tag](xs: Traversable[T]): C[T] = {
+  def from[T: ClassTag](xs: Traversable[T]): C[T] = {
     val b = newBuilder[T]
     b ++= xs
     b.result
@@ -64,25 +64,52 @@ trait TaggedCollectionFactory[C[_]] {
 trait OrderedCollectionFactory[C[_]] {
 
   /** Returns a new builder of this collection type. */
-  implicit def newBuilder[T: Tag: WeakOrder]: CollectionBuilder[T, C]
+  implicit def newBuilder[T: ClassTag: WeakOrder]: CollectionBuilder[T, C]
 
   /** Creates an empty collection. */
-  def empty[T: Tag: WeakOrder]: C[T] = newBuilder[T].result
+  def empty[T: ClassTag: WeakOrder]: C[T] = newBuilder[T].result
 
   /** Creates a collection by adding the arguments into it. */
-  def apply[T: Tag: WeakOrder](xs: T*): C[T] = {
+  def apply[T: ClassTag: WeakOrder](xs: T*): C[T] = {
     val b = newBuilder[T]
     b ++= xs
     b.result
   }
 
   /** Creates a collection by adding all the elements in the specific traversable sequence. */
-  def from[T: Tag: WeakOrder](xs: Traversable[T]): C[T] = {
+  def from[T: ClassTag: WeakOrder](xs: Traversable[T]): C[T] = {
     val b = newBuilder[T]
     b ++= xs
     b.result
   }
 
   implicit def factory: OrderedCollectionFactory[C] = this
+
+}
+
+
+trait AdditiveGroupCollectionFactory[C[_]] {
+
+  /** Returns a new builder of this collection type. */
+  implicit def newBuilder[T: ClassTag: AdditiveGroup]: CollectionBuilder[T, C]
+
+  /** Creates an empty collection. */
+  def empty[T: ClassTag: AdditiveGroup]: C[T] = newBuilder[T].result
+
+  /** Creates a collection by adding the arguments into it. */
+  def apply[T: ClassTag: AdditiveGroup](xs: T*): C[T] = {
+    val b = newBuilder[T]
+    b ++= xs
+    b.result
+  }
+
+  /** Creates a collection by adding all the elements in the specific traversable sequence. */
+  def from[T: ClassTag: AdditiveGroup](xs: Traversable[T]): C[T] = {
+    val b = newBuilder[T]
+    b ++= xs
+    b.result
+  }
+
+  implicit def factory: AdditiveGroupCollectionFactory[C] = this
 
 }

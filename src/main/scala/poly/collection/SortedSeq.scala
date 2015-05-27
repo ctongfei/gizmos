@@ -21,7 +21,7 @@ trait SortedSeq[T] extends Seq[T] {
    * @return A merged sorted sequence
    * @throws IncompatibleOrderException If two sequences are not sorted under the same order.
    */
-  def merge(that: SortedSeq[T])(implicit tag: Tag[T]): SortedSeq[T] = {
+  def merge(that: SortedSeq[T])(implicit tag: ClassTag[T]): SortedSeq[T] = {
     if (this.order ne that.order) throw new IncompatibleOrderException
     val ai = this.enumerator
     val bi = that.enumerator
@@ -44,8 +44,6 @@ trait SortedSeq[T] extends Seq[T] {
     c.asIfSorted(this.order)
   }
 
-  def distinct(implicit tag: Tag[T]): SortedSeq[T] = {
-
-  }
+  def distinct(implicit tag: ClassTag[T]): SortedSeq[T] = ???
 
 }

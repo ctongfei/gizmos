@@ -44,9 +44,9 @@ trait Enumerable[+T] extends Traversable[T] { self =>
 }
 
 object Enumerable {
-  ///** Returns the natural monad on Enumerables. */
-  //implicit def monad[T]: Monad[Enumerable] = new Monad[Enumerable] {
-  //  def flatMap[X, Y](mx: Enumerable[X])(f: (X) => Enumerable[Y]): Enumerable[Y] = mx.flatMap(f)
-  //  def id[X](u: X): Enumerable[X] = ListSeq(u)
-  //}
+  /** Returns the natural monad on Enumerables. */
+  implicit def monad[T]: Monad[Enumerable] = new Monad[Enumerable] {
+    def flatMap[X, Y](mx: Enumerable[X])(f: (X) => Enumerable[Y]): Enumerable[Y] = mx.flatMap(f)
+    def id[X](u: X): Enumerable[X] = ListSeq(u)
+  }
 }

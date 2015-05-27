@@ -1,11 +1,9 @@
 package poly
+
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
 package object collection {
-
-  /** Alias for `scala.reflect.ClassTag`. */
-  type Tag[X] = scala.reflect.ClassTag[X]
 
   def default[T]: T = {
     class Default {
@@ -14,7 +12,7 @@ package object collection {
     (new Default).default
   }
 
-  type =!>[X, Y] = PartialFunction[X, Y]
+  type =?>[-X, +Y] = PartialFunction[X, Y]
 
   private[collection] def nextPowerOfTwo(x: Int): Int = {
     var c = x - 1

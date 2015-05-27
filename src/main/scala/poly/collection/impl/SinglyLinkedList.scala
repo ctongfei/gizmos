@@ -1,6 +1,7 @@
 package poly.collection.impl
 
 import poly.collection._
+import poly.collection.mut._
 
 /**
  * A singly linked list.
@@ -16,8 +17,10 @@ import poly.collection._
  */
 class SinglyLinkedList[T] {
 
-  private[poly] val dummy = new SinglyLinkedListNode[T](default[T])
-  private[poly] var length: Int = 0
+  type Node = SinglyLinkedList.Node[T]
+
+  private[poly] val dummy = new Node(default[T])
+  private[poly] var len: Int = 0
   dummy.next = dummy
 
 
@@ -26,10 +29,10 @@ class SinglyLinkedList[T] {
    * @param i Index
    * @return The previous node and the node that contains the ''i''-th element.
    */
-  def locate(i: Int): (SinglyLinkedListNode[T], SinglyLinkedListNode[T]) = {
-    if (i < 0 || i >= length) throw new IndexOutOfBoundsException
+  def locate(i: Int): (Node, Node) = {
+    if (i < 0 || i >= len) throw new IndexOutOfBoundsException
     var curr = dummy
-    var prev: SinglyLinkedListNode[T] = null
+    var prev: Node = null
     var j = 0
     while (j < i) {
       curr = curr.next
@@ -44,10 +47,10 @@ class SinglyLinkedList[T] {
    * @param x The element to be appended
    */
   def append(x: T) = {
-    val (_, last) = locate(length - 1)
-    val node = new SinglyLinkedListNode(x, dummy)
+    val (_, last) = locate(len - 1)
+    val node = new Node(x, dummy)
     last.next = node
-    length += 1
+    len += 1
   }
 
   /**
@@ -55,9 +58,9 @@ class SinglyLinkedList[T] {
    * @param x The element to be prepended.
    */
   def prepend(x: T) = {
-    val node = new SinglyLinkedListNode(x, dummy.next)
+    val node = new Node(x, dummy.next)
     dummy.next = node
-    length += 1
+    len += 1
   }
 
   /**
@@ -84,9 +87,9 @@ class SinglyLinkedList[T] {
    */
   def insert(i: Int, x: T) = {
     val (prev, curr) = locate(i)
-    val node = new SinglyLinkedListNode(x, curr)
+    val node = new Node(x, curr)
     prev.next = node
-    length += 1
+    len += 1
   }
 
   /**
@@ -103,7 +106,20 @@ class SinglyLinkedList[T] {
   def remove(i: Int) = {
     val (prev, curr) = locate(i)
     prev.next = curr.next
-    length -= 1
+    len -= 1
+  }
+
+
+}
+
+object SinglyLinkedList {
+  class Node[T] (
+    var data: T,
+    private[poly] var next: Node[T] = null
+  ) extends ForwardNode[T] {
+
+    def descendants = ListSeq(next)
+
   }
 
 }

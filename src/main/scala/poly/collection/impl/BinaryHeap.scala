@@ -8,7 +8,7 @@ import poly.collection.factory._
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class BinaryHeap[T] private(val data: ResizableArray[T])(implicit O: WeakOrder[T]) {
+class BinaryHeap[T] (val data: ResizableArray[T])(implicit O: WeakOrder[T]) {
 
   /** Retrieves the order on the elements in this binary heap. */
   val order = O

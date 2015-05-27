@@ -7,16 +7,16 @@ import poly.collection.impl._
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class ListStack[@specialized(Int, Double) T] private(private var data: SinglyLinkedList[T]) extends Stack[T] {
+class ListStack[@specialized(Int, Double) T] private(private var data: SinglyLinkedList[T]) extends Queue[T] {
 
-  def size = data.length
+  def size = data.len
 
   def push(x: T): Unit = data.prepend(x)
 
-  def top: T = data.dummy.next.data
+  def front: T = data.dummy.next.data
 
   def pop(): T = {
-    val t = top
+    val t = front
     data.remove(0)
     t
   }
@@ -25,7 +25,7 @@ class ListStack[@specialized(Int, Double) T] private(private var data: SinglyLin
 
 object ListStack extends TaggedCollectionFactory[ListStack] {
 
-  implicit def newBuilder[T: Tag]: CollectionBuilder[T, ListStack] = new CollectionBuilder[T, ListStack] {
+  implicit def newBuilder[T: ClassTag]: CollectionBuilder[T, ListStack] = new CollectionBuilder[T, ListStack] {
     var data: SinglyLinkedList[T] = null
     def sizeHint(n: Int) = {}
     def +=(x: T) = data.prepend(x)

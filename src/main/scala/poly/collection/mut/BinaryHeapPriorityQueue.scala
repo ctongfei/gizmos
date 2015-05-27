@@ -13,9 +13,9 @@ class BinaryHeapPriorityQueue[T] private(private val heap: BinaryHeap[T]) extend
 
   def order: WeakOrder[T] = heap.order
 
-  def enqueue(x: T): Unit = heap.enqueue(x)
+  def push(x: T): Unit = heap.enqueue(x)
 
-  def dequeue(): T = heap.dequeue()
+  def pop(): T = heap.dequeue()
 
   def front: T = heap.data(0)
 
@@ -25,7 +25,7 @@ class BinaryHeapPriorityQueue[T] private(private val heap: BinaryHeap[T]) extend
 
 object BinaryHeapPriorityQueue extends OrderedCollectionFactory[BinaryHeapPriorityQueue] {
 
-  implicit def newBuilder[T:Tag:WeakOrder]: CollectionBuilder[T, BinaryHeapPriorityQueue] =
+  implicit def newBuilder[T:ClassTag:WeakOrder]: CollectionBuilder[T, BinaryHeapPriorityQueue] =
     new CollectionBuilder[T, BinaryHeapPriorityQueue] {
       val data = new ResizableArray[T]()
       def sizeHint(n: Int): Unit = data.ensureCapacity(n)

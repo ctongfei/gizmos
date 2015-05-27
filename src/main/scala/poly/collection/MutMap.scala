@@ -7,7 +7,7 @@ trait MutMap[K, V] extends Map[K, V] {
 
   def update(x: K, y: V): Unit
 
-  def insert(x: K, y: V): Unit
+  def add(x: K, y: V): Unit
 
   def remove(x: K): Unit
 

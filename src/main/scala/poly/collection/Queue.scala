@@ -4,7 +4,7 @@ package poly.collection
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
 //TODO: conform to Enumerable
-trait Cue[T] {
+trait Queue[T] {
 
   /** Checks if this queue is empty. */
   def isEmpty: Boolean = size == 0
@@ -13,7 +13,7 @@ trait Cue[T] {
    * Pushes the specific element into this queue.
    * @param x The element to be pushed
    */
-  def enqueue(x: T): Unit
+  def push(x: T): Unit
 
   /**
    * Returns the top element of the queue.
@@ -25,7 +25,7 @@ trait Cue[T] {
    * Removes the top element from the queue and returns it.
    * @return The removed element
    */
-  def dequeue(): T
+  def pop(): T
 
   /**
    * Returns the number of elements in this queue.
@@ -33,17 +33,8 @@ trait Cue[T] {
    */
   def size: Int
 
-  def +=(x: T): Unit = enqueue(x)
+  def +=(x: T): Unit = push(x)
   def ++=(xs: Traversable[T]) = xs foreach +=
 
 }
 
-trait Stack[T] extends Cue[T] {
-  def push(x: T): Unit
-  def top: T
-  def pop(): T
-
-  def enqueue(x: T) = push(x)
-  def front = top
-  def dequeue() = pop()
-}

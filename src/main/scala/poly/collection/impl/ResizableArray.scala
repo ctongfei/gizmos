@@ -10,30 +10,32 @@ import poly.collection._
  *  - Appending: amortized O(1)
  *  - Prepending: O(''n'')
  *  - Insertion at any index: O(''n'')
- *  - Removing at any index: O(''n'')
+ *  - Deletion at any index: O(''n'')
  *
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class ResizableArray[T: Tag](var capacity: Int = Settings.ArrayInitialSize) extends MutIndexedSeq[T] {
+class ResizableArray[T: ClassTag](private[this] var cap: Int = Settings.ArrayInitialSize) extends MutIndexedSeq[T] {
 
-  private[this] var data: Array[T] = Array.ofDim[T](math.max(nextPowerOfTwo(capacity), Settings.ArrayInitialSize))
-  private var len: Int = 0
+  private[this] var data: Array[T] = Array.ofDim[T](math.max(nextPowerOfTwo(cap), Settings.ArrayInitialSize))
+  private[this] var len: Int = 0
 
   private[poly] def getData = data // exposed for math libraries
 
   def ensureCapacity(minCapacity: Int): Unit = {
-    if (capacity < minCapacity) {
+    if (cap < minCapacity) {
       val newCapacity = nextPowerOfTwo(minCapacity)
       val newData = Array.ofDim[T](newCapacity)
-      Array.copy(data, 0, newData, 0, capacity) // copy all for ArrayQueue
+      Array.copy(data, 0, newData, 0, cap) // copy all for ArrayQueue
       data = newData
-      capacity = newCapacity
+      cap = newCapacity
     }
   }
 
-  def grow() = ensureCapacity(capacity * 2)
+  def grow() = ensureCapacity(cap * 2)
 
   def apply(i: Int) = data(i)
+
+  def capacity = cap
 
   def length = len
 
@@ -49,7 +51,7 @@ class ResizableArray[T: Tag](var capacity: Int = Settings.ArrayInitialSize) exte
   }
 
   def deleteAt(i: Int): Unit = {
-    Array.copy(data, i + 1, data, i, len - i)
+    Array.copy(data, i + 1, data, i, len - i - 1)
     len -= 1
   }
 

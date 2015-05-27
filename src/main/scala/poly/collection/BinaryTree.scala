@@ -5,7 +5,7 @@ package poly.collection
  *
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-trait BinaryTree[+T] extends (Int =!> T) {
+trait BinaryTree[+T] extends (Int =?> T) {
 
   /** Returns the maximal depth of this tree. */
   def depth: Int

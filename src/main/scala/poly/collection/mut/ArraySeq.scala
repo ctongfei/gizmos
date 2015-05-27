@@ -30,9 +30,9 @@ class ArraySeq[@specialized(Int, Double) T] private(private[this] var data: Resi
 
 }
 
-object ArraySeq extends SeqFactory[ArraySeq] {
+object ArraySeq extends TaggedSeqFactory[ArraySeq] {
 
-  implicit def newBuilder[T: Tag]: CollectionBuilder[T, ArraySeq] = new CollectionBuilder[T, ArraySeq] {
+  implicit def newBuilder[T: ClassTag]: CollectionBuilder[T, ArraySeq] = new CollectionBuilder[T, ArraySeq] {
     val a = new ResizableArray[T]()
     def sizeHint(n: Int) = a.ensureCapacity(n)
     def +=(x: T) = a.append(x)

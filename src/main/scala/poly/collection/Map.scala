@@ -3,7 +3,7 @@ package poly.collection
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-trait Map[K, +V] extends Enumerable[(K, V)] with (K =!> V) { self =>
+trait Map[K, +V] extends Enumerable[(K, V)] with (K =?> V) { self =>
 
   def get(x: K): Option[V]
 
