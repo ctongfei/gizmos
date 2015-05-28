@@ -20,20 +20,14 @@ trait Enumerable[+T] extends Traversable[T] { self =>
 
   def foreach[V](f: T => V) = enumerator.foreach(f)
 
-  override def map[U](f: T => U) = new Enumerable[U] {
-    def enumerator = self.enumerator.map(f)
-  }
+  override def map[U](f: T => U) = Enumerable.ofEnumerator(self.enumerator.map(f))
 
-  def flatMap[U](f: T => Enumerable[U]) = new Enumerable[U] {
-    def enumerator = self.enumerator.flatMap(x => f(x).enumerator)
-  }
+  def flatMap[U](f: T => Enumerable[U]) = Enumerable.ofEnumerator(self.enumerator.flatMap(x => f(x).enumerator))
 
-  override def filter(f: T => Boolean) = new Enumerable[T] {
-    def enumerator = self.enumerator.filter(f)
-  }
+  override def filter(f: T => Boolean) = Enumerable.ofEnumerator(self.enumerator.filter(f))
 
-  def zip[U](that: Enumerable[U]): Enumerable[(T, U)] = new Enumerable[(T, U)] {
-    def enumerator: Enumerator[(T, U)] = new Enumerator[(T, U)] {
+  def zip[U](that: Enumerable[U]): Enumerable[(T, U)] = Enumerable.ofEnumerator {
+    new Enumerator[(T, U)] {
       val ti = self.enumerator
       val ui = that.enumerator
       def advance(): Boolean = ti.advance() && ui.advance()
@@ -41,9 +35,17 @@ trait Enumerable[+T] extends Traversable[T] { self =>
     }
   }
 
+  override def toString = this.take(Settings.MaxElemToString).mkString(", ")
+
 }
 
 object Enumerable {
+
+  /** Creates an Enumerable based on an existing enumerator. */
+  def ofEnumerator[T](e: Enumerator[T]): Enumerable[T] = new Enumerable[T] {
+    def enumerator = e
+  }
+
   /** Returns the natural monad on Enumerables. */
   implicit def monad[T]: Monad[Enumerable] = new Monad[Enumerable] {
     def flatMap[X, Y](mx: Enumerable[X])(f: (X) => Enumerable[Y]): Enumerable[Y] = mx.flatMap(f)

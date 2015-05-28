@@ -4,6 +4,7 @@ import poly.algebra._
 import poly.collection._
 import poly.collection.factory._
 import poly.collection.impl._
+import scala.reflect._
 
 /**
  * A binary heap backed priority queue.
@@ -17,13 +18,13 @@ class BinaryHeapPriorityQueue[T] private(private val heap: BinaryHeap[T]) extend
 
   def pop(): T = heap.dequeue()
 
-  def front: T = heap.data(0)
+  def top: T = heap.data(0)
 
   def size: Int = heap.size
 
 }
 
-object BinaryHeapPriorityQueue extends OrderedCollectionFactory[BinaryHeapPriorityQueue] {
+object BinaryHeapPriorityQueue extends SortedCollectionFactory[BinaryHeapPriorityQueue] {
 
   implicit def newBuilder[T:ClassTag:WeakOrder]: CollectionBuilder[T, BinaryHeapPriorityQueue] =
     new CollectionBuilder[T, BinaryHeapPriorityQueue] {

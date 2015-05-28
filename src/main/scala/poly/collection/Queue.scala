@@ -19,7 +19,7 @@ trait Queue[T] {
    * Returns the top element of the queue.
    * @return The top element
    */
-  def front: T
+  def top: T
 
   /**
    * Removes the top element from the queue and returns it.
@@ -35,6 +35,10 @@ trait Queue[T] {
 
   def +=(x: T): Unit = push(x)
   def ++=(xs: Traversable[T]) = xs foreach +=
+
+  def enqueue(x: T) = push(x)
+  def dequeue() = pop()
+  def front = top
 
 }
 

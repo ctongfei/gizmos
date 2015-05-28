@@ -4,6 +4,7 @@ import poly.collection._
 import poly.collection.exception._
 import poly.collection.factory._
 import poly.collection.impl._
+import scala.reflect._
 
 /**
  * An array-backed stack.
@@ -15,13 +16,13 @@ class ArrayStack[@specialized(Int, Double) T] private(private var data: Resizabl
 
   def push(x: T): Unit = data.append(x)
 
-  def front: T = {
+  def top: T = {
     if (isEmpty) throw new StackEmptyException
     data(data.length - 1)
   }
 
   def pop(): T = {
-    val x = front
+    val x = top
     data.deleteAt(data.length - 1)
     x
   }
@@ -31,7 +32,7 @@ class ArrayStack[@specialized(Int, Double) T] private(private var data: Resizabl
 object ArrayStack extends TaggedCollectionFactory[ArrayStack] {
 
   implicit def newBuilder[T: ClassTag]: CollectionBuilder[T, ArrayStack] = new CollectionBuilder[T, ArrayStack] {
-    var data: ResizableArray[T] = null
+    var data = new ResizableArray[T]()
     def sizeHint(n: Int) = data.ensureCapacity(n)
     def +=(x: T) = data.append(x)
     def result = new ArrayStack(data)

@@ -18,16 +18,18 @@ class ArrayBinaryTree[T] private(private[poly] val data: ResizableArray[Option[T
 
 }
 
-class ArrayBinaryTreeNode[T](val tree: ArrayBinaryTree[T], val i: Int) extends BidiNode[T] {
+object ArrayBinaryTree {
 
-  def data = tree.data(i).get
-  def data_=(x: T) = tree.data(i) = Some(x)
+  class Node[T](val tree: ArrayBinaryTree[T], val i: Int) extends BidiNode[T] {
+    def data = tree.data(i).get
+    def data_=(x: T) = tree.data(i) = Some(x)
 
-  def parent = new ArrayBinaryTreeNode[T](tree, (i - 1) / 2)
-  def left = new ArrayBinaryTreeNode[T](tree, 2 * i + 1)
-  def right = new ArrayBinaryTreeNode[T](tree, 2 * i + 1)
+    def parent = new Node[T](tree, (i - 1) / 2)
+    def left = new Node[T](tree, 2 * i + 1)
+    def right = new Node[T](tree, 2 * i + 1)
 
-  def ancestors = ListSeq(parent)
-  def descendants = ListSeq(left, right)
+    def ancestors = ListSeq(parent)
+    def descendants = ListSeq(left, right)
+  }
 
 }

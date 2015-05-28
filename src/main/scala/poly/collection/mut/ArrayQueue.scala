@@ -10,48 +10,20 @@ import scala.reflect._
  * An array-backed circular queue that supports amortized O(1) time for both insertion and deletion.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class ArrayQueue[@specialized(Int, Double) T] private(private val data: ResizableArray[T]) extends Queue[T] {
+class ArrayQueue[@specialized(Int, Double) T] private(private val data: CircularArray[T]) extends Queue[T] {
 
-  private var frontPtr = 0
-  private var backPtr = data.length
-
-  private[this] def isFull = {
-    val diff = backPtr - frontPtr
-    diff == -1 || diff == (data.capacity - 1)
+  def top = {
+    if (data.isEmpty) throw new QueueEmptyException
+    data(0)
   }
 
-  override def isEmpty = frontPtr == backPtr
+  def size = data.length
 
-  def front = {
-    if (isEmpty) throw new QueueEmptyException
-    data(frontPtr)
-  }
-
-  def size = {
-    if (backPtr > frontPtr)
-      backPtr - frontPtr
-    else backPtr - frontPtr + data.capacity
-  }
-
-  def push(x: T) = {
-    if (isFull) { // extend the buffer by 2
-      //       R F
-      // [ 6 7 - 1 2 3 4 5 ]
-      // becomes
-      //         F             R
-      // [ - - - 1 2 3 4 5 6 7 - - - - - - ]
-      val originalCapacity = data.capacity
-      data.ensureCapacity(originalCapacity * 2)
-      data.move(0, frontPtr, originalCapacity)
-      backPtr += originalCapacity
-    }
-    data(backPtr) = x
-    backPtr = (backPtr + 1) % data.capacity
-  }
+  def push(x: T) = data.append(x)
 
   def pop(): T = {
-    val x = front
-    frontPtr = (frontPtr + 1) % data.capacity
+    val x = top
+    data.frontPtr = (data.frontPtr + 1) % data.capacity
     x
   }
 
@@ -63,7 +35,7 @@ object ArrayQueue extends TaggedCollectionFactory[ArrayQueue] {
     var a: ResizableArray[T] = new ResizableArray[T]()
     def sizeHint(n: Int) = a.ensureCapacity(n)
     def +=(x: T) = a.append(x)
-    def result = new ArrayQueue[T](a)
+    def result = new ArrayQueue[T](new CircularArray[T](a))
   }
 
 }

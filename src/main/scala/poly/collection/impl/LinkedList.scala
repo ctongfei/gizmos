@@ -7,9 +7,9 @@ import poly.collection.mut._
  * A doubly linked list.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class DoublyLinkedList[T] {
+class LinkedList[T] {
 
-  type Node = DoublyLinkedList.Node[T]
+  type Node = LinkedList.Node[T]
 
   private[poly] val dummy = new Node(default[T])
   private[poly] var length: Int = 0
@@ -106,7 +106,7 @@ class DoublyLinkedList[T] {
 
 }
 
-object DoublyLinkedList {
+object LinkedList {
   class Node[T] (
     var data: T,
     private[poly] var prev: Node[T] = null,

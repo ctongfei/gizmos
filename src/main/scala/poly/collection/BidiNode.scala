@@ -13,6 +13,8 @@ trait BidiNode[+T] extends ForwardNode[T] with BackwardNode[T] {
   def descendants: Enumerable[BidiNode[T]]
   def ancestors: Enumerable[BidiNode[T]]
 
+  override def toString = s"Node($data)"
+
 }
 
 

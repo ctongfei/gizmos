@@ -12,7 +12,7 @@ import poly.collection.impl._
  */
 class ListSeq[T] private() extends MutSeq[T] {
 
-  private var data: DoublyLinkedList[T] = null
+  private var data: LinkedList[T] = null
 
   def length = data.length
 
@@ -60,7 +60,7 @@ class ListSeq[T] private() extends MutSeq[T] {
 object ListSeq extends SeqFactory[ListSeq] {
 
   implicit def newBuilder[T]: CollectionBuilder[T, ListSeq] = new CollectionBuilder[T, ListSeq] {
-    val a = new DoublyLinkedList[T]()
+    val a = new LinkedList[T]()
     def sizeHint(n: Int) = {}
     def +=(x: T) = a.append(x)
     def result = {

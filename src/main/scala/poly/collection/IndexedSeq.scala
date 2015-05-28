@@ -1,6 +1,7 @@
 package poly.collection
 
 import poly.algebra._
+import poly.collection.mut._
 import scala.annotation.unchecked.{uncheckedVariance => uV}
 
 /**
@@ -43,6 +44,24 @@ trait IndexedSeq[+T] extends Seq[T] { self =>
     val order: WeakOrder[T] = O
     def length: Int = self.length
     def apply(i: Int): T = self.apply(i)
+  }
+
+}
+
+object IndexedSeq {
+
+  class Node[T](seq: IndexedSeq[T], i: Int) extends BidiNode[T] {
+    def data = seq(i)
+    def ancestors = {
+      if (i < 0) throw new IllegalArgumentException
+      else if (i == 0) ListSeq()
+      else ListSeq(new Node(seq, i - 1))
+    }
+    def descendants = {
+      if (i >= seq.length) throw new IllegalArgumentException
+      else if (i == seq.length - 1) ListSeq()
+      else ListSeq(new Node(seq, i + 1))
+    }
   }
 
 }

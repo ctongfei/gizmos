@@ -11,8 +11,6 @@ trait Map[K, +V] extends Enumerable[(K, V)] with (K =?> V) { self =>
 
   def contains(x: K): Boolean
 
-  def default = throw new NoSuchElementException
-
   def getOrElse[W >: V](x: K, default: => W) = get(x) match {
     case Some(y) => y
     case None => default

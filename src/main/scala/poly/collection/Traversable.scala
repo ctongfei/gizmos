@@ -252,3 +252,7 @@ trait Traversable[+T] { self =>
   }
 
 }
+
+object Traversable {
+  
+}

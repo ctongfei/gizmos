@@ -6,8 +6,10 @@ isSnapshot := true
 
 organization := "me.tongfei"
 
-scalaVersion := "2.11.4"
+scalaVersion := "2.11.6"
 
 resolvers += Resolver.sonatypeRepo("snapshots")
 
 libraryDependencies += "me.tongfei" %% "poly-algebra" % "0.2.0-SNAPSHOT"
+
+libraryDependencies += "org.scalatest" %% "scalatest" % "2.2.2"

@@ -1,6 +1,7 @@
 package poly.collection.impl
 
 import poly.collection._
+import scala.reflect._
 
 /**
  * A resizable array. This serves as the implementation container of `ArrayX` classes.
@@ -14,7 +15,9 @@ import poly.collection._
  *
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class ResizableArray[T: ClassTag](private[this] var cap: Int = Settings.ArrayInitialSize) extends MutIndexedSeq[T] {
+class ResizableArray[@specialized(Int, Double) T: ClassTag]
+  (private[this] var cap: Int = Settings.ArrayInitialSize) extends MutIndexedSeq[T]
+{
 
   private[this] var data: Array[T] = Array.ofDim[T](math.max(nextPowerOfTwo(cap), Settings.ArrayInitialSize))
   private[this] var len: Int = 0
@@ -71,8 +74,6 @@ class ResizableArray[T: ClassTag](private[this] var cap: Int = Settings.ArrayIni
     data(len) = x
     len += 1
   }
-
-
 
 
 

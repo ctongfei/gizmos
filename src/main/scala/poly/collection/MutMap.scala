@@ -9,6 +9,8 @@ trait MutMap[K, V] extends Map[K, V] {
 
   def add(x: K, y: V): Unit
 
+  def add(xy: (K, V)): Unit = add(xy._1, xy._2)
+
   def remove(x: K): Unit
 
   def clear(): Unit

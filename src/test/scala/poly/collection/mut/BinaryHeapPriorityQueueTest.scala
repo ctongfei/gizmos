@@ -1,9 +1,11 @@
 package poly.collection.mut
 
+import org.scalatest._
+
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-object BinaryHeapPriorityQueueTest extends App {
+class BinaryHeapPriorityQueueTest extends FunSuite {
 
   val h = BinaryHeapPriorityQueue(5, 3, 1, 3, 5, 5, 8, 1, 10)
 
@@ -14,7 +16,7 @@ object BinaryHeapPriorityQueueTest extends App {
   assert(h.size == 7)
 
   h.push(0)
-  assert(h.front == 0)
+  assert(h.top == 0)
 
   print("x")
 

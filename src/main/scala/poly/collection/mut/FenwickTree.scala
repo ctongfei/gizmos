@@ -5,6 +5,7 @@ import poly.algebra.ops._
 import poly.collection._
 import poly.collection.factory._
 import poly.collection.impl._
+import scala.reflect._
 
 /**
  * A Fenwick tree.

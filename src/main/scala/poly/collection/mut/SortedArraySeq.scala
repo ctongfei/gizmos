@@ -4,6 +4,7 @@ import poly.algebra._
 import poly.collection._
 import poly.collection.factory._
 import poly.collection.impl._
+import scala.reflect._
 
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
@@ -24,7 +25,7 @@ class SortedArraySeq[T] private(private val data: SortedArray[T]) extends MutSor
 
 }
 
-object SortedArraySeq extends OrderedCollectionFactory[SortedArraySeq] {
+object SortedArraySeq extends SortedCollectionFactory[SortedArraySeq] {
 
   def newBuilder[T:ClassTag:WeakOrder]: CollectionBuilder[T, SortedArraySeq] = new CollectionBuilder[T, SortedArraySeq] {
     val ra = new ResizableArray[T]()

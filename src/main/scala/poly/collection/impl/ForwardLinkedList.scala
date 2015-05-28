@@ -15,9 +15,9 @@ import poly.collection.mut._
  *
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class SinglyLinkedList[T] {
+class ForwardLinkedList[T] {
 
-  type Node = SinglyLinkedList.Node[T]
+  type Node = ForwardLinkedList.Node[T]
 
   private[poly] val dummy = new Node(default[T])
   private[poly] var len: Int = 0
@@ -112,7 +112,7 @@ class SinglyLinkedList[T] {
 
 }
 
-object SinglyLinkedList {
+object ForwardLinkedList {
   class Node[T] (
     var data: T,
     private[poly] var next: Node[T] = null
