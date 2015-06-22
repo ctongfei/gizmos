@@ -12,7 +12,7 @@ import scala.annotation.unchecked.{uncheckedVariance => uv}
  * Basic trait for Poly-collection traversable collections.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-trait Traversable[@sp(fdi) +T] { self =>
+trait Traversable[+T] { self =>
 
   /**
    * Applies a function ''f'' to each element of this collection.

@@ -7,7 +7,7 @@ import poly.collection.tree._
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class LinkedBinaryTree[@specialized(Int, Double) T] extends BinaryTree[T]
+class LinkedBinaryTree[T] extends BinaryTree[T]
 {
 
   class Node (

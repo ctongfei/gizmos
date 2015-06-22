@@ -12,7 +12,7 @@ import scala.language.higherKinds
 trait CollectionFactory[+C[_]] {
 
   /** Returns a new builder of this collection type. */
-  implicit def newBuilder[@sp(fdi) T]: Builder[T, C[T]]
+  implicit def newBuilder[T]: Builder[T, C[T]]
 
   /** Creates an empty collection. */
   def empty[T]: C[T] = newBuilder[T].result
@@ -25,7 +25,7 @@ trait CollectionFactory[+C[_]] {
   }
 
   /** Creates a collection by adding all the elements in the specific traversable sequence. */
-  def from[@sp(fdi) T](xs: Traversable[T]): C[T] = {
+  def from[T](xs: Traversable[T]): C[T] = {
     val b = newBuilder[T]
     b ++= xs
     b.result

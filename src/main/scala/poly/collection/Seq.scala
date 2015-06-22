@@ -11,7 +11,7 @@ import scala.annotation.unchecked.{uncheckedVariance => uV}
  * Trait for sequences.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-trait Seq[@sp(fdi) +T] extends (Int =?> T) with Enumerable[T] { self =>
+trait Seq[+T] extends (Int =?> T) with Enumerable[T] { self =>
 
   /**
    * Returns the length of this sequence.
@@ -78,5 +78,5 @@ trait Seq[@sp(fdi) +T] extends (Int =?> T) with Enumerable[T] { self =>
 }
 
 object Seq extends SeqFactory[Seq] {
-  def newBuilder[@sp(fdi) T] = ListSeq.newBuilder[T]
+  def newBuilder[T] = ListSeq.newBuilder[T]
 }

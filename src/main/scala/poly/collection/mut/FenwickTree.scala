@@ -13,7 +13,7 @@ import scala.reflect._
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
 class FenwickTree[T] private(private val data: ResizableArray[T])(implicit G: AdditiveGroup[T]) extends IndexedSeq[T] {
-//TODO: specialize!
+
   val additiveGroup = G
 
   def length = data.length
@@ -70,7 +70,7 @@ object FenwickTree extends CollectionFactoryWithAdditiveGroup[FenwickTree] {
 
   @inline private def lowBit(x: Int) = x & -x
 
-  implicit def newBuilder[@sp(fdi) T:ClassTag:AdditiveGroup]: Builder[T, FenwickTree[T]] = new Builder[T, FenwickTree[T]] {
+  implicit def newBuilder[T:ClassTag:AdditiveGroup]: Builder[T, FenwickTree[T]] = new Builder[T, FenwickTree[T]] {
     val coll = new ResizableArray[T]()
     val G = implicitly[AdditiveGroup[T]]
     def sizeHint(n: Int): Unit = coll.ensureCapacity(n)

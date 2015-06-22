@@ -12,7 +12,7 @@ import scala.reflect._
  * Basic trait for indexed sequences. Indexed sequences should support O(1) random access.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-trait IndexedSeq[@sp(fdi) +T] extends Seq[T] { self =>
+trait IndexedSeq[+T] extends Seq[T] { self =>
 
   def apply(i: Int): T
 
@@ -63,6 +63,6 @@ trait IndexedSeq[@sp(fdi) +T] extends Seq[T] { self =>
 
 object IndexedSeq extends SeqFactoryWithTag[IndexedSeq] {
 
-  def newBuilder[@sp(fdi) T: ClassTag] = ArraySeq.newBuilder[T]
+  def newBuilder[T: ClassTag] = ArraySeq.newBuilder[T]
 
 }

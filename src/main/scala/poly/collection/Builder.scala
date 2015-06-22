@@ -6,7 +6,7 @@ import scala.language.higherKinds
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-trait Builder[@sp(fdi) -T, +C] {
+trait Builder[-T, +C] {
   def sizeHint(n: Int)
   def +=(x: T)
   def ++=(xs: Traversable[T]) = xs foreach +=

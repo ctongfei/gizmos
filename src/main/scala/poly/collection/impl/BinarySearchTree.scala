@@ -7,7 +7,7 @@ import poly.algebra.ops._
  * Serves as a basis for self-balancing binary search trees.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-abstract class BinarySearchTree[@specialized(Int, Double) T](implicit O: WeakOrder[T]) extends LinkedBinaryTree[T] {
+abstract class BinarySearchTree[T](implicit O: WeakOrder[T]) extends LinkedBinaryTree[T] {
   
   val order = O
 

@@ -11,7 +11,7 @@ import scala.reflect._
  * An array-backed stack.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class ArrayStack[@specialized(Int, Double) T] (private var data: ResizableArray[T] = null) extends Queue[T] {
+class ArrayStack[T] (private var data: ResizableArray[T] = null) extends Queue[T] {
 
   override def size = data.length
 
@@ -32,7 +32,7 @@ class ArrayStack[@specialized(Int, Double) T] (private var data: ResizableArray[
 
 object ArrayStack extends CollectionFactoryWithTag[ArrayStack] {
 
-  implicit def newBuilder[@sp(fdi) T: ClassTag]: Builder[T, ArrayStack[T]] = new Builder[T, ArrayStack[T]] {
+  implicit def newBuilder[T: ClassTag]: Builder[T, ArrayStack[T]] = new Builder[T, ArrayStack[T]] {
     var data = new ResizableArray[T]()
     def sizeHint(n: Int) = data.ensureCapacity(n)
     def +=(x: T) = data.append(x)

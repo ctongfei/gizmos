@@ -11,7 +11,7 @@ import scala.reflect._
  * An array-backed circular queue that supports amortized O(1) time for both insertion and deletion.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class ArrayQueue[@sp(fdi) T] (private val data: CircularArray[T]) extends Queue[T] {
+class ArrayQueue[T] (private val data: CircularArray[T]) extends Queue[T] {
 
   def top = {
     if (data.isEmpty) throw new QueueEmptyException
@@ -32,7 +32,7 @@ class ArrayQueue[@sp(fdi) T] (private val data: CircularArray[T]) extends Queue[
 
 object ArrayQueue extends CollectionFactoryWithTag[ArrayQueue] {
 
-  implicit def newBuilder[@sp(fdi) T: ClassTag]: Builder[T, ArrayQueue[T]] = new Builder[T, ArrayQueue[T]] {
+  implicit def newBuilder[T: ClassTag]: Builder[T, ArrayQueue[T]] = new Builder[T, ArrayQueue[T]] {
     var a: ResizableArray[T] = new ResizableArray[T]()
     def sizeHint(n: Int) = a.ensureCapacity(n)
     def +=(x: T) = a.append(x)

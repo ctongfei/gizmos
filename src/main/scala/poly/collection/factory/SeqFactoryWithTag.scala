@@ -15,7 +15,7 @@ trait SeqFactoryWithTag[C[_]] extends CollectionFactoryWithTag[C] {
     b.result
   }
 
-  def fill[@sp(fdi) T: ClassTag](n: Int)(x: => T): C[T] = {
+  def fill[T: ClassTag](n: Int)(x: => T): C[T] = {
     var i = n
     val b = newBuilder[T]
     b.sizeHint(n)
@@ -26,7 +26,7 @@ trait SeqFactoryWithTag[C[_]] extends CollectionFactoryWithTag[C] {
     b.result
   }
 
-  def tabulate[@sp(fdi) T: ClassTag](n: Int)(f: Int => T): C[T] = {
+  def tabulate[T: ClassTag](n: Int)(f: Int => T): C[T] = {
     var i = 0
     val b = newBuilder[T]
     b.sizeHint(n)
@@ -37,7 +37,7 @@ trait SeqFactoryWithTag[C[_]] extends CollectionFactoryWithTag[C] {
     b.result
   }
 
-  def iterate[@sp(fdi) T: ClassTag](start: T, n: Int)(f: T => T): C[T] = {
+  def iterate[T: ClassTag](start: T, n: Int)(f: T => T): C[T] = {
     var i = n
     val b = newBuilder[T]
     b.sizeHint(n)
@@ -54,7 +54,7 @@ trait SeqFactoryWithTag[C[_]] extends CollectionFactoryWithTag[C] {
     b.result
   }
 
-  def iterateUntil[@sp(fdi) T: ClassTag](start: T, goal: T => Boolean)(f: T => T): C[T] = {
+  def iterateUntil[T: ClassTag](start: T, goal: T => Boolean)(f: T => T): C[T] = {
     val b = newBuilder[T]
     var x = start
     while (!goal(x)) {

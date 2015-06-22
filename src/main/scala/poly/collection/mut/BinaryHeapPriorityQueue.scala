@@ -27,7 +27,7 @@ class BinaryHeapPriorityQueue[T] private(private val heap: BinaryHeap[T]) extend
 
 object BinaryHeapPriorityQueue extends CollectionFactoryWithOrder[BinaryHeapPriorityQueue] {
 
-  implicit def newBuilder[@sp(fdi) T:ClassTag:WeakOrder]: Builder[T, BinaryHeapPriorityQueue[T]] =
+  implicit def newBuilder[T:ClassTag:WeakOrder]: Builder[T, BinaryHeapPriorityQueue[T]] =
     new Builder[T, BinaryHeapPriorityQueue[T]] {
       val data = new ResizableArray[T]()
       def sizeHint(n: Int): Unit = data.ensureCapacity(n)

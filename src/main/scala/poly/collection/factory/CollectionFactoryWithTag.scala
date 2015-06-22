@@ -10,7 +10,7 @@ import scala.reflect._
 trait CollectionFactoryWithTag[C[_]] {
 
   /** Returns a new builder of this collection type. */
-  implicit def newBuilder[@sp(fdi) T: ClassTag]: Builder[T, C[T]]
+  implicit def newBuilder[T: ClassTag]: Builder[T, C[T]]
 
   /** Creates an empty collection. */
   def empty[T: ClassTag]: C[T] = newBuilder[T].result
@@ -23,7 +23,7 @@ trait CollectionFactoryWithTag[C[_]] {
   }
 
   /** Creates a collection by adding all the elements in the specific traversable sequence. */
-  def from[@sp(fdi) T: ClassTag](xs: Traversable[T]): C[T] = {
+  def from[T: ClassTag](xs: Traversable[T]): C[T] = {
     val b = newBuilder[T]
     b ++= xs
     b.result

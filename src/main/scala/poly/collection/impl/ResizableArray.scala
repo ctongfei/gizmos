@@ -96,7 +96,7 @@ final class ResizableArray[T: ClassTag]
 }
 
 object ResizableArray extends SeqFactoryWithTag[ResizableArray] {
-  def newBuilder[@sp(fdi) T:ClassTag]: Builder[T, ResizableArray[T]] = new Builder[T, ResizableArray[T]] {
+  def newBuilder[T:ClassTag]: Builder[T, ResizableArray[T]] = new Builder[T, ResizableArray[T]] {
     val a = new ResizableArray[T]()
     def sizeHint(n: Int) = a.ensureCapacity(n)
     def +=(x: T) = a.append(x)

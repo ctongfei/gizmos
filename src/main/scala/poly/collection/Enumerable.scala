@@ -15,7 +15,7 @@ import poly.util.specgroup._
  *
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-trait Enumerable[@sp(fdi) +T] extends Traversable[T] { self =>
+trait Enumerable[+T] extends Traversable[T] { self =>
 
   /** Returns a new enumerator that can be used to iterate through this collection. */
   def newEnumerator: Enumerator[T]

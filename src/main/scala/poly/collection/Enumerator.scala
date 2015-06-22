@@ -19,7 +19,7 @@ import poly.util.specgroup._
  *
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-trait Enumerator[@sp(fdi) +T] { self =>
+trait Enumerator[+T] { self =>
 
   /** Returns the current element of this enumeration. */
   def current: T

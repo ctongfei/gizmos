@@ -13,20 +13,20 @@ import scala.language.higherKinds
 trait CollectionFactoryWithAdditiveGroup[C[_]] {
 
   /** Returns a new builder of this collection type. */
-  implicit def newBuilder[@sp(fdi) T: ClassTag: AdditiveGroup]: Builder[T, C[T]]
+  implicit def newBuilder[T: ClassTag: AdditiveGroup]: Builder[T, C[T]]
 
   /** Creates an empty collection. */
-  def empty[@sp(fdi) T: ClassTag: AdditiveGroup]: C[T] = newBuilder[T].result
+  def empty[T: ClassTag: AdditiveGroup]: C[T] = newBuilder[T].result
 
   /** Creates a collection by adding the arguments into it. */
-  def apply[@sp(fdi) T: ClassTag: AdditiveGroup](xs: T*): C[T] = {
+  def apply[T: ClassTag: AdditiveGroup](xs: T*): C[T] = {
     val b = newBuilder[T]
     b ++= xs
     b.result
   }
 
   /** Creates a collection by adding all the elements in the specific traversable sequence. */
-  def from[@sp(fdi) T: ClassTag: AdditiveGroup](xs: Traversable[T]): C[T] = {
+  def from[T: ClassTag: AdditiveGroup](xs: Traversable[T]): C[T] = {
     val b = newBuilder[T]
     b ++= xs
     b.result
