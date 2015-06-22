@@ -5,15 +5,18 @@ import poly.algebra.ops._
 import poly.collection._
 import poly.collection.factory._
 import poly.collection.impl._
+import poly.util.specgroup._
 import scala.reflect._
 
 /**
  * A Fenwick tree.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class FenwickTree[T] private(private val data: ResizableArray[T])(implicit G: AdditiveGroup[T]) {
-
+class FenwickTree[T] private(private val data: ResizableArray[T])(implicit G: AdditiveGroup[T]) extends IndexedSeq[T] {
+//TODO: specialize!
   val additiveGroup = G
+
+  def length = data.length
 
   /**
    * Returns an element from this Fenwick tree. This operation has O(log n) complexity.
@@ -34,9 +37,10 @@ class FenwickTree[T] private(private val data: ResizableArray[T])(implicit G: Ad
     sum
   }
 
+  /** Returns the sum of the elements in the range [0, i). */
   def cumulativeSum(i: Int) = {
     var sum = additiveGroup.zero
-    var idx = i
+    var idx = i - 1
     while (idx > 0) {
       sum += data(idx)
       idx -= FenwickTree.lowBit(idx)
@@ -44,9 +48,10 @@ class FenwickTree[T] private(private val data: ResizableArray[T])(implicit G: Ad
     sum
   }
 
-  def rangeSum(i: Int, j: Int) = cumulativeSum(j) - cumulativeSum(i - 1) //TODO: index! (inclusive or exclusive?)
+  /** Returns the sum of the elements in the range [i, j). */
+  def rangeSum(i: Int, j: Int) = cumulativeSum(j) - cumulativeSum(i) //TODO: index! (inclusive or exclusive?)
 
-  def increase(i: Int, delta: T) = {
+  def increment(i: Int, delta: T) = {
     var idx = i
     while (idx < data.length) {
       data(idx) += delta
@@ -56,16 +61,16 @@ class FenwickTree[T] private(private val data: ResizableArray[T])(implicit G: Ad
   
   def update(i: Int, x: T) = {
     val delta = x - apply(i)
-    increase(i, delta)
+    increment(i, delta)
   }
 
 }
 
-object FenwickTree extends AdditiveGroupCollectionFactory[FenwickTree] {
+object FenwickTree extends CollectionFactoryWithAdditiveGroup[FenwickTree] {
 
   @inline private def lowBit(x: Int) = x & -x
 
-  implicit def newBuilder[T:ClassTag:AdditiveGroup]: CollectionBuilder[T, FenwickTree] = new CollectionBuilder[T, FenwickTree] {
+  implicit def newBuilder[@sp(fdi) T:ClassTag:AdditiveGroup]: Builder[T, FenwickTree[T]] = new Builder[T, FenwickTree[T]] {
     val coll = new ResizableArray[T]()
     val G = implicitly[AdditiveGroup[T]]
     def sizeHint(n: Int): Unit = coll.ensureCapacity(n)

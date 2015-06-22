@@ -1,5 +1,8 @@
 package poly.collection
 
+import poly.collection.exception._
+import poly.util.specgroup._
+
 /**
  * Basic trait for enumerators that supports an iteration over a collection that can be
  * paused and resumed.
@@ -16,7 +19,7 @@ package poly.collection
  *
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-trait Enumerator[+T] { self =>
+trait Enumerator[@sp(fdi) +T] { self =>
 
   /** Returns the current element of this enumeration. */
   def current: T
@@ -37,14 +40,14 @@ trait Enumerator[+T] { self =>
     def advance() = self.advance()
   }
 
-  def flatMap[U](f: T => Enumerator[U]) = new Enumerator[U] {
-    private var it: Enumerator[U] = Enumerator.empty[U]
-    def current = it.current
+  def flatMap[U](f: T => Enumerator[U]): Enumerator[U] = new Enumerator[U] {
+    private var e: Enumerator[U] = Enumerator.empty[U]
+    def current = e.current
     def advance() = {
-      if (it.advance()) true
+      if (e.advance()) true
       else {
         if (self.advance()) {
-          it = f(self.current)
+          e = f(self.current)
           true
         }
         else false
@@ -63,10 +66,16 @@ trait Enumerator[+T] { self =>
     }
   }
 
+  def zip[U](that: Enumerator[U]): Enumerator[(T, U)] = new Enumerator[(T, U)] {
+    def advance(): Boolean = self.advance() && that.advance()
+    def current: (T, U) = (self.current, that.current)
+  }
+
+
 }
 
 object Enumerator {
-  def empty[T] = new Enumerator[T] {
+  def empty[T]: Enumerator[T] = new Enumerator[T] {
     def advance() = false
     def current = throw new NoSuchElementException
   }

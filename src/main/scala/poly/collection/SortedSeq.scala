@@ -23,8 +23,8 @@ trait SortedSeq[T] extends Seq[T] {
    */
   def merge(that: SortedSeq[T])(implicit tag: ClassTag[T]): SortedSeq[T] = {
     if (this.order ne that.order) throw new IncompatibleOrderException
-    val ai = this.enumerator
-    val bi = that.enumerator
+    val ai = this.newEnumerator
+    val bi = that.newEnumerator
     val c = ArraySeq[T]()
     var aNotComplete = ai.advance()
     var bNotComplete = bi.advance()

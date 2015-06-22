@@ -11,12 +11,3 @@ trait PriorityQueue[T] extends Queue[T] {
   def order: WeakOrder[T]
 
 }
-
-trait PriorityDeque[T] extends Deque[T] with PriorityQueue[T]
-
-trait MergeablePriorityQueue[T] extends PriorityQueue[T] {
-
-  /** Merges two priority queues into one. */
-  def merge(that: MergeablePriorityQueue[T]): MergeablePriorityQueue[T]
-
-}

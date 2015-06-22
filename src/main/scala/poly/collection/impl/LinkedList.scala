@@ -2,6 +2,7 @@ package poly.collection.impl
 
 import poly.collection._
 import poly.collection.mut._
+import poly.collection.node._
 
 /**
  * A doubly linked list.
@@ -9,7 +10,13 @@ import poly.collection.mut._
  */
 class LinkedList[T] {
 
-  type Node = LinkedList.Node[T]
+  /**
+   * Type of the internal node of a linked list.
+   * @param data Data held in this node
+   * @param prev The previous node
+   * @param next The next node
+   */
+  class Node (var data: T, var prev: Node = null, var next: Node = null) extends BidiSeqNode[T]
 
   private[poly] val dummy = new Node(default[T])
   private[poly] var length: Int = 0
@@ -107,15 +114,6 @@ class LinkedList[T] {
 }
 
 object LinkedList {
-  class Node[T] (
-    var data: T,
-    private[poly] var prev: Node[T] = null,
-    private[poly] var next: Node[T] = null
-  ) extends BidiNode[T] {
 
-    def descendants = ListSeq(next)
-    def ancestors = ListSeq(prev)
-
-  }
 
 }

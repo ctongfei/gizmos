@@ -19,11 +19,11 @@ trait Map[K, +V] extends Enumerable[(K, V)] with (K =?> V) { self =>
   def isDefinedAt(x: K) = contains(x)
 
   def keys = new Enumerable[K] {
-    def enumerator = self.enumerator.map(_._1)
+    def newEnumerator = self.newEnumerator.map(_._1)
   }
 
   def values = new Enumerable[V] {
-    def enumerator = self.enumerator.map(_._2)
+    def newEnumerator = self.newEnumerator.map(_._2)
   }
 
 }

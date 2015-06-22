@@ -2,13 +2,14 @@ package poly.collection
 
 import poly.algebra._
 import poly.algebra.ops._
+import poly.util.specgroup._
 
 /**
  * Basic trait for mutable indexed sequences.
  * O(1) random access and update should be guaranteed.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-trait MutIndexedSeq[T] extends MutSeq[T] with IndexedSeq[T] {
+trait MutIndexedSeq[@sp(fdi) T] extends SMutSeq[T] with IndexedSeq[T] {
 
   /**
    * Swaps two elements in this sequence in-place.

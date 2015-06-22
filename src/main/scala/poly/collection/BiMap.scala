@@ -11,3 +11,4 @@ trait BiMap[K, V] extends Map[K, V] {
   def inverse: Map[V, K]
 
 }
+

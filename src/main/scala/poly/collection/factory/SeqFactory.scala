@@ -1,9 +1,12 @@
 package poly.collection.factory
 
+import poly.util.specgroup._
+import scala.language.higherKinds
+
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-trait SeqFactory[C[_]] extends CollectionFactory[C] {
+trait SeqFactory[+C[_]] extends CollectionFactory[C] {
 
   def withSizeHint[T](n: Int): C[T] = {
     val b = newBuilder[T]
@@ -11,7 +14,7 @@ trait SeqFactory[C[_]] extends CollectionFactory[C] {
     b.result
   }
 
-  def fill[T](n: Int)(x: => T): C[T] = {
+  def fill[@sp(fdi) T](n: Int)(x: => T): C[T] = {
     var i = n
     val b = newBuilder[T]
     b.sizeHint(n)
@@ -22,7 +25,7 @@ trait SeqFactory[C[_]] extends CollectionFactory[C] {
     b.result
   }
 
-  def tabulate[T](n: Int)(f: Int => T): C[T] = {
+  def tabulate[@sp(fdi) T](n: Int)(f: Int => T): C[T] = {
     var i = 0
     val b = newBuilder[T]
     b.sizeHint(n)
@@ -33,7 +36,7 @@ trait SeqFactory[C[_]] extends CollectionFactory[C] {
     b.result
   }
 
-  def iterate[T](start: T, n: Int)(f: T => T): C[T] = {
+  def iterate[@sp(fdi) T](start: T, n: Int)(f: T => T): C[T] = {
     var i = n
     val b = newBuilder[T]
     b.sizeHint(n)
@@ -50,7 +53,7 @@ trait SeqFactory[C[_]] extends CollectionFactory[C] {
     b.result
   }
 
-  def iterateUntil[T](start: T, goal: T => Boolean)(f: T => T): C[T] = {
+  def iterateUntil[@sp(fdi) T](start: T, goal: T => Boolean)(f: T => T): C[T] = {
     val b = newBuilder[T]
     var x = start
     while (!goal(x)) {

@@ -12,8 +12,6 @@ Poly-collection is a Scala collection framework that aims to provide an alternat
 
   - Full support for algebraic structures through [poly-algebra](https://github.com/ctongfei/poly-algebra).
 
-  - Sets are implemented as full Boolean algebras (contains support for infinite complement sets).
-
 Implicit conversions from Scala & Java collections to Poly collections are provided by importing the
 package `poly.collection.conversion._`.
 
@@ -21,7 +19,7 @@ Package `poly.collection.mutable` is what you would like to import. It contains 
 collection classes:
 
  - `ArraySeq`, `ListSeq`, `SortedArraySeq`
- - `ArrayStack`, `ArrayQueue`, `ArrayPriorityQueue`
+ - `ArrayStack`, `ArrayQueue`, `BinaryHeapPriorityQueue`
  - `HashSet`, `RbTreeSet`, `ListSet`, `SortedArraySet`, `BitSet`
  - `HashMap`, `RbTreeMap`, `ListMap`, `SortedArrayMap`
  - `HashBiMap`

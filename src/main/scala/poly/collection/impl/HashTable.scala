@@ -7,14 +7,14 @@ import poly.collection._
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class HashTable[T: Hash] {
+class HashTable[T](implicit h: Hashing[T, Int]) {
 
   final val HASH_VACANT = 0.toByte
   final val HASH_REMOVED = 1.toByte
   final val HASH_USED = 2.toByte
 
   var items: ResizableArray[T] = null
-  var buckets: Array[Byte] = null
+  var buckets: ResizableArray[Byte] = null
   var length: Int = 0
   var used: Int = 0
 

@@ -12,7 +12,7 @@ abstract class BinarySearchTree[@specialized(Int, Double) T](implicit O: WeakOrd
   val order = O
 
   protected def locate(x: T): Node = {
-    var c = root
+    var c = rootNode
     while (c ne dummy) {
       if (x < c.data)
         c = c.left
@@ -20,11 +20,11 @@ abstract class BinarySearchTree[@specialized(Int, Double) T](implicit O: WeakOrd
         c = c.right
       else return c
     }
-    null
+    dummy
   }
 
   protected def insert(x: T) = {
-    var c = root // current
+    var c = rootNode // current
     var p: Node = dummy // keeps track of the parent of c
     while (c ne dummy) {
       p = c
@@ -34,7 +34,7 @@ abstract class BinarySearchTree[@specialized(Int, Double) T](implicit O: WeakOrd
     }
     c = new Node(x, p, dummy, dummy)
     if (p eq dummy)
-      root = c
+      rootNode = c
     else if (x < p.data)
       p.left = c
     else p.right = c
@@ -88,5 +88,7 @@ abstract class BinarySearchTree[@specialized(Int, Double) T](implicit O: WeakOrd
     p.right = c.left
     c.left = p
   }
+
+
 
 }

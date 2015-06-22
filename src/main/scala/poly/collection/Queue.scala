@@ -9,6 +9,8 @@ trait Queue[T] {
   /** Checks if this queue is empty. */
   def isEmpty: Boolean = size == 0
 
+  def notEmpty: Boolean = size != 0
+
   /**
    * Pushes the specific element into this queue.
    * @param x The element to be pushed
@@ -41,4 +43,3 @@ trait Queue[T] {
   def front = top
 
 }
-

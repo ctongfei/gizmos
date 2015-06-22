@@ -3,11 +3,12 @@ package poly.collection.mut
 import poly.collection._
 import poly.collection.factory._
 import poly.collection.impl._
+import poly.util.specgroup._
 
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class ListStack[@specialized(Int, Double) T] private(private var data: ForwardLinkedList[T]) extends Queue[T] {
+class ListStack[@specialized(Int, Double) T] (private var data: ForwardLinkedList[T]) extends Queue[T] {
 
   def size = data.len
 
@@ -25,7 +26,7 @@ class ListStack[@specialized(Int, Double) T] private(private var data: ForwardLi
 
 object ListStack extends CollectionFactory[ListStack] {
 
-  implicit def newBuilder[T]: CollectionBuilder[T, ListStack] = new CollectionBuilder[T, ListStack] {
+  implicit def newBuilder[@sp(fdi) T]: Builder[T, ListStack[T]] = new Builder[T, ListStack[T]] {
     var data: ForwardLinkedList[T] = null
     def sizeHint(n: Int) = {}
     def +=(x: T) = data.prepend(x)

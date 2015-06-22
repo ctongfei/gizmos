@@ -3,6 +3,4 @@ package poly.collection
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-trait Tree {
-
-}
+trait PriorityDeque[T] extends Deque[T] with PriorityQueue[T]

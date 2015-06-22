@@ -4,13 +4,14 @@ import poly.collection._
 import poly.collection.exception._
 import poly.collection.factory._
 import poly.collection.impl._
+import poly.util.specgroup._
 import scala.reflect._
 
 /**
  * An array-backed stack.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class ArrayStack[@specialized(Int, Double) T] private(private var data: ResizableArray[T] = null) extends Queue[T] {
+class ArrayStack[@specialized(Int, Double) T] (private var data: ResizableArray[T] = null) extends Queue[T] {
 
   override def size = data.length
 
@@ -29,9 +30,9 @@ class ArrayStack[@specialized(Int, Double) T] private(private var data: Resizabl
 
 }
 
-object ArrayStack extends TaggedCollectionFactory[ArrayStack] {
+object ArrayStack extends CollectionFactoryWithTag[ArrayStack] {
 
-  implicit def newBuilder[T: ClassTag]: CollectionBuilder[T, ArrayStack] = new CollectionBuilder[T, ArrayStack] {
+  implicit def newBuilder[@sp(fdi) T: ClassTag]: Builder[T, ArrayStack[T]] = new Builder[T, ArrayStack[T]] {
     var data = new ResizableArray[T]()
     def sizeHint(n: Int) = data.ensureCapacity(n)
     def +=(x: T) = data.append(x)

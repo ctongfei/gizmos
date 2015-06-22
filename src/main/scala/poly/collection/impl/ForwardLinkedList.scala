@@ -2,6 +2,7 @@ package poly.collection.impl
 
 import poly.collection._
 import poly.collection.mut._
+import poly.collection.node._
 
 /**
  * A singly linked list.
@@ -17,7 +18,7 @@ import poly.collection.mut._
  */
 class ForwardLinkedList[T] {
 
-  type Node = ForwardLinkedList.Node[T]
+  class Node(var data: T, var next: Node = null) extends SeqNode[T]
 
   private[poly] val dummy = new Node(default[T])
   private[poly] var len: Int = 0
@@ -113,13 +114,6 @@ class ForwardLinkedList[T] {
 }
 
 object ForwardLinkedList {
-  class Node[T] (
-    var data: T,
-    private[poly] var next: Node[T] = null
-  ) extends ForwardNode[T] {
 
-    def descendants = ListSeq(next)
-
-  }
 
 }

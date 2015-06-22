@@ -27,5 +27,4 @@ class SortedArray[T] private[poly](val data: ResizableArray[T])(implicit O: Weak
     case None => throw new NoSuchElementException
   }
 
-
 }

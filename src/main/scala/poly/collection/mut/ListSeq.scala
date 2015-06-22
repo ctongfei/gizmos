@@ -5,14 +5,16 @@ import poly.collection._
 import poly.collection.exception._
 import poly.collection.factory._
 import poly.collection.impl._
+import poly.collection.node._
+import poly.util.specgroup._
 
 /**
  * A sequence backed by a linked list.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class ListSeq[T] private() extends MutSeq[T] {
+class ListSeq[T] private(private val data: LinkedList[T]) extends SMutSeq[T] {
 
-  private var data: LinkedList[T] = null
+  def headNode: BidiSeqNode[T] = data.dummy.next
 
   def length = data.length
 
@@ -36,7 +38,7 @@ class ListSeq[T] private() extends MutSeq[T] {
 
   def apply(i: Int) = data.apply(i)
 
-  def enumerator = new Enumerator[T] {
+  override def newEnumerator = new Enumerator[T] {
     var node = data.dummy
 
     def advance(): Boolean = {
@@ -59,14 +61,10 @@ class ListSeq[T] private() extends MutSeq[T] {
 
 object ListSeq extends SeqFactory[ListSeq] {
 
-  implicit def newBuilder[T]: CollectionBuilder[T, ListSeq] = new CollectionBuilder[T, ListSeq] {
+  implicit def newBuilder[@sp(fdi) T]: Builder[T, ListSeq[T]] = new Builder[T, ListSeq[T]] {
     val a = new LinkedList[T]()
     def sizeHint(n: Int) = {}
     def +=(x: T) = a.append(x)
-    def result = {
-      val res = new ListSeq[T]
-      res.data = a
-      res
-    }
+    def result = new ListSeq[T](a)
   }
 }

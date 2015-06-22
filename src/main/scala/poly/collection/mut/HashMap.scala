@@ -6,6 +6,6 @@ import scala.collection._
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-abstract class HashMap[K, V] extends MutMap[K, V] {
+abstract class HashMap[K, V] extends SMutMap[K, V] {
 
 }

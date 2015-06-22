@@ -8,8 +8,8 @@ import poly.algebra._
 object KeyValuePair {
 
   /** Returns a hashing function on key-value pairs that operates only on the key. */
-  implicit def hashByKey[K, V](implicit H: Hash[K]): Hash[(K, V)] =
-    new Hash[(K, V)] {
+  implicit def hashByKey[K, V](implicit H: Hashing[K, Int]): Hashing[(K, V), Int] =
+    new Hashing[(K, V), Int] {
       def hash(x: (K, V)) = H.hash(x._1)
       def eq(x: (K, V), y: (K, V)) = x._1 == y._1
     }

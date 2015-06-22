@@ -26,17 +26,18 @@ package object conversion {
     }
   }
   implicit def scalaIterableAsPoly[T](xs: sc.Iterable[T]): Enumerable[T] = new Enumerable[T] {
-    def enumerator = scalaIteratorAsPoly[T](xs.iterator)
+    def newEnumerator = scalaIteratorAsPoly[T](xs.iterator)
   }
   implicit def scalaSeqAsPoly[T](xs: sc.Seq[T]): Seq[T] = new Seq[T] {
-    def enumerator = scalaIteratorAsPoly[T](xs.iterator)
+    override def newEnumerator = scalaIteratorAsPoly[T](xs.iterator)
+    def headNode = ??? //TODO
     def apply(i: Int) = xs(i)
     def length = xs.length
   }
 
 
   implicit def javaIterableAsPoly[T](xs: jl.Iterable[T]): Enumerable[T] = new Enumerable[T] {
-    def enumerator = javaIteratorAsPoly[T](xs.iterator())
+    def newEnumerator = javaIteratorAsPoly[T](xs.iterator())
   }
   implicit def javaIteratorAsPoly[T](xs: ju.Iterator[T]): Enumerator[T] = new Enumerator[T] {
     var current: T = default[T]
@@ -99,7 +100,7 @@ package object conversion {
 
   implicit class PolyEnumerableAsScala[T](val xs: Enumerable[T]) extends AnyVal {
     def asScalaIterable: sc.Iterable[T] = new Iterable[T] {
-      def iterator: Iterator[T] = xs.enumerator.asScalaIterator
+      def iterator: Iterator[T] = xs.newEnumerator.asScalaIterator
     }
   }
 
@@ -107,7 +108,7 @@ package object conversion {
     def asScalaSeq: sc.Seq[T] = new sc.Seq[T] {
       def length: Int = xs.length
       def apply(i: Int): T = xs(i)
-      def iterator: Iterator[T] = xs.enumerator.asScalaIterator
+      def iterator: Iterator[T] = xs.newEnumerator.asScalaIterator
     }
   }
 

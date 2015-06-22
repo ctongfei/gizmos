@@ -4,6 +4,7 @@ import poly.algebra._
 import poly.collection._
 import poly.collection.factory._
 import poly.collection.impl._
+import poly.util.specgroup._
 import scala.reflect._
 
 /**
@@ -12,11 +13,11 @@ import scala.reflect._
  */
 class BinaryHeapPriorityQueue[T] private(private val heap: BinaryHeap[T]) extends PriorityQueue[T] {
 
-  def order: WeakOrder[T] = heap.order
+  val order: WeakOrder[T] = heap.order
 
-  def push(x: T): Unit = heap.enqueue(x)
+  def push(x: T): Unit = heap.push(x)
 
-  def pop(): T = heap.dequeue()
+  def pop(): T = heap.pop()
 
   def top: T = heap.data(0)
 
@@ -24,14 +25,15 @@ class BinaryHeapPriorityQueue[T] private(private val heap: BinaryHeap[T]) extend
 
 }
 
-object BinaryHeapPriorityQueue extends SortedCollectionFactory[BinaryHeapPriorityQueue] {
+object BinaryHeapPriorityQueue extends CollectionFactoryWithOrder[BinaryHeapPriorityQueue] {
 
-  implicit def newBuilder[T:ClassTag:WeakOrder]: CollectionBuilder[T, BinaryHeapPriorityQueue] =
-    new CollectionBuilder[T, BinaryHeapPriorityQueue] {
+  implicit def newBuilder[@sp(fdi) T:ClassTag:WeakOrder]: Builder[T, BinaryHeapPriorityQueue[T]] =
+    new Builder[T, BinaryHeapPriorityQueue[T]] {
       val data = new ResizableArray[T]()
       def sizeHint(n: Int): Unit = data.ensureCapacity(n)
       def +=(x: T): Unit = data.append(x)
       def result: BinaryHeapPriorityQueue[T] = {
+        // heap building algorithm
         val h = new BinaryHeap[T](data)
         for (i ← data.length / 2 - 1 to 0 by -1)
           h.siftDown(i)

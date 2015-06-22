@@ -4,13 +4,14 @@ import poly.collection._
 import poly.collection.exception._
 import poly.collection.factory._
 import poly.collection.impl._
+import poly.util.specgroup._
 import scala.reflect._
 
 /**
  * An circular array.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class CircularArray[@specialized(Int, Double) T](private val data: ResizableArray[T]) {
+class CircularArray[@sp(fdi) T](private val data: ResizableArray[T]) {
 
   private[collection] var frontPtr = 0
   private[collection] var backPtr = data.length
@@ -24,9 +25,11 @@ class CircularArray[@specialized(Int, Double) T](private val data: ResizableArra
     // extend the buffer by 2
     //       B F
     // [ 6 7 - 1 2 3 4 5 ]
+    //   ^^^^^
     // becomes
-    //         F             R
+    //         F             B
     // [ - - - 1 2 3 4 5 6 7 - - - - - - ]
+    //                   ^^^^^
     val originalCapacity = data.capacity
     data.ensureCapacity(originalCapacity * 2)
     data.move(0, frontPtr, originalCapacity)

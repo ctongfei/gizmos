@@ -3,18 +3,19 @@ package poly.collection
 import poly.algebra._
 import poly.algebra.ops._
 import poly.collection.exception._
-import poly.collection.factory._
+import poly.collection.mut._
+import poly.util.specgroup._
 import scala.language.higherKinds
-import scala.annotation.unchecked.{uncheckedVariance => uV}
+import scala.annotation.unchecked.{uncheckedVariance => uv}
 
 /**
  * Basic trait for Poly-collection traversable collections.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-trait Traversable[+T] { self =>
+trait Traversable[@sp(fdi) +T] { self =>
 
   /**
-   * Applies a function ''f'' to each element of this traversable collection.
+   * Applies a function ''f'' to each element of this collection.
    * @param f The function to be applied. Return values are discarded.
    * @tparam V Type of the result of function ''f''
    */
@@ -22,9 +23,10 @@ trait Traversable[+T] { self =>
 
   /**
    * Returns a new traversable collection by applying a function to all elements in this collection.
+   * Execution: Lazy
    * @param f Function to apply
    * @tparam U Type of the image of the function
-   * @return A new traversable that each element is the image of the original element applied by ''f''.
+   * @return A new collection that each element is the image of the original element applied by ''f''.
    */
   def map[U](f: T => U): Traversable[U] = new Traversable[U] {
     def foreach[V](g: U => V) = {
@@ -32,7 +34,7 @@ trait Traversable[+T] { self =>
     }
   }
 
-  def flatMap[U](f: T => Traversable[U]) = new Traversable[U] {
+  def flatMap[U](f: T => Traversable[U]): Traversable[U] = new Traversable[U] {
     def foreach[V](g: U => V): Unit = {
       for (x ← self)
         for (y ← f(x))
@@ -40,20 +42,76 @@ trait Traversable[+T] { self =>
     }
   }
 
-  def filter(f: T => Boolean) = new Traversable[T] {
+  //region Filtering according to predicates
+
+  def count(f: T => Boolean): Int = {
+    var s = 0
+    for (x ← self)
+      if (f(x)) s += 1
+    s
+  }
+
+  /**
+   *
+   * Execution mode: Lazy
+   * @param f
+   * @return
+   */
+  def filter(f: T => Boolean): Traversable[T] = new Traversable[T] {
     def foreach[V](g: T => V) = {
       for (x ← self)
         if (f(x)) g(x)
     }
   }
 
-  def concat[U >: T](that: Traversable[U]) = new Traversable[U] {
+  def filterNot(f: T => Boolean): Traversable[T] = new Traversable[T] {
+    def foreach[V](g: T => V) = {
+      for (x ← self)
+        if (!f(x)) g(x)
+    }
+  }
+
+  /**
+   * Execution mode: Eager
+   * @param f
+   * @return
+   */
+  def partition(f: T => Boolean): (Traversable[T], Traversable[T]) = {
+    val l, r = ListSeq.newBuilder[T]
+    for (x ← self)
+      if (f(x)) l += x else r += x
+    (l.result, r.result)
+  }
+
+  /**
+   * Execution mode: Eager
+   * @param fs
+   * @return
+   */
+  def filterMany(fs: (T => Boolean)*): Seq[Traversable[T]] = {
+    val l = ListSeq.fill(fs.length)(ListSeq[T]())
+    for (x ← self)
+      for (i ← 0 until fs.length) //TODO: optimize using macro
+        if (fs(i)(x)) l(i) append x
+    l
+  }
+
+  def groupBy[K](f: T => K): Map[K, Traversable[T]] = ???
+  //endregion
+
+  def concat[U >: T](that: Traversable[U]): Traversable[U] = new Traversable[U] {
     def foreach[V](f: U => V): Unit = {
       for (x ← self)
         f(x)
       for (x ← that)
         f(x)
     }
+  }
+
+  def size: Int = {
+    var s = 0
+    for (x ← self) s += 1
+    s
   }
 
   def exists(f: T => Boolean): Boolean = {
@@ -66,19 +124,6 @@ trait Traversable[+T] { self =>
     for (x ← self)
       if (!f(x)) return false
     true
-  }
-
-  def count(f: T => Boolean): Int = {
-    var s = 0
-    for (x ← self)
-      if (f(x)) s += 1
-    s
-  }
-
-  def size: Int = {
-    var s = 0
-    for (x ← self) s += 1
-    s
   }
 
   def fold[U >: T](z: U)(f: (U, U) => U): U = foldLeft(z)(f)
@@ -185,19 +230,21 @@ trait Traversable[+T] { self =>
 
   def slice(i: Int, j: Int) = drop(i).take(j - i)
 
-  def find(f: T => Boolean): Option[T] = {
+  def findFirst(f: T => Boolean): Option[T] = {
     for (x ← self)
       if (f(x)) return Some(x)
     None
   }
 
-  def sum[X >: T](implicit G: AdditiveSemigroup[X]): X = reduce(G.add)
+  def sum[X >: T](implicit G: AdditiveMonoid[X]): X = reduce(G.add)
+
+  //def sum[X >: T](implicit G: InplaceAdditiveMonoid[X]) = ???
 
   def product[X >: T](implicit G: MultiplicativeSemigroup[X]): X = reduce(G.mul)
 
-  def min[X >: T](implicit O: WeakOrder[X]): X = ??? //TODO: reduce(O.min)
+  def min[X >: T](implicit O: WeakOrder[X]): X = reduce(O.min)
 
-  def max[X >: T](implicit O: WeakOrder[X]): X = ??? //TODO: reduce(O.max)
+  def max[X >: T](implicit O: WeakOrder[X]): X = reduce(O.max)
 
   def argmin[U: WeakOrder](f: T => U): T = argminWithValue(f)._1
 
@@ -210,7 +257,7 @@ trait Traversable[+T] { self =>
 
     for (x ← self) {
       val fx = f(x)
-      if (first | fx < minVal) {
+      if (first || fx < minVal) {
         minKey = x
         minVal = fx
         first = false
@@ -226,7 +273,7 @@ trait Traversable[+T] { self =>
 
     for (x ← self) {
       val fx = f(x)
-      if (first | fx > maxVal) {
+      if (first || fx > maxVal) {
         maxKey = x
         maxVal = fx
         first = false
@@ -235,24 +282,52 @@ trait Traversable[+T] { self =>
     (maxKey, maxVal)
   }
 
-  def mkString(delimiter: String): String = {
+  def buildString(delimiter: String): String = {
     val sb = new StringBuilder
-    sb.append(this.head)
-    for (x ← tail) {
-      sb.append(delimiter)
-      sb.append(x)
+    var first = true
+    for (x ← this) {
+      if (first) {
+        sb.append(x)
+        first = false
+      } else {
+        sb.append(delimiter)
+        sb.append(x)
+      }
     }
     sb.result()
   }
 
-  def to[C[_]](implicit builder: Builder[T @uV, C[T @uV]]): C[T @uV] = {
+  /**
+   * Converts this traversable sequence to any collection type.
+   * @param builder An implicit builder
+   * @tparam C Higher-order type of the collection to be built
+   * @return
+   */
+  def to[C[_]](implicit builder: Builder[T @uv, C[T] @uv]): C[T @uv] = {
     val b = builder
     b ++= self
     b.result
   }
 
+
+  /**
+   * Builds a structure based on this traversable sequence given an implicit builder.
+   * @param builder An implicit builder
+   * @tparam S Type of the structure to be built
+   * @return A new structure of type `R`
+   */
+  def build[S](implicit builder: Builder[T, S]): S = {
+    val b = builder
+    b ++= self
+    b.result
+  }
+
+  def ++[U >: T](that: Traversable[U]) = this concat that
+
 }
 
 object Traversable {
+
+
   
 }

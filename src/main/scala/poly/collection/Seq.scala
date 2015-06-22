@@ -1,13 +1,17 @@
 package poly.collection
 
 import poly.algebra._
+import poly.collection.factory._
+import poly.collection.mut._
+import poly.collection.node._
+import poly.util.specgroup._
 import scala.annotation.unchecked.{uncheckedVariance => uV}
 
 /**
  * Trait for sequences.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-trait Seq[+T] extends (Int =?> T) with Enumerable[T] { self =>
+trait Seq[@sp(fdi) +T] extends (Int =?> T) with Enumerable[T] { self =>
 
   /**
    * Returns the length of this sequence.
@@ -24,6 +28,22 @@ trait Seq[+T] extends (Int =?> T) with Enumerable[T] { self =>
 
   override def size = length
 
+  def headNode: SeqNode[T]
+
+  def newEnumerator: Enumerator[T] = new Enumerator[T] {
+    var node: SeqNode[T] = null
+    var first = true
+    def advance() = {
+      if (first) {
+        first = false
+        node = headNode
+      }
+      else node = node.next
+      node ne null
+    }
+    def current = node.data
+  }
+
   def isDefinedAt(i: Int) = i >= 0 && i < size
 
   /**
@@ -31,11 +51,12 @@ trait Seq[+T] extends (Int =?> T) with Enumerable[T] { self =>
    * @param O The implicit order
    * @return A sorted order (WARNING: Actual orderedness is not guaranteed! The user should make sure that it is sorted.)
    */
-  def asIfSorted(implicit O: WeakOrder[T @uV]): SortedSeq[T @uV] = new SortedSeq[T] {
-    val order: WeakOrder[T] = O
+  def asIfSorted[U >: T](implicit O: WeakOrder[U]): SortedSeq[U] = new SortedSeq[U] {
+    val order: WeakOrder[U] = O
     def length: Int = self.length
     def apply(i: Int): T = self.apply(i)
-    def enumerator: Enumerator[T] = self.enumerator
+    override def newEnumerator: Enumerator[T] = self.newEnumerator
+    def headNode: SeqNode[T] = self.headNode
   }
 
   override def equals(that: Any) = that match {
@@ -43,15 +64,19 @@ trait Seq[+T] extends (Int =?> T) with Enumerable[T] { self =>
     case _ => false
   }
 
-  override def toString() = {
+  override def toString = {
     val len = length
     if (len > Settings.MaxElemToString)
-      s"[$len] " + this.take(Settings.MaxElemToString).mkString(", ") + "..."
-    else s"[$len] " + this.mkString(", ")
+      s"[$len] " + this.take(Settings.MaxElemToString).buildString(", ") + "..."
+    else s"[$len] " + this.buildString(", ")
   }
 
   override def hashCode = ???
 
 
 
+}
+
+object Seq extends SeqFactory[Seq] {
+  def newBuilder[@sp(fdi) T] = ListSeq.newBuilder[T]
 }

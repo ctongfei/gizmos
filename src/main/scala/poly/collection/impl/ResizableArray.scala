@@ -1,6 +1,10 @@
 package poly.collection.impl
 
 import poly.collection._
+import poly.collection.conversion._
+import poly.collection.factory._
+import poly.collection.node._
+import poly.util.specgroup._
 import scala.reflect._
 
 /**
@@ -13,16 +17,31 @@ import scala.reflect._
  *  - Insertion at any index: O(''n'')
  *  - Deletion at any index: O(''n'')
  *
+ * This class serves as the basic building block for a series of structures in Poly-collection.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class ResizableArray[@specialized(Int, Double) T: ClassTag]
+final class ResizableArray[T: ClassTag]
   (private[this] var cap: Int = Settings.ArrayInitialSize) extends MutIndexedSeq[T]
-{
+{ self =>
 
   private[this] var data: Array[T] = Array.ofDim[T](math.max(nextPowerOfTwo(cap), Settings.ArrayInitialSize))
   private[this] var len: Int = 0
 
   private[poly] def getData = data // exposed for math libraries
+
+  class Node(val i: Int) extends BidiNode[T] {
+    def data = self.data(i)
+    def pred = {
+      if (i < 0) throw new IllegalArgumentException
+      else if (i == 0) Seq()
+      else Seq(new Node(i - 1))
+    }
+    def succ = {
+      if (i >= self.length) throw new IllegalArgumentException
+      else if (i == self.length - 1) Seq()
+      else Seq(new Node(i + 1))
+    }
+  }
 
   def ensureCapacity(minCapacity: Int): Unit = {
     if (cap < minCapacity) {
@@ -74,7 +93,14 @@ class ResizableArray[@specialized(Int, Double) T: ClassTag]
     data(len) = x
     len += 1
   }
+}
 
-
+object ResizableArray extends SeqFactoryWithTag[ResizableArray] {
+  def newBuilder[@sp(fdi) T:ClassTag]: Builder[T, ResizableArray[T]] = new Builder[T, ResizableArray[T]] {
+    val a = new ResizableArray[T]()
+    def sizeHint(n: Int) = a.ensureCapacity(n)
+    def +=(x: T) = a.append(x)
+    def result = a
+  }
 
 }
