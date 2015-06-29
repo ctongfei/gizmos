@@ -49,9 +49,10 @@ package object conversion {
       else false
     }
   }
-  implicit def javaListAsPoly[T](xs: ju.List[T]): IndexedSeq[T] = new IndexedSeq[T] {
+  implicit def javaListAsPoly[T](xs: ju.List[T]): IndexedSeq[T] = new DataMutableIndexedSeq[T] {
     def length = xs.size
     def apply(i: Int) = xs.get(i)
+    def update(i: Int, x: T) = xs.set(i, x)
   }
   //endregion
 

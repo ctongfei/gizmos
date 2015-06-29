@@ -30,9 +30,9 @@ class ArrayStack[T] (private var data: ResizableArray[T] = null) extends Queue[T
 
 }
 
-object ArrayStack extends CollectionFactoryWithTag[ArrayStack] {
+object ArrayStack extends CollectionFactory[ArrayStack] {
 
-  implicit def newBuilder[T: ClassTag]: Builder[T, ArrayStack[T]] = new Builder[T, ArrayStack[T]] {
+  implicit def newBuilder[T]: Builder[T, ArrayStack[T]] = new Builder[T, ArrayStack[T]] {
     var data = new ResizableArray[T]()
     def sizeHint(n: Int) = data.ensureCapacity(n)
     def +=(x: T) = data.append(x)

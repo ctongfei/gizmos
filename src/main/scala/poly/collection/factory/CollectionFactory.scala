@@ -24,6 +24,12 @@ trait CollectionFactory[+C[_]] {
     b.result
   }
 
+  def applyNotNull[T](xs: T*): C[T] = {
+    val b = newBuilder[T]
+    for (x ¡û xs if x != null) b += x
+    b.result
+  }
+
   /** Creates a collection by adding all the elements in the specific traversable sequence. */
   def from[T](xs: Traversable[T]): C[T] = {
     val b = newBuilder[T]

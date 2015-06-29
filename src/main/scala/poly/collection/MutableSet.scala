@@ -3,7 +3,9 @@ package poly.collection
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-trait MutSet[T] extends Set[T] {
+trait ImmutableSet[T] extends Set[T]
+
+trait MutableSet[T] extends Set[T] {
 
   def add(x: T)
 

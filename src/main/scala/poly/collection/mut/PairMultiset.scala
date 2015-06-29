@@ -8,9 +8,7 @@ import scala.language.higherKinds
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class Multiset[T, C[T1] <: Set[T1]] private() {
-
-  var inner: C[(T, Int)] = _
+class PairMultiset[T, C[T1] <: Set[T1]] private() {
 
 }
 

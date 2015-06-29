@@ -1,7 +1,9 @@
 package poly.collection
 
 /**
+ * Represents a double-ended queue.
  * @author Tongfei Chen (ctongfei@gmail.com).
+ * @since 0.1.0
  */
 trait Deque[T] extends Queue[T] {
 

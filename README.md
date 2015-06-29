@@ -3,8 +3,8 @@
 Poly-collection is a Scala collection framework that aims to provide an alternative to the standard
  Scala collection framework. It provides a large range of collection classes, and differs from
  the standard collection framework in several ways:
-
-  - Eliminates the overhead of autoboxing for common types using specialization.
+ 
+  - A large collection: full support for trees and graphs.
 
   - Always non-strict when using higher-order functions: functions like `map`, `filter`, `flatMap`
   are always evaluated lazily. This allows chain application like `xs.map(f).filter(g).reduce(h)`

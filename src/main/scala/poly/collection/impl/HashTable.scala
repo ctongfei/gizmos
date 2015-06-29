@@ -13,9 +13,9 @@ class HashTable[T](implicit h: Hashing[T, Int]) {
   final val HASH_REMOVED = 1.toByte
   final val HASH_USED = 2.toByte
 
-  var items: ResizableArray[T] = null
-  var buckets: ResizableArray[Byte] = null
-  var length: Int = 0
+  var items: ResizableArray[T] = new ResizableArray[T]()
+  var buckets: ResizableArray[Byte] = new ResizableArray[Byte]()
+  var length: Int = items.capacity
   var used: Int = 0
 
   def mask = buckets.length - 1

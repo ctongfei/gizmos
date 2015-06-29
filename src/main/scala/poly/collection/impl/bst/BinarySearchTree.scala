@@ -1,17 +1,22 @@
-package poly.collection.impl
+package poly.collection.impl.bst
 
 import poly.algebra._
 import poly.algebra.ops._
+import poly.collection.impl._
 
 /**
  * Serves as a basis for self-balancing binary search trees.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-abstract class BinarySearchTree[T](implicit O: WeakOrder[T]) extends LinkedBinaryTree[T] {
+class BinarySearchTree[T](implicit O: WeakOrder[T]) extends LinkedBinaryTree[T] {
   
   val order = O
 
-  protected def locate(x: T): Node = {
+  private var _size = 0
+
+  override def size = _size
+
+  def locate(x: T): Node = {
     var c = rootNode
     while (c ne dummy) {
       if (x < c.data)
@@ -23,7 +28,12 @@ abstract class BinarySearchTree[T](implicit O: WeakOrder[T]) extends LinkedBinar
     dummy
   }
 
-  protected def insert(x: T) = {
+  override def addRoot(x: T) = {
+    super.addRoot(x)
+    _size += 1
+  }
+
+  def add(x: T) = {
     var c = rootNode // current
     var p: Node = dummy // keeps track of the parent of c
     while (c ne dummy) {
@@ -38,24 +48,34 @@ abstract class BinarySearchTree[T](implicit O: WeakOrder[T]) extends LinkedBinar
     else if (x < p.data)
       p.left = c
     else p.right = c
+
+    _size += 1
     c
   }
 
-  protected def leftmost(x: Node): Node = {
+  def leftmost(x: Node): Node = {
     var l = x
     while (l.left ne dummy)
       l = l.left
     l
   }
 
-  protected def rightmost(x: Node): Node = {
+  def rightmost(x: Node): Node = {
     var r = x
     while (r.right ne dummy)
       r = r.right
     r
   }
 
-  protected def rotateRight(p: Node) = {
+  /**
+   * Performs a right rotation on the specific node ''p''.
+   *     p             l
+   *    / \           / \
+   *   l   r   =>    a   p
+   *  / \               / \
+   * a  b              b   r
+   */
+  def rotateRight(p: Node) = {
     val c = p.left
     if ((c eq dummy) || (c.parent ne p))
       throw new IllegalArgumentException // c is leaf or malformed
@@ -72,7 +92,7 @@ abstract class BinarySearchTree[T](implicit O: WeakOrder[T]) extends LinkedBinar
     c.right = p
   }
 
-  protected def rotateLeft(p: Node) = {
+  def rotateLeft(p: Node) = {
     val c = p.right
     if ((c eq dummy) || (c.parent ne p))
       throw new IllegalArgumentException // c is leaf or malformed

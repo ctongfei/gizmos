@@ -47,7 +47,7 @@ trait IndexedSeq[+T] extends Seq[T] { self =>
    * @param O The implicit order
    * @return A sorted order
    */
-  override def asIfSorted[U >: T](implicit O: WeakOrder[U]): SortedIndexedSeq[U] = new SortedIndexedSeq[U] {
+  override def asIfSorted[U >: T](implicit O: WeakOrder[U]): IndexedSortedSeq[U] = new IndexedSortedSeq[U] {
     val order: WeakOrder[U] = O
     def length: Int = self.length
     def apply(i: Int): T = self.apply(i)
@@ -61,8 +61,8 @@ trait IndexedSeq[+T] extends Seq[T] { self =>
 
 }
 
-object IndexedSeq extends SeqFactoryWithTag[IndexedSeq] {
+object IndexedSeq extends SeqFactory[IndexedSeq] {
 
-  def newBuilder[T: ClassTag] = ArraySeq.newBuilder[T]
+  def newBuilder[T] = ArraySeq.newBuilder[T]
 
 }

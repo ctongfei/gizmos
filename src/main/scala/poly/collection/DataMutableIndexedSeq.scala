@@ -9,7 +9,7 @@ import poly.util.specgroup._
  * O(1) random access and update should be guaranteed.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-trait MutIndexedSeq[T] extends SMutSeq[T] with IndexedSeq[T] {
+trait DataMutableIndexedSeq[T] extends DataMutableSeq[T] with IndexedSeq[T] {
 
   /**
    * Swaps two elements in this sequence in-place.

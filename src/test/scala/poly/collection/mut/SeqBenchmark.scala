@@ -1,18 +1,18 @@
-package poly.collection
+package poly.collection.mut
 
 import org.scalameter._
-import poly.algebra.ops._
-import poly.algebra.functions._
+import poly.collection._
+
 import scala.collection.mutable._
 
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-object OptionalBenchmark extends App {
+object SeqBenchmark extends App {
 
-  for (n ← Seq(100000, 200000, 400000, 800000, 1600000, 3200000)) {
+  for (n ← collection.mutable.Seq(100000, 200000, 400000, 800000, 1600000)) {
 
-    val conf = config(Key.exec.benchRuns → 30)
+    val conf = config(Key.exec.benchRuns → 50)
       .withWarmer(new Warmer.Default).withMeasurer(new Measurer.IgnoringGC)
 
 
@@ -21,12 +21,20 @@ object OptionalBenchmark extends App {
     }
     println(s"Vanilla Scala ArrayBuffer: $t1")
 
-    val l3 = mut.ArraySeq.tabulate(n)(i => i)
+    val t2 = conf measure {
+      val l2 = ListBuffer.tabulate(n)(i => i)
+    }
+    println(s"Vanilla Scala ListBuffer: $t2")
+
 
     val t3 = conf measure {
       val l3 = mut.ArraySeq.tabulate(n)(i => i)
     }
     println(s"Poly-collection ArraySeq: $t3")
+    val t4 = conf measure {
+      val l3 = mut.ListSeq.tabulate(n)(i => i)
+    }
+    println(s"Poly-collection ListSeq: $t4")
 
     println()
 

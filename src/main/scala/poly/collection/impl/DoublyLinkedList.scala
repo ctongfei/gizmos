@@ -8,7 +8,7 @@ import poly.collection.node._
  * A doubly linked list.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class LinkedList[T] {
+class DoublyLinkedList[T] {
 
   /**
    * Type of the internal node of a linked list.
@@ -113,7 +113,7 @@ class LinkedList[T] {
 
 }
 
-object LinkedList {
+object DoublyLinkedList {
 
 
 }

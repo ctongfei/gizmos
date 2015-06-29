@@ -6,7 +6,7 @@ import poly.collection.impl._
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-abstract class ListSet[T] private(private val data: ForwardLinkedList[T]) extends Set[T] {
+abstract class ListSet[T] private(private val data: SinglyLinkedList[T]) extends Set[T] {
 
   override def size = data.len
 

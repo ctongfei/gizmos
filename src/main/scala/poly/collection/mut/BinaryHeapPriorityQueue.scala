@@ -27,18 +27,20 @@ class BinaryHeapPriorityQueue[T] private(private val heap: BinaryHeap[T]) extend
 
 object BinaryHeapPriorityQueue extends CollectionFactoryWithOrder[BinaryHeapPriorityQueue] {
 
-  implicit def newBuilder[T:ClassTag:WeakOrder]: Builder[T, BinaryHeapPriorityQueue[T]] =
-    new Builder[T, BinaryHeapPriorityQueue[T]] {
-      val data = new ResizableArray[T]()
-      def sizeHint(n: Int): Unit = data.ensureCapacity(n)
-      def +=(x: T): Unit = data.append(x)
-      def result: BinaryHeapPriorityQueue[T] = {
-        // heap building algorithm
-        val h = new BinaryHeap[T](data)
-        for (i ← data.length / 2 - 1 to 0 by -1)
-          h.siftDown(i)
-        new BinaryHeapPriorityQueue[T](h)
-      }
+  implicit def newBuilder[T:WeakOrder]: Builder[T, BinaryHeapPriorityQueue[T]] = new Builder[T, BinaryHeapPriorityQueue[T]] {
+    private[this] val data = new ResizableArray[T]()
+
+    def sizeHint(n: Int): Unit = data.ensureCapacity(n)
+
+    def +=(x: T): Unit = data.append(x)
+
+    // heap building algorithm
+    def result: BinaryHeapPriorityQueue[T] = {
+      val h = new BinaryHeap[T](data)
+      for (i ← data.length / 2 - 1 to 0 by -1)
+        h.siftDown(i)
+      new BinaryHeapPriorityQueue[T](h)
     }
+  }
 
 }

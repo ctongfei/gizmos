@@ -12,7 +12,7 @@ import poly.collection._
  */
 trait Node[+T] {
   def data: T
-  def succ: Enumerable[Node[T]]
+  def succ: Traversable[Node[T]]
   override def toString = data.toString
 }
 
@@ -22,7 +22,7 @@ trait Node[+T] {
  */
 trait BackwardNode[+T] {
   def data: T
-  def pred: Enumerable[BackwardNode[T]]
+  def pred: Traversable[BackwardNode[T]]
 }
 
 /**
@@ -31,6 +31,6 @@ trait BackwardNode[+T] {
  */
 trait BidiNode[+T] extends Node[T] with BackwardNode[T] {
   def data: T
-  def succ: Enumerable[BidiNode[T]]
-  def pred: Enumerable[BidiNode[T]]
+  def succ: Traversable[BidiNode[T]]
+  def pred: Traversable[BidiNode[T]]
 }

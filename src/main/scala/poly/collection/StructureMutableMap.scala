@@ -3,12 +3,14 @@ package poly.collection
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-trait DMutMap[K, V] extends Map[K, V] {
+trait ImmutableMap[K, V] extends Map[K, V]
+
+trait DataMutableMap[K, V] extends Map[K, V] {
   def update(x: K, y: V): Unit
-  def inplaceMapValues(f: V => V): Unit
+  def inplaceMapValues(f: V => V): Unit = ???
 }
 
-trait SMutMap[K, V] extends DMutMap[K, V] {
+trait StructureMutableMap[K, V] extends DataMutableMap[K, V] {
 
   def add(x: K, y: V): Unit
 

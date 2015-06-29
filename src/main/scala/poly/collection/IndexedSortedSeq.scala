@@ -3,12 +3,13 @@ package poly.collection
 import poly.algebra.ops._
 
 /**
+ * Trait for an indexed sorted sequence.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-trait SortedIndexedSeq[T] extends SortedSeq[T] with IndexedSeq[T] {
+trait IndexedSortedSeq[T] extends SortedSeq[T] with IndexedSeq[T] {
 
   /**
-   * Finds the key in an array using binary search.
+   * Finds the key in a sorted array using binary search. The complexity of this operation is O(log n).
    * @param x The key to be found
    * @return Index of key. If not found, None.
    */
@@ -30,7 +31,7 @@ trait SortedIndexedSeq[T] extends SortedSeq[T] with IndexedSeq[T] {
   }
 
   /**
-   * Finds the key in an array using binary search. If not found, returns the complement (~x) of its lower bound.
+   * Finds the key in a sorted array using binary search. If not found, returns the complement (~x) of its lower bound.
    * @param x The key to be found
    * @return Index of key. If not found, complement of the index at which it should be inserted
    */

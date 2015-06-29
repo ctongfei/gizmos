@@ -10,7 +10,7 @@ import scala.reflect._
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class SortedArraySeq[T] private(private val data: SortedArray[T]) extends MutSortedIndexedSeq[T] {
+class SortedArraySeq[T] private(private val data: SortedArray[T]) extends MutableIndexedSortedSeq[T] {
 
   val order = data.order
 
@@ -28,7 +28,7 @@ class SortedArraySeq[T] private(private val data: SortedArray[T]) extends MutSor
 
 object SortedArraySeq extends CollectionFactoryWithOrder[SortedArraySeq] {
 
-  def newBuilder[T:ClassTag:WeakOrder]: Builder[T, SortedArraySeq[T]] = new Builder[T, SortedArraySeq[T]] {
+  def newBuilder[T:WeakOrder]: Builder[T, SortedArraySeq[T]] = new Builder[T, SortedArraySeq[T]] {
     val ra = new ResizableArray[T]()
     def sizeHint(n: Int) = ra.ensureCapacity(n)
     def +=(x: T) = ra.append(x)

@@ -16,7 +16,7 @@ import poly.collection.node._
  *
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class ForwardLinkedList[T] {
+class SinglyLinkedList[T] {
 
   class Node(var data: T, var next: Node = null) extends SeqNode[T]
 
@@ -24,6 +24,7 @@ class ForwardLinkedList[T] {
   private[poly] var len: Int = 0
   dummy.next = dummy
 
+  def length = len
 
   /**
    * Locates the ''i''th element in a singly linked list.
@@ -113,7 +114,7 @@ class ForwardLinkedList[T] {
 
 }
 
-object ForwardLinkedList {
+object SinglyLinkedList {
 
 
 }

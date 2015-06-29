@@ -9,7 +9,7 @@ import poly.collection.exception._
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
 class SortedArray[T] private[poly](val data: ResizableArray[T])(implicit O: WeakOrder[T])
-  extends SortedIndexedSeq[T]
+  extends IndexedSortedSeq[T]
 {
 
   val order = O
@@ -24,7 +24,7 @@ class SortedArray[T] private[poly](val data: ResizableArray[T])(implicit O: Weak
 
   def remove(x: T) = binarySearch(x) match {
     case Some(i) => data.deleteAt(i)
-    case None => throw new NoSuchElementException
+    case None =>
   }
 
 }

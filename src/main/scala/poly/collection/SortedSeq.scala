@@ -15,6 +15,7 @@ trait SortedSeq[T] extends Seq[T] {
   /** The order under which this sequence is sorted. */
   implicit val order: WeakOrder[T]
 
+  //TODO: make this lazy?
   /**
    * Merges two sorted sequences into one sorted sequence.
    * @param that Another sorted sequence. These two sequences must be sorted under the same order.

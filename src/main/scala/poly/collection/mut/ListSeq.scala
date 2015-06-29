@@ -12,9 +12,11 @@ import poly.util.specgroup._
  * A sequence backed by a linked list.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class ListSeq[T] private(private val data: LinkedList[T]) extends SMutSeq[T] {
+class ListSeq[T] private(private val data: SinglyLinkedList[T]) extends StructureMutableSeq[T] {
 
-  def headNode: BidiSeqNode[T] = data.dummy.next
+  def headNode: SeqNode[T] = data.dummy.next
+
+  def apply(i: Int) = data.apply(i)
 
   def length = data.length
 
@@ -24,8 +26,6 @@ class ListSeq[T] private(private val data: LinkedList[T]) extends SMutSeq[T] {
 
   def update(i: Int, x: T) = data.update(i, x)
 
-  def inplaceReverse() = ???
-
   def insertAt(i: Int, x: T) = data.insert(i, x)
 
   def clear() = data.clear()
@@ -34,18 +34,13 @@ class ListSeq[T] private(private val data: LinkedList[T]) extends SMutSeq[T] {
 
   def inplaceMap(f: T => T) = ???
 
-  def swap(i: Int, j: Int) = ???
-
-  def apply(i: Int) = data.apply(i)
+  def inplaceReverse() = ???
 
   override def newEnumerator = new Enumerator[T] {
     var node = data.dummy
 
     def advance(): Boolean = {
-      if (node.next eq data.dummy) {
-        node = data.dummy
-        false
-      }
+      if (node.next eq data.dummy) false
       else {
         node = node.next
         true
@@ -61,8 +56,8 @@ class ListSeq[T] private(private val data: LinkedList[T]) extends SMutSeq[T] {
 
 object ListSeq extends SeqFactory[ListSeq] {
 
-  implicit def newBuilder[@sp(fdi) T]: Builder[T, ListSeq[T]] = new Builder[T, ListSeq[T]] {
-    val a = new LinkedList[T]()
+  implicit def newBuilder[T]: Builder[T, ListSeq[T]] = new Builder[T, ListSeq[T]] {
+    val a = new DoublyLinkedList[T]()
     def sizeHint(n: Int) = {}
     def +=(x: T) = a.append(x)
     def result = new ListSeq[T](a)

@@ -20,17 +20,17 @@ import scala.reflect._
  * This class serves as the basic building block for a series of structures in Poly-collection.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-final class ResizableArray[T: ClassTag]
-  (private[this] var cap: Int = Settings.ArrayInitialSize) extends MutIndexedSeq[T]
+final class ResizableArray[T]
+  (private[this] var cap: Int = Settings.ArrayInitialSize) extends DataMutableIndexedSeq[T]
 { self =>
 
-  private[this] var data: Array[T] = Array.ofDim[T](math.max(nextPowerOfTwo(cap), Settings.ArrayInitialSize))
+  private[this] var data: Array[AnyRef] = Array.ofDim[AnyRef](math.max(nextPowerOfTwo(cap), Settings.ArrayInitialSize))
   private[this] var len: Int = 0
 
   private[poly] def getData = data // exposed for math libraries
 
   class Node(val i: Int) extends BidiNode[T] {
-    def data = self.data(i)
+    def data = self.data(i).asInstanceOf[T]
     def pred = {
       if (i < 0) throw new IllegalArgumentException
       else if (i == 0) Seq()
@@ -46,7 +46,7 @@ final class ResizableArray[T: ClassTag]
   def ensureCapacity(minCapacity: Int): Unit = {
     if (cap < minCapacity) {
       val newCapacity = nextPowerOfTwo(minCapacity)
-      val newData = Array.ofDim[T](newCapacity)
+      val newData = Array.ofDim[AnyRef](newCapacity)
       Array.copy(data, 0, newData, 0, cap) // copy all for ArrayQueue
       data = newData
       cap = newCapacity
@@ -55,20 +55,20 @@ final class ResizableArray[T: ClassTag]
 
   def grow() = ensureCapacity(cap * 2)
 
-  def apply(i: Int) = data(i)
+  def apply(i: Int) = data(i).asInstanceOf[T]
 
   def capacity = cap
 
   def length = len
 
-  def update(i: Int, x: T) = data(i) = x
+  def update(i: Int, x: T) = data(i) = x.asInstanceOf[AnyRef]
 
   def clear() = len = 0
 
   def insertAt(i: Int, x: T) = {
     ensureCapacity(len + 1)
     Array.copy(data, i, data, i + 1, len - i)
-    data(i) = x
+    data(i) = x.asInstanceOf[AnyRef]
     len += 1
   }
 
@@ -85,18 +85,18 @@ final class ResizableArray[T: ClassTag]
 
   def append(x: T) = {
     ensureCapacity(len + 1)
-    data(len) = x
+    data(len) = x.asInstanceOf[AnyRef]
     len += 1
   }
 
   def appendUnchecked(x: T) = {
-    data(len) = x
+    data(len) = x.asInstanceOf[AnyRef]
     len += 1
   }
 }
 
-object ResizableArray extends SeqFactoryWithTag[ResizableArray] {
-  def newBuilder[T:ClassTag]: Builder[T, ResizableArray[T]] = new Builder[T, ResizableArray[T]] {
+object ResizableArray extends SeqFactory[ResizableArray] {
+  def newBuilder[T]: Builder[T, ResizableArray[T]] = new Builder[T, ResizableArray[T]] {
     val a = new ResizableArray[T]()
     def sizeHint(n: Int) = a.ensureCapacity(n)
     def +=(x: T) = a.append(x)

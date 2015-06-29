@@ -11,11 +11,17 @@ trait Table[+T] extends ((Int, Int) => T) {
 
   def size = numRows * numCols
 
-  def rows: Enumerable[Enumerable[T]]
+  def rows: Seq[Seq[T]]
 
-  def cols: Enumerable[Enumerable[T]]
+  def cols: Seq[Seq[T]]
 
   def map[U](f: T => U): Table[U]
+
+  def zip[U](that: Table[U]): Table[(T, U)]
+
+  def grouped(i: Int, j: Int): Table[Table[T]]
+
+  def sliding(i: Int, j: Int): Table[Table[T]]
 
   override def equals(that: Any) = that match {
     case other: Table[T] => ???
@@ -26,3 +32,6 @@ trait Table[+T] extends ((Int, Int) => T) {
 
 }
 
+object Table {
+
+}

@@ -71,6 +71,20 @@ trait Enumerator[+T] { self =>
     def current: (T, U) = (self.current, that.current)
   }
 
+  /**
+   * Returns the interleave sequence of two sequences. For example, [1, 2, 3] interleave [-1, -2, -3]
+   * yields [1, -1, 2, -2, 3, -3].
+   * @param that Another enumerable sequence
+   * @return Interleave sequence
+   */
+  def interleave[U >: T](that: Enumerator[U]): Enumerator[U] = new Enumerator[U] {
+    var firstSeq = true
+    def advance() = {
+      firstSeq = !firstSeq
+      if (!firstSeq) this.advance() else that.advance()
+    }
+    def current = if (firstSeq) this.current else that.current
+  }
 
 }
 

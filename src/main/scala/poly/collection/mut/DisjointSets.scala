@@ -10,5 +10,4 @@ class DisjointSets[T](val seq: Seq[T]) {
 
   private var sets = 0
 
-
 }

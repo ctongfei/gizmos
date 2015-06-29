@@ -8,7 +8,7 @@ import poly.collection.tree._
 
 /**
  * An implementation of a binary min-heap.
- * The least element according to the order will surface at the top of the heap.
+ * The least element under the specific order will surface at the top of the heap.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
 class BinaryHeap[T](val data: ResizableArray[T])(implicit O: WeakOrder[T]) extends PriorityQueue[T] {

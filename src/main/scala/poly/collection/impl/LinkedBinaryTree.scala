@@ -24,12 +24,12 @@ class LinkedBinaryTree[T] extends BinaryTree[T]
   dummy.parent = dummy
 
   def addRoot(x: T) = {
-    rootNode = new Node(x, dummy, dummy, dummy)
+    rootNode = new Node(x, dummy, null, null)
     dummy.right = rootNode
   }
 
   /** Locates the binary tree node at the given index. */
-  def locate(i: Int): Node = {
+  def findNode(i: Int): Node = {
     var x = i + 1
     var curr = dummy
     var depth = 1
@@ -44,7 +44,7 @@ class LinkedBinaryTree[T] extends BinaryTree[T]
     curr
   }
 
-  def update(i: Int, x: T) = locate(i).data = x
+  def update(i: Int, x: T) = findNode(i).data = x
 
 }
 

@@ -5,7 +5,7 @@ package poly
  */
 package object collection {
 
-  def default[T]: T = {
+  @inline def default[T]: T = {
     class Default {
       var default: T = _
     }

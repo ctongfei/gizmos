@@ -7,7 +7,6 @@ import poly.collection.node._
 
 /**
  * Represents a binary tree.
- *
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
 trait BinaryTree[+T] extends (Int =?> T) { self =>
@@ -20,7 +19,7 @@ trait BinaryTree[+T] extends (Int =?> T) { self =>
   def depth: Int = ???
 
   /** Returns the number of nodes in this tree. */
-  def size: Int = ???
+  def size: Int = rootNode.size
 
   /**
    * Returns the ''i''th node of this binary tree.
@@ -64,6 +63,8 @@ trait BinaryTree[+T] extends (Int =?> T) { self =>
   def right: BinaryTree[T] = BinaryTree.ofNode(rootNode.right)
 
   def map[U](f: T => U): BinaryTree[U] = BinaryTree.ofNode(rootNode.map(f))
+
+  def zip[U](that: BinaryTree[U]): BinaryTree[(T, U)] = BinaryTree.ofNode(rootNode zip that.rootNode)
 
   def preOrder = rootNode.preOrder
   def inOrder = rootNode.inOrder

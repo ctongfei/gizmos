@@ -8,7 +8,7 @@ import poly.util.specgroup._
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class ListStack[T] (private var data: ForwardLinkedList[T]) extends Queue[T] {
+class ListStack[T] (private var data: SinglyLinkedList[T]) extends Queue[T] {
 
   def size = data.len
 
@@ -27,7 +27,7 @@ class ListStack[T] (private var data: ForwardLinkedList[T]) extends Queue[T] {
 object ListStack extends CollectionFactory[ListStack] {
 
   implicit def newBuilder[T]: Builder[T, ListStack[T]] = new Builder[T, ListStack[T]] {
-    var data: ForwardLinkedList[T] = null
+    var data: SinglyLinkedList[T] = null
     def sizeHint(n: Int) = {}
     def +=(x: T) = data.prepend(x)
     def result = new ListStack[T](data)

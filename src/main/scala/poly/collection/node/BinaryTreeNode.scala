@@ -11,7 +11,9 @@ trait BinaryTreeNode[+T] extends Node[T] { self =>
 
   def left: BinaryTreeNode[T]
   def right: BinaryTreeNode[T]
-  def succ: Enumerable[BinaryTreeNode[T]] = ListSeq(right, left) //TODO: null?
+  def succ: Enumerable[BinaryTreeNode[T]] = ListSeq.applyNotNull(right, left)
+
+  def size: Int = preOrder.size
 
   /**
    * Returns a new binary tree node by applying a function to all nodes accessible from this node.
@@ -23,6 +25,12 @@ trait BinaryTreeNode[+T] extends Node[T] { self =>
     def left = self.left.map(f)
     def right = self.right.map(f)
     def data = f(self.data)
+  }
+
+  def zip[U](that: BinaryTreeNode[U]): BinaryTreeNode[(T, U)] = new BinaryTreeNode[(T, U)] {
+    def left = self.left zip that.left
+    def right = self.right zip that.right
+    def data = (self.data, that.data)
   }
 
   /**
@@ -115,8 +123,8 @@ trait BidiBinaryTreeNode[+T] extends
   def left: BidiBinaryTreeNode[T]
   def right: BidiBinaryTreeNode[T]
   def parent: BidiBinaryTreeNode[T]
-  override def pred: Enumerable[BidiBinaryTreeNode[T]] = ListSeq(parent)
-  override def succ: Enumerable[BidiBinaryTreeNode[T]] = ListSeq(right, left)
+  override def pred: Enumerable[BidiBinaryTreeNode[T]] = ListSeq.applyNotNull(parent)
+  override def succ: Enumerable[BidiBinaryTreeNode[T]] = ListSeq.applyNotNull(right, left)
 
   override def map[U](f: T => U): BidiBinaryTreeNode[U] = new BidiBinaryTreeNode[U] {
     def left = self.left.map(f)
