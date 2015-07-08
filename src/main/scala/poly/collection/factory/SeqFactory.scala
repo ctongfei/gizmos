@@ -4,6 +4,8 @@ import poly.util.specgroup._
 import scala.language.higherKinds
 
 /**
+ * Contains common constructors for sequences.
+ * This trait should be inherited by companion objects of sequence implementation classes.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
 trait SeqFactory[+C[_]] extends CollectionFactory[C] {
@@ -36,7 +38,7 @@ trait SeqFactory[+C[_]] extends CollectionFactory[C] {
     b.result
   }
 
-  def iterate[T](start: T, n: Int)(f: T => T): C[T] = {
+  def iterateN[T](start: T, n: Int)(f: T => T): C[T] = {
     var i = n
     val b = newBuilder[T]
     b.sizeHint(n)
@@ -50,6 +52,17 @@ trait SeqFactory[+C[_]] extends CollectionFactory[C] {
         i -= 1
       }
     }
+    b.result
+  }
+
+  def iterateTo[T](start: T, goal: T => Boolean)(f: T => T): C[T] = {
+    val b = newBuilder[T]
+    var x = start
+    while (!goal(x)) {
+      b += x
+      x = f(x)
+    }
+    b += x
     b.result
   }
 

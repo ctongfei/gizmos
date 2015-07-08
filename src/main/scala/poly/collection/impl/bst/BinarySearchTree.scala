@@ -12,7 +12,7 @@ class BinarySearchTree[T](implicit O: WeakOrder[T]) extends LinkedBinaryTree[T] 
   
   val order = O
 
-  private var _size = 0
+  private[this] var _size = 0
 
   override def size = _size
 

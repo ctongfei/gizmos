@@ -51,6 +51,8 @@ object Enumerable {
     def newEnumerator = e
   }
 
+  def iterate[T](s: T)(next: T => T) = ofEnumerator(Enumerator.iterate(s)(next))
+
   /** Returns the natural monad on Enumerables. */
   implicit object Monad extends Monad[Enumerable] {
     def flatMap[X, Y](mx: Enumerable[X])(f: (X) => Enumerable[Y]): Enumerable[Y] = mx.flatMap(f)

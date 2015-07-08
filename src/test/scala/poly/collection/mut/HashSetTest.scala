@@ -7,7 +7,7 @@ import poly.util.typeclass.ops._
  */
 object HashSetTest extends App {
 
-  val h = new HashTable[Int]()
+  val h = new HashTable[Int, Unit]()
 
   h.insert(1)
   h.insert(4)

@@ -26,7 +26,7 @@ trait CollectionFactory[+C[_]] {
 
   def applyNotNull[T](xs: T*): C[T] = {
     val b = newBuilder[T]
-    for (x °˚ xs if x != null) b += x
+    for (x ‚Üê xs if x != null) b += x
     b.result
   }
 

@@ -7,34 +7,39 @@ import poly.collection._
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class HashTable[T](implicit h: Hashing[T, Int]) {
+class HashTable[K, V](implicit val hashing: Hashing[K, Int]) {
 
-  final val HASH_VACANT = 0.toByte
-  final val HASH_REMOVED = 1.toByte
-  final val HASH_USED = 2.toByte
+  import HashTable._
 
-  var items: ResizableArray[T] = new ResizableArray[T]()
-  var buckets: ResizableArray[Byte] = new ResizableArray[Byte]()
-  var length: Int = items.capacity
+  val keys: ResizableArray[K] = new ResizableArray[K]()
+  val vals: ResizableArray[V] = new ResizableArray[V]()
+  val stat: ResizableArray[EntryStatus] = new ResizableArray[EntryStatus]()
+  var size: Int = 0
   var used: Int = 0
 
-  def mask = buckets.length - 1
-  def limit = (buckets.length * Settings.HashLoadFactor).toInt
+  def mask = stat.length - 1
+  def limit = (stat.length * Settings.HashLoadFactor).toInt
+
+  protected def grow() = {
+    keys.grow()
+    vals.grow()
+    stat.grow()
+  }
 
   /**
    * Locates the index of the specific element.
    * @param x The element to be found
    * @return Index. If not found, -1.
    */
-  def locate(x: T): Int = {
+  def locate(x: K): Int = {
     var i = x.### & 0x7fffffff
     var p = i
     do {
       val j = i & mask // initial bucket
-      val status = buckets(j)
-      if (status == HASH_VACANT)
+      val status = stat(j)
+      if (status == vacant)
         return -1
-      else if (status == HASH_USED && items(j) =~= x)
+      else if (status == inUse && keys(j) =~= x)
         return j
       i = i * 5 + p + 1
       p >>= 5
@@ -42,28 +47,28 @@ class HashTable[T](implicit h: Hashing[T, Int]) {
     -1
   }
 
-  def insert(x: T): Boolean = {
+  def insert(x: K): Boolean = {
     var i = x.### & 0x7fffffff
     var p = i
     do {
       val j = i & mask
-      val status = buckets(j)
-      if (status == HASH_USED) {
-        if (items(j) =~= x) return false
+      val status = stat(j)
+      if (status == inUse) {
+        if (keys(j) =~= x) return false
         else {
           i = i * 5 + p + 1
           p >>= 5
         }
       }
-      else if (status == HASH_REMOVED & locate(x) != -1)
+      else if (status == removed & locate(x) != -1)
         return false //TODO: performance?
       else {
-        items(j) = x
-        buckets(j) = HASH_USED
-        length += 1
-        if (status == 0) {
+        keys(j) = x
+        stat(j) = inUse
+        size += 1
+        if (status == vacant) {
           used += 1
-          if (used > limit) items.ensureCapacity(items.length * 2)
+          if (used > limit) grow()
         }
         return true
       }
@@ -71,18 +76,18 @@ class HashTable[T](implicit h: Hashing[T, Int]) {
     false
   }
   
-  def remove(x: T): Boolean = {
+  def remove(x: K): Boolean = {
     var i = x.### & 0x7fffffff
     var p = i
     do {
       val j = i & mask
-      val status = buckets(j)
-      if (status == HASH_USED && items(j) == x) {
-        buckets(j) = HASH_REMOVED
-        length -= 1
+      val status = stat(j)
+      if (status == inUse && keys(j) =~= x) {
+        stat(j) = removed
+        size -= 1
         return true
       }
-      else if (status == HASH_VACANT) {
+      else if (status == vacant) {
         return false
       }
       else {
@@ -93,4 +98,11 @@ class HashTable[T](implicit h: Hashing[T, Int]) {
     false
   }
 
+}
+
+object HashTable {
+  private[poly] type EntryStatus = Byte
+  private[poly] final val vacant = 0.asInstanceOf[Byte]
+  private[poly] final val removed = 1.asInstanceOf[Byte]
+  private[poly] final val inUse = 2.asInstanceOf[Byte]
 }

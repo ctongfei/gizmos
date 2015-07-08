@@ -12,17 +12,6 @@ import poly.util.specgroup._
 trait DataMutableIndexedSeq[T] extends DataMutableSeq[T] with IndexedSeq[T] {
 
   /**
-   * Swaps two elements in this sequence in-place.
-   * @param i Index of the first element
-   * @param j Index of the second element
-   */
-  def swap(i: Int, j: Int): Unit = {
-    val t = this(i)
-    this(i) = this(j)
-    this(j) = t
-  }
-
-  /**
    * Sorts this sequence in-place using the order provided.
    * @param O The order for sorting
    */

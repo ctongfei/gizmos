@@ -12,13 +12,14 @@ class LinkedBinaryTree[T] extends BinaryTree[T]
 
   class Node (
     var data: T,
-    var parent: Node = null,
     var left: Node = null,
-    var right: Node = null
+    var right: Node = null,
+    var parent: Node = null
   ) extends BidiBinaryTreeNode[T]
 
-  val dummy = new Node(default[T])
+  val dummy: Node = new Node(default[T])
   var rootNode: Node = null
+
   dummy.left = dummy
   dummy.right = dummy
   dummy.parent = dummy

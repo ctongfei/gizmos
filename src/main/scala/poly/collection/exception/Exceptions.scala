@@ -25,3 +25,6 @@ class SetInfiniteException
 
 class IncompatibleOrderException
   extends Exception("Attempted to merge two sorted sequence based on different orders.")
+
+class GoalNotFoundException[S](s: S)
+  extends Exception("Goal not found.")

@@ -25,11 +25,11 @@ class CircularArray[T](private val data: ResizableArray[T]) {
     // extend the buffer by 2
     //       B F
     // [ 6 7 - 1 2 3 4 5 ]
-    //   ^^^^^
+    //   *****
     // becomes
     //         F             B
     // [ - - - 1 2 3 4 5 6 7 - - - - - - ]
-    //                   ^^^^^
+    //                   *****
     val originalCapacity = data.capacity
     data.ensureCapacity(originalCapacity * 2)
     data.move(0, frontPtr, originalCapacity)

@@ -57,7 +57,7 @@ class ListSeq[T] private(private val data: SinglyLinkedList[T]) extends Structur
 object ListSeq extends SeqFactory[ListSeq] {
 
   implicit def newBuilder[T]: Builder[T, ListSeq[T]] = new Builder[T, ListSeq[T]] {
-    val a = new DoublyLinkedList[T]()
+    val a = new SinglyLinkedList[T]()
     def sizeHint(n: Int) = {}
     def +=(x: T) = a.append(x)
     def result = new ListSeq[T](a)

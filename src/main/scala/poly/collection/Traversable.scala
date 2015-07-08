@@ -1,9 +1,11 @@
 package poly.collection
 
 import poly.algebra._
+import poly.algebra.hkt._
 import poly.algebra.ops._
 import poly.collection.exception._
 import poly.collection.mut._
+import poly.util.fastloop._
 import poly.util.specgroup._
 import scala.language.higherKinds
 import scala.annotation.unchecked.{uncheckedVariance => uv}
@@ -91,7 +93,7 @@ trait Traversable[+T] { self =>
   def filterMany(fs: (T => Boolean)*): Seq[Traversable[T]] = {
     val l = ListSeq.fill(fs.length)(ListSeq[T]())
     for (x ← self)
-      for (i ← 0 until fs.length) //TODO: optimize using macro
+      for (i ← 0 until fs.length opt)
         if (fs(i)(x)) l(i) append x
     l
   }
@@ -209,7 +211,7 @@ trait Traversable[+T] { self =>
     }
   }
 
-  def takeWhile(f: T => Boolean) = new Traversable[T] {
+  def takeWhile(f: T => Boolean): Traversable[T] = new Traversable[T] {
     def foreach[U](g: T => U): Unit = {
       for (x ← self) {
         if (!f(x)) return
@@ -238,7 +240,7 @@ trait Traversable[+T] { self =>
 
   def sum[X >: T](implicit G: AdditiveMonoid[X]): X = reduce(G.add)
 
-  //def sum[X >: T](implicit G: InplaceAdditiveMonoid[X]) = ???
+  def isum[X >: T](implicit G: InplaceAdditiveMonoid[X]) = ???
 
   def product[X >: T](implicit G: MultiplicativeSemigroup[X]): X = reduce(G.mul)
 
@@ -328,6 +330,17 @@ trait Traversable[+T] { self =>
 
 object Traversable {
 
+  def empty: Traversable[Nothing] = new Traversable[Nothing] {
+    def foreach[U](f: Nothing => U): Unit = {}
+  }
 
+  def single[T](e: T): Traversable[T] = new Traversable[T] {
+    def foreach[U](f: T => U) = f(e)
+  }
+
+  implicit object Monad extends Monad[Traversable] {
+    def flatMap[x, y](mx: Traversable[x])(f: x => Traversable[y]) = mx.flatMap(f)
+    def id[x](u: x) = Traversable.single(u)
+  }
   
 }

@@ -8,7 +8,7 @@ import poly.collection.impl._
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-abstract class HashSet[T] private(val data: HashTable[T]) extends MutableSet[T] {
+abstract class HashSet[T] private(val data: HashTable[T, Unit]) extends MutableSet[T] {
 
   def add(x: T) = data.insert(x)
 
