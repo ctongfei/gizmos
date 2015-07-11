@@ -6,15 +6,23 @@ import poly.collection.mut._
 
 /**
  * Defines a space of search spaces.
+ * @author Yuhuan Jiang (jyuhuan@gmail.com).
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
 trait StateSpace[S] {
+
   def succ(x: S): Enumerable[S]
 
   def depthFirstTreeTraversal(start: S): Enumerable[S] =
     Enumerable.ofEnumerator(new DepthFirstTreeEnumerator[S](start)(this))
 
   def depthFirstTreeSearch(start: S, goal: S => Boolean): Seq[S] = {
+    val traversal = depthFirstTreeTraversal(start).takeWhile(s => !goal(s))
+
+
+
+    val e = new DepthFirstTreeEnumerator[S](start)(this)
+
     case class State(state: S, prev: State)
     val stack = ArrayStack(State(start, null))
     while (stack.notEmpty) {

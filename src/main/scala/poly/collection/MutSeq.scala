@@ -30,6 +30,7 @@ trait DataMutableSeq[T] extends Seq[T] {
     this(i) = this(j)
     this(j) = t
   }
+
   def inplaceReverse(): Unit
   def inplaceMap(f: T => T): Unit
 }

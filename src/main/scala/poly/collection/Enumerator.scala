@@ -19,7 +19,7 @@ import poly.util.specgroup._
  *
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-trait Enumerator[+T] { self =>
+trait Enumerator[+T] extends Traversable[T] { self =>
 
   /** Returns the current element of this enumeration. */
   def current: T
@@ -35,7 +35,51 @@ trait Enumerator[+T] { self =>
       f(self.current)
   }
 
-  def take(n: Int): Enumerator[T] = new Enumerator[T] {
+  override def map[U](f: T => U): Enumerator[U] = new Enumerator[U] {
+    def current = f(self.current)
+    def advance() = self.advance()
+  }
+
+  def flatMap[U](f: T => Enumerator[U]): Enumerator[U] = new Enumerator[U] {
+    private var e: Enumerator[U] = Enumerator.empty[U]
+    def current = e.current
+    def advance() = {
+      if (e.advance()) true
+      else if (self.advance()) {
+        e = f(self.current)
+        e.advance()
+      }
+      else false
+    }
+  }
+
+  override def filter(f: T => Boolean): Enumerator[T] = new Enumerator[T] {
+    def current: T = self.current
+    def advance(): Boolean = {
+      do {
+        val hasNext = self.advance()
+        if (!hasNext) return false
+      } while (!f(self.current))
+      true
+    }
+  }
+
+  override def filterNot(f: T => Boolean): Enumerator[T] = filter(e => !f(e))
+
+  def concat[U >: T](that: Enumerator[U]): Enumerator[U] = new Enumerator[U] {
+    private[this] var e: Enumerator[U] = self
+    def advance() = {
+      if (e.advance()) true else {
+        e = that
+        e.advance()
+      }
+    }
+    def current = e.current
+  }
+
+  override def tail = { self.advance(); self }
+
+  override def take(n: Int): Enumerator[T] = new Enumerator[T] {
     private[this] var remaining = n
     def advance() = remaining > 0 && { remaining -= 1; self.advance() }
     def current = self.current
@@ -46,44 +90,17 @@ trait Enumerator[+T] { self =>
    * @param n The number of elements to be dropped
    * @return
    */
-  def drop(n: Int): Enumerator[T] = {
+  override def drop(n: Int): Enumerator[T] = {
     var i = 0
     while (i < n && advance()) i += 1
     this
   }
 
-  def slice(i: Int, j: Int) = self.drop(i).take(j - i)
+  override def slice(i: Int, j: Int) = self.drop(i).take(j - i)
 
-  def map[U](f: T => U): Enumerator[U] = new Enumerator[U] {
-    def current = f(self.current)
-    def advance() = self.advance()
-  }
 
-  def flatMap[U](f: T => Enumerator[U]): Enumerator[U] = new Enumerator[U] {
-    private var e: Enumerator[U] = Enumerator.empty[U]
-    def current = e.current
-    def advance() = {
-      if (e.advance()) true
-      else {
-        if (self.advance()) {
-          e = f(self.current)
-          true
-        }
-        else false
-      }
-    }
-  }
 
-  def filter(f: T => Boolean): Enumerator[T] = new Enumerator[T] {
-    def current: T = self.current
-    def advance(): Boolean = {
-      do {
-        val hasNext = self.advance()
-        if (!hasNext) return false
-      } while (!f(self.current))
-      true
-    }
-  }
+
 
 
   /**
@@ -113,6 +130,8 @@ trait Enumerator[+T] { self =>
     }
     def current = if (firstSeq) this.current else that.current
   }
+
+  override def toString = "Current = " + this.current.toString
 
 }
 

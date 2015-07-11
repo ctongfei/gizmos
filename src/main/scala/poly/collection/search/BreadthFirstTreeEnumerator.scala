@@ -10,17 +10,17 @@ import poly.collection.mut._
  */
 class BreadthFirstTreeEnumerator[S](start: S)(implicit ss: StateSpace[S]) extends Enumerator[S] {
 
-  case class State(state: S, prev: State)
+  case class SearchState(state: S, prev: SearchState)
 
-  val fringe = ArrayQueue(State(start, null))
-  private var curr: State = null
+  val fringe = ArrayQueue(SearchState(start, null))
+  private var curr: SearchState = null
 
   def current = curr.state
 
   def advance() = {
     if (fringe.notEmpty) {
       curr = fringe.pop()
-      fringe ++= ss.succ(curr.state).map(s => State(s, curr))
+      fringe ++= ss.succ(curr.state).map(s => SearchState(s, curr))
       true
     }
     else false

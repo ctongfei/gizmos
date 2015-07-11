@@ -8,19 +8,19 @@ import poly.collection.mut._
  * @author Tongfei Chen (ctongfei@gmail.com).
  * @since 0.1.0
  */
-class DepthFirstTreeEnumerator[S](initial: S)(implicit ss: StateSpace[S]) extends Enumerator[S] {
+class DepthFirstTreeEnumerator[S](start: S)(implicit ss: StateSpace[S]) extends Enumerator[S] {
 
-  case class State(state: S, prev: State)
+  case class SearchState(state: S, prev: SearchState)
 
-  val fringe = ArrayStack(State(initial, null))
-  private var curr: State = null
+  val fringe = ArrayStack(SearchState(start, null))
+  private var curr: SearchState = null
 
   def current = curr.state
 
   def advance() = {
     if (fringe.notEmpty) {
       curr = fringe.pop()
-      fringe ++= ss.succ(curr.state).map(s => State(s, curr))
+      fringe ++= ss.succ(curr.state).map(s => SearchState(s, curr))
       true
     }
     else false

@@ -21,7 +21,7 @@ trait IndexedSeq[+T] extends Seq[T] { self =>
     def current = self(i)
     def advance(): Boolean = {
       i += 1
-      i < self.size
+      i < self.length
     }
   }
 

@@ -1,6 +1,7 @@
 package poly.collection.node
 
 import poly.collection._
+import poly.collection.search._
 
 /**
  * Basic trait for nodes. A node may contain a list of successor nodes.
@@ -12,8 +13,11 @@ import poly.collection._
  */
 trait Node[+T] {
   def data: T
-  def succ: Traversable[Node[T]]
+  def succ: Enumerable[Node[T]]
   override def toString = data.toString
+}
+
+object Node {
 }
 
 /**
@@ -22,7 +26,7 @@ trait Node[+T] {
  */
 trait BackwardNode[+T] {
   def data: T
-  def pred: Traversable[BackwardNode[T]]
+  def pred: Enumerable[BackwardNode[T]]
 }
 
 /**
@@ -31,6 +35,6 @@ trait BackwardNode[+T] {
  */
 trait BidiNode[+T] extends Node[T] with BackwardNode[T] {
   def data: T
-  def succ: Traversable[BidiNode[T]]
-  def pred: Traversable[BidiNode[T]]
+  def succ: Enumerable[BidiNode[T]]
+  def pred: Enumerable[BidiNode[T]]
 }

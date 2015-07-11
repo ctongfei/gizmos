@@ -7,17 +7,21 @@ import poly.collection.exception._
 import poly.collection.mut._
 import poly.util.fastloop._
 import poly.util.specgroup._
+import poly.util.typeclass._
 import scala.language.higherKinds
 import scala.annotation.unchecked.{uncheckedVariance => uv}
 
 /**
  * Basic trait for Poly-collection traversable collections.
  * @author Tongfei Chen (ctongfei@gmail.com).
+ *
+ * @define LAZY This function is lazily executed.
+ * @define EAGER This function is eagerly executed.
  */
 trait Traversable[+T] { self =>
 
   /**
-   * Applies a function ''f'' to each element of this collection.
+   * Applies a function ''f'' to each element of this collection. $EAGER
    * @param f The function to be applied. Return values are discarded.
    * @tparam V Type of the result of function ''f''
    */
@@ -25,7 +29,7 @@ trait Traversable[+T] { self =>
 
   /**
    * Returns a new traversable collection by applying a function to all elements in this collection.
-   * Execution: Lazy
+   * $LAZY
    * @param f Function to apply
    * @tparam U Type of the image of the function
    * @return A new collection that each element is the image of the original element applied by ''f''.
@@ -55,7 +59,7 @@ trait Traversable[+T] { self =>
 
   /**
    *
-   * Execution mode: Lazy
+   * $LAZY
    * @param f
    * @return
    */
@@ -66,39 +70,34 @@ trait Traversable[+T] { self =>
     }
   }
 
-  def filterNot(f: T => Boolean): Traversable[T] = new Traversable[T] {
-    def foreach[V](g: T => V) = {
-      for (x ← self)
-        if (!f(x)) g(x)
-    }
-  }
+  def filterNot(f: T => Boolean): Traversable[T] = filter(e => !f(e))
 
   /**
-   * Execution mode: Eager
+   * $EAGER
    * @param f
    * @return
    */
-  def partition(f: T => Boolean): (Traversable[T], Traversable[T]) = {
-    val l, r = ListSeq.newBuilder[T]
+  def partition(f: T => Boolean): (Seq[T], Seq[T]) = {
+    val l, r = ArraySeq.newBuilder[T]
     for (x ← self)
       if (f(x)) l += x else r += x
     (l.result, r.result)
   }
 
   /**
-   * Execution mode: Eager
+   * $EAGER
    * @param fs
    * @return
    */
-  def filterMany(fs: (T => Boolean)*): Seq[Traversable[T]] = {
-    val l = ListSeq.fill(fs.length)(ListSeq[T]())
+  def filterMany(fs: (T => Boolean)*): Seq[Seq[T]] = {
+    val l = ArraySeq.fill(fs.length)(ArraySeq[T]())
     for (x ← self)
       for (i ← 0 until fs.length opt)
         if (fs(i)(x)) l(i) append x
     l
   }
 
-  def groupBy[K](f: T => K): Map[K, Traversable[T]] = ???
+  def groupBy[T1 >: T, K](f: T1 => K): Multimap[K, T1] = ???
   //endregion
 
   def concat[U >: T](that: Traversable[U]): Traversable[U] = new Traversable[U] {
@@ -220,6 +219,19 @@ trait Traversable[+T] { self =>
     }
   }
 
+  def takeTo(f: T => Boolean): Traversable[T] = new Traversable[T] {
+    def foreach[U](g: T => U): Unit = {
+      var goal = false
+      for (x ← self) {
+        if (f(x)) goal = true
+        g(x)
+        if (goal) return
+      }
+    }
+  }
+
+  def takeUntil(f: T => Boolean): Traversable[T] = takeWhile(x => !f(x))
+
   def dropWhile(f: T => Boolean) = new Traversable[T] {
     def foreach[U](g: T => U): Unit = {
       var starts = false
@@ -238,9 +250,25 @@ trait Traversable[+T] { self =>
     None
   }
 
+  def sort[X >: T](implicit O: WeakOrder[X]): IndexedSeq[X] = {
+    val seq = self.map(e => e.asInstanceOf[X]).to[ArraySeq]
+    seq.inplaceSort()(O)
+    seq
+  }
+
+  def sortBy[X](f: T => X)(implicit O: WeakOrder[X]): IndexedSeq[T] = {
+    val seq = self.to[ArraySeq]
+    seq.inplaceSort()(WeakOrder by f)
+    seq
+  }
+
   def sum[X >: T](implicit G: AdditiveMonoid[X]): X = reduce(G.add)
 
-  def isum[X >: T](implicit G: InplaceAdditiveMonoid[X]) = ???
+  def isum[X >: T](implicit G: InplaceAdditiveMonoid[X]) = {
+    val sum = G.zero
+    for (x ← self) G.inplaceAdd(sum, x)
+    sum
+  }
 
   def product[X >: T](implicit G: MultiplicativeSemigroup[X]): X = reduce(G.mul)
 
@@ -251,6 +279,24 @@ trait Traversable[+T] { self =>
   def argmin[U: WeakOrder](f: T => U): T = argminWithValue(f)._1
 
   def argmax[U: WeakOrder](f: T => U): T = argmaxWithValue(f)._1
+
+  def minAndMax[X >: T : WeakOrder]: (X, X) = {
+    var minVal = default[X]
+    var maxVal = default[X]
+    var first = true
+
+    for (x ← self) {
+      if (first || minVal > x) {
+        minVal = x
+        first = false
+      }
+      if (first || maxVal < x) {
+        maxVal = x
+        first = false
+      }
+    }
+    (minVal, maxVal)
+  }
 
   def argminWithValue[U](f: T => U)(implicit O: WeakOrder[U]): (T, U) = {
     var minKey = default[T]
@@ -284,16 +330,16 @@ trait Traversable[+T] { self =>
     (maxKey, maxVal)
   }
 
-  def buildString(delimiter: String): String = {
+  def buildString[U >: T](delimiter: String)(implicit ev: Formatter[U]): String = {
     val sb = new StringBuilder
     var first = true
     for (x ← this) {
       if (first) {
-        sb.append(x)
+        sb.append(ev.str(x))
         first = false
       } else {
         sb.append(delimiter)
-        sb.append(x)
+        sb.append(ev.str(x))
       }
     }
     sb.result()

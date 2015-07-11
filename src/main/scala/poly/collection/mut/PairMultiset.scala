@@ -12,8 +12,3 @@ class PairMultiset[T, C[T1] <: Set[T1]] private() {
 
 }
 
-class Multimap[T, C[T1] <: Set[T1], I[T2] <: Set[T2]] private() {
-
-
-
-}
