@@ -43,13 +43,15 @@ trait Enumerator[+T] extends Traversable[T] { self =>
   def flatMap[U](f: T => Enumerator[U]): Enumerator[U] = new Enumerator[U] {
     private var e: Enumerator[U] = Enumerator.empty[U]
     def current = e.current
-    def advance() = {
+    def advance(): Boolean = {
       if (e.advance()) true
-      else if (self.advance()) {
-        e = f(self.current)
-        e.advance()
+      else {
+        while (self.advance()) {
+          e = f(self.current)
+          if (e.advance()) return true
+        }
+        false
       }
-      else false
     }
   }
 
