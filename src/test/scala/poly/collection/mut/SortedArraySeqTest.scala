@@ -1,6 +1,6 @@
 package poly.collection.mut
 
-import poly.algebra.ops._
+import poly.algebra.implicits._
 
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).

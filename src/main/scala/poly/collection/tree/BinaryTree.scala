@@ -1,7 +1,6 @@
 package poly.collection.tree
 
 import poly.algebra.hkt._
-import poly.collection._
 import poly.collection.exception._
 import poly.collection.node._
 
@@ -9,7 +8,7 @@ import poly.collection.node._
  * Represents a binary tree.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-trait BinaryTree[+T] extends (Int =?> T) { self =>
+trait BinaryTree[+T] extends PartialFunction[Int, T] { self =>
 
   def rootNode: BinaryTreeNode[T]
 
@@ -19,7 +18,7 @@ trait BinaryTree[+T] extends (Int =?> T) { self =>
   def depth: Int = ???
 
   /** Returns the number of nodes in this tree. */
-  def size: Int = rootNode.size
+  def size: Int = rootNode.preOrder.size
 
   /**
    * Returns the ''i''th node of this binary tree.

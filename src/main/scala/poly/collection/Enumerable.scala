@@ -2,8 +2,6 @@ package poly.collection
 
 import poly.algebra.hkt._
 import poly.collection.mut._
-import poly.collection.factory._
-import poly.util.specgroup._
 
 /**
  * `Enumerable` is the basic trait for all collections that exposes an enumerator.
@@ -61,7 +59,7 @@ trait Enumerable[+T] extends Traversable[T] { self =>
 
 object Enumerable {
 
-  /** Creates an Enumerable based on an existing enumerator. */
+  /** Creates an enumerable sequence based on an existing enumerator. */
   def ofEnumerator[T](e: Enumerator[T]): Enumerable[T] = new Enumerable[T] {
     def newEnumerator = e
   }

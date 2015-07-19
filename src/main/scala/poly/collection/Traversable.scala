@@ -97,6 +97,8 @@ trait Traversable[+T] { self =>
     l
   }
 
+  def group[U >: T](implicit ev: Eq[U]): Set[Set[U]] = ???
+
   def groupBy[T1 >: T, K](f: T1 => K): Multimap[K, T1] = ???
   //endregion
 
@@ -256,10 +258,10 @@ trait Traversable[+T] { self =>
     seq
   }
 
-  def sortBy[X](f: T => X)(implicit O: WeakOrder[X]): IndexedSeq[T] = {
+  def sortBy[U >: T, X](f: U => X)(implicit O: WeakOrder[X]): IndexedSortedSeq[U] = {
     val seq = self.to[ArraySeq]
     seq.inplaceSort()(WeakOrder by f)
-    seq
+    seq.asIfSorted(WeakOrder by f)
   }
 
   def sum[X >: T](implicit G: AdditiveMonoid[X]): X = reduce(G.add)
@@ -272,9 +274,9 @@ trait Traversable[+T] { self =>
 
   def product[X >: T](implicit G: MultiplicativeSemigroup[X]): X = reduce(G.mul)
 
-  def min[X >: T](implicit O: WeakOrder[X]): X = reduce(O.min)
+  def min[X >: T](implicit O: WeakOrder[X]): X = reduce(O.min[X])
 
-  def max[X >: T](implicit O: WeakOrder[X]): X = reduce(O.max)
+  def max[X >: T](implicit O: WeakOrder[X]): X = reduce(O.max[X])
 
   def argmin[U: WeakOrder](f: T => U): T = argminWithValue(f)._1
 
@@ -370,7 +372,7 @@ trait Traversable[+T] { self =>
     b.result
   }
 
-  def ++[U >: T](that: Traversable[U]) = this concat that
+  def ++[U >: T](that: Traversable[U]): Traversable[U] = this concat that
 
 }
 

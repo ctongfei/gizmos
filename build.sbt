@@ -12,7 +12,7 @@ resolvers += Resolver.sonatypeRepo("snapshots")
 
 libraryDependencies += "me.tongfei" %% "poly-util" % "0.1.0-SNAPSHOT"
 
-libraryDependencies += "me.tongfei" %% "poly-algebra" % "0.2.2-SNAPSHOT"
+libraryDependencies += "me.tongfei" %% "poly-algebra" % "0.2.3-SNAPSHOT"
 
 libraryDependencies += "org.scalatest" %% "scalatest" % "2.2.2" % Test
 

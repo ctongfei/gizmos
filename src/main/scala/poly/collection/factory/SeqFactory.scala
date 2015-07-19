@@ -1,6 +1,5 @@
 package poly.collection.factory
 
-import poly.util.specgroup._
 import scala.language.higherKinds
 
 /**

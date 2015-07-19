@@ -15,7 +15,8 @@ import poly.util.specgroup._
  *  - C++ iterators : { `*`, `++` }
  *  - C# `Enumerator`: { `Current`, `MoveNext` }
  *
- *  Poly-collection adopts the C++/C# style of iterators instead of the Java/Scala style.
+ *  Poly-collection adopts the C++/C# style of iterators instead of the Java/Scala style
+ *  for ease of implementing lazy search algorithms.
  *
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
@@ -99,10 +100,6 @@ trait Enumerator[+T] extends Traversable[T] { self =>
   }
 
   override def slice(i: Int, j: Int) = self.drop(i).take(j - i)
-
-
-
-
 
 
   /**

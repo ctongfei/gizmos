@@ -17,23 +17,13 @@ trait StateSpace[S] {
     Enumerable.ofEnumerator(new DepthFirstTreeEnumerator[S](start)(this))
 
   def depthFirstTreeSearch(start: S, goal: S => Boolean): Seq[S] = {
-    val traversal = depthFirstTreeTraversal(start).takeWhile(s => !goal(s))
-
-
-
-    val e = new DepthFirstTreeEnumerator[S](start)(this)
-
-    case class State(state: S, prev: State)
-    val stack = ArrayStack(State(start, null))
-    while (stack.notEmpty) {
-      val curr = stack.pop()
-      if (!goal(curr.state))
-        stack ++= succ(curr.state).map(s => State(s, curr))
-      else {
-        return Enumerable.iterate(curr)(s => s.prev).takeWhile(s => s.prev != null).map(s => s.state).to[Seq]
-      }
-    }
-    throw new GoalNotFoundException(goal)
+    val dfs = new DepthFirstTreeEnumerator(start)(this)
+    val traversal = dfs.takeWhile(s => !goal(s)).foreach(s => ())
+    val goalNode = dfs.fringe.top
+    if (!goal(goalNode.state)) throw new GoalNotFoundException(goal)
+    Enumerable.iterate(goalNode)(s => s.prev)
+      .takeWhile(s => s.prev != null)
+      .map(s => s.state).to[ArraySeq]
   }
 
   def breadthFirstTreeSearch(initial: S, goal: S => Boolean): Seq[S] = ???

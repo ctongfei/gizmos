@@ -12,7 +12,6 @@ package object collection {
     (new Default).default
   }
 
-  type =?>[-X, +Y] = PartialFunction[X, Y]
 
   private[collection] def nextPowerOfTwo(x: Int): Int = {
     var c = x - 1

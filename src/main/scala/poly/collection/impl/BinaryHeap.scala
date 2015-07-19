@@ -50,7 +50,7 @@ class BinaryHeap[T](val data: ResizableArray[T])(implicit O: WeakOrder[T]) exten
 
   def pop(): T = {
     val front = data(0)
-    data.swap(0, data.length - 1)
+    data.inplaceSwap(0, data.length - 1)
     data.deleteAt(data.length - 1)
     if (data.length > 1) siftDown(0)
     front

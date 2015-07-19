@@ -16,7 +16,7 @@ import poly.collection.node._
  *
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class SinglyLinkedList[T] {
+class SinglyLinkedList[T] extends Seq[T] {
 
   class Node(var data: T, var next: Node = null) extends SeqNode[T]
 
@@ -32,13 +32,14 @@ class SinglyLinkedList[T] {
    * @return The previous node and the node that contains the ''i''-th element.
    */
   def locate(i: Int): (Node, Node) = {
+    if (i == -1) return (dummy, dummy)
     if (i < 0 || i >= len) throw new IndexOutOfBoundsException
-    var curr = dummy
-    var prev: Node = null
+    var curr = dummy.next
+    var prev: Node = dummy
     var j = 0
     while (j < i) {
-      curr = curr.next
       prev = curr
+      curr = curr.next
       j += 1
     }
     (prev, curr)
@@ -111,7 +112,19 @@ class SinglyLinkedList[T] {
     len -= 1
   }
 
+  override def newEnumerator: Enumerator[T] = new Enumerator[T] {
+    var curr = dummy
+    def advance() = {
+      if (curr.next eq dummy) false
+      else {
+        curr = curr.next
+        true
+      }
+    }
+    def current = curr.data
+  }
 
+  def headNode = dummy.next
 }
 
 object SinglyLinkedList {

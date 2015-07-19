@@ -11,13 +11,15 @@ import poly.collection.search._
  * @author Tongfei Chen (ctongfei@gmail.com).
  * @since 0.1.0
  */
-trait Node[+T] {
+trait Node[+T] { self =>
   def data: T
   def succ: Enumerable[Node[T]]
   override def toString = data.toString
-}
 
-object Node {
+  def map[U](f: T => U): Node[U] = new Node[U] {
+    def data = f(self.data)
+    def succ = self.succ.map(n => n.map(f))
+  }
 }
 
 /**

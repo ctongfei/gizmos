@@ -25,7 +25,7 @@ trait DataMutableSeq[T] extends Seq[T] {
    * @param i Index of the first element
    * @param j Index of the second element
    */
-  def swap(i: Int, j: Int): Unit = {
+  def inplaceSwap(i: Int, j: Int): Unit = {
     val t = this(i)
     this(i) = this(j)
     this(j) = t

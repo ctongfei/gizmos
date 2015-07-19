@@ -3,6 +3,7 @@ package poly.collection.impl
 import poly.algebra._
 import poly.algebra.ops._
 import poly.collection._
+import poly.util.typeclass._
 
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).

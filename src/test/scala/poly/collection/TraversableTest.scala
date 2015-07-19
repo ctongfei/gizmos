@@ -14,7 +14,6 @@ class TraversableTest extends FunSuite {
 
     val f = (x: Int) => ArraySeq(x, x)
 
-
     println(l.map(_ * 2).buildString(" "))
 
     println(l.flatMap((x: Int) => ArraySeq.fill(x)(x)).buildString(" "))

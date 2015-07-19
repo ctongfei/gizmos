@@ -6,7 +6,7 @@ import poly.collection.impl._
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-abstract class ListSet[T] private(private val data: SinglyLinkedList[T]) extends Set[T] {
+class ListSet[T] private(private val data: SinglyLinkedList[T]) extends MutableSet[T] {
 
   override def size = data.len
 
@@ -25,5 +25,24 @@ abstract class ListSet[T] private(private val data: SinglyLinkedList[T]) extends
     if (!contains(x)) data.prepend(x)
   }
 
+  def remove(x: T) = {
+    var p = data.dummy
+    var c = data.dummy.next
+    while (c ne data.dummy) {
+      if (c.data == x) p.next = c.next
+      p = c
+      c = c.next
+    }
+  }
 
+  def newEnumerator = data.newEnumerator
+}
+
+//TODO:!!! change to SetFactory
+object ListSet {
+  def apply[T](xs: T*): ListSet[T] = {
+    val l = new SinglyLinkedList[T]
+    xs foreach l.append
+    new ListSet[T](l)
+  }
 }

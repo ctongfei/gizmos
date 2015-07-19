@@ -9,8 +9,8 @@ import poly.collection.mut._
  */
 trait SeqNode[+T] extends Node[T] { self =>
   def next: SeqNode[T]
-  def succ: Enumerable[SeqNode[T]] = if (next eq null) ListSeq() else ListSeq(next)
-  def map[U](f: T => U): SeqNode[U] = new SeqNode[U] {
+  def succ: Enumerable[SeqNode[T]] = ListSeq.applyNotNull(next)
+  override def map[U](f: T => U): SeqNode[U] = new SeqNode[U] {
     def next = self.next.map(f)
     def data = f(self.data)
   }
@@ -25,8 +25,8 @@ trait BidiSeqNode[+T] extends BidiNode[T] with SeqNode[T] with SinglePredNode[T]
   def prev: BidiSeqNode[T]
   def next: BidiSeqNode[T]
   override def parent: BidiSeqNode[T] = prev
-  override def pred: Enumerable[BidiSeqNode[T]] = if (prev eq null) ListSeq() else ListSeq(prev)
-  override def succ: Enumerable[BidiSeqNode[T]] = if (next eq null) ListSeq() else ListSeq(next)
+  override def pred: Enumerable[BidiSeqNode[T]] = ListSeq.applyNotNull(prev)
+  override def succ: Enumerable[BidiSeqNode[T]] = ListSeq.applyNotNull(next)
   override def map[U](f: T => U): BidiSeqNode[U] = new BidiSeqNode[U] {
     def prev = self.prev.map(f)
     def next = self.next.map(f)

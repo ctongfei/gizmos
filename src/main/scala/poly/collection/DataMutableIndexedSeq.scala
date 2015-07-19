@@ -25,7 +25,7 @@ trait DataMutableIndexedSeq[T] extends DataMutableSeq[T] with IndexedSeq[T] {
         while (this(l) < pivot) l += 1
         while (this(r) > pivot) r -= 1
         if (l <= r) {
-          swap(l, r)
+          inplaceSwap(l, r)
           l += 1
           r -= 1
         }
@@ -43,7 +43,7 @@ trait DataMutableIndexedSeq[T] extends DataMutableSeq[T] with IndexedSeq[T] {
     var l = 0
     var r = length - 1
     while (l <= r) {
-      swap(l, r)
+      inplaceSwap(l, r)
       l += 1
       r -= 1
     }

@@ -30,7 +30,7 @@ class DoublyLinkedList[T] {
    * @return The node that contains the ''i''-th element.
    */
   def locate(i: Int): Node = { //TODO: for i >= length / 2, find backwards for faster speed
-    if (i < 0 | i >= length) throw new IndexOutOfBoundsException
+    if (i < 0 || i >= length) throw new IndexOutOfBoundsException
     var curr = dummy.next
     var j = 0
     while (j < i) {
