@@ -163,7 +163,7 @@ trait Traversable[+T] { self =>
     throw new NoSuchElementException
   }
 
-  def tail = new Traversable[T] {
+  def tail: Traversable[T] = new Traversable[T] {
     def foreach[U](f: T => U): Unit = {
       var first = true
       for (x ← self) {
@@ -179,7 +179,7 @@ trait Traversable[+T] { self =>
     p
   }
 
-  def init = new Traversable[T] {
+  def init: Traversable[T] = new Traversable[T] {
     def foreach[U](f: T => U): Unit = {
       var p = head
       var followed = false
@@ -373,12 +373,13 @@ trait Traversable[+T] { self =>
   }
 
   def ++[U >: T](that: Traversable[U]): Traversable[U] = this concat that
+  def |>[U](f: T => U): Traversable[U] = this map f
 
 }
 
 object Traversable {
 
-  def empty: Traversable[Nothing] = new Traversable[Nothing] {
+  val empty: Traversable[Nothing] = new Traversable[Nothing] {
     def foreach[U](f: Nothing => U): Unit = {}
   }
 

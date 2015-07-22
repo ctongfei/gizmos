@@ -22,6 +22,12 @@ trait Node[+T] { self =>
   }
 }
 
+object Node {
+  implicit def StateSpace[T]: StateSpace[Node[T]] = new StateSpace[Node[T]] {
+    def succ(x: Node[T]) = x.succ
+  }
+}
+
 /**
  * Represents a node that has a list of predecessor nodes.
  * @since 0.1.0
@@ -35,8 +41,8 @@ trait BackwardNode[+T] {
  * Represents a node that has a list of successor nodes as well as a list of predecessor nodes.
  * @since 0.1.0
  */
-trait BidiNode[+T] extends Node[T] with BackwardNode[T] {
+trait BiNode[+T] extends Node[T] with BackwardNode[T] {
   def data: T
-  def succ: Enumerable[BidiNode[T]]
-  def pred: Enumerable[BidiNode[T]]
+  def succ: Enumerable[BiNode[T]]
+  def pred: Enumerable[BiNode[T]]
 }

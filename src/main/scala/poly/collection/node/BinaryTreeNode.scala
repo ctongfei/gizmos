@@ -5,6 +5,7 @@ import poly.collection.mut._
 
 /**
  * Represents a node that has at most two successors.
+ * It is the type of nodes in a binary tree ([[poly.collection.tree.BinaryTree]]).
  * @since 0.1.0
  */
 trait BinaryTreeNode[+T] extends Node[T] { self =>
@@ -114,15 +115,15 @@ trait BinaryTreeNode[+T] extends Node[T] { self =>
 
 }
 
-trait BidiBinaryTreeNode[+T] extends BidiNode[T] with BinaryTreeNode[T] with SinglePredNode[T] { self =>
+trait BiBinaryTreeNode[+T] extends BiNode[T] with BinaryTreeNode[T] with SinglePredNode[T] { self =>
 
-  def left: BidiBinaryTreeNode[T]
-  def right: BidiBinaryTreeNode[T]
-  def parent: BidiBinaryTreeNode[T]
-  override def pred: Enumerable[BidiBinaryTreeNode[T]] = ListSeq.applyNotNull(parent)
-  override def succ: Enumerable[BidiBinaryTreeNode[T]] = ListSeq.applyNotNull(right, left)
+  def left: BiBinaryTreeNode[T]
+  def right: BiBinaryTreeNode[T]
+  def parent: BiBinaryTreeNode[T]
+  override def pred: Enumerable[BiBinaryTreeNode[T]] = ListSeq.applyNotNull(parent)
+  override def succ: Enumerable[BiBinaryTreeNode[T]] = ListSeq.applyNotNull(right, left)
 
-  override def map[U](f: T => U): BidiBinaryTreeNode[U] = new BidiBinaryTreeNode[U] {
+  override def map[U](f: T => U): BiBinaryTreeNode[U] = new BiBinaryTreeNode[U] {
     def left = self.left.map(f)
     def right = self.right.map(f)
     def parent = self.parent.map(f)

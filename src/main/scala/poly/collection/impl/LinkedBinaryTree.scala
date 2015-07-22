@@ -15,7 +15,7 @@ class LinkedBinaryTree[T] extends BinaryTree[T]
     var left: Node = null,
     var right: Node = null,
     var parent: Node = null
-  ) extends BidiBinaryTreeNode[T]
+  ) extends BiBinaryTreeNode[T]
 
   val dummy: Node = new Node(default[T])
   var rootNode: Node = null

@@ -16,7 +16,7 @@ class DoublyLinkedList[T] {
    * @param prev The previous node
    * @param next The next node
    */
-  class Node (var data: T, var prev: Node = null, var next: Node = null) extends BidiSeqNode[T]
+  class Node (var data: T, var prev: Node = null, var next: Node = null) extends BiSeqNode[T]
 
   private[poly] val dummy = new Node(default[T])
   private[poly] var length: Int = 0

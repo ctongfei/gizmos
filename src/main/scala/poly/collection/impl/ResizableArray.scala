@@ -29,7 +29,7 @@ final class ResizableArray[T]
 
   private[poly] def getData = data // exposed for math libraries
 
-  class Node(val i: Int) extends BidiNode[T] {
+  class Node(val i: Int) extends BiNode[T] {
     def data = self.data(i).asInstanceOf[T]
     def pred = {
       if (i < 0) throw new IllegalArgumentException

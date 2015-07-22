@@ -5,6 +5,7 @@ import poly.collection.mut._
 
 /**
  * Represents a node that has only one successor node.
+ * It is the type of nodes in a sequence ([[poly.collection.Seq]]).
  * @since 0.1.0
  */
 trait SeqNode[+T] extends Node[T] { self =>
@@ -18,16 +19,17 @@ trait SeqNode[+T] extends Node[T] { self =>
 
 /**
  * Represents a node that has exactly one predecessor and one successor.
+ * It is the type of nodes in a bidirectional sequence ([[poly.collection.BiSeq]]).
  * @since 0.1.0
  */
-trait BidiSeqNode[+T] extends BidiNode[T] with SeqNode[T] with SinglePredNode[T] { self =>
+trait BiSeqNode[+T] extends BiNode[T] with SeqNode[T] with SinglePredNode[T] { self =>
 
-  def prev: BidiSeqNode[T]
-  def next: BidiSeqNode[T]
-  override def parent: BidiSeqNode[T] = prev
-  override def pred: Enumerable[BidiSeqNode[T]] = ListSeq.applyNotNull(prev)
-  override def succ: Enumerable[BidiSeqNode[T]] = ListSeq.applyNotNull(next)
-  override def map[U](f: T => U): BidiSeqNode[U] = new BidiSeqNode[U] {
+  def prev: BiSeqNode[T]
+  def next: BiSeqNode[T]
+  override def parent: BiSeqNode[T] = prev
+  override def pred: Enumerable[BiSeqNode[T]] = ListSeq.applyNotNull(prev)
+  override def succ: Enumerable[BiSeqNode[T]] = ListSeq.applyNotNull(next)
+  override def map[U](f: T => U): BiSeqNode[U] = new BiSeqNode[U] {
     def prev = self.prev.map(f)
     def next = self.next.map(f)
     def data = f(self.data)

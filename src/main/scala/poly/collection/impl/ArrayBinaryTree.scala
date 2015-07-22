@@ -17,7 +17,7 @@ class ArrayBinaryTree[T] (
 
   import BinaryTree._
 
-  class Node (val i: Int) extends BidiBinaryTreeNode[T] {
+  class Node (val i: Int) extends BiBinaryTreeNode[T] {
     def data = if (state(i)) self.data(i) else throw new NoSuchElementException
     def data_=(x: T) = {
       self.state(i) = true

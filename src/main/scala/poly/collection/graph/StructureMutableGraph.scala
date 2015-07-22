@@ -3,16 +3,12 @@ package poly.collection.graph
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-trait StructureMutableGraph[V, E] extends DataMutableGraph[V, E] {
+trait StructureMutableGraph[I, V, E] extends DataMutableGraph[I, V, E] {
 
-  def addVertex(v: V): Unit
-  def deleteVertex(i: Int): Unit
+  def addVertex(i: I, v: V): Unit
+  def removeVertex(i: I): Unit
 
-  def insertEdge(i: Int, j: Int, e: E): Unit
-  def deleteEdge(i: Int, j: Int): Unit
+  def addEdge(i: I, j: I, e: E): Unit
+  def removeEdge(i: I, j: I): Unit
 
 }
-
-trait StructureMutableDirectedGraph[V, E] extends DirectedGraph[V, E] with StructureMutableGraph[V, E]
-
-trait StructureMutableUndirectedGraph[V, E] extends UndirectedGraph[V, E] with StructureMutableGraph[V, E]

@@ -3,13 +3,9 @@ package poly.collection.graph
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-trait DataMutableGraph[V, E] extends Graph[V, E] {
+trait DataMutableGraph[I, V, E] extends Graph[I, V, E] {
 
-  def update(i: Int, v: V): Unit
-  def update(i: Int, j: Int, e: E): Unit
+  def update(i: I, v: V): Unit
+  def update(i: I, j: I, e: E): Unit
 
 }
-
-trait DataMutableDirectedGraph[V, E] extends DirectedGraph[V, E] with DataMutableGraph[V, E]
-
-trait DataMutableUndirectedGraph[V, E] extends UndirectedGraph[V, E] with DataMutableGraph[V, E]

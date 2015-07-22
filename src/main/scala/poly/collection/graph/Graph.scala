@@ -1,54 +1,43 @@
 package poly.collection.graph
 
 import poly.collection._
+import poly.collection.node._
+import poly.util.specgroup._
 
 /**
+ * Basic trait for a forward directed graph.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-trait Graph[+V, +E] { self =>
+trait Graph[@sp(i) I, +V, +E] { self =>
 
-  def apply(i: Int): V
-  def apply(i: Int, j: Int): E
+  def apply(i: I): V
+  def apply(i: I, j: I): E
 
-  def vertex(i: Int): Vertex[V, E] = Vertex(i, apply(i))(self)
-  def edge(i: Int, j: Int): Edge[E]
+  def vertex(i: I): Vertex = new Vertex(i)
+  def edge(i: I, j: I): Edge = Edge(i, j)
 
-  def numVertices: Int
-  def numEdges: Int
+  def numVertices: Int = ids.size
+  def numEdges: Int = edges.size
 
-  def ids: Enumerable[Int]
-  def vertices: Enumerable[Vertex[V, E]]
-  def edges: Enumerable[Edge[E]]
+  def ids: Set[I]
+  def vertices: Set[Vertex]
+  def edges: Set[Edge]
 
-  def containsVertex(i: Int): Boolean
-  def containsEdge(i: Int, j: Int): Boolean
+  def containsVertex(i: I): Boolean
+  def containsEdge(i: I, j: I): Boolean
 
-  def incomingIdsOf(v: Int): Enumerable[Int]
-  def incomingVerticesOf(v: Int): Enumerable[Vertex[V, E]]
-  def incomingEdgesOf(v: Int): Enumerable[Edge[E]]
+  def outgoingIdsOf(i: I): Enumerable[I]
+  def outgoingVerticesOf(i: I): Enumerable[Vertex] = outgoingIdsOf(i).map(j => new Vertex(j))
+  def outgoingEdgesOf(i: I): Enumerable[Edge] = outgoingIdsOf(i).map(j => Edge(i, j))
+  def outDegree(i: I) = outgoingIdsOf(i).size
 
-  def outgoingIdsOf(v: Int): Enumerable[Int]
-  def outgoingVerticesOf(v: Int): Enumerable[Vertex[V, E]]
-  def outgoingEdgesOf(v: Int): Enumerable[Edge[E]]
+  class Vertex(val id: I) extends Node[V] {
+    def data = self.apply(id)
+    def succ = self.outgoingVerticesOf(id)
+  }
 
-  def incidentIdsOf(v: Int): Enumerable[Int]
-  def incidentVerticesOf(v: Int): Enumerable[Vertex[V, E]]
-  def incidentEdgesOf(v: Int): Enumerable[Edge[E]]
+  case class Edge(id1: I, id2: I) {
+    def data = self.apply(id1, id2)
+  }
 
-  def inDegree(v: Int) = incidentIdsOf(v).size
-  def outDegree(v: Int) = outgoingIdsOf(v).size
-
-}
-
-trait DirectedGraph[V, E] extends Graph[V, E] {
-
-  def edge(i: Int, j: Int): DirectedEdge[E] = DirectedEdge(i, j, apply(i, j))
-
-  def incomingEdgesOf(i: Int) = incomingIdsOf(i).map(j => DirectedEdge(j, i, apply(j, i)))
-  def outgoingEdgesOf(i: Int) = outgoingIdsOf(i).map(j => DirectedEdge(i, j, apply(i, j)))
-
-}
-
-trait UndirectedGraph[V, E] extends Graph[V, E] {
-  def edge(i: Int, j: Int): UndirectedEdge[E] = UndirectedEdge(i, j, apply(i, j))
 }

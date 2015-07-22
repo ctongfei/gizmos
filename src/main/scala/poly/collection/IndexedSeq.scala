@@ -12,7 +12,7 @@ import scala.reflect._
  * Basic trait for indexed sequences. Indexed sequences should support O(1) random access.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-trait IndexedSeq[+T] extends Seq[T] { self =>
+trait IndexedSeq[+T] extends BiSeq[T] { self =>
 
   def apply(i: Int): T
 
@@ -25,8 +25,8 @@ trait IndexedSeq[+T] extends Seq[T] { self =>
     }
   }
 
-  def headNode: BidiSeqNode[T] = new IndexedSeqNode(0)
-  def lastNode: BidiSeqNode[T] = new IndexedSeqNode(length - 1)
+  def headNode: BiSeqNode[T] = new IndexedSeqNode(0)
+  def lastNode: BiSeqNode[T] = new IndexedSeqNode(length - 1)
 
   // HELPER FUNCTIONS
 
@@ -53,7 +53,7 @@ trait IndexedSeq[+T] extends Seq[T] { self =>
     def apply(i: Int): T = self.apply(i)
   }
 
-  class IndexedSeqNode(val i: Int) extends BidiSeqNode[T] {
+  class IndexedSeqNode(val i: Int) extends BiSeqNode[T] {
     def data = self(i)
     def next = if (i == length - 1) null else new IndexedSeqNode(i + 1)
     def prev = if (i == 0) null else new IndexedSeqNode(i - 1)
