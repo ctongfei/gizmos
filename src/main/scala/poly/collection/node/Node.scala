@@ -20,6 +20,7 @@ trait Node[+T] { self =>
     def data = f(self.data)
     def succ = self.succ.map(n => n.map(f))
   }
+
 }
 
 object Node {

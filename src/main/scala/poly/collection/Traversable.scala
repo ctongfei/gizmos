@@ -48,6 +48,9 @@ trait Traversable[+T] { self =>
     }
   }
 
+  def cartesianProduct[U](that: Traversable[U]): Traversable[(T, U)] =
+    self flatMap (x => that map (y => (x, y)))
+
   //region Filtering according to predicates
 
   def count(f: T => Boolean): Int = {
@@ -352,7 +355,7 @@ trait Traversable[+T] { self =>
    * @param builder An implicit builder
    * @tparam C Higher-order type of the collection to be built
    * @return
-   */
+   */ //TODO: can this be implemented without using the @uv annotation?
   def to[C[_]](implicit builder: Builder[T @uv, C[T] @uv]): C[T @uv] = {
     val b = builder
     b ++= self
@@ -364,7 +367,7 @@ trait Traversable[+T] { self =>
    * Builds a structure based on this traversable sequence given an implicit builder.
    * @param builder An implicit builder
    * @tparam S Type of the structure to be built
-   * @return A new structure of type `R`
+   * @return A new structure of type `S`
    */
   def build[S](implicit builder: Builder[T, S]): S = {
     val b = builder
@@ -372,8 +375,10 @@ trait Traversable[+T] { self =>
     b.result
   }
 
-  def ++[U >: T](that: Traversable[U]): Traversable[U] = this concat that
-  def |>[U](f: T => U): Traversable[U] = this map f
+  def ++[U >: T](that: Traversable[U]) = this concat that
+  def ×[U](that: Traversable[U]) = this cartesianProduct that
+  def |>[U](f: T => U) = this map f
+  def ||>[U](f: T => Traversable[U]) = this flatMap f
 
 }
 

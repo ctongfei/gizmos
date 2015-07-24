@@ -7,7 +7,7 @@ import poly.algebra._
  * @author Tongfei Chen (ctongfei@gmail.com).
  * @since 0.1.0
  */
-trait Multiset[T] extends Enumerable[T] { self =>
+trait Multiset[T] extends PredicateSet[T] with Enumerable[T] { self =>
 
   /** Returns the multiplicity (number of occurrence) of an element in this multiset. */
   def multiplicity(x: T): Int

@@ -8,3 +8,4 @@ import poly.collection.graph._
 abstract class AdjacencyMatrixGraph[V, E] extends BiGraph[Int, V, E] {
 
 }
+

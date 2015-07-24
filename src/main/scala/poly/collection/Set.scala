@@ -8,7 +8,7 @@ import poly.algebra._
  * In Poly-collection, sets form a lattice.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-trait Set[T] extends Multiset[T] {
+trait Set[T] extends PredicateSet[T] with Multiset[T] {
 
   def multiplicity(x: T) = if (contains(x)) 1 else 0
 

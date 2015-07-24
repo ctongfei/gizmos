@@ -16,7 +16,7 @@ trait DataMutableIndexedSeq[T] extends DataMutableSeq[T] with IndexedSeq[T] {
    * @param O The order for sorting
    */
   def inplaceSort()(implicit O: WeakOrder[T]): Unit = {
-    //TODO: Change to introsort or timsort.
+    //TODO: change to introsort or timsort in the future.
     def quicksort(i: Int, j: Int): Unit = {
       var l = i
       var r = j

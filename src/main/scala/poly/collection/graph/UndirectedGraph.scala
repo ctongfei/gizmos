@@ -34,5 +34,4 @@ trait UndirectedGraph[I, +V, +E] extends BiGraph[I, V, E] {
     def newEnumerator = ListSeq(id1, id2).newEnumerator
   }
 
-
 }
