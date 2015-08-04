@@ -14,14 +14,14 @@ object SeqTest {
 
     val c = a.asIfSorted merge b.asIfSorted
 
-    a.append(7)
-    a.prepend(0)
-    a.prepend(-1)
+    a.inplaceAppend(7)
+    a.inplacePrepend(0)
+    a.inplacePrepend(-1)
     a.insertAt(4, 4)
     a.deleteAt(6)
 
-    b.append(4)
-    b.prepend(0)
+    b.inplaceAppend(4)
+    b.inplacePrepend(0)
     b.insertAt(0, 1)
     b.deleteAt(3)
 

@@ -81,9 +81,9 @@ final class ResizableArray[T]
     Array.copy(data, i, data, k, j - i)
   }
 
-  def prepend(x: T) = insertAt(0, x)
+  def inplacePrepend(x: T) = insertAt(0, x)
 
-  def append(x: T) = {
+  def inplaceAppend(x: T) = {
     ensureCapacity(len + 1)
     data(len) = x.asInstanceOf[AnyRef]
     len += 1
@@ -99,7 +99,7 @@ object ResizableArray extends SeqFactory[ResizableArray] {
   def newBuilder[T]: Builder[T, ResizableArray[T]] = new Builder[T, ResizableArray[T]] {
     val a = new ResizableArray[T]()
     def sizeHint(n: Int) = a.ensureCapacity(n)
-    def +=(x: T) = a.append(x)
+    def +=(x: T) = a.inplaceAppend(x)
     def result = a
   }
 

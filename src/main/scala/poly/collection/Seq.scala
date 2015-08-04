@@ -5,13 +5,14 @@ import poly.collection.factory._
 import poly.collection.mut._
 import poly.collection.node._
 import poly.util.specgroup._
+import poly.util.typeclass._
 import scala.annotation.unchecked.{uncheckedVariance => uV}
 
 /**
  * Trait for sequences.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-trait Seq[+T] extends Enumerable[T] with PartialFunction[Int, T] { self =>
+trait Seq[+T] extends Enumerable[T] with Map[Int, T] { self =>
 
   /**
    * Returns the length of this sequence.
@@ -44,7 +45,19 @@ trait Seq[+T] extends Enumerable[T] with PartialFunction[Int, T] { self =>
     def current = node.data
   }
 
-  def isDefinedAt(i: Int) = i >= 0 && i < size
+  override def isDefinedAt(i: Int) = i >= 0 && i < size
+
+  def applyOption(i: Int) = if (isDefinedAt(i)) Some(this(i)) else None
+
+  def contains(i: Int) = isDefinedAt(i)
+
+  def pairs = ??? //TODO: zipWithIndex.map(_.swap)
+
+  override def map[U](f: T => U): Seq[U] = new Seq[U] {
+    def apply(i: Int): U = f(self(i))
+    def length: Int = self.length
+    def headNode: SeqNode[U] = self.headNode.map(f)
+  }
 
   /**
    * Pretends that this sequence is sorted under the given order.
@@ -79,4 +92,5 @@ trait Seq[+T] extends Enumerable[T] with PartialFunction[Int, T] { self =>
 
 object Seq extends SeqFactory[Seq] {
   def newBuilder[T] = ListSeq.newBuilder[T]
+
 }

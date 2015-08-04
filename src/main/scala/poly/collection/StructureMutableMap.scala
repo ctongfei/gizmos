@@ -7,7 +7,7 @@ trait ImmutableMap[K, V] extends Map[K, V]
 
 trait DataMutableMap[K, V] extends Map[K, V] {
   def update(x: K, y: V): Unit
-  def inplaceMapValues(f: V => V): Unit = ???
+  def inplaceMap(f: V => V): Unit = ???
 }
 
 trait StructureMutableMap[K, V] extends DataMutableMap[K, V] {

@@ -10,11 +10,13 @@ class SortedArraySet[T] private(private val data: SortedArray[T]) extends Mutabl
 
   val order = data.order
 
-  def contains(x: T) = data.tryBinarySearch(x) > 0
+  def contains(x: T) = data.tryBinarySearch(x) >= 0
 
-  def newEnumerator = data.newEnumerator
+  def elements = data
 
   def add(x: T) = data.add(x)
 
   def remove(x: T) = data.remove(x)
+
+  def size: Int = data.size
 }

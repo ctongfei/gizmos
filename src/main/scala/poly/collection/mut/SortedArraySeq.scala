@@ -31,7 +31,7 @@ object SortedArraySeq extends CollectionFactoryWithOrder[SortedArraySeq] {
   def newBuilder[T:WeakOrder]: Builder[T, SortedArraySeq[T]] = new Builder[T, SortedArraySeq[T]] {
     val ra = new ResizableArray[T]()
     def sizeHint(n: Int) = ra.ensureCapacity(n)
-    def +=(x: T) = ra.append(x)
+    def +=(x: T) = ra.inplaceAppend(x)
     def result: SortedArraySeq[T] = {
       ra.inplaceSort()
       new SortedArraySeq[T](new SortedArray[T](ra))

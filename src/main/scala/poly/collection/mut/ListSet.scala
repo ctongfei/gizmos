@@ -22,7 +22,7 @@ class ListSet[T] private(private val data: SinglyLinkedList[T]) extends MutableS
   }
 
   def add(x: T) = {
-    if (!contains(x)) data.prepend(x)
+    if (!contains(x)) data.inplacePrepend(x)
   }
 
   def remove(x: T) = {
@@ -35,14 +35,14 @@ class ListSet[T] private(private val data: SinglyLinkedList[T]) extends MutableS
     }
   }
 
-  def newEnumerator = data.newEnumerator
+  def elements = data
 }
 
 //TODO:!!! change to SetFactory
 object ListSet {
   def apply[T](xs: T*): ListSet[T] = {
     val l = new SinglyLinkedList[T]
-    xs foreach l.append
+    xs foreach l.inplaceAppend
     new ListSet[T](l)
   }
 }

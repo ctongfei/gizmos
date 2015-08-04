@@ -20,17 +20,17 @@ class ListSeq[T] private(private val data: SinglyLinkedList[T]) extends Structur
 
   def length = data.length
 
-  def append(x: T) = data.append(x)
+  def inplaceAppend(x: T) = data.inplaceAppend(x)
 
-  def prepend(x: T) = data.prepend(x)
+  def inplacePrepend(x: T) = data.inplacePrepend(x)
 
   def update(i: Int, x: T) = data.update(i, x)
 
-  def insertAt(i: Int, x: T) = data.insert(i, x)
+  def insertAt(i: Int, x: T) = data.insertAt(i, x)
 
   def clear() = data.clear()
 
-  def deleteAt(i: Int) = data.remove(i)
+  def deleteAt(i: Int) = data.deleteAt(i)
 
   def inplaceMap(f: T => T) = ???
 
@@ -59,7 +59,7 @@ object ListSeq extends SeqFactory[ListSeq] {
   implicit def newBuilder[T]: Builder[T, ListSeq[T]] = new Builder[T, ListSeq[T]] {
     val a = new SinglyLinkedList[T]()
     def sizeHint(n: Int) = {}
-    def +=(x: T) = a append x
+    def +=(x: T) = a inplaceAppend x
     def result = new ListSeq[T](a)
   }
 }

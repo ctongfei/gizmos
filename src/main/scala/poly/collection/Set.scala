@@ -52,7 +52,7 @@ object Set {
    */
   def empty[T]: Set[T] = new Set[T] {
     override def size = 0
-    def newEnumerator = Enumerator.empty[T]
+    def elements = Enumerable.empty
     def contains(x: T) = false
     override def |(that: Set[T]) = that
     override def \(that: Set[T]) = this
@@ -64,7 +64,7 @@ object Set {
   /** Returns the lattice on sets. */
   implicit def Lattice[T]: Lattice[Set[T]] with BoundedLowerSemilattice[Set[T]] =
     new Lattice[Set[T]] with BoundedLowerSemilattice[Set[T]] {
-      def zero = empty[T]
+      def bottom = empty[T]
       def inf(x: Set[T], y: Set[T]) = x & y
       def sup(x: Set[T], y: Set[T]) = x | y
   }

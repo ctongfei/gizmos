@@ -7,6 +7,7 @@ import scala.language.implicitConversions
 
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
+ * @since 0.1.0
  */
 package object conversion {
 
@@ -53,6 +54,16 @@ package object conversion {
     def length = xs.size
     def apply(i: Int) = xs.get(i)
     def update(i: Int, x: T) = xs.set(i, x)
+  }
+  implicit def javaMapAsPoly[K, V](jm: ju.Map[K, V]): Map[K, V] = new StructureMutableMap[K, V] {
+    def add(x: K, y: V): Unit = jm.put(x, y)
+    def clear(): Unit = jm.clear()
+    def remove(x: K): Unit = jm.remove(x)
+    def update(x: K, y: V): Unit = jm.put(x, y)
+    def applyOption(x: K): Option[V] = Option(jm.get(x))
+    def pairs: Enumerable[(K, V)] = jm.entrySet.map(e => e.getKey → e.getValue)
+    def apply(x: K): V = jm.get(x)
+    def contains(x: K): Boolean = jm.containsKey(x)
   }
   //endregion
 

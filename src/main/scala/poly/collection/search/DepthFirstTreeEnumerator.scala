@@ -3,6 +3,8 @@ package poly.collection.search
 import poly.collection._
 import poly.collection.mut._
 
+import scala.collection._
+
 /**
  * An enumerator that executes depth first search on trees (assumes that there's no loop).
  * @author Tongfei Chen (ctongfei@gmail.com).

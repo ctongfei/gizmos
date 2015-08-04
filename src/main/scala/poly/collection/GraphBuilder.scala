@@ -1,6 +1,5 @@
-package poly.collection.graph
+package poly.collection
 
-//TODO: import poly.collection._
 /**
  * The base trait for graph builders, which are objects that allow
  * incremental construction of graphs.

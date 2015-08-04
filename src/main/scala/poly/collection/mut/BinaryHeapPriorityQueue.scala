@@ -32,7 +32,7 @@ object BinaryHeapPriorityQueue extends CollectionFactoryWithOrder[BinaryHeapPrio
 
     def sizeHint(n: Int): Unit = data.ensureCapacity(n)
 
-    def +=(x: T): Unit = data.append(x)
+    def +=(x: T): Unit = data.inplaceAppend(x)
 
     // heap building algorithm
     def result: BinaryHeapPriorityQueue[T] = {

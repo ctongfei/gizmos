@@ -4,7 +4,6 @@ import poly.collection._
 import poly.collection.exception._
 import poly.collection.mut._
 import poly.collection.node._
-import poly.collection.tree._
 
 /**
  * A binary tree stored in an array.
@@ -14,8 +13,6 @@ class ArrayBinaryTree[T] (
   private[poly] val data: ResizableArray[T],
   private[poly] val state: ResizableArray[Boolean]
 ) extends BinaryTree[T] { self =>
-
-  import BinaryTree._
 
   class Node (val i: Int) extends BiBinaryTreeNode[T] {
     def data = if (state(i)) self.data(i) else throw new NoSuchElementException

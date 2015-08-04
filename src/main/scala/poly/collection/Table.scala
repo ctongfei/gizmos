@@ -60,8 +60,8 @@ trait DataMutableTable[T] extends Table[T] {
 
 trait StructureMutableTable[T] extends DataMutableTable[T] {
   def clear(): Unit
-  def addRow(row: Seq[T]): Unit
-  def addCol(col: Seq[T]): Unit
+  def appendRow(row: Seq[T]): Unit
+  def appendCol(col: Seq[T]): Unit
   def removeRowAt(i: Int): Unit
   def removeColAt(j: Int): Unit
 }

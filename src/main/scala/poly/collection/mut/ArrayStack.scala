@@ -15,7 +15,7 @@ class ArrayStack[T] (private var data: ResizableArray[T] = null) extends Queue[T
 
   override def size = data.length
 
-  def push(x: T): Unit = data.append(x)
+  def push(x: T): Unit = data.inplaceAppend(x)
 
   def top: T = {
     if (isEmpty) throw new StackEmptyException
@@ -35,7 +35,7 @@ object ArrayStack extends CollectionFactory[ArrayStack] {
   implicit def newBuilder[T]: Builder[T, ArrayStack[T]] = new Builder[T, ArrayStack[T]] {
     var data = new ResizableArray[T]()
     def sizeHint(n: Int) = data.ensureCapacity(n)
-    def +=(x: T) = data.append(x)
+    def +=(x: T) = data.inplaceAppend(x)
     def result = new ArrayStack(data)
   }
 

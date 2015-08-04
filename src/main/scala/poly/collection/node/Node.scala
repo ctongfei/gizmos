@@ -1,5 +1,6 @@
 package poly.collection.node
 
+import poly.algebra.hkt._
 import poly.collection._
 import poly.collection.search._
 
@@ -20,12 +21,15 @@ trait Node[+T] { self =>
     def data = f(self.data)
     def succ = self.succ.map(n => n.map(f))
   }
-
 }
 
 object Node {
   implicit def StateSpace[T]: StateSpace[Node[T]] = new StateSpace[Node[T]] {
     def succ(x: Node[T]) = x.succ
+  }
+
+  implicit object Functor extends Functor[Node] {
+    def map[X, Y](nx: Node[X])(f: X => Y): Node[Y] = nx map f
   }
 }
 

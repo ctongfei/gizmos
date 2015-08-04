@@ -8,7 +8,7 @@ import poly.collection.node._
  * A doubly linked list.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class DoublyLinkedList[T] {
+class DoublyLinkedList[T] extends BiSeq[T] with StructureMutableSeq[T] {
 
   /**
    * Type of the internal node of a linked list.
@@ -19,10 +19,11 @@ class DoublyLinkedList[T] {
   class Node (var data: T, var prev: Node = null, var next: Node = null) extends BiSeqNode[T]
 
   private[poly] val dummy = new Node(default[T])
-  private[poly] var length: Int = 0
+  private[poly] var len: Int = 0
   dummy.prev = dummy
   dummy.next = dummy
 
+  def length = len
 
   /**
    * Locates the ''i''th element in a doubly linked list.
@@ -30,7 +31,7 @@ class DoublyLinkedList[T] {
    * @return The node that contains the ''i''-th element.
    */
   def locate(i: Int): Node = { //TODO: for i >= length / 2, find backwards for faster speed
-    if (i < 0 || i >= length) throw new IndexOutOfBoundsException
+    if (i < 0 || i >= len) throw new IndexOutOfBoundsException
     var curr = dummy.next
     var j = 0
     while (j < i) {
@@ -44,22 +45,22 @@ class DoublyLinkedList[T] {
    * Appends an element to the end of the doubly linked list.
    * @param x The element to be appended
    */
-  def append(x: T) = {
+  def inplaceAppend(x: T) = {
     val node = new Node(x, dummy.prev, dummy)
     node.prev.next = node
     node.next.prev = node
-    length += 1
+    len += 1
   }
 
   /**
    * Prepends an element to the start of the doubly linked list.
    * @param x The element to be prepended.
    */
-  def prepend(x: T) = {
+  def inplacePrepend(x: T) = {
     val node = new Node(x, dummy, dummy.next)
     node.prev.next = node
     node.next.prev = node
-    length += 1
+    len += 1
   }
 
   /**
@@ -84,12 +85,12 @@ class DoublyLinkedList[T] {
    * @param i Index
    * @param x New element
    */
-  def insert(i: Int, x: T) = {
+  def insertAt(i: Int, x: T) = {
     val p = locate(i)
     val node = new Node(x, p.prev, p)
     node.prev.next = node
     node.next.prev = node
-    length += 1
+    len += 1
   }
 
   /**
@@ -104,13 +105,24 @@ class DoublyLinkedList[T] {
    * Removes the ''i''-th element.
    * @param i Index
    */
-  def remove(i: Int) = {
+  def deleteAt(i: Int) = {
     val p = locate(i)
     p.prev.next = p.next
     p.next.prev = p.prev
-    length -= 1
+    len -= 1
   }
 
+  def headNode: BiSeqNode[T] = dummy.next
+
+  def lastNode: BiSeqNode[T] = dummy.prev
+
+  def inplaceReverse(): Unit = {
+    ???
+  }
+
+  def inplaceMap(f: T => T): Unit = {
+    ???
+  }
 }
 
 object DoublyLinkedList {

@@ -6,8 +6,7 @@ import poly.algebra.ops._
 import poly.collection.exception._
 import poly.collection.mut._
 import poly.util.fastloop._
-import poly.util.specgroup._
-import poly.util.typeclass._
+import poly.util.typeclass.{Eq => _, _}
 import scala.language.higherKinds
 import scala.annotation.unchecked.{uncheckedVariance => uv}
 
@@ -48,7 +47,7 @@ trait Traversable[+T] { self =>
     }
   }
 
-  def cartesianProduct[U](that: Traversable[U]): Traversable[(T, U)] =
+  def product[U](that: Traversable[U]): Traversable[(T, U)] =
     self flatMap (x => that map (y => (x, y)))
 
   //region Filtering according to predicates
@@ -96,7 +95,7 @@ trait Traversable[+T] { self =>
     val l = ArraySeq.fill(fs.length)(ArraySeq[T]())
     for (x ← self)
       for (i ← 0 until fs.length opt)
-        if (fs(i)(x)) l(i) append x
+        if (fs(i)(x)) l(i) inplaceAppend x
     l
   }
 
@@ -376,7 +375,7 @@ trait Traversable[+T] { self =>
   }
 
   def ++[U >: T](that: Traversable[U]) = this concat that
-  def ×[U](that: Traversable[U]) = this cartesianProduct that
+  def ×[U](that: Traversable[U]) = this product that
   def |>[U](f: T => U) = this map f
   def ||>[U](f: T => Traversable[U]) = this flatMap f
 
@@ -384,7 +383,7 @@ trait Traversable[+T] { self =>
 
 object Traversable {
 
-  val empty: Traversable[Nothing] = new Traversable[Nothing] {
+  final val empty: Traversable[Nothing] = new Traversable[Nothing] {
     def foreach[U](f: Nothing => U): Unit = {}
   }
 
@@ -393,8 +392,8 @@ object Traversable {
   }
 
   implicit object Monad extends Monad[Traversable] {
-    def flatMap[x, y](mx: Traversable[x])(f: x => Traversable[y]) = mx.flatMap(f)
-    def id[x](u: x) = Traversable.single(u)
+    def flatMap[X, Y](mx: Traversable[X])(f: X => Traversable[Y]) = mx.flatMap(f)
+    def id[X](u: X) = Traversable.single(u)
   }
   
 }

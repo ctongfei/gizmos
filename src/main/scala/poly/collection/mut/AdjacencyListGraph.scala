@@ -1,7 +1,6 @@
-package poly.collection.graph.mut
+package poly.collection.mut
 
 import poly.algebra.implicits._
-import poly.collection.graph._
 import poly.collection.mut._
 
 /**

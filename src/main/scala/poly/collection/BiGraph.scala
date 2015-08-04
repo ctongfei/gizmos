@@ -1,6 +1,5 @@
-package poly.collection.graph
+package poly.collection
 
-import poly.collection._
 import poly.collection.node._
 import poly.util.specgroup._
 
@@ -14,7 +13,7 @@ trait BiGraph[@sp(i) I, +V, +E] extends Graph[I, V, E] { self =>
   def incomingEdgesOf(i: I): Enumerable[Edge] = incomingIdsOf(i).map(j => Edge(j, i))
   def inDegree(i: I) = incomingIdsOf(i).size
 
-  override def outgoingVerticesOf(i: I): Enumerable[Vertex] = outgoingIdsOf(i).map(j => new Vertex(j))
+  override def outgoingVerticesOf(i: I): Enumerable[Vertex] = outgoingKeysOf(i).map(j => new Vertex(j))
 
   class Vertex(override val id: I) extends super.Vertex(id) with BiNode[V] {
     def pred = self.incomingVerticesOf(id)

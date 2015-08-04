@@ -4,6 +4,8 @@ import poly.algebra._
 import poly.algebra.hkt._
 
 /**
+ * Represents a pure, mathematical set (equivalent to a predicate).
+ * A predicate set is contravariant on its type parameter.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
 trait PredicateSet[-T] extends (T => Boolean) { self =>
@@ -39,16 +41,18 @@ object PredicateSet {
     def contains(x: T) = true
   }
 
- // implicit object ContravariantFunctor extends ContravariantFunctor[PredicateSet] {
+  /** Predicate sets form a contravariant functor. */
+  implicit object ContravariantFunctor extends ContravariantFunctor[PredicateSet] {
+    def contramap[X, Y](sx: PredicateSet[X])(f: Y => X): PredicateSet[Y] = sx contramap f
+  }
 
- // }
-
+  /** Predicate sets form a Boolean algebra. */
   implicit def BooleanAlgebra[T]: BooleanAlgebra[PredicateSet[T]] = new BooleanAlgebra[PredicateSet[T]] {
     def and(x: PredicateSet[T], y: PredicateSet[T]) = x & y
-    def one = PredicateSet.universal[T]
+    def top = PredicateSet.universal[T]
     def not(x: PredicateSet[T]) = !x
     def or(x: PredicateSet[T], y: PredicateSet[T]) = x | y
-    def zero = PredicateSet.empty
+    def bottom = PredicateSet.empty
   }
 
 }

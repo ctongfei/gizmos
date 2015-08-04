@@ -1,8 +1,10 @@
-package poly.collection.tree
+package poly.collection
 
 import poly.algebra.hkt._
 import poly.collection.exception._
 import poly.collection.node._
+import poly.util.typeclass._
+import poly.util.typeclass.ops._
 
 /**
  * Represents a binary tree.
@@ -69,6 +71,7 @@ trait BinaryTree[+T] extends PartialFunction[Int, T] { self =>
   def inOrder = rootNode.inOrder
   def postOrder = rootNode.postOrder
 
+  override def toString() = self.str(BinaryTree.Formatter[T](Formatter.default[T]))
 }
 
 object BinaryTree {
@@ -82,7 +85,11 @@ object BinaryTree {
   }
 
   implicit object Functor extends Functor[BinaryTree] {
-    def map[T, U](t: BinaryTree[T])(f: T => U): BinaryTree[U] = t.map(f)
+    def map[T, U](t: BinaryTree[T])(f: T => U): BinaryTree[U] = t map f
+  }
+
+  implicit def Formatter[T: Formatter]: Formatter[BinaryTree[T]] = new Formatter[BinaryTree[T]] {
+    def str(x: BinaryTree[T]): String = s"(${x.root.str} ${x.left.str} ${x.right.str})" //Recursion
   }
 
 }

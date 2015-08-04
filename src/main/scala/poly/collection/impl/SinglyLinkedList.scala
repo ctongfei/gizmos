@@ -16,7 +16,7 @@ import poly.collection.node._
  *
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class SinglyLinkedList[T] extends Seq[T] {
+class SinglyLinkedList[T] extends Seq[T] with StructureMutableSeq[T] {
 
   class Node(var data: T, var next: Node = null) extends SeqNode[T]
 
@@ -49,7 +49,7 @@ class SinglyLinkedList[T] extends Seq[T] {
    * Appends an element to the end of the singly linked list.
    * @param x The element to be appended
    */
-  def append(x: T) = {
+  def inplaceAppend(x: T) = {
     val (_, last) = locate(len - 1)
     val node = new Node(x, dummy)
     last.next = node
@@ -60,7 +60,7 @@ class SinglyLinkedList[T] extends Seq[T] {
    * Prepends an element to the start of the doubly linked list.
    * @param x The element to be prepended.
    */
-  def prepend(x: T) = {
+  def inplacePrepend(x: T) = {
     val node = new Node(x, dummy.next)
     dummy.next = node
     len += 1
@@ -88,7 +88,7 @@ class SinglyLinkedList[T] extends Seq[T] {
    * @param i Index
    * @param x New element
    */
-  def insert(i: Int, x: T) = {
+  def insertAt(i: Int, x: T) = {
     val (prev, curr) = locate(i)
     val node = new Node(x, curr)
     prev.next = node
@@ -106,25 +106,15 @@ class SinglyLinkedList[T] extends Seq[T] {
    * Removes the ''i''-th element.
    * @param i Index
    */
-  def remove(i: Int) = {
+  def deleteAt(i: Int) = {
     val (prev, curr) = locate(i)
     prev.next = curr.next
     len -= 1
   }
 
-  override def newEnumerator: Enumerator[T] = new Enumerator[T] {
-    var curr = dummy
-    def advance() = {
-      if (curr.next eq dummy) false
-      else {
-        curr = curr.next
-        true
-      }
-    }
-    def current = curr.data
-  }
-
   def headNode = dummy.next
+
+  def inplaceMap(f: (T) => T): Unit = ???
 }
 
 object SinglyLinkedList {

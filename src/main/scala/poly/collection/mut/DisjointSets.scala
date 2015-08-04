@@ -1,6 +1,5 @@
 package poly.collection.mut
 
-import poly.collection._
 import poly.collection.node._
 import poly.util.typeclass._
 
@@ -16,7 +15,7 @@ class DisjointSets[T] private() extends Eq[T] {
   private class Node extends SinglePredNode[Unit] {
     var rank: Int = 0
     var parent: Node = this
-    def data = ()
+    val data = ()
   }
 
   private var sets = 0
@@ -62,7 +61,7 @@ object DisjointSets {
 
   def apply[T](xs: T*): DisjointSets[T] = {
     val ds = new DisjointSets[T]
-    ds.data = scala.collection.mutable.HashMap(xs.map(t => t → new ds.Node()): _*)
+    ds.data = scala.collection.mutable.HashMap(xs.map(t => t → new ds.Node()): _*) // poly.collection.mut.HashMap
     ds.sets = ds.data.size
     ds
   }

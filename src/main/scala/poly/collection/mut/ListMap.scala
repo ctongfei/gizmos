@@ -9,7 +9,7 @@ import poly.collection.impl._
  */
 class ListMap[K, V] private(private val data: SinglyLinkedList[KeyValuePair[K, V]]) extends StructureMutableMap[K, V] {
 
-  override def size = data.size
+  def size = data.size
 
   private[this] def locateKey(x: K): (data.Node, data.Node) = {
     var p = data.dummy
@@ -24,7 +24,7 @@ class ListMap[K, V] private(private val data: SinglyLinkedList[KeyValuePair[K, V
 
   def contains(x: K) = locateKey(x) ne null
 
-  def get(x: K) = {
+  def applyOption(x: K) = {
     val pc = locateKey(x)
     if (pc eq null) None
     else {
@@ -35,7 +35,7 @@ class ListMap[K, V] private(private val data: SinglyLinkedList[KeyValuePair[K, V
 
   def add(x: K, y: V) = {
     val pc = locateKey(x)
-    if (pc eq null) data.prepend(KeyValuePair(x, y))
+    if (pc eq null) data.inplacePrepend(KeyValuePair(x, y))
     else {
       val (_, c) = pc
       c.data.value = y
@@ -59,7 +59,11 @@ class ListMap[K, V] private(private val data: SinglyLinkedList[KeyValuePair[K, V
     c.data.value = y
   }
 
-  def newEnumerator = data.newEnumerator.map(_.toTuple)
+
+  def apply(x: K): V = locateKey(x)._2.data.value
+
+  def pairs = data.map(_.toTuple)
+
 
 }
 
@@ -67,7 +71,7 @@ class ListMap[K, V] private(private val data: SinglyLinkedList[KeyValuePair[K, V
 object ListMap {
   def apply[K, V](xs: (K, V)*): ListMap[K, V] = {
     val l = new SinglyLinkedList[KeyValuePair[K, V]]
-    for (x ← xs) l.append(KeyValuePair(x._1, x._2))
+    for (x ← xs) l.inplaceAppend(KeyValuePair(x._1, x._2))
     new ListMap[K, V](l)
   }
 }

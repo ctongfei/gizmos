@@ -9,30 +9,31 @@ import poly.collection.impl.bst.RedBlackTree._
  * A red-black tree.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class RedBlackTree[K, V](implicit val order: WeakOrder[K]) extends StructureMutableMap[K, V]
-{
+class RedBlackTree[K, V](implicit val order: WeakOrder[K]) extends StructureMutableMap[K, V] {
 
-  type Entry = RedBlackTreeEntry[K, V]
+  type Entry = RedBlackTree.Entry[K, V]
 
   val bst = new BinarySearchTree[Entry]()(WeakOrder.by((e: Entry) => e.key))
+  bst.dummy.data.color = black //TODO: ???
 
-  override def size = bst.size
+  def size = bst.size
 
   def contains(x: K) = bst.locate(new Entry(x, default[V])) != null
 
-  def newEnumerator = bst.inOrder.newEnumerator.map(e => e.key → e.value)
+  private def locate(x: K): bst.Node = bst.locate(new Entry(x, default[V]))
 
+  // From JDK 1.8 [[TreeMap.java]]
   private def fixAfterInsertion(_x: bst.Node) = {
     var x = _x
     x.data.color = red // ensure that a new node is labeled as red
-    while (x != null && x != bst.rootNode && x.parent.data.color) {
+    while (x != null && x != bst.rootNode && x.parent.data.color == red) {
       if (x.parent == x.parent.parent.left) {
         val y = x.parent.parent.right // uncle node of x
-        if (y.data.color) {
+        if (y.data.color == red) {
           x.parent.data.color = black
           y.data.color = black
           x.parent.parent.data.color = red
-          x = x.parent.parent
+          x = x.parent.parent // go to grandparent
         } else {
           if (x == x.parent.right) {
             x = x.parent
@@ -63,8 +64,8 @@ class RedBlackTree[K, V](implicit val order: WeakOrder[K]) extends StructureMuta
     bst.rootNode.data.color = black
   }
 
-  def add(key: K, value: V) = {
-    if (bst.root == null) {
+  def add(key: K, value: V): Unit = {
+    if (bst.rootNode == bst.dummy) {
       bst.addRoot(new Entry(key, value, black)) // inserts a black node at the root position
     } else {
       val e = bst.add(new Entry(key, value, red)) // inserts an red node
@@ -72,26 +73,38 @@ class RedBlackTree[K, V](implicit val order: WeakOrder[K]) extends StructureMuta
     }
   }
 
-  def remove(x: K) = ???
+  def remove(x: K): Unit = {
+    val p = locate(x)
+    if (p eq null) return
+    if (p.left != null && p.right != null) {
+      val s = bst.inOrderSuccessor(p)
 
-  def update(k: K, v: V) = ???
+    }
+  }
+
+  def update(k: K, v: V) = {
+  }
 
   def clear() = ???
 
-  def get(x: K) = ???
+  def apply(x: K) = ???
+
+  def applyOption(x: K) = ???
+
+  def pairs: Enumerable[(K, V)] = bst.inOrder.map(_.toTuple)
 }
 
 
-object RedBlackTree {
+private[poly] object RedBlackTree {
   
-  private[poly] type Color = Boolean
-  private[poly] final val red = true
-  private[poly] final val black = false
-  
-}
+  type Color = Boolean
+  final val red = true
+  final val black = false
 
-private[poly] class RedBlackTreeEntry[K, V](
-  key: K,
-  value: V,
-  var color: Color = black
-) extends KeyValuePair(key, value)
+  class Entry[K, V](
+    key: K,
+    value: V,
+    var color: Color = black
+  ) extends KeyValuePair(key, value)
+
+}

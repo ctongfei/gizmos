@@ -1,10 +1,10 @@
 package poly.collection.mut
 
-import scala.collection._
+import poly.collection._
 
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-abstract class SortedArrayMap[K, V] extends mutable.Map[K, V] {
+abstract class SortedArrayMap[K, V] extends StructureMutableMap[K, V] {
 
 }

@@ -4,7 +4,6 @@ import poly.algebra._
 import poly.algebra.ops._
 import poly.collection._
 import poly.collection.exception._
-import poly.collection.tree._
 
 /**
  * An implementation of a binary min-heap.
@@ -44,7 +43,7 @@ class BinaryHeap[T](val data: ResizableArray[T])(implicit O: WeakOrder[T]) exten
   }
 
   def push(x: T): Unit = {
-    data.append(x)
+    data.inplaceAppend(x)
     siftUp(data.length - 1)
   }
 

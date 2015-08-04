@@ -1,6 +1,6 @@
-package poly.collection.graph.mut
+package poly.collection.mut
 
-import poly.collection.graph._
+import poly.collection._
 
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).

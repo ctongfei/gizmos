@@ -11,7 +11,7 @@ import scala.reflect._
  * A mutable sequence backed by an array.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class ArraySeq[T] (private[this] var data: ResizableArray[T] = null) extends DataMutableIndexedSeq[T] {
+class ArraySeq[T] private(private[this] var data: ResizableArray[T] = null) extends StructureMutableIndexedSeq[T] {
 
   def length = data.length
 
@@ -23,9 +23,9 @@ class ArraySeq[T] (private[this] var data: ResizableArray[T] = null) extends Dat
 
   def deleteAt(i: Int) = data.deleteAt(i)
 
-  def prepend(x: T) = data.prepend(x)
+  def inplacePrepend(x: T) = data.inplacePrepend(x)
 
-  def append(x: T) = data.append(x)
+  def inplaceAppend(x: T) = data.inplaceAppend(x)
 
   def clear() = data.clear()
 
@@ -36,7 +36,7 @@ object ArraySeq extends SeqFactory[ArraySeq] {
   implicit def newBuilder[T]: Builder[T, ArraySeq[T]] = new Builder[T, ArraySeq[T]] {
     val a = new ResizableArray[T]()
     def sizeHint(n: Int) = a.ensureCapacity(n)
-    def +=(x: T) = a.append(x)
+    def +=(x: T) = a.inplaceAppend(x)
     def result = new ArraySeq[T](a)
   }
 

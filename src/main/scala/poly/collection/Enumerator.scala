@@ -16,9 +16,10 @@ import poly.util.specgroup._
  *  - C# `Enumerator`: { `Current`, `MoveNext` }
  *
  *  Poly-collection adopts the C++/C# style of iterators instead of the Java/Scala style
- *  for ease of implementing lazy search algorithms.
+ *  for ease of implementing lazy search algorithms and lazy stream operations.
  *
  * @author Tongfei Chen (ctongfei@gmail.com).
+ * @since 0.1.0
  */
 trait Enumerator[+T] extends Traversable[T] { self =>
 
@@ -42,7 +43,7 @@ trait Enumerator[+T] extends Traversable[T] { self =>
   }
 
   def flatMap[U](f: T => Enumerator[U]): Enumerator[U] = new Enumerator[U] {
-    private var e: Enumerator[U] = Enumerator.empty[U]
+    private var e: Enumerator[U] = Enumerator.empty
     def current = e.current
     def advance(): Boolean = {
       if (e.advance()) true
@@ -135,7 +136,7 @@ trait Enumerator[+T] extends Traversable[T] { self =>
 }
 
 object Enumerator {
-  def empty[T]: Enumerator[T] = new Enumerator[T] {
+  final val empty: Enumerator[Nothing] = new Enumerator[Nothing] {
     def advance() = false
     def current = throw new NoSuchElementException
   }

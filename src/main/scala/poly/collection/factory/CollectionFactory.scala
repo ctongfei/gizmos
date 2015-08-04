@@ -24,6 +24,7 @@ trait CollectionFactory[+C[_]] {
     b.result
   }
 
+  /** Creates a collection by adding the non-null arguments into it. */
   def applyNotNull[T](xs: T*): C[T] = {
     val b = newBuilder[T]
     for (x ← xs if x != null) b += x

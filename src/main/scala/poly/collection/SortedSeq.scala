@@ -4,6 +4,7 @@ import poly.algebra._
 import poly.algebra.ops._
 import poly.collection.exception._
 import poly.collection.mut._
+import poly.collection.node._
 
 import scala.reflect._
 
@@ -31,17 +32,17 @@ trait SortedSeq[T] extends Seq[T] { self =>
     var bNotComplete = bi.advance()
     while (aNotComplete && bNotComplete) {
       if (ai.current <= bi.current) {
-        c.append(ai.current)
+        c.inplaceAppend(ai.current)
         aNotComplete = ai.advance()
       } else {
-        c.append(bi.current)
+        c.inplaceAppend(bi.current)
         bNotComplete = bi.advance()
       }
     }
 
     // Appends remaining elements
-    if (aNotComplete) do c.append(ai.current) while (ai.advance())
-    if (bNotComplete) do c.append(bi.current) while (bi.advance())
+    if (aNotComplete) do c.inplaceAppend(ai.current) while (ai.advance())
+    if (bNotComplete) do c.inplaceAppend(bi.current) while (bi.advance())
     c.asIfSorted(this.order)
   }
 
