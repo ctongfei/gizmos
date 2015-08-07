@@ -16,7 +16,7 @@ class BinarySearchTree[T](implicit val order: WeakOrder[T]) extends LinkedBinary
 
   def locate(x: T): Node = {
     var c = rootNode
-    while (c ne dummy) {
+    while (c.notDummy) {
       order.cmp(x, c.data) match {
         case 0 => return c
         case cmp if cmp < 0 => c = c.left
@@ -33,8 +33,8 @@ class BinarySearchTree[T](implicit val order: WeakOrder[T]) extends LinkedBinary
 
   def add(x: T): Node = {
     var c = rootNode // current
-    var p: Node = dummy // keeps track of the parent of c
-    while (c != dummy) {
+    var p: Node = Dummy // keeps track of the parent of c
+    while (c.notDummy) {
       p = c
       order.cmp(x, p.data) match {
         case 0 => return c // already in the BST; return
@@ -43,7 +43,7 @@ class BinarySearchTree[T](implicit val order: WeakOrder[T]) extends LinkedBinary
       }
     }
     c = new Node(x, parent = p)
-    if (p == dummy)
+    if (p.isDummy)
       rootNode = c
     else if (x < p.data)
       p.left = c

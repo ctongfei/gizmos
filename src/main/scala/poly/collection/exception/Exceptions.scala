@@ -17,14 +17,11 @@ class EnumeratorPositionException
 class QueueEmptyException
   extends Exception("Attempted to dequeue an empty queue.")
 
-class StackEmptyException
-  extends Exception("Attempted to pop an empty stack.")
-
-class SetInfiniteException
-  extends Exception("Attempted to iterate over an infinite set.")
-
 class IncompatibleOrderException
   extends Exception("Attempted to merge two sorted sequence based on different orders.")
 
 class GoalNotFoundException[S](s: S)
   extends Exception("Goal not found.")
+
+class VertexNotReachableException[K](i: K, j: K)
+  extends Exception(s"A path cannot be found from vertex $i to vertex $j.")

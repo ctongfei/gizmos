@@ -22,9 +22,9 @@ class ListMap[K, V] private(private val data: SinglyLinkedList[KeyValuePair[K, V
     null
   }
 
-  def contains(x: K) = locateKey(x) ne null
+  def containsKey(x: K) = locateKey(x) ne null
 
-  def applyOption(x: K) = {
+  def ?(x: K) = {
     val pc = locateKey(x)
     if (pc eq null) None
     else {

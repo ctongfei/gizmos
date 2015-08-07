@@ -9,5 +9,6 @@ trait StateSpaceWithCost[S, C] extends StateSpace[S] {
 }
 
 trait StateSpaceWithHeuristic[S, C] extends StateSpaceWithCost[S, C] {
+  /** The heuristic metric space on states. */
   def heuristic: MetricSpace[S, C]
 }

@@ -1,11 +1,10 @@
 package poly.collection
 
 import poly.algebra._
+import poly.collection.exception._
 import poly.collection.factory._
 import poly.collection.mut._
 import poly.collection.node._
-import poly.util.specgroup._
-import poly.util.typeclass._
 import scala.annotation.unchecked.{uncheckedVariance => uV}
 
 /**
@@ -47,9 +46,9 @@ trait Seq[+T] extends Enumerable[T] with Map[Int, T] { self =>
 
   override def isDefinedAt(i: Int) = i >= 0 && i < size
 
-  def applyOption(i: Int) = if (isDefinedAt(i)) Some(this(i)) else None
+  def ?(i: Int) = if (isDefinedAt(i)) Some(this(i)) else None
 
-  def contains(i: Int) = isDefinedAt(i)
+  def containsKey(i: Int) = isDefinedAt(i)
 
   def pairs = ??? //TODO: zipWithIndex.map(_.swap)
 
@@ -57,6 +56,7 @@ trait Seq[+T] extends Enumerable[T] with Map[Int, T] { self =>
     def apply(i: Int): U = f(self(i))
     def length: Int = self.length
     def headNode: SeqNode[U] = self.headNode.map(f)
+    override def newEnumerator: Enumerator[U] = self.newEnumerator.map(f)
   }
 
   /**
@@ -77,7 +77,7 @@ trait Seq[+T] extends Enumerable[T] with Map[Int, T] { self =>
     case _ => false
   }
 
-  override def toString = {
+  override def toString() = {
     val len = length
     if (len > Settings.MaxElemToString)
       s"[$len] " + this.take(Settings.MaxElemToString).buildString(", ") + "..."
@@ -90,7 +90,14 @@ trait Seq[+T] extends Enumerable[T] with Map[Int, T] { self =>
 
 }
 
-object Seq extends SeqFactory[Seq] {
-  def newBuilder[T] = ListSeq.newBuilder[T]
+object Seq {
+
+  object empty extends Seq[Nothing] {
+    def apply(i: Int): Nothing = throw new NoSuchElementException
+    def length: Int = 0
+    def headNode: SeqNode[Nothing] = throw new NoSuchElementException
+  }
+
+  def tabulate[T](n: Int)(f: Int => T) = IndexedSeq.tabulate(n)(f)
 
 }

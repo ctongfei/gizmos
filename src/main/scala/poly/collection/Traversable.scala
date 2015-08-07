@@ -113,6 +113,20 @@ trait Traversable[+T] { self =>
     }
   }
 
+  def prepend[U >: T](x: U): Traversable[U] = new Traversable[U] {
+    def foreach[V](f: U => V) = {
+      f(x)
+      self foreach f
+    }
+  }
+
+  def append[U >: T](x: U): Traversable[U] = new Traversable[U] {
+    def foreach[V](f: U => V) = {
+      self foreach f
+      f(x)
+    }
+  }
+
   def size: Int = {
     var s = 0
     for (x ← self) s += 1
@@ -374,16 +388,18 @@ trait Traversable[+T] { self =>
     b.result
   }
 
+  def :+[U >: T](x: U) = this append x
+  def +:[U >: T](x: U) = this prepend x
   def ++[U >: T](that: Traversable[U]) = this concat that
   def ×[U](that: Traversable[U]) = this product that
   def |>[U](f: T => U) = this map f
-  def ||>[U](f: T => Traversable[U]) = this flatMap f
+  def |>>[U](f: T => Traversable[U]) = this flatMap f
 
 }
 
 object Traversable {
 
-  final val empty: Traversable[Nothing] = new Traversable[Nothing] {
+  object empty extends Traversable[Nothing] {
     def foreach[U](f: Nothing => U): Unit = {}
   }
 

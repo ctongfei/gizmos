@@ -20,14 +20,22 @@ class ArrayBinaryTree[T] (
       self.state(i) = true
       self.data(i) = x
     }
-    def parent = if (i > 0) new Node((i - 1) / 2) else null
-    def left = if (nodeExists(2 * i + 1)) new Node(2 * i + 1) else null
-    def right = if (nodeExists(2 * i + 2)) new Node(2 * i + 2) else null
+    def parent = if (i > 0) new Node((i - 1) / 2) else Dummy
+    def left = if (nodeExists(2 * i + 1)) new Node(2 * i + 1) else Dummy
+    def right = if (nodeExists(2 * i + 2)) new Node(2 * i + 2) else Dummy
 
     override def equals(that: Any) = that match {
       case that: Node => this.i == that.i
       case _ => false
     }
+  }
+
+  object Dummy extends BiBinaryTreeNode[T] {
+    def left: BiBinaryTreeNode[T] = this
+    def right: BiBinaryTreeNode[T] = rootNode
+    def parent: BiBinaryTreeNode[T] = this
+    def data: T = throw new NoSuchElementException
+    override val isDummy = true
   }
 
   override def apply(i: Int) = if (nodeExists(i)) data(i) else throw new NoSuchElementException

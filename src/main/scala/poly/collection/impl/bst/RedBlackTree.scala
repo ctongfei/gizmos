@@ -14,11 +14,11 @@ class RedBlackTree[K, V](implicit val order: WeakOrder[K]) extends StructureMuta
   type Entry = RedBlackTree.Entry[K, V]
 
   val bst = new BinarySearchTree[Entry]()(WeakOrder.by((e: Entry) => e.key))
-  bst.dummy.data.color = black //TODO: ???
+  bst.Dummy.data.color = black //TODO: ???
 
   def size = bst.size
 
-  def contains(x: K) = bst.locate(new Entry(x, default[V])) != null
+  def containsKey(x: K) = bst.locate(new Entry(x, default[V])) != null
 
   private def locate(x: K): bst.Node = bst.locate(new Entry(x, default[V]))
 
@@ -65,7 +65,7 @@ class RedBlackTree[K, V](implicit val order: WeakOrder[K]) extends StructureMuta
   }
 
   def add(key: K, value: V): Unit = {
-    if (bst.rootNode == bst.dummy) {
+    if (bst.rootNode == bst.Dummy) {
       bst.addRoot(new Entry(key, value, black)) // inserts a black node at the root position
     } else {
       val e = bst.add(new Entry(key, value, red)) // inserts an red node
@@ -89,7 +89,7 @@ class RedBlackTree[K, V](implicit val order: WeakOrder[K]) extends StructureMuta
 
   def apply(x: K) = ???
 
-  def applyOption(x: K) = ???
+  def ?(x: K) = ???
 
   def pairs: Enumerable[(K, V)] = bst.inOrder.map(_.toTuple)
 }

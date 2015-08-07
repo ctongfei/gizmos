@@ -6,7 +6,7 @@ package poly.collection
  * @author Tongfei Chen (ctongfei@gmail.com).
  * @since 0.1.0
  */
-trait GraphBuilder[-I, -V, -E, +G] {
+trait GraphBuilder[-K, -V, -E, +G] {
 
   /**
    * Provides a hint to this builder about how many vertices are expected to be added.
@@ -14,13 +14,13 @@ trait GraphBuilder[-I, -V, -E, +G] {
    */
   def numVerticesHint(n: Int): Unit
 
-  def addVertex(i: I, v: V): Unit
+  def addVertex(i: K, v: V): Unit
 
-  def addEdge(i: I, j: I, e: E): Unit
+  def addEdge(i: K, j: K, e: E): Unit
 
-  def addVertices(ivs: Traversable[(I, V)]) = ivs foreach { case (i, v) => addVertex(i, v) }
+  def addVertices(kvs: Traversable[(K, V)]) = kvs foreach { case (i, v) => addVertex(i, v) }
 
-  def addEdges(iies: Traversable[(I, I, E)]) = iies foreach { case (i, j, e) => addEdge(i, j, e) }
+  def addEdges(kkes: Traversable[(K, K, E)]) = kkes foreach { case (i, j, e) => addEdge(i, j, e) }
 
   def result: G
 

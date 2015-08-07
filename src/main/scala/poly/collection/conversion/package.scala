@@ -60,10 +60,10 @@ package object conversion {
     def clear(): Unit = jm.clear()
     def remove(x: K): Unit = jm.remove(x)
     def update(x: K, y: V): Unit = jm.put(x, y)
-    def applyOption(x: K): Option[V] = Option(jm.get(x))
+    def ?(x: K): Option[V] = Option(jm.get(x))
     def pairs: Enumerable[(K, V)] = jm.entrySet.map(e => e.getKey → e.getValue)
     def apply(x: K): V = jm.get(x)
-    def contains(x: K): Boolean = jm.containsKey(x)
+    def containsKey(x: K): Boolean = jm.containsKey(x)
   }
   //endregion
 

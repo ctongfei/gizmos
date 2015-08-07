@@ -8,7 +8,17 @@ import scala.language.higherKinds
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class PairMultiset[T, C[T1] <: Set[T1]] private() {
+class PairMultiset[T, C[T1] <: Set[T1]] private() extends Multiset[T] {
+
+  val data: C[KeyValuePair[T, Int]] = null
+
+  def contains(x: T): Boolean = ???
+
+  def size: Int = ???
+
+  def multiplicity(x: T): Int = ???
+
+  def elements: Enumerable[T] = ???
 
 }
 

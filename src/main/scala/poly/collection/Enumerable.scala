@@ -59,7 +59,7 @@ trait Enumerable[+T] extends Traversable[T] { self =>
 
 object Enumerable {
 
-  final val empty: Enumerable[Nothing] = new Enumerable[Nothing] {
+  object empty extends Enumerable[Nothing] {
     def newEnumerator: Enumerator[Nothing] = Enumerator.empty
   }
 

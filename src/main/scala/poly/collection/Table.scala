@@ -12,10 +12,15 @@ trait Table[+T] extends ((Int, Int) => T) { self =>
 
   def size = numRows * numCols
 
-  //TODO: make this lazy!
-  def rows: Seq[Seq[T]] = Seq.tabulate(numRows)(i => Seq.tabulate(numCols)(j => self(i, j)))
-  //TODO: make this lazy!
-  def cols: Seq[Seq[T]] = Seq.tabulate(numCols)(j => Seq.tabulate(numRows)(i => self(i, j)))
+  def rows: IndexedSeq[IndexedSeq[T]] =
+    IndexedSeq.tabulate(numRows)(i =>
+      IndexedSeq.tabulate(numCols)(j => self(i, j))
+    )
+
+  def cols: IndexedSeq[IndexedSeq[T]] =
+    IndexedSeq.tabulate(numCols)(j =>
+      IndexedSeq.tabulate(numRows)(i => self(i, j))
+    )
 
   def map[U](f: T => U): Table[U] = new Table[U] {
     def numCols = self.numCols

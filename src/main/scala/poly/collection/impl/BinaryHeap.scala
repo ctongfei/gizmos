@@ -10,10 +10,9 @@ import poly.collection.exception._
  * The least element under the specific order will surface at the top of the heap.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class BinaryHeap[T](val data: ResizableArray[T])(implicit O: WeakOrder[T]) extends PriorityQueue[T] {
+class BinaryHeap[T](val data: ResizableArray[T])(implicit val order: WeakOrder[T]) extends PriorityQueue[T] {
 
-  /** Retrieves the order on the elements in this binary heap. */
-  val order = O
+  import BinaryTree._
 
   @inline private[this] def smallerChildIndex(x: Int) = {
     val l = 2 * x + 1
@@ -23,9 +22,9 @@ class BinaryHeap[T](val data: ResizableArray[T])(implicit O: WeakOrder[T]) exten
   def siftUp(i: Int): Unit = {
     var p = i
     val t = data(p)
-    while (p > 0 && t < data(BinaryTree.parentIndex(p))) {
-      data(p) = data(BinaryTree.parentIndex(p))
-      p = BinaryTree.parentIndex(p)
+    while (p > 0 && t < data(parentIndex(p))) {
+      data(p) = data(parentIndex(p))
+      p = parentIndex(p)
     }
     data(p) = t
   }

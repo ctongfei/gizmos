@@ -80,6 +80,10 @@ object BinaryTree {
   @inline def leftChildIndex(i: Int) = 2 * i + 1
   @inline def rightChildIndex(i: Int) = 2 * i + 2
 
+  object empty extends BinaryTree[Nothing] {
+    def rootNode: BinaryTreeNode[Nothing] = throw new NoSuchElementException
+  }
+
   def ofNode[T](n: BinaryTreeNode[T]): BinaryTree[T] = new BinaryTree[T] {
     def rootNode = n
   }
@@ -89,7 +93,8 @@ object BinaryTree {
   }
 
   implicit def Formatter[T: Formatter]: Formatter[BinaryTree[T]] = new Formatter[BinaryTree[T]] {
-    def str(x: BinaryTree[T]): String = s"(${x.root.str} ${x.left.str} ${x.right.str})" //Recursion
+    def str(x: BinaryTree[T]): String = //TODO: recursion boundary
+      s"(${x.root.str} ${x.left.str} ${x.right.str})" //Recursion
   }
 
 }

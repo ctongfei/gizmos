@@ -6,14 +6,17 @@ import poly.collection.mut._
 
 /**
  * Represents a node that has at most two successors.
- * It is the type of nodes in a binary tree ([[collection.BinaryTree]]).
+ * It is the type of nodes in a binary tree ([[poly.collection.BinaryTree]]).
  * @since 0.1.0
  */
 trait BinaryTreeNode[+T] extends Node[T] { self =>
 
   def left: BinaryTreeNode[T]
   def right: BinaryTreeNode[T]
-  def succ: Enumerable[BinaryTreeNode[T]] = ListSeq.applyNotNull(right, left)
+  def succ: Enumerable[BinaryTreeNode[T]] = ListSeq(right, left).filter(_.notDummy)
+
+  def isDummy = false
+  def notDummy = !isDummy
 
   /**
    * Returns a new binary tree node by applying a function to all nodes accessible from this node.
@@ -44,8 +47,8 @@ trait BinaryTreeNode[+T] extends Node[T] { self =>
       def advance(): Boolean = {
         if (s.isEmpty) return false
         curr = s.pop()
-        if (curr.right != null) s.push(curr.right)
-        if (curr.left != null) s.push(curr.left)
+        if (curr.right.notDummy) s.push(curr.right)
+        if (curr.left.notDummy) s.push(curr.left)
         true
       }
       def current: T = curr.data
@@ -65,7 +68,7 @@ trait BinaryTreeNode[+T] extends Node[T] { self =>
 
       private[this] def pushLeft(n: BinaryTreeNode[T]) = {
         var node = n
-        while (node != null) {
+        while (node.notDummy) {
           s.push(node)
           node = node.left
         }
@@ -75,7 +78,7 @@ trait BinaryTreeNode[+T] extends Node[T] { self =>
         v = s.pop()
         curr = v
         v = v.right
-        if (v != null) pushLeft(v)
+        if (v.notDummy) pushLeft(v)
         true
       }
       def current: T = curr.data
@@ -95,7 +98,7 @@ trait BinaryTreeNode[+T] extends Node[T] { self =>
 
       private[this] def pushLeft(n: BinaryTreeNode[T]) = {
         var node = n
-        while (node ne null) {
+        while (node.notDummy) {
           s.push(node)
           node = node.left
         }
@@ -106,7 +109,7 @@ trait BinaryTreeNode[+T] extends Node[T] { self =>
         curr = v
         if (s.notEmpty && (s.top.left == v)) {
           v = s.top.right
-          if (v ne null) pushLeft(v)
+          if (v.notDummy) pushLeft(v)
         }
         true
       }
@@ -116,19 +119,4 @@ trait BinaryTreeNode[+T] extends Node[T] { self =>
 
 }
 
-trait BiBinaryTreeNode[+T] extends BiNode[T] with BinaryTreeNode[T] with SinglePredNode[T] { self =>
 
-  def left: BiBinaryTreeNode[T]
-  def right: BiBinaryTreeNode[T]
-  def parent: BiBinaryTreeNode[T]
-  override def pred: Enumerable[BiBinaryTreeNode[T]] = ListSeq.applyNotNull(parent)
-  override def succ: Enumerable[BiBinaryTreeNode[T]] = ListSeq.applyNotNull(right, left)
-
-  override def map[U](f: T => U): BiBinaryTreeNode[U] = new BiBinaryTreeNode[U] {
-    def left = self.left.map(f)
-    def right = self.right.map(f)
-    def parent = self.parent.map(f)
-    def data = f(self.data)
-  }
-
-}

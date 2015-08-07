@@ -20,7 +20,7 @@ class ArrayQueue[T] private(private val data: CircularArray[T]) extends Queue[T]
 
   def size = data.length
 
-  def push(x: T) = data.append(x)
+  def push(x: T) = data.inplaceAppend(x)
 
   def pop(): T = {
     val x = top

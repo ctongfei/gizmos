@@ -14,7 +14,9 @@ import scala.reflect._
  */
 class FenwickTree[T] private(private val data: ResizableArray[T])
                             (implicit val additiveGroup: AdditiveGroup[T]) extends IndexedSeq[T] {
-  
+
+  import FenwickTree._
+
   def length = data.length
 
   /**
@@ -26,11 +28,11 @@ class FenwickTree[T] private(private val data: ResizableArray[T])
     var idx = i
     var sum = data(i)
     if (idx > 0) {
-      val z = idx - FenwickTree.lowBit(idx)
+      val z = idx - lowBit(idx)
       idx -= 1
       while (idx != z) {
         sum -= data(idx)
-        idx -= FenwickTree.lowBit(idx)
+        idx -= lowBit(idx)
       }
     }
     sum
@@ -42,7 +44,7 @@ class FenwickTree[T] private(private val data: ResizableArray[T])
     var idx = i - 1
     while (idx > 0) {
       sum += data(idx)
-      idx -= FenwickTree.lowBit(idx)
+      idx -= lowBit(idx)
     }
     sum
   }
@@ -54,7 +56,7 @@ class FenwickTree[T] private(private val data: ResizableArray[T])
     var idx = i
     while (idx < data.length) {
       data(idx) += delta
-      idx += FenwickTree.lowBit(idx)
+      idx += lowBit(idx)
     }
   }
   

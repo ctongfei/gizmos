@@ -1,6 +1,7 @@
 package poly.collection.impl
 
 import poly.collection._
+import poly.collection.exception._
 import poly.collection.node._
 
 /**
@@ -11,29 +12,29 @@ class LinkedBinaryTree[T] extends BinaryTree[T] {
 
   class Node (
     var data: T,
-    var left: Node = dummy,
-    var right: Node = dummy,
-    var parent: Node = dummy
+    var left: Node = Dummy,
+    var right: Node = Dummy,
+    var parent: Node = Dummy
   ) extends BiBinaryTreeNode[T]
 
-  val dummy: Node = new Node(default[T])
-  var rootNode: Node = dummy
+  
+  final val Dummy: Node = new Node(default[T], Dummy, Dummy, Dummy) {
+    override def isDummy = true 
+  }
 
-  dummy.left = dummy
-  dummy.right = dummy
-  dummy.parent = dummy
+  var rootNode: Node = null
 
   def addRoot(x: T) = {
-    if (rootNode == dummy) {
-      rootNode = new Node(x, parent = dummy)
-      dummy.right = rootNode
+    if (rootNode == null) {
+      rootNode = new Node(x, parent = Dummy)
+      Dummy.right = rootNode
     }
   }
 
   /** Locates the binary tree node at the given index. */
   def findNode(i: Int): Node = {
     var x = i + 1
-    var curr = dummy
+    var curr: Node = Dummy
     var depth = 1
     while (depth <= x) {
       x / depth match {
@@ -50,14 +51,14 @@ class LinkedBinaryTree[T] extends BinaryTree[T] {
 
   def leftmost(x: Node): Node = {
     var l = x
-    while (l.left != dummy)
+    while (l.left != Dummy)
       l = l.left
     l
   }
 
   def rightmost(x: Node): Node = {
     var r = x
-    while (r.right != dummy)
+    while (r.right != Dummy)
       r = r.right
     r
   }
@@ -75,14 +76,14 @@ class LinkedBinaryTree[T] extends BinaryTree[T] {
    */
   def rotateRight(p: Node) = {
     val c = p.left
-    if (c == dummy || c.parent != p)
+    if (c == Dummy || c.parent != p)
       throw new IllegalArgumentException // c is leaf or malformed
-    if (p.parent != dummy) { // p is not root
+    if (p.parent != Dummy) { // p is not root
       if (p eq p.parent.left)
         p.parent.left = c
       else p.parent.right = c
     }
-    if (c.right != dummy)
+    if (c.right != Dummy)
       c.right.parent = p
     c.parent = p.parent
     p.parent = c
@@ -103,12 +104,12 @@ class LinkedBinaryTree[T] extends BinaryTree[T] {
     val c = p.right
     if (c == null || c.parent != p)
       throw new IllegalArgumentException // c is leaf or malformed
-    if (p.parent != dummy) {
+    if (p.parent != Dummy) {
       if (p eq p.parent.left)
         p.parent.left = c
       else p.parent.right = c
     }
-    if (c.left != dummy)
+    if (c.left != Dummy)
       c.left.parent = p
     c.parent = p.parent
     p.parent = c
@@ -117,11 +118,11 @@ class LinkedBinaryTree[T] extends BinaryTree[T] {
   }
 
   def inOrderSuccessor(t: Node): Node = {
-    if (t.right != dummy) leftmost(t.right)
+    if (t.right != Dummy) leftmost(t.right)
     else {
       var p = t.parent
       var c = t
-      while (p != dummy && c == p.right) {
+      while (p != Dummy && c == p.right) {
         c = p
         p = p.parent
       }
@@ -130,11 +131,11 @@ class LinkedBinaryTree[T] extends BinaryTree[T] {
   }
 
   def inOrderPredecessor(t: Node): Node = {
-    if (t.left != dummy) rightmost(t.left)
+    if (t.left != Dummy) rightmost(t.left)
     else {
       var p = t.parent
       var c = t
-      while (p != dummy && c == p.left) {
+      while (p != Dummy && c == p.left) {
         c = p
         p = p.parent
       }

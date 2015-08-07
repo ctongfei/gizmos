@@ -9,13 +9,16 @@ import scala.annotation.unchecked.{uncheckedVariance => uV}
 import scala.reflect._
 
 /**
- * Basic trait for indexed sequences. Indexed sequences should support O(1) random access.
+ * Basic trait for indexed sequences. Indexed sequences should support efficient random access.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
 trait IndexedSeq[+T] extends BiSeq[T] { self =>
 
+  def length: Int
+
   def apply(i: Int): T
 
+  // Overridden enumerator method for performance.
   override def newEnumerator: Enumerator[T] = new Enumerator[T] {
     private[this] var i: Int = -1
     def current = self(i)
@@ -61,8 +64,16 @@ trait IndexedSeq[+T] extends BiSeq[T] { self =>
 
 }
 
-object IndexedSeq extends SeqFactory[IndexedSeq] {
+object IndexedSeq {
 
-  def newBuilder[T] = ArraySeq.newBuilder[T]
+  object empty extends IndexedSeq[Nothing] {
+    def apply(i: Int): Nothing = throw new NoSuchElementException
+    def length: Int = 0
+  }
+
+  def tabulate[T](n: Int)(f: Int => T): IndexedSeq[T] = new IndexedSeq[T] {
+    def length: Int = n
+    def apply(i: Int): T = f(i)
+  }
 
 }

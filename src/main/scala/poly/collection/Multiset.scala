@@ -4,6 +4,7 @@ import poly.algebra._
 
 /**
  * Basic trait for multisets.
+ * Deliberately not inheriting `Enumerable` because of contravariance issues.
  * @author Tongfei Chen (ctongfei@gmail.com).
  * @since 0.1.0
  */

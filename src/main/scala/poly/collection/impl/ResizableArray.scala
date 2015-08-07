@@ -3,6 +3,7 @@ package poly.collection.impl
 import poly.collection._
 import poly.collection.conversion._
 import poly.collection.factory._
+import poly.collection.mut._
 import poly.collection.node._
 import poly.util.specgroup._
 import scala.reflect._
@@ -33,13 +34,13 @@ final class ResizableArray[T]
     def data = self.data(i).asInstanceOf[T]
     def pred = {
       if (i < 0) throw new IllegalArgumentException
-      else if (i == 0) Seq()
-      else Seq(new Node(i - 1))
+      else if (i == 0) Seq.empty
+      else ListSeq(new Node(i - 1))
     }
     def succ = {
       if (i >= self.length) throw new IllegalArgumentException
-      else if (i == self.length - 1) Seq()
-      else Seq(new Node(i + 1))
+      else if (i == self.length - 1) Seq.empty
+      else ListSeq(new Node(i + 1))
     }
   }
 
@@ -77,7 +78,7 @@ final class ResizableArray[T]
     len -= 1
   }
 
-  def move(i: Int, j: Int, k: Int): Unit = {
+  def inplaceMove(i: Int, j: Int, k: Int): Unit = {
     Array.copy(data, i, data, k, j - i)
   }
 

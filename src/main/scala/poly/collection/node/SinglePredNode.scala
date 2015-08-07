@@ -9,7 +9,7 @@ import poly.collection.mut._
  */
 trait SinglePredNode[+T] extends BackwardNode[T] { self =>
   def parent: SinglePredNode[T]
-  def pred: Enumerable[SinglePredNode[T]] = if (parent eq null) ListSeq() else ListSeq(parent)
+  def pred: Enumerable[SinglePredNode[T]] = ListSeq.applyNotNull(parent)
   def map[U](f: T => U): SinglePredNode[U] = new SinglePredNode[U] {
     def parent = self.parent.map(f)
     def data = f(self.data)

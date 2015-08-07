@@ -1,12 +1,10 @@
 package poly.collection.mut
 
-import poly.algebra._
 import poly.collection._
 import poly.collection.exception._
 import poly.collection.factory._
 import poly.collection.impl._
 import poly.collection.node._
-import poly.util.specgroup._
 
 /**
  * A sequence backed by a linked list.
@@ -40,7 +38,7 @@ class ListSeq[T] private(private val data: SinglyLinkedList[T]) extends Structur
     var node = data.dummy
 
     def advance(): Boolean = {
-      if (node.next eq data.dummy) false
+      if (node.next.isDummy) false
       else {
         node = node.next
         true
@@ -48,7 +46,7 @@ class ListSeq[T] private(private val data: SinglyLinkedList[T]) extends Structur
     }
 
     def current: T = {
-      if (node eq data.dummy) throw new EnumeratorPositionException
+      if (node.isDummy) throw new EnumeratorPositionException
       node.data
     }
   }

@@ -6,7 +6,7 @@ import poly.util.specgroup._
 
 /**
  * Basic trait for mutable indexed sequences.
- * O(1) random access and update should be guaranteed.
+ * Fast random access and update should be guaranteed.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
 trait DataMutableIndexedSeq[T] extends DataMutableSeq[T] with IndexedSeq[T] {
@@ -16,7 +16,7 @@ trait DataMutableIndexedSeq[T] extends DataMutableSeq[T] with IndexedSeq[T] {
    * @param O The order for sorting
    */
   def inplaceSort()(implicit O: WeakOrder[T]): Unit = {
-    //TODO: change to introsort or timsort in the future.
+    //TODO: possibly change to introsort or timsort in the future.
     def quicksort(i: Int, j: Int): Unit = {
       var l = i
       var r = j

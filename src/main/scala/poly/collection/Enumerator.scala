@@ -136,7 +136,7 @@ trait Enumerator[+T] extends Traversable[T] { self =>
 }
 
 object Enumerator {
-  final val empty: Enumerator[Nothing] = new Enumerator[Nothing] {
+  object empty extends Enumerator[Nothing] {
     def advance() = false
     def current = throw new NoSuchElementException
   }

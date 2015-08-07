@@ -6,16 +6,20 @@ import poly.collection.search._
 
 /**
  * Basic trait for nodes. A node may contain a list of successor nodes.
- *
- * This serves as a common trait for sequence nodes, tree nodes and graph nodes.
+ * This trait serves as a common trait for sequence nodes, tree nodes and graph nodes.
  * Nodes provide a unified view for lists, trees and graphs.
  * @author Tongfei Chen (ctongfei@gmail.com).
  * @since 0.1.0
  */
 trait Node[+T] { self =>
+
+  /** Returns the data on this node. */
   def data: T
+
+  /** Returns a list of successors of this node. */
   def succ: Enumerable[Node[T]]
-  override def toString = data.toString
+
+  override def toString = s"Node(${data.toString})"
 
   def map[U](f: T => U): Node[U] = new Node[U] {
     def data = f(self.data)
@@ -33,21 +37,6 @@ object Node {
   }
 }
 
-/**
- * Represents a node that has a list of predecessor nodes.
- * @since 0.1.0
- */
-trait BackwardNode[+T] {
-  def data: T
-  def pred: Enumerable[BackwardNode[T]]
-}
 
-/**
- * Represents a node that has a list of successor nodes as well as a list of predecessor nodes.
- * @since 0.1.0
- */
-trait BiNode[+T] extends Node[T] with BackwardNode[T] {
-  def data: T
-  def succ: Enumerable[BiNode[T]]
-  def pred: Enumerable[BiNode[T]]
-}
+
+

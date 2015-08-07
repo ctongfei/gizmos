@@ -15,6 +15,7 @@ trait Tree[+T] {
 }
 
 object Tree {
+
   /**
    * Formats a tree into an S-expression.
    * @return An S-expression that represents the specific tree.

@@ -9,10 +9,11 @@ trait Queue[T] {
   /** Checks if this queue is empty. */
   def isEmpty: Boolean = size == 0
 
+  /** Checks if this queue is not empty. */
   def notEmpty: Boolean = size != 0
 
   /**
-   * Pushes the specific element into this queue.
+   * Pushes the specified element into this queue.
    * @param x The element to be pushed
    */
   def push(x: T): Unit

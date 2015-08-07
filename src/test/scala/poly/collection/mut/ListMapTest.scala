@@ -10,7 +10,7 @@ object ListMapTest extends App {
   m.add(5 → "e")
   println(m.pairs.buildString(" "))
 
-  m.applyOption(6)
+  m.?(6)
 
   m.remove(3)
   println(m.pairs.buildString(" "))

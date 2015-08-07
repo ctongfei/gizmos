@@ -52,10 +52,6 @@ class DoublyLinkedList[T] extends BiSeq[T] with StructureMutableSeq[T] {
     len += 1
   }
 
-  /**
-   * Prepends an element to the start of the doubly linked list.
-   * @param x The element to be prepended.
-   */
   def inplacePrepend(x: T) = {
     val node = new Node(x, dummy, dummy.next)
     node.prev.next = node
@@ -63,28 +59,13 @@ class DoublyLinkedList[T] extends BiSeq[T] with StructureMutableSeq[T] {
     len += 1
   }
 
-  /**
-   * Gets the ''i''-th element.
-   * @param i Index
-   * @return The ''i''-th element.
-   */
   def apply(i: Int) = locate(i).data
 
-  /**
-   * Sets the ''i''-th element of this doubly linked list to the specified value.
-   * @param i Index
-   * @param x The new value
-   */
   def update(i: Int, x: T) = {
     val node = locate(i)
     node.data = x
   }
 
-  /**
-   * Inserts an element at the ''i''-th position.
-   * @param i Index
-   * @param x New element
-   */
   def insertAt(i: Int, x: T) = {
     val p = locate(i)
     val node = new Node(x, p.prev, p)
@@ -93,18 +74,11 @@ class DoublyLinkedList[T] extends BiSeq[T] with StructureMutableSeq[T] {
     len += 1
   }
 
-  /**
-   * Clears this doubly linked list.
-   */
   def clear() = {
     dummy.prev = dummy
     dummy.next = dummy
   }
 
-  /**
-   * Removes the ''i''-th element.
-   * @param i Index
-   */
   def deleteAt(i: Int) = {
     val p = locate(i)
     p.prev.next = p.next

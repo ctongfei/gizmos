@@ -1,7 +1,7 @@
 package poly.collection.mut
 
+import poly.algebra._
 import poly.collection.node._
-import poly.util.typeclass._
 
 /**
  * A union-find disjoint sets structure.
@@ -19,8 +19,7 @@ class DisjointSets[T] private() extends Eq[T] {
   }
 
   private var sets = 0
-  private var data: scala.collection.mutable.HashMap[T, Node] = null
-  //TODO: to poly.collection.mut.HashMap
+  private var data = HashMap[T, Node]()
 
   def size = data.size
 
@@ -61,7 +60,7 @@ object DisjointSets {
 
   def apply[T](xs: T*): DisjointSets[T] = {
     val ds = new DisjointSets[T]
-    ds.data = scala.collection.mutable.HashMap(xs.map(t => t → new ds.Node()): _*) // poly.collection.mut.HashMap
+    ds.data = HashMap(xs.map(t => t → new ds.Node()): _*) // poly.collection.mut.HashMap
     ds.sets = ds.data.size
     ds
   }

@@ -8,11 +8,9 @@ import poly.collection.exception._
  * A resizable sorted array. This serves as the implementation container of `SortedArrayX` classes.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class SortedArray[T] private[poly](val data: ResizableArray[T])(implicit O: WeakOrder[T])
+class SortedArray[T] private[poly](val data: ResizableArray[T])(implicit val order: WeakOrder[T])
   extends IndexedSortedSeq[T]
 {
-
-  val order = O
 
   def length = data.length
 

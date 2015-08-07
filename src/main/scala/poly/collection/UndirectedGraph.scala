@@ -5,7 +5,7 @@ import poly.collection.mut._
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-trait UndirectedGraph[K, +V, +E] extends BiGraph[K, V, E] {
+trait UndirectedGraph[K, +V, +E] extends BiGraph[K, V, E] { self =>
 
   def incidentIdsOf(i: K): Enumerable[K]
   def incidentVerticesOf(i: K): Enumerable[Vertex] = incidentIdsOf(i).map(j => new Vertex(j))
@@ -15,23 +15,24 @@ trait UndirectedGraph[K, +V, +E] extends BiGraph[K, V, E] {
   override def outgoingVerticesOf(v: K): Enumerable[Vertex] = incidentVerticesOf(v)
   override def outgoingEdgesOf(v: K): Enumerable[UndirectedEdge] = incidentEdgesOf(v)
 
-  def incomingIdsOf(v: K): Enumerable[K] = incidentIdsOf(v)
+  def incomingKeysOf(v: K): Enumerable[K] = incidentIdsOf(v)
   override def incomingVerticesOf(v: K): Enumerable[Vertex] = incidentVerticesOf(v)
   override def incomingEdgesOf(v: K): Enumerable[UndirectedEdge] = incidentEdgesOf(v)
 
+  override def reverse = self
 
-  class UndirectedEdge(override val id1: K, override val id2: K) extends super.Edge(id1, id2) with Set[K] {
+  class UndirectedEdge(override val key1: K, override val key2: K) extends super.Edge(key1, key2) with Set[K] {
     override def equals(that: Any) = that match {
       case that: UndirectedEdge =>
-        (this.id1 == that.id1 && this.id2 == that.id2) ||
-        (this.id1 == that.id2 && this.id2 == that.id1)
+        (this.key1 == that.key1 && this.key2 == that.key2) ||
+        (this.key1 == that.key2 && this.key2 == that.key1)
       case _ => false
     }
 
     def size = 2
-    override def hashCode = id1.## ^ id2.##
-    def contains(x: K) = x == id1 || x == id2
-    def elements = ListSeq(id1, id2)
+    override def hashCode = key1.## ^ key2.##
+    def contains(x: K) = x == key1 || x == key2
+    def elements = ListSeq(key1, key2)
   }
 
 }
