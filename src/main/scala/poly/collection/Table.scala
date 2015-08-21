@@ -4,13 +4,23 @@ package poly.collection
  * A table is an indexed 2-D array.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-trait Table[+T] extends ((Int, Int) => T) { self =>
+trait Table[+T] extends Map[(Int, Int), T] { self =>
 
+  def apply(i: Int, j: Int): T
   def numRows: Int
-
   def numCols: Int
 
+  def apply(x: (Int, Int)): T = apply(x._1, x._2)
+  def ?(x: (Int, Int)): Option[T] = if (containsKey(x)) Some(self(x)) else None
+
+  def pairs = for { i ← Range(numRows); j ← Range(numCols) } yield (i → j) → self(i, j)
+
   def size = numRows * numCols
+
+  def containsKey(x: (Int, Int)): Boolean = {
+    val (i, j) = x
+    i >= 0 && i < numRows && j >= 0 && j < numCols
+  }
 
   def rows: IndexedSeq[IndexedSeq[T]] =
     IndexedSeq.tabulate(numRows)(i =>
@@ -22,7 +32,7 @@ trait Table[+T] extends ((Int, Int) => T) { self =>
       IndexedSeq.tabulate(numRows)(i => self(i, j))
     )
 
-  def map[U](f: T => U): Table[U] = new Table[U] {
+  override def map[U](f: T => U): Table[U] = new Table[U] {
     def numCols = self.numCols
     def numRows = self.numCols
     def apply(i: Int, j: Int) = f(self(i, j))
@@ -59,14 +69,6 @@ object Table {
 }
 
 
-trait DataMutableTable[T] extends Table[T] {
-  def update(i: Int, j: Int, x: T): Unit
-}
 
-trait StructureMutableTable[T] extends DataMutableTable[T] {
-  def clear(): Unit
-  def appendRow(row: Seq[T]): Unit
-  def appendCol(col: Seq[T]): Unit
-  def removeRowAt(i: Int): Unit
-  def removeColAt(j: Int): Unit
-}
+
+

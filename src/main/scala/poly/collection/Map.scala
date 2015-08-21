@@ -6,7 +6,11 @@ import poly.util.specgroup._
 import scala.language.reflectiveCalls
 
 /**
+ * The base trait for maps.
+ * A map is a mapping between a key type (domain) and a value type (codomain).
+ * It can also be viewed as a collection of (key, value) pairs, in which each key is unique.
  * @author Tongfei Chen (ctongfei@gmail.com).
+ * @since 0.1.0
  */
 trait Map[@sp(i) K, +V] extends PartialFunction[K, V] { self =>
 
@@ -21,7 +25,7 @@ trait Map[@sp(i) K, +V] extends PartialFunction[K, V] { self =>
    * @param x The given key
    * @return The associated value. If the key is not found, return [[None]].
    */
-  def ?(x: K): Option[V]
+  def ?(k: K): Option[V]
 
   /**
    * Retrieves the value associated with the specified key.
@@ -29,8 +33,9 @@ trait Map[@sp(i) K, +V] extends PartialFunction[K, V] { self =>
    * @return The associated value
    * @throws NoSuchElementException if key not found
    */
-  def apply(x: K): V
+  def apply(k: K): V
 
+  /** Returns the number of (key, value) pairs this map contains. */
   def size: Int
 
   /**
@@ -74,26 +79,18 @@ trait Map[@sp(i) K, +V] extends PartialFunction[K, V] { self =>
     def size: Int = self.size
   }
 
-  //TODO: ???
   def zip[W](that: Map[K, W]): Map[K, (V, W)] = new Map[K, (V, W)] {
-    def apply(x: K): (V, W) = ???
-
-    def ?(x: K): Option[(V, W)] = for {
-      v ← self ? x
-      w ← that ? x
-    } yield (v, w)
-
-    def pairs: Enumerable[(K, (V, W))] = ???
-
-    def size: Int = ???
-
-    def containsKey(x: K): Boolean = ???
+    def apply(x: K): (V, W) = (self(x), that(x))
+    def ?(x: K): Option[(V, W)] = for { v ← self ? x; w ← that ? x } yield (v, w)
+    def pairs = self.pairs filter { case (k, v) => that containsKey k } map { case (k, v) => (k, (v, that(k))) }
+    def size: Int = pairs.size
+    def containsKey(x: K): Boolean = self.containsKey(x) && that.containsKey(x)
   }
 
 }
 
 object Map {
-
+  /** Returns the functor on maps. */
   implicit def Functor[K]: Functor[({type λ[+V] = Map[K, V]})#λ] = new Functor[({type λ[+V] = Map[K, V]})#λ] {
     def map[X, Y](mx: Map[K, X])(f: X => Y): Map[K, Y] = mx map f
   }

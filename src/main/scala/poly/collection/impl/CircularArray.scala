@@ -11,7 +11,7 @@ import scala.reflect._
  * An circular array.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class CircularArray[T](private val data: ResizableArray[T]) {
+class CircularArray[T](private val data: ResizableSeq[T]) {
 
   private[collection] var frontPtr = 0
   private[collection] var backPtr = data.length

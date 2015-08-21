@@ -9,7 +9,7 @@ import poly.collection.mut._
  * It can be paused or resumed by the user.
  *
  * This trait is created to replace the `Iterable` Java interface or the `Iterable` Scala
- * trait in Poly Collection.
+ * trait in Poly-collection.
  *
  * @author Tongfei Chen (ctongfei@gmail.com).
  */

@@ -4,6 +4,7 @@ import poly.algebra._
 import poly.algebra.ops._
 import poly.collection._
 import poly.util.typeclass._
+import poly.util.typeclass.ops._
 
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
@@ -12,9 +13,9 @@ class HashTable[K, V](implicit val hashing: Hashing[K, Int]) {
 
   import HashTable._
 
-  val keys: ResizableArray[K] = new ResizableArray[K]()
-  val vals: ResizableArray[V] = new ResizableArray[V]()
-  val stat: ResizableArray[EntryStatus] = new ResizableArray[EntryStatus]()
+  val keys: ResizableSeq[K] = new ResizableSeq[K]()
+  val vals: ResizableSeq[V] = new ResizableSeq[V]()
+  val stat: ResizableSeq[EntryStatus] = new ResizableSeq[EntryStatus]()
   var size: Int = 0
   var used: Int = 0
 

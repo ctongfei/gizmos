@@ -16,7 +16,7 @@ import poly.collection.node._
  *
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class SinglyLinkedList[T] extends Seq[T] with StructureMutableSeq[T] {
+class SinglyLinkedList[T] extends Seq[T] with KeyMutableSeq[T] {
 
   class Node(var data: T, var next: Node = null) extends SeqNode[T]
 
@@ -114,7 +114,7 @@ class SinglyLinkedList[T] extends Seq[T] with StructureMutableSeq[T] {
 
   def headNode = dummy.next
 
-  def inplaceMap(f: (T) => T): Unit = ???
+  override def inplaceMap(f: (T) => T): Unit = ???
 }
 
 object SinglyLinkedList {

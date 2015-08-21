@@ -11,8 +11,8 @@ object ArrayBinaryTreeTest extends App {
   val F = false
   val T = true
 
-  val d = ResizableArray(0, 1, 2, 3, 4, 5, 6, 0, 0, 7, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9)
-  val e = ResizableArray(T, T, T, T, T, T, T, F, F, T, T, F, F, F, F, F, F, F, F, F, F, T)
+  val d = ResizableSeq(0, 1, 2, 3, 4, 5, 6, 0, 0, 7, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9)
+  val e = ResizableSeq(T, T, T, T, T, T, T, F, F, T, T, F, F, F, F, F, F, F, F, F, F, T)
 
   val B = new ArrayBinaryTree[Int](d, e)
 

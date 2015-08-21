@@ -8,9 +8,9 @@ import scala.language.higherKinds
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class PairMultiset[T, C[T1] <: Set[T1]] private() extends Multiset[T] {
+abstract class PairMultiset[T, C[A] <: Set[A]] private()(implicit builder: Builder[T, C[T]]) extends Multiset[T] {
 
-  val data: C[KeyValuePair[T, Int]] = null
+  val data: C[KeyValuePair[T, Int]]
 
   def contains(x: T): Boolean = ???
 

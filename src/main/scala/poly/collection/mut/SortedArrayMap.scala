@@ -5,6 +5,6 @@ import poly.collection._
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-abstract class SortedArrayMap[K, V] extends StructureMutableMap[K, V] {
+abstract class SortedArrayMap[K, V] extends KeyMutableMap[K, V] {
 
 }

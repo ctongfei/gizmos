@@ -12,7 +12,7 @@ import scala.reflect._
  * A Fenwick tree.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class FenwickTree[T] private(private val data: ResizableArray[T])
+class FenwickTree[T] private(private val data: ResizableSeq[T])
                             (implicit val additiveGroup: AdditiveGroup[T]) extends IndexedSeq[T] {
 
   import FenwickTree._
@@ -72,7 +72,7 @@ object FenwickTree extends CollectionFactoryWithAdditiveGroup[FenwickTree] {
   @inline private def lowBit(x: Int) = x & -x
 
   implicit def newBuilder[T:AdditiveGroup]: Builder[T, FenwickTree[T]] = new Builder[T, FenwickTree[T]] {
-    val coll = new ResizableArray[T]()
+    val coll = new ResizableSeq[T]()
     val G = implicitly[AdditiveGroup[T]]
     def sizeHint(n: Int): Unit = coll.ensureCapacity(n)
     def +=(x: T): Unit = coll.inplaceAppend(x)

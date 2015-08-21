@@ -6,7 +6,7 @@ import poly.algebra.ops._
 import poly.collection.exception._
 import poly.collection.mut._
 import poly.util.fastloop._
-import poly.util.typeclass.{Eq => _, _}
+import poly.util.typeclass._
 import scala.language.higherKinds
 import scala.annotation.unchecked.{uncheckedVariance => uv}
 
@@ -25,6 +25,8 @@ trait Traversable[+T] { self =>
    * @tparam V Type of the result of function ''f''
    */
   def foreach[V](f: T => V): Unit
+
+  // HELPER FUNCTIONS
 
   /**
    * Returns a new traversable collection by applying a function to all elements in this collection.
@@ -145,8 +147,6 @@ trait Traversable[+T] { self =>
     true
   }
 
-  def fold[U >: T](z: U)(f: (U, U) => U): U = foldLeft(z)(f)
-
   def foldLeft[U](z: U)(f: (U, T) => U): U = {
     var r = z
     for (x ← self)
@@ -154,13 +154,10 @@ trait Traversable[+T] { self =>
     r
   }
 
-  def foldRight[U](z: U)(f: (T, U) => U): U = {
-    ???
-  }
+  def fold[U >: T](z: U)(f: (U, U) => U): U = foldLeft(z)(f)
 
-  def reduce[U >: T](f: (U, U) => U): U = reduceLeft(f)
 
-  def reduceLeft[U >: T](f: (U, T) => U): U = {
+  def reduce[U >: T](f: (U, U) => U): U = {
     var first = true
     var res = default[U]
     for (x ← self) {
@@ -170,6 +167,12 @@ trait Traversable[+T] { self =>
       }
       else res = f(res, x)
     }
+    res
+  }
+
+  def reduce[U >: T](m: Monoid[U]): U = {
+    var res = m.id
+    for (x ← self) res = m.op(res, x)
     res
   }
 
@@ -280,7 +283,7 @@ trait Traversable[+T] { self =>
     seq.asIfSorted(WeakOrder by f)
   }
 
-  def sum[X >: T](implicit G: AdditiveMonoid[X]): X = reduce(G.add)
+  def sum[X >: T](implicit G: AdditiveMonoid[X]): X = reduce((x: X, y: X) => G.add(x, y))
 
   def isum[X >: T](implicit G: InplaceAdditiveMonoid[X]) = {
     val sum = G.zero
@@ -288,11 +291,11 @@ trait Traversable[+T] { self =>
     sum
   }
 
-  def product[X >: T](implicit G: MultiplicativeSemigroup[X]): X = reduce(G.mul)
+  def product[X >: T](implicit G: MultiplicativeMonoid[X]): X = reduce((x: X, y: X) => G.mul(x, y))
 
-  def min[X >: T](implicit O: WeakOrder[X]): X = reduce(O.min[X])
+  def min[X >: T](implicit O: WeakOrder[X]): X = reduce((x, y) => O.min(x, y))
 
-  def max[X >: T](implicit O: WeakOrder[X]): X = reduce(O.max[X])
+  def max[X >: T](implicit O: WeakOrder[X]): X = reduce((x, y) => O.max(x, y))
 
   def argmin[U: WeakOrder](f: T => U): T = argminWithValue(f)._1
 
@@ -368,13 +371,13 @@ trait Traversable[+T] { self =>
    * @param builder An implicit builder
    * @tparam C Higher-order type of the collection to be built
    * @return
-   */ //TODO: can this be implemented without using the @uv annotation?
+   */
   def to[C[_]](implicit builder: Builder[T @uv, C[T] @uv]): C[T @uv] = {
     val b = builder
+    //b.sizeHint(size)
     b ++= self
     b.result
   }
-
 
   /**
    * Builds a structure based on this traversable sequence given an implicit builder.
@@ -384,6 +387,7 @@ trait Traversable[+T] { self =>
    */
   def build[S](implicit builder: Builder[T, S]): S = {
     val b = builder
+    //b.sizeHint(size)
     b ++= self
     b.result
   }
@@ -394,7 +398,6 @@ trait Traversable[+T] { self =>
   def ×[U](that: Traversable[U]) = this product that
   def |>[U](f: T => U) = this map f
   def |>>[U](f: T => Traversable[U]) = this flatMap f
-
 }
 
 object Traversable {

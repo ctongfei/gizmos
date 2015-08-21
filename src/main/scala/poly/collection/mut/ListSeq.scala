@@ -10,7 +10,7 @@ import poly.collection.node._
  * A sequence backed by a linked list.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class ListSeq[T] private(private val data: SinglyLinkedList[T]) extends StructureMutableSeq[T] {
+class ListSeq[T] private(private val data: SinglyLinkedList[T]) extends KeyMutableSeq[T] {
 
   def headNode: SeqNode[T] = data.dummy.next
 
@@ -30,7 +30,7 @@ class ListSeq[T] private(private val data: SinglyLinkedList[T]) extends Structur
 
   def deleteAt(i: Int) = data.deleteAt(i)
 
-  def inplaceMap(f: T => T) = ???
+  override def inplaceMap(f: T => T) = ???
 
   def inplaceReverse() = ???
 

@@ -7,7 +7,7 @@ import poly.collection.impl._
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class ListMap[K, V] private(private val data: SinglyLinkedList[KeyValuePair[K, V]]) extends StructureMutableMap[K, V] {
+class ListMap[K, V] private(private val data: SinglyLinkedList[KeyValuePair[K, V]]) extends KeyMutableMap[K, V] {
 
   def size = data.size
 

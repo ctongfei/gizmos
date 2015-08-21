@@ -53,7 +53,7 @@ trait DataMutableIndexedSeq[T] extends DataMutableSeq[T] with IndexedSeq[T] {
    *  Transforms this sequence in-place given a function.
    *  @param f The function
    */
-  def inplaceMap(f: T => T): Unit = {
+  override def inplaceMap(f: T => T): Unit = {
     var i = 0
     while (i < length) {
       update(i, f(apply(i)))

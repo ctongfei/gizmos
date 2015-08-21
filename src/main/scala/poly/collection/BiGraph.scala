@@ -4,6 +4,8 @@ import poly.collection.node._
 import poly.util.specgroup._
 
 /**
+ * Represents a bidirectional graph, i.e., a graph in which each
+ * vertex's predecessors and successors can be retrieved efficiently.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
 trait BiGraph[@sp(i) I, +V, +E] extends Graph[I, V, E] { self =>

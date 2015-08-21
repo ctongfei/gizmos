@@ -8,7 +8,7 @@ import poly.collection.node._
  * A doubly linked list.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class DoublyLinkedList[T] extends BiSeq[T] with StructureMutableSeq[T] {
+class DoublyLinkedList[T] extends BiSeq[T] with KeyMutableSeq[T] {
 
   /**
    * Type of the internal node of a linked list.
@@ -94,7 +94,7 @@ class DoublyLinkedList[T] extends BiSeq[T] with StructureMutableSeq[T] {
     ???
   }
 
-  def inplaceMap(f: T => T): Unit = {
+  override def inplaceMap(f: T => T): Unit = {
     ???
   }
 }

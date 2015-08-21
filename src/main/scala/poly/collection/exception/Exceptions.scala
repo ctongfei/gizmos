@@ -7,9 +7,11 @@ class NoSuchElementException extends Exception
 
 class IndexOutOfBoundsException extends Exception
 
-class KeyNotFoundException extends Exception
+class KeyNotFoundException[K](key: K)
+  extends Exception(s"Key $key is not found in the specific collection.")
 
-class NotSupportedException(msg: String) extends Exception
+class NotSupportedException(msg: String)
+  extends Exception(msg)
 
 class EnumeratorPositionException
   extends Exception("The enumerator points to an invalid position.")
@@ -20,7 +22,7 @@ class QueueEmptyException
 class IncompatibleOrderException
   extends Exception("Attempted to merge two sorted sequence based on different orders.")
 
-class GoalNotFoundException[S](s: S)
+class GoalNotFoundException[S](state: S)
   extends Exception("Goal not found.")
 
 class VertexNotReachableException[K](i: K, j: K)

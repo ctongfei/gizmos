@@ -55,13 +55,14 @@ package object conversion {
     def apply(i: Int) = xs.get(i)
     def update(i: Int, x: T) = xs.set(i, x)
   }
-  implicit def javaMapAsPoly[K, V](jm: ju.Map[K, V]): Map[K, V] = new StructureMutableMap[K, V] {
+  implicit def javaMapAsPoly[K, V](jm: ju.Map[K, V]): Map[K, V] = new KeyMutableMap[K, V] {
     def add(x: K, y: V): Unit = jm.put(x, y)
     def clear(): Unit = jm.clear()
     def remove(x: K): Unit = jm.remove(x)
     def update(x: K, y: V): Unit = jm.put(x, y)
     def ?(x: K): Option[V] = Option(jm.get(x))
     def pairs: Enumerable[(K, V)] = jm.entrySet.map(e => e.getKey → e.getValue)
+    def size = jm.size
     def apply(x: K): V = jm.get(x)
     def containsKey(x: K): Boolean = jm.containsKey(x)
   }
@@ -106,7 +107,7 @@ package object conversion {
 
   implicit class PolyTraversableAsScala[T](val xs: Traversable[T]) extends AnyVal {
     def asScalaTraversable: sc.Traversable[T] = new sc.Traversable[T] {
-      def foreach[U](f: (T) => U): Unit = xs.foreach(f)
+      def foreach[U](f: T => U): Unit = xs.foreach(f)
     }
   }
 
@@ -131,7 +132,12 @@ package object conversion {
     }
   }
 
-
+  implicit class PolyMapAsScala[K, V](val xs: Map[K, V]) extends AnyVal {
+    def asScalaMap: sc.Map[K, V] = new sc.DefaultMap[K, V] {
+      def get(key: K): Option[V] = xs ? key
+      def iterator: Iterator[(K, V)] = xs.pairs.newEnumerator.asScalaIterator
+    }
+  }
   //endregion
 
 }

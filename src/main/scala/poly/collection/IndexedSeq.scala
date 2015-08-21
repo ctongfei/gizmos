@@ -44,6 +44,11 @@ trait IndexedSeq[+T] extends BiSeq[T] { self =>
     def length: Int = len
   }
 
+  override def map[U](f: T => U): IndexedSeq[U] = new IndexedSeq[U] {
+    def length = self.length
+    def apply(i: Int) = f(self(i))
+  }
+
   /**
    * Pretends that this sequence is sorted under the given order.
    * (WARNING: Actual orderedness is not guaranteed! The user should make sure that it is sorted.)
@@ -56,10 +61,17 @@ trait IndexedSeq[+T] extends BiSeq[T] { self =>
     def apply(i: Int): T = self.apply(i)
   }
 
-  class IndexedSeqNode(val i: Int) extends BiSeqNode[T] {
+  case class IndexedSeqNode(i: Int) extends BiSeqNode[T] {
     def data = self(i)
-    def next = if (i == length - 1) null else new IndexedSeqNode(i + 1)
-    def prev = if (i == 0) null else new IndexedSeqNode(i - 1)
+    def next = if (i == length - 1) Dummy else new IndexedSeqNode(i + 1)
+    def prev = if (i == 0) Dummy else new IndexedSeqNode(i - 1)
+  }
+
+  private object Dummy extends BiSeqNode[Nothing] {
+    def next: BiSeqNode[Nothing] = Dummy
+    def prev: BiSeqNode[Nothing] = Dummy
+    def data: Nothing = throw new NoSuchElementException
+    override def isDummy = true
   }
 
 }

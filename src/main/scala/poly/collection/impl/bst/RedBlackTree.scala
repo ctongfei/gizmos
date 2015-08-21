@@ -9,7 +9,7 @@ import poly.collection.impl.bst.RedBlackTree._
  * A red-black tree.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class RedBlackTree[K, V](implicit val order: WeakOrder[K]) extends StructureMutableMap[K, V] {
+class RedBlackTree[K, V](implicit val order: WeakOrder[K]) extends KeyMutableMap[K, V] {
 
   type Entry = RedBlackTree.Entry[K, V]
 

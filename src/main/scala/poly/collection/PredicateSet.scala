@@ -5,8 +5,9 @@ import poly.algebra.hkt._
 
 /**
  * Represents a pure, mathematical set (equivalent to a predicate).
- * A predicate set is contravariant on its type parameter.
+ * A predicate set is contravariant on its type parameter and cannot be enumerated.
  * @author Tongfei Chen (ctongfei@gmail.com).
+ * @since 0.1.0
  */
 trait PredicateSet[-T] extends (T => Boolean) { self =>
 
@@ -52,7 +53,7 @@ object PredicateSet {
     def top = PredicateSet.universal[T]
     def not(x: PredicateSet[T]) = !x
     def or(x: PredicateSet[T], y: PredicateSet[T]) = x | y
-    def bottom = PredicateSet.empty
+    def bot = PredicateSet.empty
   }
 
 }

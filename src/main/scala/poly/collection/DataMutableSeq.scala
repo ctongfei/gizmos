@@ -4,7 +4,7 @@ package poly.collection
  * Represents a sequence in which data can be mutated.
  * @tparam T
  */
-trait DataMutableSeq[T] extends Seq[T] {
+trait DataMutableSeq[T] extends Seq[T] { self =>
 
   /**
    * Updates the element at the specific location.
@@ -25,5 +25,7 @@ trait DataMutableSeq[T] extends Seq[T] {
   }
 
   //def inplaceReverse(): Unit
-  def inplaceMap(f: T => T): Unit
+  def inplaceMap(f: T => T): Unit = {
+    ???
+  }
 }

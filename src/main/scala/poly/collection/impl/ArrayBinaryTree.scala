@@ -10,8 +10,8 @@ import poly.collection.node._
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
 class ArrayBinaryTree[T] (
-  private[poly] val data: ResizableArray[T],
-  private[poly] val state: ResizableArray[Boolean]
+  private[poly] val data: ResizableSeq[T],
+  private[poly] val state: ResizableSeq[Boolean]
 ) extends BinaryTree[T] { self =>
 
   class Node (val i: Int) extends BiBinaryTreeNode[T] {

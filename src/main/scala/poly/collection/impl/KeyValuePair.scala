@@ -2,7 +2,7 @@ package poly.collection.impl
 
 import poly.algebra._
 import poly.util.specgroup._
-import poly.util.typeclass.{Eq => _, _} //TODO: remove after fix in poly.util.typeclass
+import poly.util.typeclass._
 
 /**
  * A key-value pair used in maps.

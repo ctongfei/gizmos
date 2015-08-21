@@ -36,6 +36,7 @@ class BinarySearchTree[T](implicit val order: WeakOrder[T]) extends LinkedBinary
     var p: Node = Dummy // keeps track of the parent of c
     while (c.notDummy) {
       p = c
+
       order.cmp(x, p.data) match {
         case 0 => return c // already in the BST; return
         case cmp if cmp < 0 => c = c.left

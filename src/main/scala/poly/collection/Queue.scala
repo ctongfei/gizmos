@@ -3,7 +3,7 @@ package poly.collection
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-//TODO: conform to Enumerable
+//TODO: conform to Enumerable[T]?
 trait Queue[T] {
 
   /** Checks if this queue is empty. */

@@ -10,7 +10,7 @@ import poly.collection.exception._
  * The least element under the specific order will surface at the top of the heap.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class BinaryHeap[T](val data: ResizableArray[T])(implicit val order: WeakOrder[T]) extends PriorityQueue[T] {
+class BinaryHeap[T](val data: ResizableSeq[T])(implicit val order: WeakOrder[T]) extends PriorityQueue[T] {
 
   import BinaryTree._
 

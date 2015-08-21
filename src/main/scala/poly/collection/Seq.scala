@@ -44,13 +44,17 @@ trait Seq[+T] extends Enumerable[T] with Map[Int, T] { self =>
     def current = node.data
   }
 
-  override def isDefinedAt(i: Int) = i >= 0 && i < size
+  override def isDefinedAt(i: Int) = containsKey(i)
 
-  def ?(i: Int) = if (isDefinedAt(i)) Some(this(i)) else None
+  def ?(i: Int) = if (containsKey(i)) Some(this(i)) else None
 
-  def containsKey(i: Int) = isDefinedAt(i)
+  def containsKey(i: Int) = i >= 0 && i < size
 
   def pairs = ??? //TODO: zipWithIndex.map(_.swap)
+
+  // HELPER FUNCTIONS
+
+  override def tail: Seq[T] = Seq.ofNode(headNode.next)
 
   override def map[U](f: T => U): Seq[U] = new Seq[U] {
     def apply(i: Int): U = f(self(i))
@@ -96,6 +100,10 @@ object Seq {
     def apply(i: Int): Nothing = throw new NoSuchElementException
     def length: Int = 0
     def headNode: SeqNode[Nothing] = throw new NoSuchElementException
+  }
+
+  def ofNode[T](n: SeqNode[T]): Seq[T] = new LinearSeq[T] {
+    def headNode = n
   }
 
   def tabulate[T](n: Int)(f: Int => T) = IndexedSeq.tabulate(n)(f)

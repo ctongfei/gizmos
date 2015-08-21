@@ -26,6 +26,8 @@ trait Multiset[T] extends PredicateSet[T] { self =>
 
   def exists(f: T => Boolean) = elements.exists(f)
 
+  def reduce[U >: T](f: (U, U) => U): U = elements.reduce(f)
+
   /** Returns the union of two sets. */
   def |(that: Multiset[T]): Multiset[T] = ???
 
@@ -33,7 +35,7 @@ trait Multiset[T] extends PredicateSet[T] { self =>
   def &(that: Multiset[T]): Multiset[T] = ???
 
   /** Returns the difference of two sets. */
-  def \(that: Multiset[T]): Multiset[T] = ???
+  def &~(that: Multiset[T]): Multiset[T] = ???
 
   /** Tests if this set is a subset of another set. */
   def <=(that: Multiset[T]): Boolean = this.forall(x => this.multiplicity(x) <= that.multiplicity(x))
@@ -63,7 +65,7 @@ object Multiset {
 
   implicit def Lattice[T]: Lattice[Multiset[T]] with BoundedLowerSemilattice[Multiset[T]] =
     new Lattice[Multiset[T]] with BoundedLowerSemilattice[Multiset[T]] {
-      def bottom = empty[T]
+      def bot = empty[T]
       def inf(x: Multiset[T], y: Multiset[T]): Multiset[T] = x & y
       def sup(x: Multiset[T], y: Multiset[T]): Multiset[T] = x | y
   }

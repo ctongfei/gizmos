@@ -6,9 +6,9 @@ import poly.collection.impl._
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class SortedArraySet[T] private(private val data: SortedArray[T]) extends MutableSet[T] {
+class SortedArraySet[T] private(private val data: SortedArray[T]) extends SortedSet[T] with MutableSet[T] {
 
-  val order = data.order
+  override val order = data.order
 
   def contains(x: T) = data.tryBinarySearch(x) >= 0
 

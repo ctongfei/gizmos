@@ -2,7 +2,7 @@ package poly.collection
 
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
- * @since 0.1.0 (reserved for Bayesian statistics)
+ * @since 0.1.0
  */
 trait RemovableBuilder[-T, +C] extends Builder[T, C] {
 

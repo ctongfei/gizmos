@@ -1,5 +1,6 @@
 package poly.collection
 
+import poly.collection.exception._
 import poly.collection.node._
 import poly.util.specgroup._
 import scala.language.higherKinds
@@ -8,6 +9,7 @@ import scala.annotation.unchecked.{uncheckedVariance => uv}
 /**
  * Basic trait for a forward directed graph.
  * @author Tongfei Chen (ctongfei@gmail.com).
+ * @since 0.1.0
  */
 trait Graph[@sp(i) K, +V, +E] { self =>
 
@@ -21,8 +23,9 @@ trait Graph[@sp(i) K, +V, +E] { self =>
   def numEdges: Int = edges.size
 
   def keySet: Set[K]
-  def vertices: Enumerable[Vertex] = keySet.elements.map(i => new Vertex(i))
-  def edges: Enumerable[Edge] = for (i ← keySet; j ← outgoingKeysOf(i)) yield new Edge(i, j)
+  def keys: Enumerable[K] = keySet.elements
+  def vertices: Enumerable[Vertex] = keys.map(i => new Vertex(i))
+  def edges: Enumerable[Edge] = for (i ← keys; j ← outgoingKeysOf(i)) yield new Edge(i, j)
 
   def containsVertex(i: K): Boolean
   def containsEdge(i: K, j: K): Boolean
@@ -61,18 +64,18 @@ trait Graph[@sp(i) K, +V, +E] { self =>
     def outgoingKeysOf(i: K): Enumerable[K] = self.outgoingKeysOf(i)
   }
 
-  def filterVertices(f: (K, V) => Boolean): Graph[K, V, E] = new Graph[K, V, E] {
+  def filterKeys(f: K => Boolean): Graph[K, V, E] = ???
+
+  def filterVertices(f: V => Boolean): Graph[K, V, E] = new Graph[K, V, E] {
     def apply(i: K): V = {
-      if (f(i, self(i))) self(i)
+      if (f(self(i))) self(i)
       else throw new NoSuchElementException
     }
-    def containsEdge(i: K, j: K): Boolean = {
-      ???
-    }
+    def containsEdge(i: K, j: K): Boolean = f(self(i)) && f(self(j))
 
-    def containsVertex(i: K): Boolean = ???
+    def containsVertex(i: K): Boolean = f(self(i))
 
-    def apply(i: K, j: K): E = ???
+    def apply(i: K, j: K): E = if (containsEdge(i, j)) self(i, j) else throw new NoSuchElementException
 
     def outgoingKeysOf(i: K): Enumerable[K] = ???
 

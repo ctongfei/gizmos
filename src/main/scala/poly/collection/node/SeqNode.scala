@@ -20,5 +20,3 @@ trait SeqNode[+T] extends Node[T] { self =>
     def data = f(self.data)
   }
 }
-
-

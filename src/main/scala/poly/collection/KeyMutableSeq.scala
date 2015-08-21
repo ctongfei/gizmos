@@ -4,7 +4,7 @@ package poly.collection
  * Represents a structurally-mutable sequence.
  * @tparam T
  */
-trait StructureMutableSeq[T] extends DataMutableSeq[T] {
+trait KeyMutableSeq[T] extends DataMutableSeq[T] {
   /**
    * Prepends the specific element to the start of the sequence.
    * @param x The element to be prepended
