@@ -1,18 +1,18 @@
-package poly.collection.search
+package poly.collection.search.depr
 
 import poly.collection._
 import poly.collection.mut._
 
 /**
- * An enumerator that executes breadth first search on trees (assumes that there's no loop).
+ * An enumerator that executes depth first search on trees (assumes that there's no loop).
  * @author Tongfei Chen (ctongfei@gmail.com).
  * @since 0.1.0
  */
-class BreadthFirstTreeEnumerator[S](start: S)(implicit ss: StateSpace[S]) extends Enumerator[S] {
+class DepthFirstTreeEnumerator[S](start: S)(implicit ss: StateSpace[S]) extends Enumerator[S] {
 
   case class SearchState(state: S, prev: SearchState)
 
-  val fringe = ArrayQueue(SearchState(start, null))
+  val fringe = ArrayStack(SearchState(start, null))
   private var curr: SearchState = null
 
   def current = curr.state
@@ -25,5 +25,5 @@ class BreadthFirstTreeEnumerator[S](start: S)(implicit ss: StateSpace[S]) extend
     }
     else false
   }
-
+  
 }

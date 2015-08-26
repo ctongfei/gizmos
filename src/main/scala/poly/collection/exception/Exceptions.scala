@@ -23,7 +23,7 @@ class IncompatibleOrderException
   extends Exception("Attempted to merge two sorted sequence based on different orders.")
 
 class GoalNotFoundException[S](state: S)
-  extends Exception("Goal not found.")
+  extends Exception(s"Goal $state not found.")
 
 class VertexNotReachableException[K](i: K, j: K)
   extends Exception(s"A path cannot be found from vertex $i to vertex $j.")

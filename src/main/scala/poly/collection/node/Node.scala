@@ -3,6 +3,7 @@ package poly.collection.node
 import poly.algebra.hkt._
 import poly.collection._
 import poly.collection.search._
+import poly.collection.search.depr.StateSpace
 
 /**
  * Basic trait for nodes. A node may contain a list of successor nodes.
@@ -18,6 +19,9 @@ trait Node[+T] { self =>
 
   /** Returns a list of successors of this node. */
   def succ: Enumerable[Node[T]]
+
+  def isDummy = false
+  def notDummy = !isDummy
 
   override def toString = s"Node(${data.toString})"
 

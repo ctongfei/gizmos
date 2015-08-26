@@ -1,42 +1,18 @@
 package poly.collection.search
 
-import poly.collection._
-import poly.collection.exception._
-import poly.collection.mut._
+import poly.collection.Enumerable
 
 /**
- * Defines a space of search states.
  * @author Yuhuan Jiang (jyuhuan@gmail.com).
- * @author Tongfei Chen (ctongfei@gmail.com).
  */
 trait StateSpace[S] {
+  def succ(s: S): Enumerable[S]
+}
 
-  def succ(x: S): Enumerable[S]
+trait StateSpaceWithCost[S, N] extends StateSpace[S] {
+  def cost(from: S, to: S): N
+}
 
-  def depthFirstTreeTraversal(start: S): Enumerable[S] =
-    Enumerable.ofEnumerator(new DepthFirstTreeEnumerator[S](start)(this))
-
-  def breadthFirstTreeTraversal(start: S): Enumerable[S] =
-    Enumerable.ofEnumerator(new BreadthFirstTreeEnumerator[S](start)(this))
-
-  def depthFirstTreeSearch(start: S, goal: S => Boolean): Seq[S] = {
-    val dfs = new DepthFirstTreeEnumerator(start)(this)
-    for (s ← dfs if !goal(s)) {} // run DFS
-    val topNode = dfs.fringe.top
-    if (!goal(topNode.state)) throw new GoalNotFoundException(goal)
-    Enumerable.iterate(topNode)(s => s.prev)
-      .takeWhile(s => s.prev != null)
-      .map(s => s.state).to[ArraySeq]
-  }
-
-  def breadthFirstTreeSearch(start: S, goal: S => Boolean): Seq[S] = {
-    val bfs = new BreadthFirstTreeEnumerator(start)(this)
-    for (s ← bfs if !goal(s)) {} // run BFS
-    val topNode = bfs.fringe.top
-    if (!goal(topNode.state)) throw new GoalNotFoundException(goal)
-    Enumerable.iterate(topNode)(s => s.prev)
-      .takeWhile(s => s.prev != null)
-      .map(s => s.state).to[ArraySeq]
-  }
-
+trait StateSpaceWithHeuristic[S, N] extends StateSpaceWithCost[S, N] {
+  def heuristic(from: S, to: S): N
 }

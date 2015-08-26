@@ -15,8 +15,6 @@ trait BinaryTreeNode[+T] extends Node[T] { self =>
   def right: BinaryTreeNode[T]
   def succ: Enumerable[BinaryTreeNode[T]] = ListSeq(right, left).filter(_.notDummy)
 
-  def isDummy = false
-  def notDummy = !isDummy
 
   /**
    * Returns a new binary tree node by applying a function to all nodes accessible from this node.

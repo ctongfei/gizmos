@@ -1,4 +1,4 @@
-package poly.collection.search
+package poly.collection.search.depr
 
 import poly.collection._
 

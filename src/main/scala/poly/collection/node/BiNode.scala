@@ -10,4 +10,7 @@ trait BiNode[+T] extends Node[T] with BackwardNode[T] {
   def data: T
   def succ: Enumerable[BiNode[T]]
   def pred: Enumerable[BiNode[T]]
+
+  override def isDummy = false
+  override def notDummy = !isDummy
 }

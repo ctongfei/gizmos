@@ -9,4 +9,7 @@ import poly.collection._
 trait BackwardNode[+T] {
   def data: T
   def pred: Enumerable[BackwardNode[T]]
+
+  def isDummy = false
+  def notDummy = !isDummy
 }
