@@ -9,12 +9,6 @@ import scala.language.higherKinds
  */
 trait SeqFactory[+C[_]] extends CollectionFactory[C] {
 
-  def withSizeHint[T](n: Int): C[T] = {
-    val b = newBuilder[T]
-    b.sizeHint(n)
-    b.result
-  }
-
   def fill[T](n: Int)(x: => T): C[T] = {
     var i = n
     val b = newBuilder[T]

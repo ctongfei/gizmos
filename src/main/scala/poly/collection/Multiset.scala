@@ -20,6 +20,15 @@ trait Multiset[T] extends PredicateSet[T] { self =>
 
   def elements: Enumerable[T]
 
+  // HELPER FUNCTIONS
+
+  def distinct: Set[T] = new Set[T] {
+    /** Tests if an element belongs to this set. */
+    def contains(x: T) = self.contains(x)
+    def size = elements.size
+    def elements = self.elements.distinct
+  }
+
   def foreach[U](f: T => U): Unit = elements.foreach(f)
 
   def forall(f: T => Boolean) = elements.forall(f)

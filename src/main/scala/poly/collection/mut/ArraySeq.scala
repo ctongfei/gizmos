@@ -11,7 +11,7 @@ import scala.reflect._
  * A mutable sequence backed by an array.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class ArraySeq[T] private(private[this] var data: ResizableSeq[T] = null) extends KeyMutableIndexedSeq[T] {
+class ArraySeq[T] private(private var data: ResizableSeq[T] = null) extends KeyMutableIndexedSeq[T] {
 
   def length = data.length
 

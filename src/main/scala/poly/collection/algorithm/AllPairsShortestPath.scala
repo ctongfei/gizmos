@@ -1,7 +1,7 @@
 package poly.collection.algorithm
 
 import poly.algebra._
-import poly.algebra.functions._
+import poly.algebra.function._
 import poly.algebra.ops._
 import poly.collection._
 import poly.collection.mut._
@@ -10,11 +10,11 @@ import poly.collection.mut._
  * Runs the Floyd-Warshall algorithm on a specified graph.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class AllPairsShortestPath[K, E : AdditiveMonoid : BoundedUpperSemilattice]
+class AllPairsShortestPath[K, E : AdditiveMonoid : WeakOrder : HasTop]
   (val graph: Graph[K, Any, E]) extends MetricSpace[K, E]
 {
 
-  private[this] val max = implicitly[BoundedUpperSemilattice[E]].top // TODO: top[E]
+  private[this] val max = top[E]
 
   private[this] val d = HashMap[(K, K), E]()
   private[this] val mid = HashMap[(K, K), K]()

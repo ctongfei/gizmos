@@ -2,7 +2,6 @@ package poly.collection
 
 import poly.algebra._
 import poly.collection.exception._
-import poly.util.fastloop._
 import poly.util.specgroup._
 import scala.language.postfixOps
 

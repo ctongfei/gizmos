@@ -5,8 +5,8 @@ import poly.algebra.hkt._
 
 /**
  * Represents a bijective map, which is used to model one-to-one correspondence.
- *
  * @author Tongfei Chen (ctongfei@gmail.com).
+ * @since 0.1.0
  */
 trait BijectiveMap[K, V] extends Map[K, V] with Bijection[K, V] { self =>
 
@@ -34,10 +34,13 @@ trait BijectiveMap[K, V] extends Map[K, V] with Bijection[K, V] { self =>
     def ?(k: K) = for (v ← self ? k; w ← that ? v) yield w
     def invert(w: W) = self.invert(that.invert(w))
     def invertOption(w: W) = for (v ← that.invertOption(w); k ← self.invertOption(v)) yield k
-    def pairs: Enumerable[(K, W)] = ??? //for (k ← keys; v ← self ? k; w ← that ? v) yield (k, w)
+    def pairs: Enumerable[(K, W)] = for (k ← keys; v ← self ? k; w ← that ? v) yield (k, w)
     def size = pairs.size
     def containsKey(k: K) = (this ? k).isDefined
     def containsValue(w: W) = this.invertOption(w).isDefined
   }
+
+  def andThen[W](that: BijectiveMap[V, W]) = this map that
+  def compose[J](that: BijectiveMap[J, K]) = that map this
 
 }

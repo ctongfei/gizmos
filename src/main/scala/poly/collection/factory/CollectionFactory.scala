@@ -17,6 +17,12 @@ trait CollectionFactory[+C[_]] {
   /** Creates an empty collection. */
   def empty[T]: C[T] = newBuilder[T].result
 
+  def withSizeHint[T](n: Int): C[T] = {
+    val b = newBuilder[T]
+    b.sizeHint(n)
+    b.result
+  }
+
   /** Creates a collection by adding the arguments into it. */
   def apply[T](xs: T*): C[T] = {
     val b = newBuilder[T]

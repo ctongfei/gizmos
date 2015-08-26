@@ -60,7 +60,7 @@ object DisjointSets {
 
   def apply[T](xs: T*): DisjointSets[T] = {
     val ds = new DisjointSets[T]
-    ds.data = HashMap(xs.map(t => t → new ds.Node()): _*) // poly.collection.mut.HashMap
+    ds.data = HashMap(xs.map(t => t → new ds.Node()): _*)
     ds.sets = ds.data.size
     ds
   }

@@ -15,32 +15,45 @@ import poly.collection.mut._
  */
 trait Enumerable[+T] extends Traversable[T] { self =>
 
-  /** Returns a new enumerator that can be used to iterate through this collection. */
+  import Enumerable._
+
+  /** Returns a new enumerator that can be used to enumerate through this collection. */
   def newEnumerator: Enumerator[T]
+
+
+  //region HELPER FUNCTIONS
 
   def foreach[V](f: T => V) = newEnumerator.foreach(f)
 
-  override def map[U](f: T => U) = Enumerable.ofEnumerator(self.newEnumerator.map(f))
+  override def map[U](f: T => U) = ofEnumerator(self.newEnumerator.map(f))
 
-  def flatMap[U](f: T => Enumerable[U]) = Enumerable.ofEnumerator(self.newEnumerator.flatMap(x => f(x).newEnumerator))
+  def flatMap[U](f: T => Enumerable[U]) = ofEnumerator(self.newEnumerator.flatMap(x => f(x).newEnumerator))
 
-  override def filter(f: T => Boolean) = Enumerable.ofEnumerator(self.newEnumerator.filter(f))
+  def cartesianProduct[U](that: Enumerable[U]): Enumerable[(T, U)] = self.flatMap(t => that.map(u => (t, u)))
 
-  override def filterNot(f: T => Boolean) = Enumerable.ofEnumerator(self.newEnumerator.filterNot(f))
+  override def filter(f: T => Boolean) = ofEnumerator(self.newEnumerator.filter(f))
 
-  def concat[U >: T](that: Enumerable[U]): Enumerable[U] = Enumerable.ofEnumerator(self.newEnumerator concat that.newEnumerator)
+  override def filterNot(f: T => Boolean) = ofEnumerator(self.newEnumerator.filterNot(f))
 
-  override def tail: Enumerable[T] = Enumerable.ofEnumerator(self.newEnumerator.tail)
+  def concat[U >: T](that: Enumerable[U]): Enumerable[U] = ofEnumerator(self.newEnumerator concat that.newEnumerator)
 
-  override def take(n: Int): Enumerable[T] = Enumerable.ofEnumerator(self.newEnumerator.take(n))
+  override def prepend[U >: T](u: U): Enumerable[U] = ofEnumerator(self.newEnumerator prepend u)
 
-  override def drop(n: Int): Enumerable[T] = Enumerable.ofEnumerator(self.newEnumerator.drop(n))
+  override def append[U >: T](u: U): Enumerable[U] = ofEnumerator(self.newEnumerator append u)
 
-  override def slice(i: Int, j: Int): Enumerable[T] = Enumerable.ofEnumerator(self.newEnumerator.slice(i, j))
+  override def tail: Enumerable[T] = ofEnumerator(self.newEnumerator.tail)
 
-  def zip[U](that: Enumerable[U]): Enumerable[(T, U)] = Enumerable.ofEnumerator(self.newEnumerator zip that.newEnumerator)
+  override def take(n: Int): Enumerable[T] = ofEnumerator(self.newEnumerator.take(n))
 
-  def zip3[U, V](us: Enumerable[U], vs: Enumerable[V]): Enumerable[(T, U, V)] = Enumerable.ofEnumerator {
+  override def drop(n: Int): Enumerable[T] = ofEnumerator(self.newEnumerator.drop(n))
+
+  override def slice(i: Int, j: Int): Enumerable[T] = ofEnumerator(self.newEnumerator.slice(i, j))
+
+  def distinct: Enumerable[T] = ???
+
+  def zip[U](that: Enumerable[U]): Enumerable[(T, U)] = ofEnumerator(self.newEnumerator zip that.newEnumerator)
+
+  def zip3[U, V](us: Enumerable[U], vs: Enumerable[V]): Enumerable[(T, U, V)] = ofEnumerator {
     new Enumerator[(T, U, V)] {
       val ti = self.newEnumerator
       val ui = us.newEnumerator
@@ -53,7 +66,9 @@ trait Enumerable[+T] extends Traversable[T] { self =>
   def interleave[U >: T](that: Enumerable[U]): Enumerable[U] =
     Enumerable.ofEnumerator(self.newEnumerator interleave that.newEnumerator)
 
-  override def toString = this.take(Settings.MaxElemToString).buildString(", ")
+  def sliding(windowSize: Int, step: Int = 1) = ofEnumerator(self.newEnumerator.sliding(windowSize, step))
+
+  //endregion
 
 }
 
@@ -64,8 +79,8 @@ object Enumerable {
   }
 
   /** Creates an enumerable sequence based on an existing enumerator. */
-  def ofEnumerator[T](e: Enumerator[T]): Enumerable[T] = new Enumerable[T] {
-    def newEnumerator = e
+  def ofEnumerator[T](e: => Enumerator[T]): Enumerable[T] = new AbstractEnumerable[T] {
+    def newEnumerator = e // call-by-name parameter!
   }
 
   /**
@@ -82,4 +97,13 @@ object Enumerable {
     def flatMap[X, Y](mx: Enumerable[X])(f: (X) => Enumerable[Y]): Enumerable[Y] = mx.flatMap(f)
     def id[X](u: X): Enumerable[X] = ListSeq(u)
   }
+
+  implicit def optionAsEnumerable[T](o: Option[T]): Enumerable[T] = new AbstractEnumerable[T] {
+    def newEnumerator = o match {
+      case Some(x) => Enumerator.single(x)
+      case None => Enumerator.empty
+    }
+  }
 }
+
+abstract class AbstractEnumerable[+T] extends AbstractTraversable[T] with Enumerable[T]

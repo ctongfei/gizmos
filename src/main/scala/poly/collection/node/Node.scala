@@ -36,7 +36,3 @@ object Node {
     def map[X, Y](nx: Node[X])(f: X => Y): Node[Y] = nx map f
   }
 }
-
-
-
-

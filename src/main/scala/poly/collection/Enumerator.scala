@@ -1,6 +1,7 @@
 package poly.collection
 
 import poly.collection.exception._
+import poly.collection.mut._
 import poly.util.specgroup._
 
 /**
@@ -21,7 +22,7 @@ import poly.util.specgroup._
  * @author Tongfei Chen (ctongfei@gmail.com).
  * @since 0.1.0
  */
-trait Enumerator[+T] extends Traversable[T] { self =>
+trait Enumerator[+T] { self =>
 
   /** Returns the current element of this enumeration. */
   def current: T
@@ -32,17 +33,14 @@ trait Enumerator[+T] extends Traversable[T] { self =>
    */
   def advance(): Boolean
 
-  def foreach[U](f: T => U): Unit = {
-    while (self.advance())
-      f(self.current)
-  }
+  def foreach[U](f: T => U): Unit = while (self.advance()) f(self.current)
 
-  override def map[U](f: T => U): Enumerator[U] = new Enumerator[U] {
+  def map[U](f: T => U): Enumerator[U] = new AbstractEnumerator[U] {
     def current = f(self.current)
     def advance() = self.advance()
   }
 
-  def flatMap[U](f: T => Enumerator[U]): Enumerator[U] = new Enumerator[U] {
+  def flatMap[U](f: T => Enumerator[U]): Enumerator[U] = new AbstractEnumerator[U] {
     private var e: Enumerator[U] = Enumerator.empty
     def current = e.current
     def advance(): Boolean = {
@@ -57,7 +55,7 @@ trait Enumerator[+T] extends Traversable[T] { self =>
     }
   }
 
-  override def filter(f: T => Boolean): Enumerator[T] = new Enumerator[T] {
+  def filter(f: T => Boolean): Enumerator[T] = new AbstractEnumerator[T] {
     def current: T = self.current
     def advance(): Boolean = {
       do {
@@ -68,9 +66,9 @@ trait Enumerator[+T] extends Traversable[T] { self =>
     }
   }
 
-  override def filterNot(f: T => Boolean): Enumerator[T] = filter(e => !f(e))
+  def filterNot(f: T => Boolean): Enumerator[T] = filter(e => !f(e))
 
-  def concat[U >: T](that: Enumerator[U]): Enumerator[U] = new Enumerator[U] {
+  def concat[U >: T](that: Enumerator[U]): Enumerator[U] = new AbstractEnumerator[U] {
     private[this] var e: Enumerator[U] = self
     def advance() = {
       if (e.advance()) true else {
@@ -81,9 +79,37 @@ trait Enumerator[+T] extends Traversable[T] { self =>
     def current = e.current
   }
 
-  override def tail = { self.advance(); self }
+  def prepend[U >: T](u: U): Enumerator[U] = new AbstractEnumerator[U] {
+    private[this] var first = true
+    private[this] var curr: U = _
+    def advance() = if (first) {
+      curr = u
+      first = false
+      true
+    } else {
+      val r = self.advance()
+      curr = self.current
+      r
+    }
+    def current = curr
+  }
 
-  override def take(n: Int): Enumerator[T] = new Enumerator[T] {
+  def append[U >: T](u: U): Enumerator[U] = new AbstractEnumerator[U] {
+    private[this] var last = false
+    def advance() = {
+      if (last) false
+      else {
+        val r = self.advance()
+        if (!r) last = true
+        true
+      }
+    }
+    def current = if (!last) self.current else u
+  }
+
+  def tail = { self.advance(); self }
+
+  def take(n: Int): Enumerator[T] = new AbstractEnumerator[T] {
     private[this] var remaining = n
     def advance() = remaining > 0 && { remaining -= 1; self.advance() }
     def current = self.current
@@ -92,15 +118,14 @@ trait Enumerator[+T] extends Traversable[T] { self =>
   /**
    * Advances this enumerator past the first ''n'' elements.
    * @param n The number of elements to be dropped
-   * @return
    */
-  override def drop(n: Int): Enumerator[T] = {
+  def drop(n: Int): Enumerator[T] = {
     var i = 0
     while (i < n && advance()) i += 1
     this
   }
 
-  override def slice(i: Int, j: Int) = self.drop(i).take(j - i)
+  def slice(i: Int, j: Int) = self.drop(i).take(j - i)
 
 
   /**
@@ -108,9 +133,8 @@ trait Enumerator[+T] extends Traversable[T] { self =>
    * corresponding elements in pairs. For example, [1, 2, 3] zip [-1, -2, -3] yields [(1, -1), (2, -2), (3, -3)].
    * @param that Another enumerable collection
    * @return Zipped sequence
-   * @since 0.1.0
    */
-  def zip[U](that: Enumerator[U]): Enumerator[(T, U)] = new Enumerator[(T, U)] {
+  def zip[U](that: Enumerator[U]): Enumerator[(T, U)] = new AbstractEnumerator[(T, U)] {
     def advance(): Boolean = self.advance() && that.advance()
     def current: (T, U) = (self.current, that.current)
   }
@@ -120,15 +144,45 @@ trait Enumerator[+T] extends Traversable[T] { self =>
    * yields [1, -1, 2, -2, 3, -3].
    * @param that Another enumerable sequence
    * @return Interleave sequence
-   * @since 0.1.0
    */
-  def interleave[U >: T](that: Enumerator[U]): Enumerator[U] = new Enumerator[U] {
+  def interleave[U >: T](that: Enumerator[U]): Enumerator[U] = new AbstractEnumerator[U] {
     var firstSeq = true
     def advance() = {
       firstSeq = !firstSeq
       if (!firstSeq) this.advance() else that.advance()
     }
     def current = if (firstSeq) this.current else that.current
+  }
+
+  def sliding(windowSize: Int, step: Int = 1): Enumerator[IndexedSeq[T]] = new AbstractEnumerator[IndexedSeq[T]] {
+    private[this] var window = ArraySeq.withSizeHint[T](windowSize)
+    private[this] var first = true
+    def advance(): Boolean = {
+      if (first) {
+        var i = 0
+        while (i < windowSize && { val t = self.advance(); if (!t) return false; t }) {
+          window.inplaceAppend(self.current)
+          i += 1
+        }
+        first = false
+        true
+      } else {
+        val newWindow = ArraySeq.withSizeHint[T](windowSize)
+        var i = 0
+        while (i + step < windowSize) {
+          newWindow.inplaceAppend(window(i + step))
+          i += 1
+        }
+        while (i < windowSize && { val t = self.advance(); if (!t) return false; t }) {
+          newWindow.inplaceAppend(self.current)
+          i += 1
+        }
+        window = newWindow
+        true
+      }
+    }
+
+    def current = window
   }
 
   override def toString = "Current = " + this.current.toString
@@ -141,11 +195,27 @@ object Enumerator {
     def current = throw new NoSuchElementException
   }
 
-  def iterate[T](s: T)(next: T => T): Enumerator[T] = new Enumerator[T] {
+  def single[T](x: T): Enumerator[T] = new AbstractEnumerator[T] {
+    var curr: T = _
+    var first = false
+    def advance() = {
+      if (first) {
+        curr = x
+        first = false
+        true
+      } else false
+    }
+    def current = curr
+  }
+
+  def iterate[T](s: T)(next: T => T): Enumerator[T] = new AbstractEnumerator[T] {
     private[this] var curr: T = _
     private[this] var first = true
     def advance() = {
-      if (first) first = false else curr = next(curr)
+      if (first) {
+        first = false
+        curr = s
+      } else curr = next(curr)
       true
     }
     def current = curr
@@ -153,3 +223,4 @@ object Enumerator {
 
 }
 
+abstract class AbstractEnumerator[+T] extends Enumerator[T]

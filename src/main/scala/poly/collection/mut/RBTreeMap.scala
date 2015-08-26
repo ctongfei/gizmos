@@ -5,6 +5,6 @@ import poly.collection.Map
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-abstract class TreeMap[K, V] extends Map[K, V] {
+abstract class RBTreeMap[K, V] extends Map[K, V] {
 
 }

@@ -19,7 +19,7 @@ trait IndexedSeq[+T] extends BiSeq[T] { self =>
   def apply(i: Int): T
 
   // Overridden enumerator method for performance.
-  override def newEnumerator: Enumerator[T] = new Enumerator[T] {
+  override def newEnumerator: Enumerator[T] = new AbstractEnumerator[T] {
     private[this] var i: Int = -1
     def current = self(i)
     def advance(): Boolean = {
@@ -33,20 +33,43 @@ trait IndexedSeq[+T] extends BiSeq[T] { self =>
 
   // HELPER FUNCTIONS
 
+  override def map[U](f: T => U): IndexedSeq[U] = new AbstractIndexedSeq[U] {
+    def length = self.length
+    def apply(i: Int) = f(self(i))
+  }
+
+  def concat[U >: T](that: IndexedSeq[U]): IndexedSeq[U] = new AbstractIndexedSeq[U] {
+    def length = self.length + that.length
+    def apply(i: Int) = if (i < self.length) self(i) else that(i - self.length)
+  }
+
+  override def prepend[U >: T](x: U): IndexedSeq[U] = new AbstractIndexedSeq[U] {
+    def length = self.length + 1
+    def apply(i: Int) = if (i == 0) x else self(i - 1)
+  }
+
+  override def append[U >: T](x: U): IndexedSeq[U] = new AbstractIndexedSeq[U] {
+    def length = self.length + 1
+    def apply(i: Int) = if (i == self.length) x else self(i)
+  }
+
+
+
   /**
    * Rotates this sequence from the index specified.
    * @param j Rotation starts here
    * @return
    */
-  def rotate(j: Int): IndexedSeq[T] = new IndexedSeq[T] {
+  def rotate(j: Int): IndexedSeq[T] = new AbstractIndexedSeq[T] {
     val len = self.length
     def apply(i: Int): T = self((j + i) % len)
     def length: Int = len
   }
 
-  override def map[U](f: T => U): IndexedSeq[U] = new IndexedSeq[U] {
-    def length = self.length
-    def apply(i: Int) = f(self(i))
+
+  override def slice(i: Int, j: Int) = new AbstractIndexedSeq[T] {
+    def apply(n: Int) = self(i + n)
+    def length = j - i
   }
 
   /**
@@ -60,6 +83,18 @@ trait IndexedSeq[+T] extends BiSeq[T] { self =>
     def length: Int = self.length
     def apply(i: Int): T = self.apply(i)
   }
+
+  def interleave[U >: T](that: IndexedSeq[U]): IndexedSeq[U] = new AbstractIndexedSeq[U] {
+    def length = math.min(this.length, that.length) * 2
+    def apply(i: Int) = if (i % 2 == 0) self(i / 2) else that(i / 2)
+  }
+
+  override def sliding(windowSize: Int, step: Int = 1): IndexedSeq[IndexedSeq[T]] = new AbstractIndexedSeq[IndexedSeq[T]] {
+    val length = (self.length - windowSize) / step + 1
+    def apply(i: Int) = self.slice(step * i, step * i + windowSize)
+  }
+
+  // HELPER OBJECTS / CLASSES
 
   case class IndexedSeqNode(i: Int) extends BiSeqNode[T] {
     def data = self(i)
@@ -89,3 +124,5 @@ object IndexedSeq {
   }
 
 }
+
+abstract class AbstractIndexedSeq[+T] extends IndexedSeq[T]

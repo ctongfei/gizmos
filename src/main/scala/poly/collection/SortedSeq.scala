@@ -13,8 +13,7 @@ import scala.reflect._
  */
 trait SortedSeq[T] extends Seq[T] with SortedEnumerable[T] { self =>
 
-
-  def distinct: SortedSeq[T] = ???
+  override def distinct: SortedSeq[T] = ???
 
   def thenSortBy[X](f: T => X)(implicit subOrder: WeakOrder[T]): IndexedSortedSeq[T] = {
     ???

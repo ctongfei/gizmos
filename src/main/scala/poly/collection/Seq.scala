@@ -13,6 +13,8 @@ import scala.annotation.unchecked.{uncheckedVariance => uV}
  */
 trait Seq[+T] extends Enumerable[T] with Map[Int, T] { self =>
 
+  import Seq._
+
   /**
    * Returns the length of this sequence.
    * @return The length of this sequence
@@ -50,11 +52,14 @@ trait Seq[+T] extends Enumerable[T] with Map[Int, T] { self =>
 
   def containsKey(i: Int) = i >= 0 && i < size
 
-  def pairs = ??? //TODO: zipWithIndex.map(_.swap)
+  def pairs = {
+    var i = -1
+    self.map(x => { i += 1; (i, x) })
+  }
 
   // HELPER FUNCTIONS
 
-  override def tail: Seq[T] = Seq.ofNode(headNode.next)
+  override def tail: Seq[T] = ofNode(headNode.next)
 
   override def map[U](f: T => U): Seq[U] = new Seq[U] {
     def apply(i: Int): U = f(self(i))
@@ -81,16 +86,9 @@ trait Seq[+T] extends Enumerable[T] with Map[Int, T] { self =>
     case _ => false
   }
 
-  override def toString() = {
-    val len = length
-    if (len > Settings.MaxElemToString)
-      s"[$len] " + this.take(Settings.MaxElemToString).buildString(", ") + "..."
-    else s"[$len] " + this.buildString(", ")
-  }
-
   override def hashCode = ???
 
-
+  override def toString = self.buildString(",")
 
 }
 

@@ -46,7 +46,7 @@ trait Graph[@sp(i) K, +V, +E] { self =>
 
   // HELPER FUNCTIONS
 
-  def mapVertices[V1](f: V => V1): Graph[K, V1, E] = new Graph[K, V1, E] {
+  def mapVertices[V1](f: V => V1): Graph[K, V1, E] = new AbstractGraph[K, V1, E] {
     def apply(i: K): V1 = f(self(i))
     def containsEdge(i: K, j: K): Boolean = self.containsEdge(i, j)
     def containsVertex(i: K): Boolean = self.containsVertex(i)
@@ -55,7 +55,7 @@ trait Graph[@sp(i) K, +V, +E] { self =>
     def outgoingKeysOf(i: K): Enumerable[K] = self.outgoingKeysOf(i)
   }
 
-  def mapEdges[E1](f: E => E1): Graph[K, V, E1] = new Graph[K, V, E1] {
+  def mapEdges[E1](f: E => E1): Graph[K, V, E1] = new AbstractGraph[K, V, E1] {
     def apply(i: K): V = self(i)
     def containsEdge(i: K, j: K): Boolean = self.containsEdge(i, j)
     def containsVertex(i: K): Boolean = self.containsVertex(i)
@@ -66,7 +66,7 @@ trait Graph[@sp(i) K, +V, +E] { self =>
 
   def filterKeys(f: K => Boolean): Graph[K, V, E] = ???
 
-  def filterVertices(f: V => Boolean): Graph[K, V, E] = new Graph[K, V, E] {
+  def filterVertices(f: V => Boolean): Graph[K, V, E] = new AbstractGraph[K, V, E] {
     def apply(i: K): V = {
       if (f(self(i))) self(i)
       else throw new NoSuchElementException
@@ -91,3 +91,5 @@ trait Graph[@sp(i) K, +V, +E] { self =>
   }
 
 }
+
+abstract class AbstractGraph[@sp(i) K, +V, +E] extends Graph[K, V, E]

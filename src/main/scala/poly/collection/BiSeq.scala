@@ -15,13 +15,21 @@ trait BiSeq[+T] extends Seq[T] { self =>
 
   override def last = lastNode.data
 
+  //region HELPER FUNCTIONS
+
+  override def map[U](f: T => U): BiSeq[U] = new BiSeq[U] {
+    def headNode = self.headNode.map(f)
+    def lastNode = self.lastNode.map(f)
+    def length = self.length
+    def apply(i: Int) = f(self(i))
+  }
 
   /**
    * Returns the reverse of this bidirectional sequence.
    * O(1) complexity. $LAZY
    * @return The reversed sequence.
    */
-  def reverse: BiSeq[T] = new BiSeq[T] {
+  override def reverse: BiSeq[T] = new BiSeq[T] {
     def lastNode = self.headNode
     def headNode = self.lastNode
     def length = self.length

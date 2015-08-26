@@ -10,7 +10,7 @@ import poly.collection.mut._
  * @since 0.1.0
  */
 trait BiBinaryTreeNode[+T] extends BiNode[T] with BinaryTreeNode[T] with SinglePredNode[T] { self =>
-
+  def data: T
   def left: BiBinaryTreeNode[T]
   def right: BiBinaryTreeNode[T]
   def parent: BiBinaryTreeNode[T]

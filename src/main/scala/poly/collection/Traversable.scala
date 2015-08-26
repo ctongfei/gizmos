@@ -3,10 +3,13 @@ package poly.collection
 import poly.algebra._
 import poly.algebra.hkt._
 import poly.algebra.ops._
+import poly.algebra.function._
 import poly.collection.exception._
 import poly.collection.mut._
 import poly.util.fastloop._
 import poly.util.typeclass._
+import poly.util.typeclass.ops._
+
 import scala.language.higherKinds
 import scala.annotation.unchecked.{uncheckedVariance => uv}
 
@@ -26,8 +29,9 @@ trait Traversable[+T] { self =>
    */
   def foreach[V](f: T => V): Unit
 
-  // HELPER FUNCTIONS
+  //region HELPER FUNCTIONS
 
+  //region Monadic operations (map, flatMap, product)
   /**
    * Returns a new traversable collection by applying a function to all elements in this collection.
    * $LAZY
@@ -35,13 +39,13 @@ trait Traversable[+T] { self =>
    * @tparam U Type of the image of the function
    * @return A new collection that each element is the image of the original element applied by ''f''.
    */
-  def map[U](f: T => U): Traversable[U] = new Traversable[U] {
+  def map[U](f: T => U): Traversable[U] = new AbstractTraversable[U] {
     def foreach[V](g: U => V) = {
       for (x ← self) g(f(x))
     }
   }
 
-  def flatMap[U](f: T => Traversable[U]): Traversable[U] = new Traversable[U] {
+  def flatMap[U](f: T => Traversable[U]): Traversable[U] = new AbstractTraversable[U] {
     def foreach[V](g: U => V): Unit = {
       for (x ← self)
         for (y ← f(x))
@@ -49,11 +53,18 @@ trait Traversable[+T] { self =>
     }
   }
 
-  def product[U](that: Traversable[U]): Traversable[(T, U)] =
+  def cartesianProduct[U](that: Traversable[U]): Traversable[(T, U)] =
     self flatMap (x => that map (y => (x, y)))
 
-  //region Filtering according to predicates
+  //endregion
 
+  //region Filtering & grouping (count, filter, filterNot, filterMany, partition, groupBy)
+
+  /**
+   * Counts the number of elements that satisfy the specified predicate.
+   * @param f The specified predicate
+   * @return The number of elements that satisfy ''f''
+   */
   def count(f: T => Boolean): Int = {
     var s = 0
     for (x ← self)
@@ -62,12 +73,11 @@ trait Traversable[+T] { self =>
   }
 
   /**
-   *
-   * $LAZY
-   * @param f
-   * @return
+   * Selects the elements that satisfy the specified predicate. $LAZY
+   * @param f The specified predicate
+   * @return A traversable collection that contains all elements that satisfy ''f''.
    */
-  def filter(f: T => Boolean): Traversable[T] = new Traversable[T] {
+  def filter(f: T => Boolean): Traversable[T] = new AbstractTraversable[T] {
     def foreach[V](g: T => V) = {
       for (x ← self)
         if (f(x)) g(x)
@@ -77,9 +87,9 @@ trait Traversable[+T] { self =>
   def filterNot(f: T => Boolean): Traversable[T] = filter(e => !f(e))
 
   /**
-   * $EAGER
-   * @param f
-   * @return
+   * Partitions this collection to two collections according to a predicate. $EAGER
+   * @param f The specified predicate
+   * @return A pair of collections: ( {x|f(x)} , {x|!f(x)} )
    */
   def partition(f: T => Boolean): (Seq[T], Seq[T]) = {
     val l, r = ArraySeq.newBuilder[T]
@@ -101,12 +111,17 @@ trait Traversable[+T] { self =>
     l
   }
 
-  def group[U >: T](implicit ev: Eq[U]): Set[Set[U]] = ???
+  def findFirst(f: T => Boolean): Option[T] = {
+    for (x ← self)
+      if (f(x)) return Some(x)
+    None
+  }
 
   def groupBy[T1 >: T, K](f: T1 => K): Multimap[K, T1] = ???
   //endregion
 
-  def concat[U >: T](that: Traversable[U]): Traversable[U] = new Traversable[U] {
+  //region Concatenation (concat, prepend, append)
+  def concat[U >: T](that: Traversable[U]): Traversable[U] = new AbstractTraversable[U] {
     def foreach[V](f: U => V): Unit = {
       for (x ← self)
         f(x)
@@ -115,19 +130,20 @@ trait Traversable[+T] { self =>
     }
   }
 
-  def prepend[U >: T](x: U): Traversable[U] = new Traversable[U] {
+  def prepend[U >: T](x: U): Traversable[U] = new AbstractTraversable[U] {
     def foreach[V](f: U => V) = {
       f(x)
       self foreach f
     }
   }
 
-  def append[U >: T](x: U): Traversable[U] = new Traversable[U] {
+  def append[U >: T](x: U): Traversable[U] = new AbstractTraversable[U] {
     def foreach[V](f: U => V) = {
       self foreach f
       f(x)
     }
   }
+  //endregion
 
   def size: Int = {
     var s = 0
@@ -154,8 +170,11 @@ trait Traversable[+T] { self =>
     r
   }
 
-  def fold[U >: T](z: U)(f: (U, U) => U): U = foldLeft(z)(f)
+  def foldRight[U](z: U)(f: (T, U) => U): U = {
+    reverse.foldLeft(z)((x, y) => f(y, x))
+  }
 
+  def fold[U >: T](z: U)(f: (U, U) => U): U = foldLeft(z)(f)
 
   def reduce[U >: T](f: (U, U) => U): U = {
     var first = true
@@ -170,11 +189,45 @@ trait Traversable[+T] { self =>
     res
   }
 
-  def reduce[U >: T](m: Monoid[U]): U = {
+  def reduceByMonoid[U >: T](m: Monoid[U]): U = {
     var res = m.id
     for (x ← self) res = m.op(res, x)
     res
   }
+
+  def scanLeft[U >: T](z: U)(f: (U, T) => U): Traversable[U] = new AbstractTraversable[U] {
+    def foreach[V](g: U => V) = {
+      var accum = z
+      for (x ← self) {
+        g(accum)
+        accum = f(accum, x)
+      }
+      g(accum)
+    }
+  }
+  
+  def scan[U >: T](z: U)(f: (U, U) => U): Traversable[U] = scanLeft(z)(f)
+
+  def scanByMonoid[U >: T](m: Monoid[U]): Traversable[U] = scanLeft(m.id)(m.op)
+
+  def diff[U](f: (T, T) => U): Traversable[U] = new AbstractTraversable[U] {
+    var first = true
+    var prev: T = _
+    def foreach[V](g: U => V) = {
+      for (x ← self) {
+        if (first) {
+          prev = x
+          first = false
+        }
+        else {
+          g(f(x, prev))
+          prev = x
+        }
+      }
+    }
+  }
+
+  def diffByGroup[U >: T](g: Group[U]) = diff((x, y) => g.op(x, g.inv(y)))
 
   def head: T = {
     for (x ← self)
@@ -182,7 +235,7 @@ trait Traversable[+T] { self =>
     throw new NoSuchElementException
   }
 
-  def tail: Traversable[T] = new Traversable[T] {
+  def tail: Traversable[T] = new AbstractTraversable[T] {
     def foreach[U](f: T => U): Unit = {
       var first = true
       for (x ← self) {
@@ -198,7 +251,7 @@ trait Traversable[+T] { self =>
     p
   }
 
-  def init: Traversable[T] = new Traversable[T] {
+  def init: Traversable[T] = new AbstractTraversable[T] {
     def foreach[U](f: T => U): Unit = {
       var p = head
       var followed = false
@@ -210,7 +263,7 @@ trait Traversable[+T] { self =>
     }
   }
 
-  def take(n: Int) = new Traversable[T] {
+  def take(n: Int): Traversable[T] = new AbstractTraversable[T] {
     def foreach[U](f: T => U): Unit = {
       var i = 0
       for (x ← self) {
@@ -221,7 +274,7 @@ trait Traversable[+T] { self =>
     }
   }
 
-  def drop(n: Int) = new Traversable[T] {
+  def drop(n: Int): Traversable[T] = new AbstractTraversable[T] {
     def foreach[U](f: T => U): Unit = {
       var i = 0
       for (x ← self) {
@@ -231,7 +284,7 @@ trait Traversable[+T] { self =>
     }
   }
 
-  def takeWhile(f: T => Boolean): Traversable[T] = new Traversable[T] {
+  def takeWhile(f: T => Boolean): Traversable[T] = new AbstractTraversable[T] {
     def foreach[U](g: T => U): Unit = {
       for (x ← self) {
         if (!f(x)) return
@@ -240,7 +293,7 @@ trait Traversable[+T] { self =>
     }
   }
 
-  def takeTo(f: T => Boolean): Traversable[T] = new Traversable[T] {
+  def takeTo(f: T => Boolean): Traversable[T] = new AbstractTraversable[T] {
     def foreach[U](g: T => U): Unit = {
       var goal = false
       for (x ← self) {
@@ -253,7 +306,7 @@ trait Traversable[+T] { self =>
 
   def takeUntil(f: T => Boolean): Traversable[T] = takeWhile(x => !f(x))
 
-  def dropWhile(f: T => Boolean) = new Traversable[T] {
+  def dropWhile(f: T => Boolean) = new AbstractTraversable[T] {
     def foreach[U](g: T => U): Unit = {
       var starts = false
       for (x ← self) {
@@ -265,14 +318,10 @@ trait Traversable[+T] { self =>
 
   def slice(i: Int, j: Int) = drop(i).take(j - i)
 
-  def findFirst(f: T => Boolean): Option[T] = {
-    for (x ← self)
-      if (f(x)) return Some(x)
-    None
-  }
+  def reverse: BiSeq[T] = self.to[ArraySeq].reverse
 
   def sort[X >: T](implicit O: WeakOrder[X]): IndexedSeq[X] = {
-    val seq = self.map(e => e.asInstanceOf[X]).to[ArraySeq]
+    val seq = self.map(_.asInstanceOf[X]).to[ArraySeq]
     seq.inplaceSort()(O)
     seq
   }
@@ -283,19 +332,23 @@ trait Traversable[+T] { self =>
     seq.asIfSorted(WeakOrder by f)
   }
 
-  def sum[X >: T](implicit G: AdditiveMonoid[X]): X = reduce((x: X, y: X) => G.add(x, y))
+  def sum[X >: T](implicit G: AdditiveMonoid[X]): X = fold(zero)(_+_)
 
-  def isum[X >: T](implicit G: InplaceAdditiveMonoid[X]) = {
-    val sum = G.zero
+  def isum[X >: T](implicit G: InplaceAdditiveCMonoid[X]) = {
+    val sum = zero[X]
     for (x ← self) G.inplaceAdd(sum, x)
     sum
   }
 
-  def product[X >: T](implicit G: MultiplicativeMonoid[X]): X = reduce((x: X, y: X) => G.mul(x, y))
+  def prefixSums[X >: T](implicit G: AdditiveMonoid[X]) = scan(zero)(G.add)
 
-  def min[X >: T](implicit O: WeakOrder[X]): X = reduce((x, y) => O.min(x, y))
+  def differences[X >: T](implicit G: AdditiveGroup[X]) = diff(G.sub)
 
-  def max[X >: T](implicit O: WeakOrder[X]): X = reduce((x, y) => O.max(x, y))
+  def product[X >: T](implicit G: MultiplicativeMonoid[X]): X = fold(G.one)(G.mul)
+
+  def min[X >: T](implicit O: WeakOrder[X]): X = reduce(O.min[X])
+
+  def max[X >: T](implicit O: WeakOrder[X]): X = reduce(O.max[X])
 
   def argmin[U: WeakOrder](f: T => U): T = argminWithValue(f)._1
 
@@ -351,21 +404,7 @@ trait Traversable[+T] { self =>
     (maxKey, maxVal)
   }
 
-  def buildString[U >: T](delimiter: String)(implicit ev: Formatter[U]): String = {
-    val sb = new StringBuilder
-    var first = true
-    for (x ← this) {
-      if (first) {
-        sb.append(ev.str(x))
-        first = false
-      } else {
-        sb.append(delimiter)
-        sb.append(ev.str(x))
-      }
-    }
-    sb.result()
-  }
-
+  //region Building (to, buildString)
   /**
    * Converts this traversable sequence to any collection type.
    * @param builder An implicit builder
@@ -392,12 +431,34 @@ trait Traversable[+T] { self =>
     b.result
   }
 
+  def buildString[U >: T : Formatter](delimiter: String): String = {
+    val sb = new StringBuilder
+    var first = true
+    for (x ← this) {
+      if (first) {
+        sb.append(x.str)
+        first = false
+      } else {
+        sb.append(delimiter)
+        sb.append(x.str)
+      }
+    }
+    sb.result()
+  }
+  //endregion
+
+  //region Symbolic aliases
   def :+[U >: T](x: U) = this append x
   def +:[U >: T](x: U) = this prepend x
   def ++[U >: T](that: Traversable[U]) = this concat that
-  def ×[U](that: Traversable[U]) = this product that
+  def ×[U](that: Traversable[U]) = this cartesianProduct that
   def |>[U](f: T => U) = this map f
   def |>>[U](f: T => Traversable[U]) = this flatMap f
+  //endregion
+
+  //endregion
+
+  override def toString = buildString(",")(Formatter.default)
 }
 
 object Traversable {
@@ -406,7 +467,7 @@ object Traversable {
     def foreach[U](f: Nothing => U): Unit = {}
   }
 
-  def single[T](e: T): Traversable[T] = new Traversable[T] {
+  def single[T](e: T): Traversable[T] = new AbstractTraversable[T] {
     def foreach[U](f: T => U) = f(e)
   }
 
@@ -416,3 +477,6 @@ object Traversable {
   }
   
 }
+
+abstract class AbstractTraversable[+T] extends Traversable[T]
+

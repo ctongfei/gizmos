@@ -9,7 +9,7 @@ import poly.collection.mut._
  * @since 0.1.0
  */
 trait BiSeqNode[+T] extends BiNode[T] with SeqNode[T] with SinglePredNode[T] { self =>
-
+  def data: T
   def prev: BiSeqNode[T]
   def next: BiSeqNode[T]
   override def parent: BiSeqNode[T] = prev

@@ -10,7 +10,7 @@ import poly.collection.mut._
  * @since 0.1.0
  */
 trait BinaryTreeNode[+T] extends Node[T] { self =>
-
+  def data: T
   def left: BinaryTreeNode[T]
   def right: BinaryTreeNode[T]
   def succ: Enumerable[BinaryTreeNode[T]] = ListSeq(right, left).filter(_.notDummy)

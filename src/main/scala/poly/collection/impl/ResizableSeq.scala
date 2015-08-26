@@ -25,8 +25,8 @@ final class ResizableSeq[T]
   (private[this] var cap: Int = Settings.ArrayInitialSize) extends KeyMutableIndexedSeq[T]
 { self =>
 
-  private[this] var data: Array[AnyRef] = Array.ofDim[AnyRef](math.max(nextPowerOfTwo(cap), Settings.ArrayInitialSize))
-  private[this] var len: Int = 0
+  var data: Array[AnyRef] = Array.ofDim[AnyRef](math.max(nextPowerOfTwo(cap), Settings.ArrayInitialSize))
+  var len: Int = 0
 
   private[poly] def getData = data // exposed for math libraries
 

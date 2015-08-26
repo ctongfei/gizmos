@@ -6,7 +6,15 @@ import poly.algebra.ops._
  * Trait for an indexed sorted sequence.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-trait IndexedSortedSeq[T] extends SortedSeq[T] with IndexedSeq[T] {
+trait IndexedSortedSeq[T] extends SortedSeq[T] with IndexedSeq[T] { self =>
+
+  /** Casts this indexed sorted sequence as a multiset. */
+  def asMultiset: Multiset[T] = new Multiset[T] {
+    def size = self.size
+    def multiplicity(x: T) = ???
+    def elements = self
+    def contains(x: T) = self.tryBinarySearch(x) >= 0
+  }
 
   /**
    * Finds the key in a sorted array using binary search. The complexity of this operation is O(log n).

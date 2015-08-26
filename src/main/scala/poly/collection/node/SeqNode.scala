@@ -9,6 +9,7 @@ import poly.collection.mut._
  * @since 0.1.0
  */
 trait SeqNode[+T] extends Node[T] { self =>
+  def data: T
   def next: SeqNode[T]
   def succ: Enumerable[SeqNode[T]] = ListSeq(next).filter(_.notDummy)
 
