@@ -115,6 +115,7 @@ trait Enumerator[+T] { self =>
     def current = self.current
   }
 
+
   /**
    * Advances this enumerator past the first ''n'' elements.
    * @param n The number of elements to be dropped

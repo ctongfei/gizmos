@@ -33,7 +33,7 @@ trait Seq[+T] extends Enumerable[T] with Map[Int, T] { self =>
   def headNode: SeqNode[T]
 
   def newEnumerator: Enumerator[T] = new Enumerator[T] {
-    var node: SeqNode[T] = null
+    var node: SeqNode[T] = null //TODO: dummy
     var first = true
     def advance() = {
       if (first) {
@@ -41,7 +41,7 @@ trait Seq[+T] extends Enumerable[T] with Map[Int, T] { self =>
         node = headNode
       }
       else node = node.next
-      node ne null
+      node.notDummy
     }
     def current = node.data
   }

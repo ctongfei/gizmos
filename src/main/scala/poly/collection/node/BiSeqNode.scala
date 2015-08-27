@@ -12,6 +12,15 @@ trait BiSeqNode[+T] extends BiNode[T] with SeqNode[T] with SinglePredNode[T] { s
   def data: T
   def prev: BiSeqNode[T]
   def next: BiSeqNode[T]
+
+  override def reverse: BiSeqNode[T] = new BiSeqNode[T] {
+    def next = self.prev.reverse
+    def prev = self.next.reverse
+    def data = self.data
+    override def reverse = self
+    override def isDummy = self.isDummy
+  }
+
   override def parent: BiSeqNode[T] = prev
   override def pred: Enumerable[BiSeqNode[T]] = ListSeq(prev).filter(_.notDummy)
   override def succ: Enumerable[BiSeqNode[T]] = ListSeq(next).filter(_.notDummy)

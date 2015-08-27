@@ -14,5 +14,16 @@ trait SinglePredNode[+T] extends BackwardNode[T] { self =>
   def map[U](f: T => U): SinglePredNode[U] = new SinglePredNode[U] {
     def parent = self.parent.map(f)
     def data = f(self.data)
+    override def isDummy = self.isDummy
   }
+
+  override def reverse: SeqNode[T] = new SeqNode[T] {
+    def data = self.data
+    def next = self.parent.reverse
+    override def reverse = self
+    override def isDummy = self.isDummy
+  }
+
+  /** Backtracks from this node to the initial node. */
+  def pathToRoot = Enumerable.iterate(this)(_.parent).takeUntil(_.isDummy)
 }

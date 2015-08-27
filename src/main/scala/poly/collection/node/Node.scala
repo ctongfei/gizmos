@@ -3,7 +3,6 @@ package poly.collection.node
 import poly.algebra.hkt._
 import poly.collection._
 import poly.collection.search._
-import poly.collection.search.depr.StateSpace
 
 /**
  * Basic trait for nodes. A node may contain a list of successor nodes.
@@ -23,11 +22,19 @@ trait Node[+T] { self =>
   def isDummy = false
   def notDummy = !isDummy
 
-  override def toString = s"Node(${data.toString})"
+  override def toString = s"Node($data)"
+
+  def reverse: BackwardNode[T] = new BackwardNode[T] {
+    def pred = self.succ.map(_.reverse)
+    def data = self.data
+    override def reverse = self
+    override def isDummy = self.isDummy
+  }
 
   def map[U](f: T => U): Node[U] = new Node[U] {
     def data = f(self.data)
     def succ = self.succ.map(n => n.map(f))
+    override def isDummy = self.isDummy
   }
 }
 

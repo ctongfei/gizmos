@@ -30,8 +30,8 @@ trait BiSeq[+T] extends Seq[T] { self =>
    * @return The reversed sequence.
    */
   override def reverse: BiSeq[T] = new BiSeq[T] {
-    def lastNode = self.headNode
-    def headNode = self.lastNode
+    def lastNode = self.headNode.reverse
+    def headNode = self.lastNode.reverse
     def length = self.length
     def apply(i: Int) = self.apply(self.length - 1 - i)
     override def reverse = self

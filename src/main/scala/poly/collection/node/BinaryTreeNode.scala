@@ -26,12 +26,14 @@ trait BinaryTreeNode[+T] extends Node[T] { self =>
     def left = self.left.map(f)
     def right = self.right.map(f)
     def data = f(self.data)
+    override def isDummy = self.isDummy
   }
 
   def zip[U](that: BinaryTreeNode[U]): BinaryTreeNode[(T, U)] = new BinaryTreeNode[(T, U)] {
     def left = self.left zip that.left
     def right = self.right zip that.right
     def data = (self.data, that.data)
+    override def isDummy = self.isDummy || that.isDummy
   }
 
   /**

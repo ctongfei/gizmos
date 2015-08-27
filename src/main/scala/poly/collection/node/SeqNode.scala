@@ -14,8 +14,16 @@ trait SeqNode[+T] extends Node[T] { self =>
   def succ: Enumerable[SeqNode[T]] = ListSeq(next).filter(_.notDummy)
 
 
+  override def reverse: SinglePredNode[T] = new SinglePredNode[T] {
+    def data = self.data
+    def parent = self.next.reverse
+    override def reverse = self
+    override def isDummy = self.isDummy
+  }
+
   override def map[U](f: T => U): SeqNode[U] = new SeqNode[U] {
     def next = self.next.map(f)
     def data = f(self.data)
+    override def isDummy = self.isDummy
   }
 }

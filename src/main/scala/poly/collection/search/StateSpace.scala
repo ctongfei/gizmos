@@ -1,18 +1,20 @@
 package poly.collection.search
 
-import poly.collection.Enumerable
+import poly.collection._
 
 /**
+ * Defines a space of search states.
  * @author Yuhuan Jiang (jyuhuan@gmail.com).
+ * @author Tongfei Chen (ctongfei@gmail.com).
  */
 trait StateSpace[S] {
-  def succ(s: S): Enumerable[S]
-}
 
-trait StateSpaceWithCost[S, N] extends StateSpace[S] {
-  def cost(from: S, to: S): N
-}
+  def succ(x: S): Traversable[S]
 
-trait StateSpaceWithHeuristic[S, N] extends StateSpaceWithCost[S, N] {
-  def heuristic(from: S, to: S): N
+  def depthFirstTreeTraversal(start: S): Enumerable[S] =
+    Enumerable.ofEnumerator(new DepthFirstTreeSearchEnumerator[S](start)(this))
+
+  def breadthFirstTreeTraversal(start: S): Enumerable[S] =
+    Enumerable.ofEnumerator(new BreadthFirstTreeSearchEnumerator[S](start)(this))
+
 }

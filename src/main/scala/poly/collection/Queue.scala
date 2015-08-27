@@ -37,7 +37,10 @@ trait Queue[T] {
   def size: Int
 
   def +=(x: T): Unit = push(x)
-  def ++=(xs: Traversable[T]) = xs foreach +=
+
+  def pushAll(xs: Traversable[T]) = xs foreach +=
+
+  def ++=(xs: Traversable[T]) = pushAll(xs)
 
   def enqueue(x: T) = push(x)
   def dequeue() = pop()

@@ -2,6 +2,7 @@ package poly.collection
 
 import poly.algebra.hkt._
 import poly.collection.mut._
+import scala.language.implicitConversions
 
 /**
  * `Enumerable` is the basic trait for all collections that exposes an enumerator.
@@ -78,7 +79,7 @@ object Enumerable {
     def newEnumerator: Enumerator[Nothing] = Enumerator.empty
   }
 
-  /** Creates an enumerable sequence based on an existing enumerator. */
+  /** Creates an enumerable sequence based on an existing enumerator. The enumerator is a call-by-name argument. */
   def ofEnumerator[T](e: => Enumerator[T]): Enumerable[T] = new AbstractEnumerable[T] {
     def newEnumerator = e // call-by-name parameter!
   }

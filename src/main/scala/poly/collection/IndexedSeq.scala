@@ -103,10 +103,11 @@ trait IndexedSeq[+T] extends BiSeq[T] { self =>
   }
 
   private object Dummy extends BiSeqNode[Nothing] {
-    def next: BiSeqNode[Nothing] = Dummy
-    def prev: BiSeqNode[Nothing] = Dummy
+    def next: BiSeqNode[Nothing] = this
+    def prev: BiSeqNode[Nothing] = this
     def data: Nothing = throw new NoSuchElementException
     override def isDummy = true
+    override def reverse = this
   }
 
 }
