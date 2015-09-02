@@ -17,7 +17,7 @@ trait BiSeq[+T] extends Seq[T] { self =>
 
   //region HELPER FUNCTIONS
 
-  override def map[U](f: T => U): BiSeq[U] = new BiSeq[U] {
+  override def map[U](f: T => U): BiSeq[U] = new AbstractBiSeq[U] {
     def headNode = self.headNode.map(f)
     def lastNode = self.lastNode.map(f)
     def length = self.length
@@ -29,7 +29,7 @@ trait BiSeq[+T] extends Seq[T] { self =>
    * O(1) complexity. $LAZY
    * @return The reversed sequence.
    */
-  override def reverse: BiSeq[T] = new BiSeq[T] {
+  override def reverse: BiSeq[T] = new AbstractBiSeq[T] {
     def lastNode = self.headNode.reverse
     def headNode = self.lastNode.reverse
     def length = self.length
@@ -49,3 +49,5 @@ object BiSeq {
   }
 
 }
+
+abstract class AbstractBiSeq[+T] extends AbstractSeq[T] with BiSeq[T]

@@ -18,7 +18,7 @@ abstract class PairMultiset[T, C[A] <: Set[A]] private()(implicit builder: Build
 
   def multiplicity(x: T): Int = ???
 
-  def elements: Enumerable[T] = ???
+  def elements: Iterable[T] = ???
 
 }
 

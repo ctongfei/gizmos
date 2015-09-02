@@ -6,18 +6,23 @@ import poly.collection.search._
 
 /**
  * Basic trait for nodes. A node may contain a list of successor nodes.
+ *
  * This trait serves as a common trait for sequence nodes, tree nodes and graph nodes.
  * Nodes provide a unified view for lists, trees and graphs.
+ *
+ * Explicitly inherits the deprecated trait [[scala.NotNull]] to emphasize that a node
+ * in Poly-collection should never be null.
+ *
  * @author Tongfei Chen (ctongfei@gmail.com).
  * @since 0.1.0
  */
-trait Node[+T] { self =>
+trait Node[+T] extends NotNull { self =>
 
   /** Returns the data on this node. */
   def data: T
 
   /** Returns a list of successors of this node. */
-  def succ: Enumerable[Node[T]]
+  def succ: Iterable[Node[T]]
 
   def isDummy = false
   def notDummy = !isDummy
@@ -36,6 +41,7 @@ trait Node[+T] { self =>
     def succ = self.succ.map(n => n.map(f))
     override def isDummy = self.isDummy
   }
+
 }
 
 object Node {

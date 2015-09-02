@@ -13,7 +13,7 @@ trait BinaryTreeNode[+T] extends Node[T] { self =>
   def data: T
   def left: BinaryTreeNode[T]
   def right: BinaryTreeNode[T]
-  def succ: Enumerable[BinaryTreeNode[T]] = ListSeq(right, left).filter(_.notDummy)
+  def succ: Iterable[BinaryTreeNode[T]] = ListSeq(right, left).filter(_.notDummy)
 
 
   /**
@@ -40,8 +40,8 @@ trait BinaryTreeNode[+T] extends Node[T] { self =>
    * Performs pre-order traversal from this node.
    * @return A non-strict sequence of the pre-order traversal.
    */
-  def preOrder: Enumerable[T] = Enumerable.ofEnumerator {
-    new Enumerator[T] {
+  def preOrder: Iterable[T] = Iterable.ofIterator {
+    new AbstractIterator[T] {
       private val s = ArrayStack[BinaryTreeNode[T]](self)
       private var curr: BinaryTreeNode[T] = null
       def advance(): Boolean = {
@@ -59,8 +59,8 @@ trait BinaryTreeNode[+T] extends Node[T] { self =>
    * Performs in-order traversal from this node.
    * @return A non-strict sequence of the in-order traversal.
    */
-  def inOrder: Enumerable[T] = Enumerable.ofEnumerator {
-    new Enumerator[T] {
+  def inOrder: Iterable[T] = Iterable.ofIterator {
+    new AbstractIterator[T] {
       private[this] val s = ArrayStack[BinaryTreeNode[T]]()
       private[this] var v: BinaryTreeNode[T] = null
       private[this] var curr: BinaryTreeNode[T] = null
@@ -89,8 +89,8 @@ trait BinaryTreeNode[+T] extends Node[T] { self =>
    * Performs post-order traversal from this node.
    * @return A non-strict sequence of the post-order traversal.
    */
-  def postOrder: Enumerable[T] = Enumerable.ofEnumerator {
-    new Enumerator[T] {
+  def postOrder: Iterable[T] = Iterable.ofIterator {
+    new AbstractIterator[T] {
       private[this] val s = ArrayStack[BinaryTreeNode[T]]()
       private[this] var v: BinaryTreeNode[T] = null
       private[this] var curr: BinaryTreeNode[T] = null

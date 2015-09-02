@@ -11,7 +11,7 @@ import poly.collection.mut._
 trait SeqNode[+T] extends Node[T] { self =>
   def data: T
   def next: SeqNode[T]
-  def succ: Enumerable[SeqNode[T]] = ListSeq(next).filter(_.notDummy)
+  def succ: Iterable[SeqNode[T]] = ListSeq(next).filter(_.notDummy)
 
 
   override def reverse: SinglePredNode[T] = new SinglePredNode[T] {
@@ -26,4 +26,5 @@ trait SeqNode[+T] extends Node[T] { self =>
     def data = f(self.data)
     override def isDummy = self.isDummy
   }
+
 }

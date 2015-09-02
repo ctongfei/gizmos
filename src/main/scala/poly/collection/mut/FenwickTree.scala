@@ -11,9 +11,11 @@ import scala.reflect._
 /**
  * A Fenwick tree.
  * @author Tongfei Chen (ctongfei@gmail.com).
+ * @since 0.1.0
  */
 class FenwickTree[T] private(private val data: ResizableSeq[T])
-                            (implicit val additiveGroup: AdditiveGroup[T]) extends IndexedSeq[T] {
+  (implicit val additiveGroup: AdditiveGroup[T]) extends IndexedSeq[T]
+{
 
   import FenwickTree._
 
@@ -75,7 +77,7 @@ object FenwickTree extends CollectionFactoryWithAdditiveGroup[FenwickTree] {
     val coll = new ResizableSeq[T]()
     val G = implicitly[AdditiveGroup[T]]
     def sizeHint(n: Int): Unit = coll.ensureCapacity(n)
-    def +=(x: T): Unit = coll.inplaceAppend(x)
+    def +=(x: T): Unit = coll.appendInplace(x)
     def result: FenwickTree[T] = ??? //TODO:!!! not implemented
   }
 

@@ -18,7 +18,7 @@ class ArrayIntMap[T] private(
 
   def ?(x: Int): Option[T] = data(x)
 
-  def pairs: Enumerable[(Int, T)] = ???
+  def pairs: Iterable[(Int, T)] = ???
 
   def size: Int = ???
 
@@ -26,7 +26,7 @@ class ArrayIntMap[T] private(
 
   def add(x: Int, y: T): Unit = ???
 
-  def clear(): Unit = for (i ← 0 until data.capacity opt) data(i) = None
+  def clear(): Unit = for (i ← Range(data.capacity)) data(i) = None
 
   def remove(x: Int): Unit = data(x) = None
 

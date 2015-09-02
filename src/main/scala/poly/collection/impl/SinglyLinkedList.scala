@@ -49,7 +49,7 @@ class SinglyLinkedList[T] extends Seq[T] with KeyMutableSeq[T] {
    * Appends an element to the end of the singly linked list.
    * @param x The element to be appended
    */
-  def inplaceAppend(x: T) = {
+  def appendInplace(x: T) = {
     val (_, last) = locate(len - 1)
     val node = new Node(x, dummy)
     last.next = node
@@ -60,7 +60,7 @@ class SinglyLinkedList[T] extends Seq[T] with KeyMutableSeq[T] {
    * Prepends an element to the start of the doubly linked list.
    * @param x The element to be prepended.
    */
-  def inplacePrepend(x: T) = {
+  def prependInplace(x: T) = {
     val node = new Node(x, dummy.next)
     dummy.next = node
     len += 1
@@ -114,7 +114,7 @@ class SinglyLinkedList[T] extends Seq[T] with KeyMutableSeq[T] {
 
   def headNode = dummy.next
 
-  override def inplaceMap(f: (T) => T): Unit = ???
+  override def mapInplace(f: (T) => T): Unit = ???
 }
 
 object SinglyLinkedList {

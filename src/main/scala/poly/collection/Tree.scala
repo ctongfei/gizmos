@@ -2,19 +2,29 @@ package poly.collection
 
 import poly.util.typeclass._
 import poly.util.typeclass.ops._
+import poly.collection.node._
 
 /**
+ * Represents a multi-way tree.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
 trait Tree[+T] {
 
-  def root: T
+  import Tree._
 
-  def children: Seq[Tree[T]]
+  def rootNode: TreeNode[T]
+
+  def root = rootNode.data
+
+  def children = rootNode.children.map(c => ofNode(c))
 
 }
 
 object Tree {
+
+  def ofNode[T](n: => TreeNode[T]): Tree[T] = new Tree[T] {
+    def rootNode = n
+  }
 
   /**
    * Formats a tree into an S-expression.

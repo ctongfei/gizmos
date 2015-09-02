@@ -21,7 +21,7 @@ trait BijectiveMap[K, V] extends Map[K, V] with Bijection[K, V] { self =>
     def invert(k: K) = self(k)
     def invertOption(k: K) = self ? k
     def ?(v: V) = self.invertOption(v)
-    def pairs: Enumerable[(V, K)] = self.pairs.map(_.swap)
+    def pairs: Iterable[(V, K)] = self.pairs.map(_.swap)
     def size = self.size
     def apply(v: V) = self.invert(v)
     def containsKey(v: V) = self.containsValue(v)
@@ -34,7 +34,7 @@ trait BijectiveMap[K, V] extends Map[K, V] with Bijection[K, V] { self =>
     def ?(k: K) = for (v ← self ? k; w ← that ? v) yield w
     def invert(w: W) = self.invert(that.invert(w))
     def invertOption(w: W) = for (v ← that.invertOption(w); k ← self.invertOption(v)) yield k
-    def pairs: Enumerable[(K, W)] = for (k ← keys; v ← self ? k; w ← that ? v) yield (k, w)
+    def pairs: Iterable[(K, W)] = for (k ← keys; v ← self ? k; w ← that ? v) yield (k, w)
     def size = pairs.size
     def containsKey(k: K) = (this ? k).isDefined
     def containsValue(w: W) = this.invertOption(w).isDefined
@@ -42,5 +42,6 @@ trait BijectiveMap[K, V] extends Map[K, V] with Bijection[K, V] { self =>
 
   def andThen[W](that: BijectiveMap[V, W]) = this map that
   def compose[J](that: BijectiveMap[J, K]) = that map this
+
 
 }

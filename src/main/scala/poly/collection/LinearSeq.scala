@@ -7,9 +7,13 @@ import poly.collection.node._
  */
 trait LinearSeq[+T] extends Seq[T] { self =>
 
-  def headNode: SeqNode[T]
+  import LinearSeq._
 
-  def length = {
+  /**
+   * Returns the length of this sequence.
+   * @return The length of this sequence
+   */
+  override def length: Int = {
     var node = headNode
     var n = 0
     while (node.notDummy) {
@@ -19,7 +23,12 @@ trait LinearSeq[+T] extends Seq[T] { self =>
     n
   }
 
-  def apply(i: Int): T = {
+  /**
+   * Returns the ''i''-th element of this sequence.
+   * @param i Index
+   * @return The ''i''-th element of this sequence
+   */
+  override def apply(i: Int): T = {
     var node = headNode
     var j = 0
     while (j < i) {
@@ -29,18 +38,25 @@ trait LinearSeq[+T] extends Seq[T] { self =>
     node.data
   }
 
-  override def foreach[V](f: T => V) = {
-    var node = headNode
-    while (!node.isDummy) {
-      f(node.data)
-      node = node.next
-    }
-  }
-
   // HELPER FUNCTIONS
 
-  override def foldLeft[U](z: U)(f: (U, T) => U): U = {
-    ???
+  override def map[U](f: T => U): LinearSeq[U] = new AbstractLinearSeq[U] {
+    def headNode: SeqNode[U] = self.headNode.map(f)
+  }
+
+  override def filter(f: T => Boolean): LinearSeq[T] = {
+    class FilteredSeqNode(val node: SeqNode[T]) extends SeqNode[T] {
+      override def isDummy = node.isDummy
+      def data = node.data
+      def next = {
+        var nn = node.next
+        while (nn.notDummy && !f(nn.data)) nn = nn.next
+        new FilteredSeqNode(nn)
+      }
+    }
+    var nn = self.headNode
+    while (nn.notDummy && !f(nn.data)) nn = nn.next
+    ofNode(new FilteredSeqNode(nn))
   }
 
   override def foldRight[U](z: U)(f: (T, U) => U): U = {
@@ -50,5 +66,10 @@ trait LinearSeq[+T] extends Seq[T] { self =>
 
 }
 
-abstract class AbstractLinearSeq[+T] extends LinearSeq[T]
+object LinearSeq {
+  def ofNode[T](node: => SeqNode[T]): LinearSeq[T] = new AbstractLinearSeq[T] {
+    def headNode = node
+  }
+}
 
+abstract class AbstractLinearSeq[+T] extends AbstractSeq[T] with LinearSeq[T]

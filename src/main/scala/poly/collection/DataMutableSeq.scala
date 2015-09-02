@@ -18,14 +18,14 @@ trait DataMutableSeq[T] extends Seq[T] { self =>
    * @param i Index of the first element
    * @param j Index of the second element
    */
-  def inplaceSwap(i: Int, j: Int): Unit = {
+  def swapInplace(i: Int, j: Int): Unit = {
     val t = this(i)
     this(i) = this(j)
     this(j) = t
   }
 
   //def inplaceReverse(): Unit
-  def inplaceMap(f: T => T): Unit = {
+  def mapInplace(f: T => T): Unit = {
     ???
   }
 }

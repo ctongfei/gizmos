@@ -21,8 +21,9 @@ import scala.reflect._
  * This class serves as the basic building block for a series of structures in Poly-collection.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
+//TODO: specializing this?
 final class ResizableSeq[T]
-  (private[this] var cap: Int = Settings.ArrayInitialSize) extends KeyMutableIndexedSeq[T]
+  (private[this] var cap: Int = Settings.ArrayInitialSize) extends KeyMutableSeq[T] with DataMutableIndexedSeq[T]
 { self =>
 
   var data: Array[AnyRef] = Array.ofDim[AnyRef](math.max(nextPowerOfTwo(cap), Settings.ArrayInitialSize))
@@ -75,9 +76,9 @@ final class ResizableSeq[T]
     Array.copy(data, i, data, k, j - i)
   }
 
-  def inplacePrepend(x: T) = insertAt(0, x)
+  def prependInplace(x: T) = insertAt(0, x)
 
-  def inplaceAppend(x: T) = {
+  def appendInplace(x: T) = {
     ensureCapacity(len + 1)
     data(len) = x.asInstanceOf[AnyRef]
     len += 1
@@ -93,7 +94,7 @@ object ResizableSeq extends SeqFactory[ResizableSeq] {
   def newBuilder[T]: Builder[T, ResizableSeq[T]] = new Builder[T, ResizableSeq[T]] {
     val a = new ResizableSeq[T]()
     def sizeHint(n: Int) = a.ensureCapacity(n)
-    def +=(x: T) = a.inplaceAppend(x)
+    def +=(x: T) = a.appendInplace(x)
     def result = a
   }
 

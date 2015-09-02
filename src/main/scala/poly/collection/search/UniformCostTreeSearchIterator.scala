@@ -12,18 +12,19 @@ import poly.collection.node._
  * @author Tongfei Chen (ctongfei@gmail.com).
  * @since 0.1.0
  */
-class TreeSearchWithCostEnumerator[S, C](
-  val start: S,
-  val fringe: Queue[SearchNodeWithCost[S, C]]
-)(implicit ss: StateSpaceWithCost[S, C]) extends Enumerator[S] {
+class UniformCostTreeSearchIterator[S, C: WeakOrder : AdditiveMonoid]
+  (val start: S)
+  (implicit ss: StateSpaceWithCost[S, C])
+  extends SearchIterator[S]
+{
 
-  private implicit def numericOfCost = ss.numericOfCost
+  val fringe = BinaryHeapPriorityQueue[SearchNodeWithCost[S, C]]()(SearchNodeWithCost.order)
 
   private[this] var curr: SearchNodeWithCost[S, C] = SearchNodeWithCost.dummy[C]
 
-  fringe += SearchNodeWithCost(start, 0, numericOfCost.zero, curr)
+  fringe += SearchNodeWithCost(start, 0, zero, curr)
 
-  def current = curr.state
+  def currentNode = curr
 
   def advance() = {
     if (fringe.notEmpty) {
@@ -37,9 +38,3 @@ class TreeSearchWithCostEnumerator[S, C](
   }
 
 }
-
-class UniformCostTreeSearchEnumerator[S, C](start: S)(implicit ss: StateSpaceWithCost[S, C])
-  extends TreeSearchWithCostEnumerator[S, C](
-    start,
-    BinaryHeapPriorityQueue[SearchNodeWithCost[S, C]]()(SearchNodeWithCost.order(ss.numericOfCost))
-  )(ss)

@@ -11,10 +11,11 @@ trait StateSpace[S] {
 
   def succ(x: S): Traversable[S]
 
-  def depthFirstTreeTraversal(start: S): Enumerable[S] =
-    Enumerable.ofEnumerator(new DepthFirstTreeSearchEnumerator[S](start)(this))
+  def depthFirstTreeTraversal(start: S): Iterable[S] =
+    Iterable.ofIterator(new DepthFirstTreeSearchIterator[S](start)(this))
 
-  def breadthFirstTreeTraversal(start: S): Enumerable[S] =
-    Enumerable.ofEnumerator(new BreadthFirstTreeSearchEnumerator[S](start)(this))
+  def breadthFirstTreeTraversal(start: S): Iterable[S] =
+    Iterable.ofIterator(new BreadthFirstTreeSearchIterator[S](start)(this))
+
 
 }

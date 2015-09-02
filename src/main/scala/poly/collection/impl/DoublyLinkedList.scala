@@ -16,9 +16,9 @@ class DoublyLinkedList[T] extends BiSeq[T] with KeyMutableSeq[T] {
    * @param prev The previous node
    * @param next The next node
    */
-  class Node (var data: T, var prev: Node = null, var next: Node = null) extends BiSeqNode[T]
+  class Node (var data: T, var prev: Node = dummy, var next: Node = dummy) extends BiSeqNode[T]
 
-  private[poly] val dummy = new Node(default[T])
+  private[poly] val dummy = new Node(default[T]) { override val isDummy = true }
   private[poly] var len: Int = 0
   dummy.prev = dummy
   dummy.next = dummy
@@ -45,14 +45,14 @@ class DoublyLinkedList[T] extends BiSeq[T] with KeyMutableSeq[T] {
    * Appends an element to the end of the doubly linked list.
    * @param x The element to be appended
    */
-  def inplaceAppend(x: T) = {
+  def appendInplace(x: T) = {
     val node = new Node(x, dummy.prev, dummy)
     node.prev.next = node
     node.next.prev = node
     len += 1
   }
 
-  def inplacePrepend(x: T) = {
+  def prependInplace(x: T) = {
     val node = new Node(x, dummy, dummy.next)
     node.prev.next = node
     node.next.prev = node
@@ -94,7 +94,7 @@ class DoublyLinkedList[T] extends BiSeq[T] with KeyMutableSeq[T] {
     ???
   }
 
-  override def inplaceMap(f: T => T): Unit = {
+  override def mapInplace(f: T => T): Unit = {
     ???
   }
 }

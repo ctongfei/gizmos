@@ -13,10 +13,11 @@ trait DataMutableIndexedSeq[T] extends DataMutableSeq[T] with IndexedSeq[T] {
 
   /**
    * Sorts this sequence in-place using the order provided.
-   * @param O The order for sorting
+   * @param order The order for sorting
    */
-  def inplaceSort()(implicit O: WeakOrder[T]): Unit = {
-    //TODO: possibly change to introsort or timsort in the future.
+  def sortInplace()(implicit order: WeakOrder[T]): Unit = {
+    //TODO: This is a naive implementation of quicksort.
+    //TODO: May possibly be changed to introsort or timsort in the future.
     def quicksort(i: Int, j: Int): Unit = {
       var l = i
       var r = j
@@ -25,7 +26,7 @@ trait DataMutableIndexedSeq[T] extends DataMutableSeq[T] with IndexedSeq[T] {
         while (this(l) < pivot) l += 1
         while (this(r) > pivot) r -= 1
         if (l <= r) {
-          inplaceSwap(l, r)
+          swapInplace(l, r)
           l += 1
           r -= 1
         }
@@ -39,11 +40,11 @@ trait DataMutableIndexedSeq[T] extends DataMutableSeq[T] with IndexedSeq[T] {
   /**
    * Reverses this sequence in-place.
    */
-  def inplaceReverse(): Unit = {
+  def reverseInplace(): Unit = {
     var l = 0
     var r = length - 1
     while (l <= r) {
-      inplaceSwap(l, r)
+      swapInplace(l, r)
       l += 1
       r -= 1
     }
@@ -53,7 +54,7 @@ trait DataMutableIndexedSeq[T] extends DataMutableSeq[T] with IndexedSeq[T] {
    *  Transforms this sequence in-place given a function.
    *  @param f The function
    */
-  override def inplaceMap(f: T => T): Unit = {
+  override def mapInplace(f: T => T): Unit = {
     var i = 0
     while (i < length) {
       update(i, f(apply(i)))

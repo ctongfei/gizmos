@@ -9,16 +9,16 @@ import poly.collection.node._
  * @author Tongfei Chen (ctongfei@gmail.com).
  * @since 0.1.0
  */
-class TreeSearchEnumerator[S](
+class TreeSearchIterator[S](
   val start: S,
   val fringe: Queue[SearchNode[S]]
-)(implicit ss: StateSpace[S]) extends Enumerator[S] {
+)(implicit ss: StateSpace[S]) extends SearchIterator[S] {
 
   private[this] var curr: SearchNode[S] = SearchNode.dummy
 
   fringe += SearchNode(start, 0, curr)
 
-  def current = curr.state
+  def currentNode = curr
 
   def advance() = {
     if (fringe.notEmpty) {
@@ -29,12 +29,11 @@ class TreeSearchEnumerator[S](
     else false
   }
 
-  def currentNode = curr
 
 }
 
-class DepthFirstTreeSearchEnumerator[S](start: S)(implicit ss: StateSpace[S])
-  extends TreeSearchEnumerator[S](start, ArrayStack[SearchNode[S]]())(ss)
+class DepthFirstTreeSearchIterator[S](start: S)(implicit ss: StateSpace[S])
+  extends TreeSearchIterator[S](start, ArrayStack[SearchNode[S]]())(ss)
 
-class BreadthFirstTreeSearchEnumerator[S](start: S)(implicit ss: StateSpace[S])
-  extends TreeSearchEnumerator[S](start, ArrayQueue[SearchNode[S]]())(ss)
+class BreadthFirstTreeSearchIterator[S](start: S)(implicit ss: StateSpace[S])
+  extends TreeSearchIterator[S](start, ArrayQueue[SearchNode[S]]())(ss)

@@ -12,7 +12,7 @@ class Alphabet[T] private(val w2i: HashMap[T, Int], val i2w: ArraySeq[T]) extend
     case None =>
       val newIndex = w2i.size
       w2i.add(x, newIndex)
-      i2w.inplaceAppend(x)
+      i2w.appendInplace(x)
       newIndex
   }
 
@@ -26,7 +26,7 @@ class Alphabet[T] private(val w2i: HashMap[T, Int], val i2w: ArraySeq[T]) extend
   def containsKey(x: T): Boolean = w2i containsKey x
   def containsValue(v: Int): Boolean = i2w containsKey v
 
-  def pairs: Enumerable[(T, Int)] = w2i.pairs
+  def pairs: Iterable[(T, Int)] = w2i.pairs
 
   def clear(): Unit = {
     w2i.clear()

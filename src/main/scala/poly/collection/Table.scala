@@ -10,12 +10,30 @@ trait Table[+T] extends Map[(Int, Int), T] { self =>
   def numRows: Int
   def numCols: Int
 
-  def apply(x: (Int, Int)): T = apply(x._1, x._2)
+  def apply(pair: (Int, Int)): T = apply(pair._1, pair._2)
   def ?(x: (Int, Int)): Option[T] = if (containsKey(x)) Some(self(x)) else None
 
   def pairs = for { i ← Range(numRows); j ← Range(numCols) } yield (i → j) → self(i, j)
 
-  def size = numRows * numCols
+  def newIterator: Iterator[T] = new AbstractIterator[T] {
+    private[this] var i = 0
+    private[this] var j = 0
+    def advance() = {
+      if (i < numRows) {
+        if (j < numCols)
+          j += 1
+        else {
+          i += 1
+          j = 0
+        }
+        true
+      }
+      else false
+    }
+    def current = apply(i, j)
+  }
+
+  override def size = numRows * numCols
 
   def containsKey(x: (Int, Int)): Boolean = {
     val (i, j) = x
@@ -67,6 +85,9 @@ trait Table[+T] extends Map[(Int, Int), T] { self =>
 object Table {
 
 }
+
+abstract class AbstractTable[T] extends Table[T]
+
 
 
 

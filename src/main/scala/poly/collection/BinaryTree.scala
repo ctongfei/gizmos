@@ -22,6 +22,8 @@ trait BinaryTree[+T] extends PartialFunction[Int, T] { self =>
   /** Returns the number of nodes in this tree. */
   def size: Int = rootNode.preOrder.size
 
+  def isEmpty = rootNode.isDummy
+
   /**
    * Returns the ''i''th node of this binary tree.
    * The ''i''th is defined as follows:
@@ -40,7 +42,7 @@ trait BinaryTree[+T] extends PartialFunction[Int, T] { self =>
         case 0 => curr = curr.left
         case 1 => curr = curr.right
       }
-      if (curr eq null) throw new NoSuchElementException
+      if (curr.isDummy) throw new NoSuchElementException
       x %= depth
       depth <<= 1
     }

@@ -2,6 +2,7 @@ package poly.collection.mut
 
 import poly.algebra.implicits._
 import poly.collection._
+import poly.collection.factory._
 import poly.collection.impl._
 import poly.collection.mut._
 import poly.collection.node._
@@ -10,7 +11,7 @@ import poly.util.specgroup._
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class AdjacencyListGraph[@sp(i) K, V, E] extends Graph[K, V, E] {
+class AdjacencyListGraph[@sp(i) K, V, E]() extends Graph[K, V, E] {
 
   private class VertexInfo {
     var data: V = _
@@ -29,6 +30,16 @@ class AdjacencyListGraph[@sp(i) K, V, E] extends Graph[K, V, E] {
 
   def keySet = r.keySet
 
-  def outgoingKeysOf(i: K): Enumerable[K] = r(i).succ.keys
+  def outgoingKeysOf(i: K): Iterable[K] = r(i).succ.keys
 
+}
+
+object AdjacencyListGraph extends GraphFactory[AdjacencyListGraph] {
+  implicit def newBuilder[K, V, E] = new GraphBuilder[K, V, E, AdjacencyListGraph[K, V, E]] {
+    private val g = new AdjacencyListGraph[K, V, E]()
+    def numVerticesHint(n: Int) = ???
+    def addEdge(i: K, j: K, e: E) = ???
+    def addVertex(i: K, v: V) = ???
+    def result = ???
+  }
 }

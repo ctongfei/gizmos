@@ -14,22 +14,22 @@ object SeqTest {
 
     val c = a.asIfSorted merge b.asIfSorted
 
-    a.inplaceAppend(7)
-    a.inplacePrepend(0)
-    a.inplacePrepend(-1)
+    a.appendInplace(7)
+    a.prependInplace(0)
+    a.prependInplace(-1)
     a.insertAt(4, 4)
     a.deleteAt(6)
 
-    b.inplaceAppend(4)
-    b.inplacePrepend(0)
+    b.appendInplace(4)
+    b.prependInplace(0)
     b.insertAt(0, 1)
     b.deleteAt(3)
 
     val d = ArraySeq.tabulate(10)(x => util.Random.nextInt(500))
 
-    d.inplaceSort()
+    d.sortInplace()
 
-    d.inplaceReverse()
+    d.reverseInplace()
 
     val e = ArraySeq.tabulate(10)(x => x)
 

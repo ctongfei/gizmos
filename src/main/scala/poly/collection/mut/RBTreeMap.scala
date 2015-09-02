@@ -1,10 +1,11 @@
 package poly.collection.mut
 
-import poly.collection.Map
+import poly.collection._
 
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-abstract class RBTreeMap[K, V] extends Map[K, V] {
+abstract class RBTreeMap[K, V] extends KeyMutableMap[K, V] with SortedMap[K, V] {
+
 
 }

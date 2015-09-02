@@ -1,19 +1,21 @@
 package poly.collection
 
 import poly.algebra._
+import poly.algebra.ops._
 import poly.collection.exception._
-import poly.collection.factory._
-import poly.collection.mut._
 import poly.collection.node._
-import scala.annotation.unchecked.{uncheckedVariance => uV}
+import poly.util.typeclass._
 
 /**
  * Trait for sequences.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-trait Seq[+T] extends Enumerable[T] with Map[Int, T] { self =>
+trait Seq[+T] extends Iterable[T] with Map[Int, T] { self =>
 
   import Seq._
+
+  /** Returns the head node of this sequence. If the sequence is nil, return a dummy. */
+  def headNode: SeqNode[T]
 
   /**
    * Returns the length of this sequence.
@@ -30,9 +32,15 @@ trait Seq[+T] extends Enumerable[T] with Map[Int, T] { self =>
 
   override def size = length
 
-  def headNode: SeqNode[T]
+  override def foreach[V](f: T => V): Unit = {
+    var node = headNode
+    while (node.notDummy) {
+      f(node.data)
+      node = node.next
+    }
+  }
 
-  def newEnumerator: Enumerator[T] = new Enumerator[T] {
+  def newIterator: Iterator[T] = new AbstractIterator[T] {
     var node: SeqNode[T] = null //TODO: dummy
     var first = true
     def advance() = {
@@ -59,14 +67,17 @@ trait Seq[+T] extends Enumerable[T] with Map[Int, T] { self =>
 
   // HELPER FUNCTIONS
 
-  override def tail: Seq[T] = ofNode(headNode.next)
+  def asLinearSeq = LinearSeq.ofNode(self.headNode)
 
-  override def map[U](f: T => U): Seq[U] = new Seq[U] {
-    def apply(i: Int): U = f(self(i))
-    def length: Int = self.length
-    def headNode: SeqNode[U] = self.headNode.map(f)
-    override def newEnumerator: Enumerator[U] = self.newEnumerator.map(f)
-  }
+  override def head = headNode.data
+
+  override def tail = LinearSeq.ofNode(headNode.next)
+
+  override def map[U](f: T => U): Seq[U] = asLinearSeq.map(f)
+
+  override def filter(f: T => Boolean): Seq[T] = asLinearSeq.filter(f)
+
+  override def foldRight[U](z: U)(f: (T, U) => U): U = asLinearSeq.foldRight(z)(f)
 
   /**
    * Pretends that this sequence is sorted under the given order.
@@ -75,35 +86,45 @@ trait Seq[+T] extends Enumerable[T] with Map[Int, T] { self =>
    */
   def asIfSorted[U >: T](implicit O: WeakOrder[U]): SortedSeq[U] = new SortedSeq[U] {
     val order: WeakOrder[U] = O
-    def length: Int = self.length
-    def apply(i: Int): T = self.apply(i)
-    override def newEnumerator: Enumerator[T] = self.newEnumerator
     def headNode: SeqNode[T] = self.headNode
+    def apply(i: Int) = self.apply(i)
+    def length = self.length
   }
 
   override def equals(that: Any) = that match {
-    case that @ (other: Seq[T]) => ??? //TODO!!!
+    case (that: Seq[T]) => Eq[T].eq(this, that)
     case _ => false
   }
 
-  override def hashCode = ???
+  override def toString = buildString(",")(Formatter.default) // overridden the `toString` in Map
 
-  override def toString = self.buildString(",")
+  override def hashCode = ???
 
 }
 
 object Seq {
 
   object empty extends Seq[Nothing] {
-    def apply(i: Int): Nothing = throw new NoSuchElementException
-    def length: Int = 0
+    override def apply(i: Int): Nothing = throw new NoSuchElementException
+    override def length: Int = 0
     def headNode: SeqNode[Nothing] = throw new NoSuchElementException
   }
 
-  def ofNode[T](n: SeqNode[T]): Seq[T] = new LinearSeq[T] {
-    def headNode = n
+  implicit def Eq[T: Eq]: Eq[Seq[T]] = new Eq[Seq[T]] {
+    def eq(x: Seq[T], y: Seq[T]): Boolean = {
+      val xi = x.newIterator
+      val yi = y.newIterator
+      while (xi.advance() && yi.advance())
+        if (xi.current =!= yi.current) return false
+      if (xi.advance()) return false
+      if (yi.advance()) return false
+      true
+    }
   }
+
 
   def tabulate[T](n: Int)(f: Int => T) = IndexedSeq.tabulate(n)(f)
 
 }
+
+abstract class AbstractSeq[+T] extends AbstractIterable[T] with Seq[T]

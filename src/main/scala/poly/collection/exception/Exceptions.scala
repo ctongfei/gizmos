@@ -13,9 +13,6 @@ class KeyNotFoundException[K](key: K)
 class NotSupportedException(msg: String)
   extends Exception(msg)
 
-class EnumeratorPositionException
-  extends Exception("The enumerator points to an invalid position.")
-
 class QueueEmptyException
   extends Exception("Attempted to dequeue an empty queue.")
 

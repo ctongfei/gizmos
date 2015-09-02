@@ -8,6 +8,6 @@ trait SortedSet[T] extends Set[T] {
 
   def order = elements.order
 
-  def elements: SortedEnumerable[T]
+  def elements: SortedIterable[T]
 
 }

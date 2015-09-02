@@ -12,28 +12,28 @@ class LinkedBinaryTree[T] extends BinaryTree[T] {
 
   class Node (
     var data: T,
-    var left: Node = Dummy,
-    var right: Node = Dummy,
-    var parent: Node = Dummy
+    var left: Node = dummy,
+    var right: Node = dummy,
+    var parent: Node = dummy
   ) extends BiBinaryTreeNode[T]
 
-  final val Dummy: Node = new Node(default[T], Dummy, Dummy, Dummy) {
+  final val dummy: Node = new Node(default[T], dummy, dummy, dummy) {
     override def isDummy = true 
   }
 
   var rootNode: Node = null
 
   def addRoot(x: T) = {
-    if (rootNode == null) {
-      rootNode = new Node(x, parent = Dummy)
-      Dummy.right = rootNode
+    if (rootNode.isDummy) {
+      rootNode = new Node(x, parent = dummy)
+      dummy.right = rootNode
     }
   }
 
   /** Locates the binary tree node at the given index. */
   def findNode(i: Int): Node = {
     var x = i + 1
-    var curr: Node = Dummy
+    var curr: Node = dummy
     var depth = 1
     while (depth <= x) {
       x / depth match {

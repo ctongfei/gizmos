@@ -9,19 +9,25 @@ import poly.collection.mut._
 class TraversableTest extends FunSuite {
 
   test("Traversable functions") {
+    val e = Iterable.iterate(0)(_ + 1).take(5)
 
-    val l = ArraySeq(3, 2, 1, 0, 4, 5, 6, 0, 1, 7)
+    val f = Iterable.iterate(0)(x => 0).take(10)
 
-    val f = (x: Int) => ArraySeq(x, x)
+    e.head
+    e.tail
 
-    println(l.map(_ * 2).buildString(" "))
+    e.map(_ + 1)
 
-    println(l.flatMap((x: Int) => ArraySeq.fill(x)(x)).buildString(" "))
-    println(l.count(_ == 3))
-    println(l.filter(_ > 4).buildString(" "))
-    println(l.filterNot(_ < 4).buildString(" "))
+    e.prepend(-1).map(_ * 2).filter(_ >= 0)
 
+    e.append(19)
 
+    val g = e.to[ListSeq]
+
+    g foreach println
+    g filter (_ > 2) foreach println
+
+    val bp = 0
   }
 
 }

@@ -61,7 +61,7 @@ object Set {
    */
   def empty[T]: Set[T] = new Set[T] {
     override def size = 0
-    def elements = Enumerable.empty
+    def elements = Iterable.empty
     def contains(x: T) = false
     override def |(that: Set[T]) = that
     override def &~(that: Set[T]) = this

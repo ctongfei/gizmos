@@ -23,16 +23,16 @@ trait Graph[@sp(i) K, +V, +E] { self =>
   def numEdges: Int = edges.size
 
   def keySet: Set[K]
-  def keys: Enumerable[K] = keySet.elements
-  def vertices: Enumerable[Vertex] = keys.map(i => new Vertex(i))
-  def edges: Enumerable[Edge] = for (i ← keys; j ← outgoingKeysOf(i)) yield new Edge(i, j)
+  def keys: Iterable[K] = keySet.elements
+  def vertices: Iterable[Vertex] = keys.map(i => new Vertex(i))
+  def edges: Iterable[Edge] = for (i ← keys; j ← outgoingKeysOf(i)) yield new Edge(i, j)
 
   def containsVertex(i: K): Boolean
   def containsEdge(i: K, j: K): Boolean
 
-  def outgoingKeysOf(i: K): Enumerable[K]
-  def outgoingVerticesOf(i: K): Enumerable[Vertex] = outgoingKeysOf(i).map(j => new Vertex(j))
-  def outgoingEdgesOf(i: K): Enumerable[Edge] = outgoingKeysOf(i).map(j => Edge(i, j))
+  def outgoingKeysOf(i: K): Iterable[K]
+  def outgoingVerticesOf(i: K): Iterable[Vertex] = outgoingKeysOf(i).map(j => new Vertex(j))
+  def outgoingEdgesOf(i: K): Iterable[Edge] = outgoingKeysOf(i).map(j => Edge(i, j))
   def outDegree(i: K) = outgoingKeysOf(i).size
 
   class Vertex(val key: K) extends Node[V] {
@@ -52,7 +52,7 @@ trait Graph[@sp(i) K, +V, +E] { self =>
     def containsVertex(i: K): Boolean = self.containsVertex(i)
     def keySet: Set[K] = self.keySet
     def apply(i: K, j: K): E = self.apply(i, j)
-    def outgoingKeysOf(i: K): Enumerable[K] = self.outgoingKeysOf(i)
+    def outgoingKeysOf(i: K): Iterable[K] = self.outgoingKeysOf(i)
   }
 
   def mapEdges[E1](f: E => E1): Graph[K, V, E1] = new AbstractGraph[K, V, E1] {
@@ -61,7 +61,7 @@ trait Graph[@sp(i) K, +V, +E] { self =>
     def containsVertex(i: K): Boolean = self.containsVertex(i)
     def keySet: Set[K] = self.keySet
     def apply(i: K, j: K): E1 = f(self.apply(i, j))
-    def outgoingKeysOf(i: K): Enumerable[K] = self.outgoingKeysOf(i)
+    def outgoingKeysOf(i: K): Iterable[K] = self.outgoingKeysOf(i)
   }
 
   def filterKeys(f: K => Boolean): Graph[K, V, E] = ???
@@ -77,7 +77,7 @@ trait Graph[@sp(i) K, +V, +E] { self =>
 
     def apply(i: K, j: K): E = if (containsEdge(i, j)) self(i, j) else throw new NoSuchElementException
 
-    def outgoingKeysOf(i: K): Enumerable[K] = ???
+    def outgoingKeysOf(i: K): Iterable[K] = ???
 
     def keySet: Set[K] = ???
   }

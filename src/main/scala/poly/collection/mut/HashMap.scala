@@ -26,7 +26,7 @@ class HashMap[K, V] private(private val data: java.util.HashMap[K, V]) extends K
 
   def size = data.size
 
-  def pairs: Enumerable[(K, V)] = data.asScala
+  def pairs: Iterable[(K, V)] = data.asScala
 
 }
 

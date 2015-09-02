@@ -14,11 +14,11 @@ class RedBlackTree[K, V](implicit val order: WeakOrder[K]) extends KeyMutableMap
   type Entry = RedBlackTree.Entry[K, V]
 
   val bst = new BinarySearchTree[Entry]()(WeakOrder.by((e: Entry) => e.key))
-  bst.Dummy.data.color = black //TODO: ???
+  bst.dummy.data.color = black //TODO: ???
 
   def size = bst.size
 
-  def containsKey(x: K) = bst.locate(new Entry(x, default[V])) != null
+  def containsKey(x: K) = bst.locate(new Entry(x, default[V])).notDummy
 
   private def locate(x: K): bst.Node = bst.locate(new Entry(x, default[V]))
 
@@ -26,7 +26,7 @@ class RedBlackTree[K, V](implicit val order: WeakOrder[K]) extends KeyMutableMap
   private def fixAfterInsertion(_x: bst.Node) = {
     var x = _x
     x.data.color = red // ensure that a new node is labeled as red
-    while (x != null && x != bst.rootNode && x.parent.data.color == red) {
+    while (x.notDummy && x != bst.rootNode && x.parent.data.color == red) {
       if (x.parent == x.parent.parent.left) {
         val y = x.parent.parent.right // uncle node of x
         if (y.data.color == red) {
@@ -65,7 +65,7 @@ class RedBlackTree[K, V](implicit val order: WeakOrder[K]) extends KeyMutableMap
   }
 
   def add(key: K, value: V): Unit = {
-    if (bst.rootNode == bst.Dummy) {
+    if (bst.rootNode == bst.dummy) {
       bst.addRoot(new Entry(key, value, black)) // inserts a black node at the root position
     } else {
       val e = bst.add(new Entry(key, value, red)) // inserts an red node
@@ -75,8 +75,8 @@ class RedBlackTree[K, V](implicit val order: WeakOrder[K]) extends KeyMutableMap
 
   def remove(x: K): Unit = {
     val p = locate(x)
-    if (p eq null) return
-    if (p.left != null && p.right != null) {
+    if (p.isDummy) return
+    if (p.left.notDummy && p.right.notDummy) {
       val s = bst.inOrderSuccessor(p)
 
     }
@@ -91,7 +91,7 @@ class RedBlackTree[K, V](implicit val order: WeakOrder[K]) extends KeyMutableMap
 
   def ?(x: K) = ???
 
-  def pairs: Enumerable[(K, V)] = bst.inOrder.map(_.toTuple)
+  def pairs: Iterable[(K, V)] = bst.inOrder.map(_.toTuple)
 }
 
 

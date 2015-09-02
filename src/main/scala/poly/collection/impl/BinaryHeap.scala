@@ -42,13 +42,13 @@ class BinaryHeap[T](val data: ResizableSeq[T])(implicit val order: WeakOrder[T])
   }
 
   def push(x: T): Unit = {
-    data.inplaceAppend(x)
+    data.appendInplace(x)
     siftUp(data.length - 1)
   }
 
   def pop(): T = {
     val front = data(0)
-    data.inplaceSwap(0, data.length - 1)
+    data.swapInplace(0, data.length - 1)
     data.deleteAt(data.length - 1)
     if (data.length > 1) siftDown(0)
     front

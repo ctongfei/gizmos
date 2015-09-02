@@ -18,9 +18,9 @@ class ListSeq[T] private(private val data: SinglyLinkedList[T]) extends KeyMutab
 
   def length = data.length
 
-  def inplaceAppend(x: T) = data.inplaceAppend(x)
+  def appendInplace(x: T) = data.appendInplace(x)
 
-  def inplacePrepend(x: T) = data.inplacePrepend(x)
+  def prependInplace(x: T) = data.prependInplace(x)
 
   def update(i: Int, x: T) = data.update(i, x)
 
@@ -30,11 +30,11 @@ class ListSeq[T] private(private val data: SinglyLinkedList[T]) extends KeyMutab
 
   def deleteAt(i: Int) = data.deleteAt(i)
 
-  override def inplaceMap(f: T => T) = ???
+  override def mapInplace(f: T => T) = ???
 
   def inplaceReverse() = ???
 
-  override def newEnumerator = new Enumerator[T] {
+  override def newIterator = new Iterator[T] {
     var node = data.dummy
 
     def advance(): Boolean = {
@@ -46,7 +46,7 @@ class ListSeq[T] private(private val data: SinglyLinkedList[T]) extends KeyMutab
     }
 
     def current: T = {
-      if (node.isDummy) throw new EnumeratorPositionException
+      if (node.isDummy) throw new NoSuchElementException
       node.data
     }
   }
@@ -57,7 +57,7 @@ object ListSeq extends SeqFactory[ListSeq] {
   implicit def newBuilder[T]: Builder[T, ListSeq[T]] = new Builder[T, ListSeq[T]] {
     val a = new SinglyLinkedList[T]()
     def sizeHint(n: Int) = {}
-    def +=(x: T) = a inplaceAppend x
+    def +=(x: T) = a appendInplace x
     def result = new ListSeq[T](a)
   }
 }

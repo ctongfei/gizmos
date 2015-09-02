@@ -35,7 +35,7 @@ class ListMap[K, V] private(private val data: SinglyLinkedList[KeyValuePair[K, V
 
   def add(x: K, y: V) = {
     val pc = locateKey(x)
-    if (pc eq null) data.inplacePrepend(KeyValuePair(x, y))
+    if (pc eq null) data.prependInplace(KeyValuePair(x, y))
     else {
       val (_, c) = pc
       c.data.value = y
@@ -71,7 +71,7 @@ class ListMap[K, V] private(private val data: SinglyLinkedList[KeyValuePair[K, V
 object ListMap {
   def apply[K, V](xs: (K, V)*): ListMap[K, V] = {
     val l = new SinglyLinkedList[KeyValuePair[K, V]]
-    for (x ← xs) l.inplaceAppend(KeyValuePair(x._1, x._2))
+    for (x ← xs) l.appendInplace(KeyValuePair(x._1, x._2))
     new ListMap[K, V](l)
   }
 }

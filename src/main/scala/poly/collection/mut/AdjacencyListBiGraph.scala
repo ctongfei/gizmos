@@ -22,13 +22,13 @@ class AdjacencyListBiGraph[@sp(i) K, V, E] extends BiGraph[K, V, E] {
 
   def containsVertex(i: K): Boolean = (r ? i).isDefined
 
-  def containsEdge(i: K, j: K): Boolean = (r ? i).flatMap { _.succ ? j }.isDefined
+  def containsEdge(i: K, j: K): Boolean = (for (v ← r ? i; e ← v.succ ? j) yield e).isDefined
 
   def keySet = r.keySet
 
-  def outgoingKeysOf(i: K): Enumerable[K] = r(i).succ.keySet.elements
+  def outgoingKeysOf(i: K): Iterable[K] = r(i).succ.keySet.elements
 
-  def incomingKeysOf(i: K): Enumerable[K] = r(i).pred.elements
+  def incomingKeysOf(i: K): Iterable[K] = r(i).pred.elements
 
 
 

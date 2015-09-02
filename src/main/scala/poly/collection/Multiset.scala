@@ -18,7 +18,7 @@ trait Multiset[T] extends PredicateSet[T] { self =>
 
   def size: Int
 
-  def elements: Enumerable[T]
+  def elements: Iterable[T]
 
   // HELPER FUNCTIONS
 

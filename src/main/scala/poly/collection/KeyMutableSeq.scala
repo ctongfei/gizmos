@@ -9,13 +9,13 @@ trait KeyMutableSeq[T] extends DataMutableSeq[T] {
    * Prepends the specific element to the start of the sequence.
    * @param x The element to be prepended
    */
-  def inplacePrepend(x: T): Unit
+  def prependInplace(x: T): Unit
 
   /**
    * Appends the specific element to the end of the sequence.
    * @param x The element to be appended
    */
-  def inplaceAppend(x: T): Unit
+  def appendInplace(x: T): Unit
 
   /**
    * Clears this sequence.

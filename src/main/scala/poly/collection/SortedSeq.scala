@@ -11,7 +11,7 @@ import scala.reflect._
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-trait SortedSeq[T] extends Seq[T] with SortedEnumerable[T] { self =>
+trait SortedSeq[T] extends Seq[T] with SortedIterable[T] { self =>
 
   override def distinct: SortedSeq[T] = ???
 

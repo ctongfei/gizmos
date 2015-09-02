@@ -1,7 +1,5 @@
 package poly.collection.search
 
-
-
 import poly.collection.conversion._
 import poly.collection.search.ops._
 
@@ -17,7 +15,7 @@ object SearchTest extends App {
     def succ(x: Int) = g(x)
   }
 
-  0.depthFirstTreeSearch(_ == 8)(ss) foreach println
+  0.depthFirstTreeSearch(_ == 4)(ss) foreach println
 
 
 }

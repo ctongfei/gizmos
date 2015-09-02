@@ -12,7 +12,7 @@ class ListStack[T] (private var data: SinglyLinkedList[T]) extends Queue[T] {
 
   def size = data.len
 
-  def push(x: T): Unit = data.inplacePrepend(x)
+  def push(x: T): Unit = data.prependInplace(x)
 
   def top: T = data.dummy.next.data
 
@@ -29,7 +29,7 @@ object ListStack extends CollectionFactory[ListStack] {
   implicit def newBuilder[T]: Builder[T, ListStack[T]] = new Builder[T, ListStack[T]] {
     var data: SinglyLinkedList[T] = null
     def sizeHint(n: Int) = {}
-    def +=(x: T) = data.inplacePrepend(x)
+    def +=(x: T) = data.prependInplace(x)
     def result = new ListStack[T](data)
   }
 

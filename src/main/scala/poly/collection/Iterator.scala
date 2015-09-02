@@ -2,17 +2,16 @@ package poly.collection
 
 import poly.collection.exception._
 import poly.collection.mut._
-import poly.util.specgroup._
 
 /**
- * Basic trait for enumerators that supports an iteration over a collection that can be
+ * Basic trait for iterators that supports an iteration over a collection that can be
  * paused and resumed.
  *
  * This is the Poly-collection version of the Java/Scala `Iterator`. The main difference
  * is their abstraction of supported methods:
  *
- *  - Java/Scala `Iterable`: { `hasNext`, `next` }
- *  - Poly-collection `Enumerator`: { `current`, `advance` }
+ *  - Java/Scala `Iterator`: { `hasNext`, `next` }
+ *  - Poly-collection `Iterator`: { `current`, `advance` }
  *  - C++ iterators : { `*`, `++` }
  *  - C# `Enumerator`: { `Current`, `MoveNext` }
  *
@@ -22,26 +21,26 @@ import poly.util.specgroup._
  * @author Tongfei Chen (ctongfei@gmail.com).
  * @since 0.1.0
  */
-trait Enumerator[+T] { self =>
+trait Iterator[+T] { self =>
 
-  /** Returns the current element of this enumeration. */
+  /** Returns the current element of this iterator. */
   def current: T
 
   /**
-   * Advances the enumerator to the next element.
-   * @return Whether the enumerator successfully advanced to the next element.
+   * Advances the iterator to the next element.
+   * @return Whether the iterator successfully advanced to the next element.
    */
   def advance(): Boolean
 
   def foreach[U](f: T => U): Unit = while (self.advance()) f(self.current)
 
-  def map[U](f: T => U): Enumerator[U] = new AbstractEnumerator[U] {
+  def map[U](f: T => U): Iterator[U] = new AbstractIterator[U] {
     def current = f(self.current)
     def advance() = self.advance()
   }
 
-  def flatMap[U](f: T => Enumerator[U]): Enumerator[U] = new AbstractEnumerator[U] {
-    private var e: Enumerator[U] = Enumerator.empty
+  def flatMap[U](f: T => Iterator[U]): Iterator[U] = new AbstractIterator[U] {
+    private var e: Iterator[U] = Iterator.empty
     def current = e.current
     def advance(): Boolean = {
       if (e.advance()) true
@@ -55,7 +54,7 @@ trait Enumerator[+T] { self =>
     }
   }
 
-  def filter(f: T => Boolean): Enumerator[T] = new AbstractEnumerator[T] {
+  def filter(f: T => Boolean): Iterator[T] = new AbstractIterator[T] {
     def current: T = self.current
     def advance(): Boolean = {
       do {
@@ -66,10 +65,10 @@ trait Enumerator[+T] { self =>
     }
   }
 
-  def filterNot(f: T => Boolean): Enumerator[T] = filter(e => !f(e))
+  def filterNot(f: T => Boolean): Iterator[T] = filter(e => !f(e))
 
-  def concat[U >: T](that: Enumerator[U]): Enumerator[U] = new AbstractEnumerator[U] {
-    private[this] var e: Enumerator[U] = self
+  def concat[U >: T](that: Iterator[U]): Iterator[U] = new AbstractIterator[U] {
+    private[this] var e: Iterator[U] = self
     def advance() = {
       if (e.advance()) true else {
         e = that
@@ -79,7 +78,7 @@ trait Enumerator[+T] { self =>
     def current = e.current
   }
 
-  def prepend[U >: T](u: U): Enumerator[U] = new AbstractEnumerator[U] {
+  def prepend[U >: T](u: U): Iterator[U] = new AbstractIterator[U] {
     private[this] var first = true
     private[this] var curr: U = _
     def advance() = if (first) {
@@ -94,7 +93,7 @@ trait Enumerator[+T] { self =>
     def current = curr
   }
 
-  def append[U >: T](u: U): Enumerator[U] = new AbstractEnumerator[U] {
+  def append[U >: T](u: U): Iterator[U] = new AbstractIterator[U] {
     private[this] var last = false
     def advance() = {
       if (last) false
@@ -109,7 +108,7 @@ trait Enumerator[+T] { self =>
 
   def tail = { self.advance(); self }
 
-  def take(n: Int): Enumerator[T] = new AbstractEnumerator[T] {
+  def take(n: Int): Iterator[T] = new AbstractIterator[T] {
     private[this] var remaining = n
     def advance() = remaining > 0 && { remaining -= 1; self.advance() }
     def current = self.current
@@ -120,7 +119,7 @@ trait Enumerator[+T] { self =>
    * Advances this enumerator past the first ''n'' elements.
    * @param n The number of elements to be dropped
    */
-  def drop(n: Int): Enumerator[T] = {
+  def drop(n: Int): Iterator[T] = {
     var i = 0
     while (i < n && advance()) i += 1
     this
@@ -135,7 +134,7 @@ trait Enumerator[+T] { self =>
    * @param that Another enumerable collection
    * @return Zipped sequence
    */
-  def zip[U](that: Enumerator[U]): Enumerator[(T, U)] = new AbstractEnumerator[(T, U)] {
+  def zip[U](that: Iterator[U]): Iterator[(T, U)] = new AbstractIterator[(T, U)] {
     def advance(): Boolean = self.advance() && that.advance()
     def current: (T, U) = (self.current, that.current)
   }
@@ -146,7 +145,7 @@ trait Enumerator[+T] { self =>
    * @param that Another enumerable sequence
    * @return Interleave sequence
    */
-  def interleave[U >: T](that: Enumerator[U]): Enumerator[U] = new AbstractEnumerator[U] {
+  def interleave[U >: T](that: Iterator[U]): Iterator[U] = new AbstractIterator[U] {
     var firstSeq = true
     def advance() = {
       firstSeq = !firstSeq
@@ -155,14 +154,14 @@ trait Enumerator[+T] { self =>
     def current = if (firstSeq) this.current else that.current
   }
 
-  def sliding(windowSize: Int, step: Int = 1): Enumerator[IndexedSeq[T]] = new AbstractEnumerator[IndexedSeq[T]] {
+  def sliding(windowSize: Int, step: Int = 1): Iterator[IndexedSeq[T]] = new AbstractIterator[IndexedSeq[T]] {
     private[this] var window = ArraySeq.withSizeHint[T](windowSize)
     private[this] var first = true
     def advance(): Boolean = {
       if (first) {
         var i = 0
         while (i < windowSize && { val t = self.advance(); if (!t) return false; t }) {
-          window.inplaceAppend(self.current)
+          window.appendInplace(self.current)
           i += 1
         }
         first = false
@@ -171,11 +170,11 @@ trait Enumerator[+T] { self =>
         val newWindow = ArraySeq.withSizeHint[T](windowSize)
         var i = 0
         while (i + step < windowSize) {
-          newWindow.inplaceAppend(window(i + step))
+          newWindow.appendInplace(window(i + step))
           i += 1
         }
         while (i < windowSize && { val t = self.advance(); if (!t) return false; t }) {
-          newWindow.inplaceAppend(self.current)
+          newWindow.appendInplace(self.current)
           i += 1
         }
         window = newWindow
@@ -190,13 +189,13 @@ trait Enumerator[+T] { self =>
 
 }
 
-object Enumerator {
-  object empty extends Enumerator[Nothing] {
+object Iterator {
+  object empty extends Iterator[Nothing] {
     def advance() = false
     def current = throw new NoSuchElementException
   }
 
-  def single[T](x: T): Enumerator[T] = new AbstractEnumerator[T] {
+  def single[T](x: T): Iterator[T] = new AbstractIterator[T] {
     var curr: T = _
     var first = false
     def advance() = {
@@ -209,7 +208,7 @@ object Enumerator {
     def current = curr
   }
 
-  def iterate[T](s: T)(next: T => T): Enumerator[T] = new AbstractEnumerator[T] {
+  def iterate[T](s: T)(next: T => T): Iterator[T] = new AbstractIterator[T] {
     private[this] var curr: T = _
     private[this] var first = true
     def advance() = {
@@ -224,4 +223,4 @@ object Enumerator {
 
 }
 
-abstract class AbstractEnumerator[+T] extends Enumerator[T]
+abstract class AbstractIterator[+T] extends Iterator[T]

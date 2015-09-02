@@ -8,8 +8,8 @@ import poly.collection._
  */
 trait BiNode[+T] extends Node[T] with BackwardNode[T] { self =>
   def data: T
-  def succ: Enumerable[BiNode[T]]
-  def pred: Enumerable[BiNode[T]]
+  def succ: Iterable[BiNode[T]]
+  def pred: Iterable[BiNode[T]]
 
   override def reverse: BiNode[T] = new BiNode[T] {
     def pred = self.succ.map(_.reverse)

@@ -18,7 +18,7 @@ trait Map[@sp(i) K, +V] extends PartialFunction[K, V] { self =>
    * Returns all key-value pairs stored in this map.
    * @return An enumerable sequence of key-value pairs.
    */
-  def pairs: Enumerable[(K, V)]
+  def pairs: Iterable[(K, V)]
 
   /**
    * Optionally retrieves the value associated with the specified key.
@@ -55,7 +55,7 @@ trait Map[@sp(i) K, +V] extends PartialFunction[K, V] { self =>
   def keySet: Set[K] = new Set[K] {
     def contains(x: K): Boolean = self.containsKey(x)
     def size: Int = self.size
-    def elements: Enumerable[K] = self.pairs.map(_._1)
+    def elements: Iterable[K] = self.pairs.map(_._1)
   }
 
   def keys = self.pairs.map(_._1)
@@ -71,7 +71,7 @@ trait Map[@sp(i) K, +V] extends PartialFunction[K, V] { self =>
    * @param f The specific function
    * @return A map view that maps every key of this map to `f(self(key))`.
    */
-  def map[W](f: V => W): Map[K, W] = new Map[K, W] {
+  def map[W](f: V => W): Map[K, W] = new AbstractMap[K, W] {
     def containsKey(x: K): Boolean = self.containsKey(x)
     def ?(x: K): Option[W] = (self ? x).map(f)
     def apply(x: K): W = f(self(x))
@@ -79,7 +79,7 @@ trait Map[@sp(i) K, +V] extends PartialFunction[K, V] { self =>
     def size: Int = self.size
   }
 
-  def zip[W](that: Map[K, W]): Map[K, (V, W)] = new Map[K, (V, W)] {
+  def zip[W](that: Map[K, W]): Map[K, (V, W)] = new AbstractMap[K, (V, W)] {
     def apply(x: K): (V, W) = (self(x), that(x))
     def ?(x: K): Option[(V, W)] = for { v ← self ? x; w ← that ? x } yield (v, w)
     def pairs = self.pairs filter { case (k, v) => that containsKey k } map { case (k, v) => (k, (v, that(k))) }
@@ -96,3 +96,5 @@ object Map {
   }
 
 }
+
+abstract class AbstractMap[@sp(i) K, +V] extends Map[K, V]

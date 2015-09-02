@@ -8,17 +8,17 @@ import poly.collection.mut._
  */
 trait UndirectedGraph[K, +V, +E] extends BiGraph[K, V, E] { self =>
 
-  def incidentKeysOf(i: K): Enumerable[K]
-  def incidentVerticesOf(i: K): Enumerable[Vertex] = incidentKeysOf(i).map(j => new Vertex(j))
-  def incidentEdgesOf(i: K): Enumerable[UndirectedEdge] = incidentKeysOf(i).map(j => new UndirectedEdge(i, j))
+  def incidentKeysOf(i: K): Iterable[K]
+  def incidentVerticesOf(i: K): Iterable[Vertex] = incidentKeysOf(i).map(j => new Vertex(j))
+  def incidentEdgesOf(i: K): Iterable[UndirectedEdge] = incidentKeysOf(i).map(j => new UndirectedEdge(i, j))
 
-  def outgoingKeysOf(v: K): Enumerable[K] = incidentKeysOf(v)
-  override def outgoingVerticesOf(v: K): Enumerable[Vertex] = incidentVerticesOf(v)
-  override def outgoingEdgesOf(v: K): Enumerable[UndirectedEdge] = incidentEdgesOf(v)
+  def outgoingKeysOf(v: K): Iterable[K] = incidentKeysOf(v)
+  override def outgoingVerticesOf(v: K): Iterable[Vertex] = incidentVerticesOf(v)
+  override def outgoingEdgesOf(v: K): Iterable[UndirectedEdge] = incidentEdgesOf(v)
 
-  def incomingKeysOf(v: K): Enumerable[K] = incidentKeysOf(v)
-  override def incomingVerticesOf(v: K): Enumerable[Vertex] = incidentVerticesOf(v)
-  override def incomingEdgesOf(v: K): Enumerable[UndirectedEdge] = incidentEdgesOf(v)
+  def incomingKeysOf(v: K): Iterable[K] = incidentKeysOf(v)
+  override def incomingVerticesOf(v: K): Iterable[Vertex] = incidentVerticesOf(v)
+  override def incomingEdgesOf(v: K): Iterable[UndirectedEdge] = incidentEdgesOf(v)
 
   override def reverse = self
 

@@ -6,7 +6,10 @@ import poly.collection.exception._
 import poly.collection.node._
 
 /**
+ * Represents a node in a searching algorithm.
+ * @author Yuhuan Jiang (jyuhuan@gmail.com).
  * @author Tongfei Chen (ctongfei@gmail.com).
+ * @since 0.1.0
  */
 trait SearchNode[+S] extends SinglePredNode[S] {
   def depth: Int

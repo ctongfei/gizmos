@@ -9,17 +9,21 @@ import scala.annotation.unchecked.{uncheckedVariance => uV}
 import scala.reflect._
 
 /**
- * Basic trait for indexed sequences. Indexed sequences should support efficient random access.
+ * Basic trait for indexed sequences.
+ *
+ * Indexed sequences should support efficient random access (typically O(1)).
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
 trait IndexedSeq[+T] extends BiSeq[T] { self =>
+
+  override def hasKnownSize = true
 
   def length: Int
 
   def apply(i: Int): T
 
   // Overridden enumerator method for performance.
-  override def newEnumerator: Enumerator[T] = new AbstractEnumerator[T] {
+  override def newIterator: Iterator[T] = new AbstractIterator[T] {
     private[this] var i: Int = -1
     def current = self(i)
     def advance(): Boolean = {
@@ -36,6 +40,15 @@ trait IndexedSeq[+T] extends BiSeq[T] { self =>
   override def map[U](f: T => U): IndexedSeq[U] = new AbstractIndexedSeq[U] {
     def length = self.length
     def apply(i: Int) = f(self(i))
+  }
+
+  /**
+   * Returns the Cartesian product of two indexed sequences. The returning value is a table.
+   */
+  def cartesianProduct[U](that: IndexedSeq[U]): Table[(T, U)] = new AbstractTable[(T, U)] {
+    def apply(i: Int, j: Int) = (self(i), that(j))
+    def numRows = self.length
+    def numCols = that.length
   }
 
   def concat[U >: T](that: IndexedSeq[U]): IndexedSeq[U] = new AbstractIndexedSeq[U] {

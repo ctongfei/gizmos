@@ -14,8 +14,8 @@ trait BiBinaryTreeNode[+T] extends BiNode[T] with BinaryTreeNode[T] with SingleP
   def left: BiBinaryTreeNode[T]
   def right: BiBinaryTreeNode[T]
   def parent: BiBinaryTreeNode[T]
-  override def pred: Enumerable[BiBinaryTreeNode[T]] = ListSeq(parent).filter(_.notDummy)
-  override def succ: Enumerable[BiBinaryTreeNode[T]] = ListSeq(right, left).filter(_.notDummy)
+  override def pred: Iterable[BiBinaryTreeNode[T]] = ListSeq(parent).filter(_.notDummy)
+  override def succ: Iterable[BiBinaryTreeNode[T]] = ListSeq(right, left).filter(_.notDummy)
 
   override def reverse: BiNode[T] with SeqNode[T] = new BiNode[T] with SeqNode[T] {
     def pred = self.succ.map(_.reverse)

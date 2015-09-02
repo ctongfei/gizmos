@@ -29,6 +29,9 @@ trait Traversable[+T] { self =>
    */
   def foreach[V](f: T => V): Unit
 
+  /** Returns whether the size of this collection can be efficiently retrieved. */
+  def hasKnownSize = false
+
   //region HELPER FUNCTIONS
 
   //region Monadic operations (map, flatMap, product)
@@ -106,8 +109,8 @@ trait Traversable[+T] { self =>
   def filterMany(fs: (T => Boolean)*): Seq[Seq[T]] = {
     val l = ArraySeq.fill(fs.length)(ArraySeq[T]())
     for (x ← self)
-      for (i ← 0 until fs.length opt)
-        if (fs(i)(x)) l(i) inplaceAppend x
+      for (i ← Range(fs.length))
+        if (fs(i)(x)) l(i) appendInplace x
     l
   }
 
@@ -117,7 +120,7 @@ trait Traversable[+T] { self =>
     None
   }
 
-  def groupBy[T1 >: T, K](f: T1 => K): Multimap[K, T1] = ???
+  def groupBy[S >: T, K](f: S => K): Multimap[K, S] = ???
   //endregion
 
   //region Concatenation (concat, prepend, append)
@@ -149,6 +152,11 @@ trait Traversable[+T] { self =>
     var s = 0
     for (x ← self) s += 1
     s
+  }
+
+  def isEmpty = headOption match {
+    case Some(e) => false
+    case None => true
   }
 
   def exists(f: T => Boolean): Boolean = {
@@ -235,6 +243,12 @@ trait Traversable[+T] { self =>
     throw new NoSuchElementException
   }
 
+  def headOption: Option[T] = {
+    for (x ← self)
+      return Some(x)
+    None
+  }
+
   def tail: Traversable[T] = new AbstractTraversable[T] {
     def foreach[U](f: T => U): Unit = {
       var first = true
@@ -274,7 +288,7 @@ trait Traversable[+T] { self =>
     }
   }
 
-  def drop(n: Int): Traversable[T] = new AbstractTraversable[T] {
+  def skip(n: Int): Traversable[T] = new AbstractTraversable[T] {
     def foreach[U](f: T => U): Unit = {
       var i = 0
       for (x ← self) {
@@ -306,7 +320,7 @@ trait Traversable[+T] { self =>
 
   def takeUntil(f: T => Boolean): Traversable[T] = takeWhile(x => !f(x))
 
-  def dropWhile(f: T => Boolean) = new AbstractTraversable[T] {
+  def skipWhile(f: T => Boolean) = new AbstractTraversable[T] {
     def foreach[U](g: T => U): Unit = {
       var starts = false
       for (x ← self) {
@@ -316,19 +330,19 @@ trait Traversable[+T] { self =>
     }
   }
 
-  def slice(i: Int, j: Int) = drop(i).take(j - i)
+  def slice(i: Int, j: Int) = skip(i).take(j - i)
 
   def reverse: BiSeq[T] = self.to[ArraySeq].reverse
 
   def sort[X >: T](implicit O: WeakOrder[X]): IndexedSeq[X] = {
     val seq = self.map(_.asInstanceOf[X]).to[ArraySeq]
-    seq.inplaceSort()(O)
+    seq.sortInplace()(O)
     seq
   }
 
   def sortBy[U >: T, X](f: U => X)(implicit O: WeakOrder[X]): IndexedSortedSeq[U] = {
     val seq = self.to[ArraySeq]
-    seq.inplaceSort()(WeakOrder by f)
+    seq.sortInplace()(WeakOrder by f)
     seq.asIfSorted(WeakOrder by f)
   }
 
@@ -413,7 +427,7 @@ trait Traversable[+T] { self =>
    */
   def to[C[_]](implicit builder: Builder[T @uv, C[T] @uv]): C[T @uv] = {
     val b = builder
-    //b.sizeHint(size)
+    if (hasKnownSize) b.sizeHint(size)
     b ++= self
     b.result
   }
@@ -426,7 +440,7 @@ trait Traversable[+T] { self =>
    */
   def build[S](implicit builder: Builder[T, S]): S = {
     val b = builder
-    //b.sizeHint(size)
+    if (hasKnownSize) b.sizeHint(size)
     b ++= self
     b.result
   }

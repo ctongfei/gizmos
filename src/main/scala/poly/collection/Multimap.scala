@@ -3,7 +3,7 @@ package poly.collection
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-trait Multimap[K, V] extends Enumerable[(K, V)] {
+trait Multimap[K, V] extends Iterable[(K, V)] {
 
   def get(x: K): Set[V]
 

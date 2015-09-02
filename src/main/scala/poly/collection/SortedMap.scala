@@ -9,6 +9,6 @@ trait SortedMap[K, V] extends Map[K, V] { self =>
 
   def order: WeakOrder[K]
 
-  def pairs: SortedEnumerable[(K, V)]
+  def pairs: SortedIterable[(K, V)]
 
 }
