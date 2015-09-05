@@ -19,17 +19,22 @@ import scala.annotation.unchecked.{uncheckedVariance => uv}
  *
  * @define LAZY This function is lazily executed.
  * @define EAGER This function is eagerly executed.
+ * @define CX_NLOGN Time complexity: O(''n'' log ''n'').
+ * @define CX_N Time complexity: O(''n'').
+ * @define CX_LOGN Time complexity: O(log ''n'').
+ * @define CX_AMORTIZED_1 Time complexity: Amortized O(1).
+ * @define CX_1 Time complexity: O(1).
  */
 trait Traversable[+T] { self =>
 
   /**
-   * Applies a function ''f'' to each element of this collection. $EAGER
+   * Applies a function ''f'' to each element of this collection. $EAGER $CX_N
    * @param f The function to be applied. Return values are discarded.
    * @tparam V Type of the result of function ''f''
    */
   def foreach[V](f: T => V): Unit
 
-  /** Returns whether the size of this collection can be efficiently retrieved. */
+  /** Returns whether the size of this collection can be efficiently retrieved. $CX_1 */
   def hasKnownSize = false
 
   //region HELPER FUNCTIONS
@@ -37,7 +42,7 @@ trait Traversable[+T] { self =>
   //region Monadic operations (map, flatMap, product)
   /**
    * Returns a new traversable collection by applying a function to all elements in this collection.
-   * $LAZY
+   * $LAZY $CX_1
    * @param f Function to apply
    * @tparam U Type of the image of the function
    * @return A new collection that each element is the image of the original element applied by ''f''.
@@ -48,6 +53,7 @@ trait Traversable[+T] { self =>
     }
   }
 
+  /** $LAZY $CX_1 */
   def flatMap[U](f: T => Traversable[U]): Traversable[U] = new AbstractTraversable[U] {
     def foreach[V](g: U => V): Unit = {
       for (x ← self)
@@ -56,6 +62,7 @@ trait Traversable[+T] { self =>
     }
   }
 
+  /** $LAZY $CX_1 */
   def cartesianProduct[U](that: Traversable[U]): Traversable[(T, U)] =
     self flatMap (x => that map (y => (x, y)))
 
@@ -64,7 +71,7 @@ trait Traversable[+T] { self =>
   //region Filtering & grouping (count, filter, filterNot, filterMany, partition, groupBy)
 
   /**
-   * Counts the number of elements that satisfy the specified predicate.
+   * Counts the number of elements that satisfy the specified predicate. $EAGER $CX_1
    * @param f The specified predicate
    * @return The number of elements that satisfy ''f''
    */
@@ -76,7 +83,7 @@ trait Traversable[+T] { self =>
   }
 
   /**
-   * Selects the elements that satisfy the specified predicate. $LAZY
+   * Selects the elements that satisfy the specified predicate. $LAZY $CX_1
    * @param f The specified predicate
    * @return A traversable collection that contains all elements that satisfy ''f''.
    */
@@ -87,10 +94,15 @@ trait Traversable[+T] { self =>
     }
   }
 
+  /**
+   * Selects the elements that do not satisfy the specified predicate. $LAZY $CX_1
+   * @param f The specified predicate
+   * @return A traversable collection that contains all elements that do not satisfy ''f''.
+   */
   def filterNot(f: T => Boolean): Traversable[T] = filter(e => !f(e))
 
   /**
-   * Partitions this collection to two collections according to a predicate. $EAGER
+   * Partitions this collection to two collections according to a predicate. $EAGER $CX_N
    * @param f The specified predicate
    * @return A pair of collections: ( {x|f(x)} , {x|!f(x)} )
    */
@@ -102,7 +114,7 @@ trait Traversable[+T] { self =>
   }
 
   /**
-   * $EAGER
+   * $EAGER $CX_N
    * @param fs
    * @return
    */
@@ -114,16 +126,23 @@ trait Traversable[+T] { self =>
     l
   }
 
+  /** $EAGER $CX_N */
   def findFirst(f: T => Boolean): Option[T] = {
     for (x ← self)
       if (f(x)) return Some(x)
     None
   }
 
+  /** $EAGER $CX_N */
   def groupBy[S >: T, K](f: S => K): Multimap[K, S] = ???
   //endregion
 
   //region Concatenation (concat, prepend, append)
+  /**
+   * Concatenates two traversable collections into one. $LAZY $CX_1
+   * @param that Another collection
+   * @return A concatenated collection
+   */
   def concat[U >: T](that: Traversable[U]): Traversable[U] = new AbstractTraversable[U] {
     def foreach[V](f: U => V): Unit = {
       for (x ← self)
@@ -133,6 +152,7 @@ trait Traversable[+T] { self =>
     }
   }
 
+  /** $LAZY $CX_1 */
   def prepend[U >: T](x: U): Traversable[U] = new AbstractTraversable[U] {
     def foreach[V](f: U => V) = {
       f(x)
@@ -140,6 +160,7 @@ trait Traversable[+T] { self =>
     }
   }
 
+  /** $LAZY $CX_1 */
   def append[U >: T](x: U): Traversable[U] = new AbstractTraversable[U] {
     def foreach[V](f: U => V) = {
       self foreach f
@@ -148,29 +169,40 @@ trait Traversable[+T] { self =>
   }
   //endregion
 
+  /**
+   * Returns the number of elements in this collection. $EAGER $CX_N
+   * @return The size of this collection
+   */
   def size: Int = {
     var s = 0
     for (x ← self) s += 1
     s
   }
 
+  /**
+   * Checks if this collection is empty. $EAGER $CX_1
+   * @return
+   */
   def isEmpty = headOption match {
     case Some(e) => false
     case None => true
   }
 
+  /** $EAGER $CX_N */
   def exists(f: T => Boolean): Boolean = {
     for (x ← self)
       if (f(x)) return true
     false
   }
 
+  /** $EAGER $CX_N */
   def forall(f: T => Boolean): Boolean = {
     for (x ← self)
       if (!f(x)) return false
     true
   }
 
+  /** $EAGER $CX_N */
   def foldLeft[U](z: U)(f: (U, T) => U): U = {
     var r = z
     for (x ← self)
@@ -178,12 +210,15 @@ trait Traversable[+T] { self =>
     r
   }
 
+  /** $EAGER $CX_N */
   def foldRight[U](z: U)(f: (T, U) => U): U = {
     reverse.foldLeft(z)((x, y) => f(y, x))
   }
 
+  /** $EAGER $CX_N */
   def fold[U >: T](z: U)(f: (U, U) => U): U = foldLeft(z)(f)
 
+  /** $EAGER $CX_N */
   def reduce[U >: T](f: (U, U) => U): U = {
     var first = true
     var res = default[U]
@@ -197,12 +232,14 @@ trait Traversable[+T] { self =>
     res
   }
 
+  /** $EAGER $CX_N */
   def reduceByMonoid[U >: T](m: Monoid[U]): U = {
     var res = m.id
     for (x ← self) res = m.op(res, x)
     res
   }
 
+  /** $LAZY $CX_1 */
   def scanLeft[U >: T](z: U)(f: (U, T) => U): Traversable[U] = new AbstractTraversable[U] {
     def foreach[V](g: U => V) = {
       var accum = z
@@ -213,11 +250,14 @@ trait Traversable[+T] { self =>
       g(accum)
     }
   }
-  
+
+  /** $LAZY $CX_1 */
   def scan[U >: T](z: U)(f: (U, U) => U): Traversable[U] = scanLeft(z)(f)
 
+  /** $LAZY $CX_1 */
   def scanByMonoid[U >: T](m: Monoid[U]): Traversable[U] = scanLeft(m.id)(m.op)
 
+  /** $LAZY $CX_1 */
   def diff[U](f: (T, T) => U): Traversable[U] = new AbstractTraversable[U] {
     var first = true
     var prev: T = _
@@ -235,20 +275,24 @@ trait Traversable[+T] { self =>
     }
   }
 
+  /** $LAZY $CX_1 */
   def diffByGroup[U >: T](g: Group[U]) = diff((x, y) => g.op(x, g.inv(y)))
 
+  /** $EAGER $CX_1 */
   def head: T = {
     for (x ← self)
       return x
     throw new NoSuchElementException
   }
 
+  /** $EAGER $CX_1 */
   def headOption: Option[T] = {
     for (x ← self)
       return Some(x)
     None
   }
 
+  /** $LAZY $CX_1 */
   def tail: Traversable[T] = new AbstractTraversable[T] {
     def foreach[U](f: T => U): Unit = {
       var first = true
@@ -259,6 +303,7 @@ trait Traversable[+T] { self =>
     }
   }
 
+  /** $EAGER $CX_N */
   def last: T = {
     var p = head
     for (x ← this) p = x
@@ -472,7 +517,7 @@ trait Traversable[+T] { self =>
 
   //endregion
 
-  override def toString = buildString(",")(Formatter.default)
+  override def toString = "( " + buildString(" ") + " # )"
 }
 
 object Traversable {

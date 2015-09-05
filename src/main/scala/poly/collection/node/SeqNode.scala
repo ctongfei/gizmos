@@ -1,6 +1,7 @@
 package poly.collection.node
 
 import poly.collection._
+import poly.collection.exception._
 import poly.collection.mut._
 
 /**
@@ -25,6 +26,15 @@ trait SeqNode[+T] extends Node[T] { self =>
     def next = self.next.map(f)
     def data = f(self.data)
     override def isDummy = self.isDummy
+  }
+
+}
+
+object SeqNode {
+
+  object dummy extends SeqNode[Nothing] {
+    def data = throw new NoSuchElementException
+    def next = this
   }
 
 }

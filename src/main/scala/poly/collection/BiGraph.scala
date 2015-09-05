@@ -7,6 +7,7 @@ import poly.util.specgroup._
  * Represents a bidirectional graph, i.e., a graph in which each
  * vertex's predecessors and successors can be retrieved efficiently.
  * @author Tongfei Chen (ctongfei@gmail.com).
+ * @since 0.1.0
  */
 trait BiGraph[@sp(i) K, +V, +E] extends Graph[K, V, E] { self =>
 

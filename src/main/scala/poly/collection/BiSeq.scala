@@ -13,22 +13,30 @@ trait BiSeq[+T] extends Seq[T] { self =>
   def headNode: BiSeqNode[T]
   def lastNode: BiSeqNode[T]
 
-  override def last = lastNode.data
 
   //region HELPER FUNCTIONS
 
   override def map[U](f: T => U): BiSeq[U] = new AbstractBiSeq[U] {
-    def headNode = self.headNode.map(f)
-    def lastNode = self.lastNode.map(f)
+    def headNode = self.headNode map f
+    def lastNode = self.lastNode map f
     def length = self.length
     def apply(i: Int) = f(self(i))
   }
 
-  /**
-   * Returns the reverse of this bidirectional sequence.
-   * O(1) complexity. $LAZY
-   * @return The reversed sequence.
-   */
+  override def foldRight[U](z: U)(f: (T, U) => U): U = {
+    var accum = z
+    var node = lastNode
+    while (node.notDummy) {
+      accum = f(node.data, accum)
+      node = node.prev
+    }
+    accum
+  }
+
+  /** Retrieves the last element of this sequence. $EAGER $CX_1 */
+  override def last = lastNode.data
+
+  /** Returns the reverse of this bidirectional sequence. $LAZY $CX_1 */
   override def reverse: BiSeq[T] = new AbstractBiSeq[T] {
     def lastNode = self.headNode.reverse
     def headNode = self.lastNode.reverse

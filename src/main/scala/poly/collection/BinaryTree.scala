@@ -9,8 +9,11 @@ import poly.util.typeclass.ops._
 /**
  * Represents a binary tree.
  * @author Tongfei Chen (ctongfei@gmail.com).
+ * @since 0.1.0
  */
 trait BinaryTree[+T] extends PartialFunction[Int, T] { self =>
+
+  import BinaryTree._
 
   def rootNode: BinaryTreeNode[T]
 
@@ -51,29 +54,36 @@ trait BinaryTree[+T] extends PartialFunction[Int, T] { self =>
 
   def isDefinedAt(i: Int): Boolean = ???
 
+  // HELPER FUNCTIONS
 
   /**
    * Returns the left subtree of this binary tree.
    * Deferred execution.
    * @return The left subtree
    */
-  def left: BinaryTree[T] = BinaryTree.ofNode(rootNode.left)
+  def left: BinaryTree[T] = ofNode(rootNode.left)
 
   /**
    * Returns the right subtree of this binary tree.
    * @return
    */
-  def right: BinaryTree[T] = BinaryTree.ofNode(rootNode.right)
+  def right: BinaryTree[T] = ofNode(rootNode.right)
 
-  def map[U](f: T => U): BinaryTree[U] = BinaryTree.ofNode(rootNode.map(f))
+  def map[U](f: T => U): BinaryTree[U] = ofNode(rootNode.map(f))
 
-  def zip[U](that: BinaryTree[U]): BinaryTree[(T, U)] = BinaryTree.ofNode(rootNode zip that.rootNode)
+  /** Folds a binary tree bottom-up. This is analogous to the sequence `foldRight`. */
+  def foldBottomUp[U](z: U)(f: (T, U, U) => U): U = ???
+
+  def fold[U >: T](z: U)(f: (U, U, U) => U) = foldBottomUp(z)(f)
+
+  def zip[U](that: BinaryTree[U]): BinaryTree[(T, U)] = ofNode(self.rootNode zip that.rootNode)
 
   def preOrder = rootNode.preOrder
   def inOrder = rootNode.inOrder
   def postOrder = rootNode.postOrder
 
-  override def toString() = self.str(BinaryTree.Formatter[T](Formatter.default[T]))
+  override def toString() = self.str
+
 }
 
 object BinaryTree {
@@ -81,6 +91,11 @@ object BinaryTree {
   @inline def parentIndex(i: Int) = (i - 1) / 2
   @inline def leftChildIndex(i: Int) = 2 * i + 1
   @inline def rightChildIndex(i: Int) = 2 * i + 2
+
+  def unapply[T](bt: BinaryTree[T]) = {
+    if (bt.isEmpty) None
+    else Some((bt.root, bt.left, bt.right))
+  }
 
   object empty extends BinaryTree[Nothing] {
     def rootNode: BinaryTreeNode[Nothing] = throw new NoSuchElementException
@@ -95,8 +110,8 @@ object BinaryTree {
   }
 
   implicit def Formatter[T: Formatter]: Formatter[BinaryTree[T]] = new Formatter[BinaryTree[T]] {
-    def str(x: BinaryTree[T]): String = //TODO: recursion boundary
-      s"(${x.root.str} ${x.left.str} ${x.right.str})" //Recursion
+    def str(x: BinaryTree[T]): String =
+      if (x.isEmpty) "#" else s"(${x.root.str} ${x.left.str} ${x.right.str})" //TODO: change to non-recursion
   }
 
 }

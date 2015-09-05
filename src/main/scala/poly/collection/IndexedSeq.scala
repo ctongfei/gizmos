@@ -4,6 +4,7 @@ import poly.algebra._
 import poly.collection.factory._
 import poly.collection.mut._
 import poly.collection.node._
+import poly.util.fastloop._
 import poly.util.specgroup._
 import scala.annotation.unchecked.{uncheckedVariance => uV}
 import scala.reflect._
@@ -35,6 +36,10 @@ trait IndexedSeq[+T] extends BiSeq[T] { self =>
   def headNode: BiSeqNode[T] = new IndexedSeqNode(0)
   def lastNode: BiSeqNode[T] = new IndexedSeqNode(length - 1)
 
+  override def foreach[V](f: T => V): Unit = {
+    FastLoop.ascending(0, length, 1) { i => f(apply(i)) }
+  }
+
   // HELPER FUNCTIONS
 
   override def map[U](f: T => U): IndexedSeq[U] = new AbstractIndexedSeq[U] {
@@ -64,6 +69,10 @@ trait IndexedSeq[+T] extends BiSeq[T] { self =>
   override def append[U >: T](x: U): IndexedSeq[U] = new AbstractIndexedSeq[U] {
     def length = self.length + 1
     def apply(i: Int) = if (i == self.length) x else self(i)
+  }
+
+  override def reduce[U >: T](f: (U, U) => U): U = {
+    MapReduceOps.bySemigroup[U](length, x => (self(x): U), f)
   }
 
 

@@ -13,7 +13,7 @@ trait Table[+T] extends Map[(Int, Int), T] { self =>
   def apply(pair: (Int, Int)): T = apply(pair._1, pair._2)
   def ?(x: (Int, Int)): Option[T] = if (containsKey(x)) Some(self(x)) else None
 
-  def pairs = for { i ← Range(numRows); j ← Range(numCols) } yield (i → j) → self(i, j)
+  def pairs = for { (i: Int) ← Range(numRows); j ← Range(numCols) } yield (i → j) → self(i, j)
 
   def newIterator: Iterator[T] = new AbstractIterator[T] {
     private[this] var i = 0

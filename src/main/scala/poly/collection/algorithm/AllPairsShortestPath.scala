@@ -26,12 +26,13 @@ class AllPairsShortestPath[K, E : AdditiveMonoid : WeakOrder : HasTop]
 
   // Floyd-Warshall algorithm
   for (k ← graph.keys; i ← graph.keys; j ← graph.keys) {
-    val dik = d.getOrElse(i → k, max)
-    val dkj = d.getOrElse(k → j, max)
-    val dij = d.getOrElse(i → j, max)
-    val dikj = dik + dkj
-    if (dikj < dij) {
-      d(i → j) = dikj
+    val dik = d ? (i → k)
+    val dkj = d ? (k → j)
+    val dij = d ? (i → j)
+    val dikj = for { ik ← dik; kj ← dkj } yield ik + kj
+    if (dikj.isDefined && dij.isDefined && (dij.isEmpty || (dikj.get < dij.get)))
+    if (dikj.get < dij.get) {
+      d(i → j) = dikj.get
       mid(i → j) = k
     }
   }

@@ -12,6 +12,8 @@ e.sort
 e :+ 0
 0 +: e
 
+e.reduce(_+_)
+
 
 e.to[ArraySeq]
 e.to[ListSeq]
@@ -28,3 +30,4 @@ g.filter(_ < 4)
 g.map(_ * 3)
 gg.map(_ * 3)
 gg.sort(WeakOrder[Int].reverse)
+g cartesianProduct gg

@@ -22,11 +22,12 @@ class TraversableTest extends FunSuite {
 
     e.append(19)
 
+    val gg = ArraySeq(1,2 ,3 )
     val g = e.to[ListSeq]
 
     g foreach println
     g filter (_ > 2) foreach println
-
+    1 +: Stream(1, 2)
     val bp = 0
   }
 

@@ -1,7 +1,6 @@
 package poly.collection
 
 import poly.algebra._
-import poly.algebra.hkt._
 
 /**
  * Represents a bijective map, which is used to model one-to-one correspondence.
@@ -42,6 +41,5 @@ trait BijectiveMap[K, V] extends Map[K, V] with Bijection[K, V] { self =>
 
   def andThen[W](that: BijectiveMap[V, W]) = this map that
   def compose[J](that: BijectiveMap[J, K]) = that map this
-
 
 }

@@ -5,7 +5,7 @@ import poly.collection._
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class Alphabet[T] private(val w2i: HashMap[T, Int], val i2w: ArraySeq[T]) extends BijectiveMap[T, Int] {
+class Alphabet[T] private(private val w2i: HashMap[T, Int], private val i2w: ArraySeq[T]) extends BijectiveMap[T, Int] {
 
   def apply(x: T): Int = w2i ? x match {
     case Some(i) => i

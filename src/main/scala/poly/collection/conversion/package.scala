@@ -34,12 +34,12 @@ package object conversion {
     def newIterator = scalaIteratorAsPoly[T](xs.iterator)
   }
   implicit def scalaSeqAsPoly[T](xs: sc.Seq[T]): Seq[T] = new Seq[T] {
-    class WrappedNode(val s: sc.Seq[T]) extends SeqNode[T] {
+    class WrappedNode(val s: sc.Seq[T], override val isDummy: Boolean = false) extends SeqNode[T] {
       def data = s.head
-      def next = new WrappedNode(s.tail)
+      def next = new WrappedNode(s.tail, s.tail.isEmpty)
     }
     override def newIterator = scalaIteratorAsPoly[T](xs.iterator)
-    def headNode = new WrappedNode(xs)
+    def headNode = new WrappedNode(xs, xs.isEmpty)
     override def apply(i: Int) = xs(i)
     override def length = xs.length
   }

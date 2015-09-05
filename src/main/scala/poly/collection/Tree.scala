@@ -16,7 +16,7 @@ trait Tree[+T] {
 
   def root = rootNode.data
 
-  def children = rootNode.children.map(c => ofNode(c))
+  def children = rootNode.children.map(t => ofNode(t))
 
 }
 
@@ -30,7 +30,7 @@ object Tree {
    * Formats a tree into an S-expression.
    * @return An S-expression that represents the specific tree.
    */
-  implicit def SexprFormatter[T: Formatter]: Formatter[Tree[T]] = new Formatter[Tree[T]] {
+  implicit def Formatter[T: Formatter]: Formatter[Tree[T]] = new Formatter[Tree[T]] {
     def str(x: Tree[T]): String =
       "(" + x.root.str +
         (if (x.children.size == 0) "" else " ") +

@@ -54,6 +54,7 @@ trait Seq[+T] extends Iterable[T] with Map[Int, T] { self =>
     def current = node.data
   }
 
+
   override def isDefinedAt(i: Int) = containsKey(i)
 
   def ?(i: Int) = if (containsKey(i)) Some(this(i)) else None
@@ -65,17 +66,27 @@ trait Seq[+T] extends Iterable[T] with Map[Int, T] { self =>
     self.map(x => { i += 1; (i, x) })
   }
 
+  def asLinearSeq = LinearSeq.ofNode(self.headNode)
+
   // HELPER FUNCTIONS
 
-  def asLinearSeq = LinearSeq.ofNode(self.headNode)
+  override def isEmpty = headNode.isDummy
 
   override def head = headNode.data
 
-  override def tail = LinearSeq.ofNode(headNode.next)
+  override def tail = asLinearSeq.tail
 
   override def map[U](f: T => U): Seq[U] = asLinearSeq.map(f)
 
+  def flatMap[U](f: T => Seq[U]): Seq[U] = asLinearSeq.flatMap(f)
+
   override def filter(f: T => Boolean): Seq[T] = asLinearSeq.filter(f)
+
+  def concat[U >: T](that: Seq[U]): Seq[U] = asLinearSeq.concat(that)
+
+  override def prepend[U >: T](x: U): Seq[U] = asLinearSeq.prepend(x)
+
+  override def append[U >: T](x: U): Seq[U] = asLinearSeq.append(x)
 
   override def foldRight[U](z: U)(f: (T, U) => U): U = asLinearSeq.foldRight(z)(f)
 
@@ -96,13 +107,18 @@ trait Seq[+T] extends Iterable[T] with Map[Int, T] { self =>
     case _ => false
   }
 
-  override def toString = buildString(",")(Formatter.default) // overridden the `toString` in Map
+  override def toString = buildString(",") // overridden the `toString` in Map
 
   override def hashCode = ???
 
 }
 
 object Seq {
+
+  def unapply[T](xs: Seq[T]) = {
+    if (xs.isEmpty) None
+    else Some((xs.head, xs.tail))
+  }
 
   object empty extends Seq[Nothing] {
     override def apply(i: Int): Nothing = throw new NoSuchElementException

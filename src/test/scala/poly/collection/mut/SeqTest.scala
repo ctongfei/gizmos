@@ -12,6 +12,8 @@ object SeqTest {
     val a = ArraySeq[Int](1, 2, 3, 4, 5, 6)
     val b = ListSeq[Int](1, 2, 3)
 
+
+
     val c = a.asIfSorted merge b.asIfSorted
 
     a.appendInplace(7)
