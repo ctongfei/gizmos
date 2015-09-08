@@ -5,10 +5,11 @@ import poly.collection._
 import poly.collection.search._
 
 /**
- * Basic trait for nodes. A node may contain a list of successor nodes.
+ * Basic trait for forward nodes. A node may contain a list of successor nodes.
  *
  * This trait serves as a common trait for sequence nodes, tree nodes and graph nodes.
- * Nodes provide a unified view for lists, trees and graphs.
+ * Nodes provide a unified view for lists, trees and graphs, as well as search nodes
+ * in searching algorithms provided in package [[poly.collection.search]].
  *
  * Explicitly inherits the deprecated trait [[scala.NotNull]] to emphasize that a node
  * in Poly-collection should never be null.
@@ -16,15 +17,16 @@ import poly.collection.search._
  * @author Tongfei Chen (ctongfei@gmail.com).
  * @since 0.1.0
  */
-trait Node[+T] extends NotNull { self =>
+trait ForwardNode[+T] extends NotNull { self =>
 
   /** Returns the data on this node. */
   def data: T
 
   /** Returns a list of successors of this node. */
-  def succ: Iterable[Node[T]]
+  def succ: Iterable[ForwardNode[T]]
 
-  def isDummy = false
+  /** Returns whether this node points to an invalid location. */
+  def isDummy: Boolean
   def notDummy = !isDummy
 
   override def toString = s"Node($data)"
@@ -36,7 +38,7 @@ trait Node[+T] extends NotNull { self =>
     override def isDummy = self.isDummy
   }
 
-  def map[U](f: T => U): Node[U] = new Node[U] {
+  def map[U](f: T => U): ForwardNode[U] = new ForwardNode[U] {
     def data = f(self.data)
     def succ = self.succ.map(n => n.map(f))
     override def isDummy = self.isDummy
@@ -44,12 +46,12 @@ trait Node[+T] extends NotNull { self =>
 
 }
 
-object Node {
-  implicit def StateSpace[T]: StateSpace[Node[T]] = new StateSpace[Node[T]] {
-    def succ(x: Node[T]) = x.succ
+object ForwardNode {
+  implicit def StateSpace[T]: StateSpace[ForwardNode[T]] = new StateSpace[ForwardNode[T]] {
+    def succ(x: ForwardNode[T]) = x.succ
   }
 
-  implicit object Functor extends Functor[Node] {
-    def map[X, Y](nx: Node[X])(f: X => Y): Node[Y] = nx map f
+  implicit object Functor extends Functor[ForwardNode] {
+    def map[X, Y](nx: ForwardNode[X])(f: X => Y): ForwardNode[Y] = nx map f
   }
 }

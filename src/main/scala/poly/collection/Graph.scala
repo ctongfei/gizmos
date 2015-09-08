@@ -35,7 +35,8 @@ trait Graph[@sp(i) K, +V, +E] { self =>
   def outgoingEdgesOf(i: K): Iterable[Edge] = outgoingKeysOf(i).map(j => Edge(i, j))
   def outDegree(i: K) = outgoingKeysOf(i).size
 
-  class Vertex(val key: K) extends Node[V] {
+  class Vertex(val key: K) extends ForwardNode[V] {
+    def isDummy = false
     def data = self.apply(key)
     def succ = self.outgoingVerticesOf(key)
   }

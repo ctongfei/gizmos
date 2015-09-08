@@ -1,6 +1,7 @@
 package poly.collection
 
 import poly.algebra.hkt._
+import poly.collection.exception._
 import poly.collection.mut._
 import scala.language.implicitConversions
 
@@ -21,41 +22,165 @@ trait Iterable[+T] extends Traversable[T] { self =>
   /** Returns a new iterator that can be used to iterate through this collection. */
   def newIterator: Iterator[T]
 
+  def foreach[V](f: T => V) = {
+    val i = newIterator
+    while (i.advance()) f(i.current)
+  }
 
   //region HELPER FUNCTIONS
 
-  def foreach[V](f: T => V) = newIterator.foreach(f)
+  override def map[U](f: T => U) = ofIterator {
+    new AbstractIterator[U] {
+      val i = self.newIterator
+      def current = f(i.current)
+      def advance() = i.advance()
+    }
+  }
 
-  override def map[U](f: T => U) = ofIterator(self.newIterator.map(f))
-
-  def flatMap[U](f: T => Iterable[U]) = ofIterator(self.newIterator.flatMap(x => f(x).newIterator))
+  def flatMap[U](f: T => Iterable[U]) = ofIterator {
+    new AbstractIterator[U] {
+      val outer: Iterator[T] = self.newIterator
+      var inner: Iterator[U] = Iterator.empty
+      def current = inner.current
+      def advance(): Boolean = {
+        if (inner.advance()) true
+        else {
+          while (outer.advance()) {
+            inner = f(outer.current).newIterator
+            if (inner.advance()) return true
+          }
+          false
+        }
+      }
+    }
+  }
 
   def cartesianProduct[U](that: Iterable[U]): Iterable[(T, U)] = self.flatMap(t => that.map(u => (t, u)))
 
-  override def filter(f: T => Boolean) = ofIterator(self.newIterator.filter(f))
+  override def filter(f: T => Boolean) = ofIterator {
+    new AbstractIterator[T] {
+      val i = self.newIterator
+      def current: T = i.current
+      def advance(): Boolean = {
+        do {
+          val hasNext = i.advance()
+          if (!hasNext) return false
+        } while (!f(i.current))
+        true
+      }
+    }
+  }
 
-  override def filterNot(f: T => Boolean) = ofIterator(self.newIterator.filterNot(f))
+  override def filterNot(f: T => Boolean) = filterNot(x => !f(x))
 
-  def concat[U >: T](that: Iterable[U]): Iterable[U] = ofIterator(self.newIterator concat that.newIterator)
+  def concat[U >: T](that: Iterable[U]): Iterable[U] = ofIterator {
+    new AbstractIterator[U] {
+      private[this] var e: Iterator[U] = self.newIterator
+      def advance() = {
+        if (e.advance()) true else {
+          e = that.newIterator
+          e.advance()
+        }
+      }
+      def current = e.current
+    }
+  }
 
-  override def prepend[U >: T](u: U): Iterable[U] = ofIterator(self.newIterator prepend u)
+  override def prepend[U >: T](u: U): Iterable[U] = ofIterator {
+    new AbstractIterator[U] {
+      val i = self.newIterator
+      private[this] var first = true
+      private[this] var curr: U = _
+      def advance() = if (first) {
+        curr = u
+        first = false
+        true
+      } else {
+        val r = i.advance()
+        curr = i.current
+        r
+      }
+      def current = curr
+    }
+  }
 
-  override def append[U >: T](u: U): Iterable[U] = ofIterator(self.newIterator append u)
+  override def append[U >: T](u: U): Iterable[U] = ofIterator {
+    new AbstractIterator[U] {
+      val i = self.newIterator
+      private[this] var last = false
+      def advance() = {
+        if (last) false
+        else {
+          val r = i.advance()
+          if (!r) last = true
+          true
+        }
+      }
+      def current = if (!last) i.current else u
+    }
+  }
 
-  override def tail: Iterable[T] = ofIterator(self.newIterator.tail)
+  override def scanLeft[U >: T](z: U)(f: (U, T) => U) = ofIterator {
+    new AbstractIterator[U] {
+      val i = self.newIterator
+      private[this] var accum = z
+      private[this] var first = true
+      def advance() = {
+        if (first) first = false
+        else accum = f(accum, i.current)
+        i.advance()
+      }
+      def current = if (!first) accum else throw new NoSuchElementException
+    }
+  }
 
-  override def take(n: Int): Iterable[T] = ofIterator(self.newIterator.take(n))
+  override def tail: Iterable[T] = {
+    val tailIterator = self.newIterator
+    tailIterator.advance()
+    ofIterator(tailIterator)
+  }
 
-  override def skip(n: Int): Iterable[T] = ofIterator(self.newIterator.drop(n))
+  override def take(n: Int): Iterable[T] = ofIterator {
+    new AbstractIterator[T] {
+      val i = self.newIterator
+      private[this] var remaining = n
+      def advance() = remaining > 0 && { remaining -= 1; i.advance() }
+      def current = i.current
+    }
+  }
 
-  override def slice(i: Int, j: Int): Iterable[T] = ofIterator(self.newIterator.slice(i, j))
+  /**
+   * Advances this enumerator past the first ''n'' elements.
+   * @param n The number of elements to be dropped
+   */
+  override def skip(n: Int): Iterable[T] = {
+    val skippedIterator = self.newIterator
+    var i = 0
+    while (i < n && skippedIterator.advance()) i += 1
+    ofIterator(skippedIterator)
+  }
+
+  override def slice(i: Int, j: Int): Iterable[T] = self.skip(i).take(j - i)
 
   def distinct: Iterable[T] = ???
 
-  def zip[U](that: Iterable[U]): Iterable[(T, U)] = ofIterator(self.newIterator zip that.newIterator)
+  /**
+   * Returns a collection formed from this collection and another iterable collection by combining
+   * corresponding elements in pairs. For example, [1, 2, 3] zip [-1, -2, -3] yields [(1, -1), (2, -2), (3, -3)].
+   * @param that Another enumerable collection
+   * @return Zipped sequence
+   */
+  def zip[U](that: Iterable[U]): Iterable[(T, U)] = ofIterator {
+    new AbstractIterator[(T, U)] {
+      val it = self.newIterator
+      val iu = that.newIterator
+      def advance(): Boolean = it.advance() && iu.advance()
+      def current: (T, U) = (it.current, iu.current)
+    }
+  }
 
   def zip3[U, V](us: Iterable[U], vs: Iterable[V]): Iterable[(T, U, V)] = ofIterator {
-    new Iterator[(T, U, V)] {
+    new AbstractIterator[(T, U, V)] {
       val ti = self.newIterator
       val ui = us.newIterator
       val vi = vs.newIterator
@@ -64,10 +189,57 @@ trait Iterable[+T] extends Traversable[T] { self =>
     }
   }
 
-  def interleave[U >: T](that: Iterable[U]): Iterable[U] =
-    Iterable.ofIterator(self.newIterator interleave that.newIterator)
+  /**
+   * Returns the interleave sequence of two sequences. For example, [1, 2, 3] interleave [-1, -2, -3]
+   * yields [1, -1, 2, -2, 3, -3].
+   * @param that Another enumerable sequence
+   * @return Interleave sequence
+   */
+  def interleave[U >: T](that: Iterable[U]): Iterable[U] = ofIterator {
+    new AbstractIterator[U] {
+      val it = self.newIterator
+      val iu = that.newIterator
+      var first = true
+      def advance() = {
+        first = !first
+        if (!first) it.advance() else iu.advance()
+      }
+      def current = if (first) it.current else iu.current
+    }
+  }
 
-  def sliding(windowSize: Int, step: Int = 1) = ofIterator(self.newIterator.sliding(windowSize, step))
+  def sliding(windowSize: Int, step: Int = 1) = ofIterator {
+    new AbstractIterator[IndexedSeq[T]] {
+      val it = self.newIterator
+      private[this] var window = ArraySeq.withSizeHint[T](windowSize)
+      private[this] var first = true
+      def advance(): Boolean = {
+        if (first) {
+          var i = 0
+          while (i < windowSize && { val t = it.advance(); if (!t) return false; t }) {
+            window.appendInplace(it.current)
+            i += 1
+          }
+          first = false
+          true
+        } else {
+          val newWindow = ArraySeq.withSizeHint[T](windowSize)
+          var i = 0
+          while (i + step < windowSize) {
+            newWindow.appendInplace(window(i + step))
+            i += 1
+          }
+          while (i < windowSize && { val t = it.advance(); if (!t) return false; t }) {
+            newWindow.appendInplace(it.current)
+            i += 1
+          }
+          window = newWindow
+          true
+        }
+      }
+      def current = window
+    }
+  }
 
   //endregion
 
@@ -78,7 +250,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
   def ++[U >: T](that: Iterable[U]) = this concat that
   def ×[U](that: Iterable[U]) = this cartesianProduct that
   override def |>[U](f: T => U) = this map f
-  def |>>[U](f: T => Iterable[U]) = this flatMap f
+  def ||>[U](f: T => Iterable[U]) = this flatMap f
   //endregion
 }
 
@@ -88,9 +260,9 @@ object Iterable {
     def newIterator: Iterator[Nothing] = Iterator.empty
   }
 
-  /** Creates an iterable collection based on an existing iterator. The iterator is a call-by-name argument. */
+  /** Creates an iterable collection based on an existing iterator. */
   def ofIterator[T](e: => Iterator[T]): Iterable[T] = new AbstractIterable[T] {
-    def newIterator = e // call-by-name parameter!
+    def newIterator = e // call-by-name parameter because Iterators are mutable objects that contain states!
   }
 
   /**

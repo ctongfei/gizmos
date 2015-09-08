@@ -16,9 +16,11 @@ class DoublyLinkedList[T] extends BiSeq[T] with KeyMutableSeq[T] {
    * @param prev The previous node
    * @param next The next node
    */
-  class Node (var data: T, var prev: Node = dummy, var next: Node = dummy) extends BiSeqNode[T]
+  class Node (var data: T, var prev: Node = dummy, var next: Node = dummy) extends BiSeqNode[T] {
+    def isDummy = false
+  }
 
-  private[poly] val dummy = new Node(default[T]) { override val isDummy = true }
+  private[poly] val dummy = new Node(default[T]) { override def isDummy = true }
   private[poly] var len: Int = 0
   dummy.prev = dummy
   dummy.next = dummy

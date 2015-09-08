@@ -15,7 +15,9 @@ class LinkedBinaryTree[T] extends BinaryTree[T] {
     var left: Node = dummy,
     var right: Node = dummy,
     var parent: Node = dummy
-  ) extends BiBinaryTreeNode[T]
+  ) extends BiBinaryTreeNode[T] {
+    def isDummy = false
+  }
 
   final val dummy: Node = new Node(default[T], dummy, dummy, dummy) {
     override def isDummy = true 

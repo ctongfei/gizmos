@@ -9,7 +9,7 @@ import poly.collection.mut._
  * It is the type of nodes in a binary tree ([[poly.collection.BinaryTree]]).
  * @since 0.1.0
  */
-trait BinaryTreeNode[+T] extends Node[T] { self =>
+trait BinaryTreeNode[+T] extends ForwardNode[T] { self =>
   def data: T
   def left: BinaryTreeNode[T]
   def right: BinaryTreeNode[T]

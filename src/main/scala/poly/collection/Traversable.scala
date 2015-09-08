@@ -512,12 +512,14 @@ trait Traversable[+T] { self =>
   def ++[U >: T](that: Traversable[U]) = this concat that
   def ×[U](that: Traversable[U]) = this cartesianProduct that
   def |>[U](f: T => U) = this map f
-  def |>>[U](f: T => Traversable[U]) = this flatMap f
+  def |?(f: T => Boolean) = this filter f
+  def ||>[U](f: T => Traversable[U]) = this flatMap f
+  def |&[U >: T](f: (U, U) => U) = this reduce f
   //endregion
 
   //endregion
 
-  override def toString = "( " + buildString(" ") + " # )"
+  override def toString = "(" + buildString(",") + " #)"
 }
 
 object Traversable {

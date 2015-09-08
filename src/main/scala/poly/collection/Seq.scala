@@ -14,7 +14,7 @@ trait Seq[+T] extends Iterable[T] with Map[Int, T] { self =>
 
   import Seq._
 
-  /** Returns the head node of this sequence. If the sequence is nil, return a dummy. */
+  /** Returns the head node of this sequence. If the sequence is empty, returns a dummy. */
   def headNode: SeqNode[T]
 
   /**
@@ -41,7 +41,7 @@ trait Seq[+T] extends Iterable[T] with Map[Int, T] { self =>
   }
 
   def newIterator: Iterator[T] = new AbstractIterator[T] {
-    var node: SeqNode[T] = null //TODO: dummy
+    var node: SeqNode[T] = SeqNode.dummy
     var first = true
     def advance() = {
       if (first) {
@@ -107,7 +107,7 @@ trait Seq[+T] extends Iterable[T] with Map[Int, T] { self =>
     case _ => false
   }
 
-  override def toString = buildString(",") // overridden the `toString` in Map
+  override def toString = "(" + buildString(",") + " #)" // overridden the `toString` in Map
 
   override def hashCode = ???
 

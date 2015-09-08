@@ -104,6 +104,7 @@ trait LinearSeq[+T] extends Seq[T] { self =>
 
   override def prepend[U >: T](x: U): LinearSeq[U] = {
     val newNode: SeqNode[U] = new SeqNode[U] {
+      def isDummy = false
       def data = x
       def next = self.headNode
     }
@@ -136,6 +137,14 @@ object LinearSeq {
 
   def ofNode[T](node: => SeqNode[T]): LinearSeq[T] = new AbstractLinearSeq[T] {
     def headNode = node
+  }
+
+  def iterate[T](s: T)(f: T => T): LinearSeq[T] = {
+    class IteratedSeqNode(val data: T) extends SeqNode[T] {
+      def next = new IteratedSeqNode(f(data))
+      def isDummy = false
+    }
+    ofNode(new IteratedSeqNode(s))
   }
 }
 

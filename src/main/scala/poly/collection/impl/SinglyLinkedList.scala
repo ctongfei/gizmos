@@ -18,9 +18,11 @@ import poly.collection.node._
  */
 class SinglyLinkedList[T] extends Seq[T] with KeyMutableSeq[T] {
 
-  class Node(var data: T, var next: Node = null) extends SeqNode[T]
+  class Node(var data: T, var next: Node = null) extends SeqNode[T] {
+    def isDummy = false
+  }
 
-  private[poly] val dummy: Node = new Node(default[T]) { override val isDummy = true }
+  private[poly] val dummy: Node = new Node(default[T]) { override def isDummy = true }
   private[poly] var len: Int = 0
   dummy.next = dummy
 

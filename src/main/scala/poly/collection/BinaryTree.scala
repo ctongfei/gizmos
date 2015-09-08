@@ -57,22 +57,24 @@ trait BinaryTree[+T] extends PartialFunction[Int, T] { self =>
   // HELPER FUNCTIONS
 
   /**
-   * Returns the left subtree of this binary tree.
-   * Deferred execution.
+   * Returns the left subtree of this binary tree. $LAZY $CX_1
    * @return The left subtree
    */
   def left: BinaryTree[T] = ofNode(rootNode.left)
 
   /**
-   * Returns the right subtree of this binary tree.
-   * @return
+   * Returns the right subtree of this binary tree. $LAZY $CX_1
+   * @return The right subtree
    */
   def right: BinaryTree[T] = ofNode(rootNode.right)
 
   def map[U](f: T => U): BinaryTree[U] = ofNode(rootNode.map(f))
 
   /** Folds a binary tree bottom-up. This is analogous to the sequence `foldRight`. */
-  def foldBottomUp[U](z: U)(f: (T, U, U) => U): U = ???
+  def foldBottomUp[U](z: U)(f: (T, U, U) => U): U = { //TODO: change to non-recursive version
+    if (self.rootNode.isDummy) z
+    else f(self.root, self.left.foldBottomUp(z)(f), self.right.foldBottomUp(z)(f))
+  }
 
   def fold[U >: T](z: U)(f: (U, U, U) => U) = foldBottomUp(z)(f)
 
@@ -81,6 +83,22 @@ trait BinaryTree[+T] extends PartialFunction[Int, T] { self =>
   def preOrder = rootNode.preOrder
   def inOrder = rootNode.inOrder
   def postOrder = rootNode.postOrder
+
+  /**
+   * Performs inverse Knuth transform on this binary tree, i.e., recover the multi-way tree
+   * compactly represented by this binary tree through Knuth transform (left-child-right-sibling
+   * representation). $LAZY $CX_1
+   */
+  def inverseKnuthTransform: Tree[T] = {
+    class InverseKnuthTransformedTreeNode(val node: BinaryTreeNode[T]) extends TreeNode[T] {
+      override def isDummy = node.isDummy
+      def children = ??? //LinearSeq.iterate(node.left)(_.right).takeUntil(_.isDummy).map(btn => new InverseKnuthTransformedTreeNode(btn))
+      def data = node.data
+    }
+    Tree.ofNode(new InverseKnuthTransformedTreeNode(self.rootNode))
+  }
+
+  def toGraph: Graph[Int, T, Nothing] = ???
 
   override def toString() = self.str
 
@@ -115,3 +133,5 @@ object BinaryTree {
   }
 
 }
+
+abstract class AbstractBinaryTree[+T] extends BinaryTree[T]

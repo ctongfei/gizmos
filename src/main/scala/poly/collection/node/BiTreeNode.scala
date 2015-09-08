@@ -11,7 +11,7 @@ trait BiTreeNode[+T] extends TreeNode[T] with SinglePredNode[T] { self =>
   override def notDummy = !isDummy
 
   def parent: BiTreeNode[T]
-  def children: Iterable[BiTreeNode[T]]
+  def children: Seq[BiTreeNode[T]]
   override def succ = children
 
   override def map[U](f: T => U): BiTreeNode[U] = new BiTreeNode[U] {

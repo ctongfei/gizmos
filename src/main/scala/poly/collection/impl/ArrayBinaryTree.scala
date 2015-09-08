@@ -15,6 +15,7 @@ class ArrayBinaryTree[T] (
 ) extends BinaryTree[T] { self =>
 
   class Node (val i: Int) extends BiBinaryTreeNode[T] {
+    def isDummy = !state(i)
     def data = if (state(i)) self.data(i) else throw new NoSuchElementException
     def data_=(x: T) = {
       self.state(i) = true

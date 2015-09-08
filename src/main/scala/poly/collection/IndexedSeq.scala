@@ -72,10 +72,8 @@ trait IndexedSeq[+T] extends BiSeq[T] { self =>
   }
 
   override def reduce[U >: T](f: (U, U) => U): U = {
-    MapReduceOps.bySemigroup[U](length, x => (self(x): U), f)
+    MapReduceOps.bySemigroup[U](length, x => (self(x): U), f) // optimize through macros
   }
-
-
 
   /**
    * Rotates this sequence from the index specified.
@@ -119,6 +117,7 @@ trait IndexedSeq[+T] extends BiSeq[T] { self =>
   // HELPER OBJECTS / CLASSES
 
   case class IndexedSeqNode(i: Int) extends BiSeqNode[T] {
+    def isDummy = (i < 0) || (i >= length)
     def data = self(i)
     def next = if (i == length - 1) Dummy else new IndexedSeqNode(i + 1)
     def prev = if (i == 0) Dummy else new IndexedSeqNode(i - 1)
@@ -141,7 +140,7 @@ object IndexedSeq {
     def length: Int = 0
   }
 
-  def tabulate[T](n: Int)(f: Int => T): IndexedSeq[T] = new IndexedSeq[T] {
+  def tabulate[T](n: Int)(f: Int => T): IndexedSeq[T] = new AbstractIndexedSeq[T] {
     def length: Int = n
     def apply(i: Int): T = f(i)
   }
