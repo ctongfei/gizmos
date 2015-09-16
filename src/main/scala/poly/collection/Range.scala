@@ -20,15 +20,15 @@ class Range private(val left: Int, val right: Int, val step: Int = 1) extends In
   // Ensures that this is a valid range
   require((step > 0 && left < right) || (step < 0 && left > right))
 
-  def length = {
+  def fastLength = {
     val gap = right - left
     gap / step + (if (gap % step != 0) 1 else 0)
   }
 
   implicit def order: WeakOrder[Int] = if (step > 0) WeakOrder[Int] else WeakOrder[Int].reverse
 
-  def apply(i: Int): Int = {
-    if (i < 0 || i >= length) throw new NoSuchElementException
+  def fastApply(i: Int): Int = {
+    if (i < 0 || i >= fastLength) throw new NoSuchElementException
     left + i * step
   }
 
@@ -40,7 +40,7 @@ class Range private(val left: Int, val right: Int, val step: Int = 1) extends In
       FastLoop.descending(left, right, step)(f)
   }
 
-  override def reverse = Range(left + step * (length - 1), left - math.signum(step), -step)
+  override def reverse = Range(left + step * (fastLength - 1), left - math.signum(step), -step)
 }
 
 object Range {

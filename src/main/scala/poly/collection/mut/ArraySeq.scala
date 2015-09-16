@@ -13,9 +13,9 @@ import scala.reflect._
  */
 class ArraySeq[T] private(private var data: ResizableSeq[T] = null) extends DataMutableIndexedSeq[T] with KeyMutableSeq[T] {
 
-  def length = data.length
+  def fastLength = data.fastLength
 
-  def apply(i: Int) = data(i)
+  def fastApply(i: Int) = data(i)
 
   def update(i: Int, x: T) = data.update(i, x)
 

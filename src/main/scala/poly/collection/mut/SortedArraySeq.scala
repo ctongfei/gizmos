@@ -14,11 +14,11 @@ class SortedArraySeq[T] private(private val data: SortedArray[T]) extends Mutabl
 
   val order = data.order
 
-  def length = data.length
+  def fastLength = data.fastLength
 
   def add(x: T) = data.add(x)
 
-  def apply(i: Int) = data.apply(i)
+  def fastApply(i: Int) = data.apply(i)
 
   def remove(x: T) = data.remove(x)
 

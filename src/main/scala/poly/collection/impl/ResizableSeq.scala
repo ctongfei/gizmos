@@ -50,11 +50,11 @@ final class ResizableSeq[T]
 
   def grow() = ensureCapacity(cap * 2)
 
-  def apply(i: Int) = data(i).asInstanceOf[T]
+  def fastApply(i: Int) = data(i).asInstanceOf[T]
 
   def capacity = cap
 
-  def length = len
+  def fastLength = len
 
   def update(i: Int, x: T) = data(i) = x.asInstanceOf[AnyRef]
 

@@ -31,3 +31,12 @@ trait BiSeqNode[+T] extends BiNode[T] with SeqNode[T] with SinglePredNode[T] { s
     def data = f(self.data)
   }
 }
+
+object BiSeqNode {
+  object dummy extends BiSeqNode[Nothing] {
+    def data = throw new NoSuchElementException
+    def next = dummy
+    def prev = dummy
+    def isDummy = true
+  }
+}

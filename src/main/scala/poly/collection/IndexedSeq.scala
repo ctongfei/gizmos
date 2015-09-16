@@ -19,9 +19,13 @@ trait IndexedSeq[+T] extends BiSeq[T] { self =>
 
   override def hasKnownSize = true
 
-  def length: Int
+  def fastLength: Int
 
-  def apply(i: Int): T
+  def fastApply(i: Int): T
+
+  override def length = fastLength
+
+  override def apply(i: Int) = fastApply(i)
 
   // Overridden enumerator method for performance.
   override def newIterator: Iterator[T] = new AbstractIterator[T] {
@@ -29,12 +33,12 @@ trait IndexedSeq[+T] extends BiSeq[T] { self =>
     def current = self(i)
     def advance(): Boolean = {
       i += 1
-      i < self.length
+      i < self.fastLength
     }
   }
 
   def headNode: BiSeqNode[T] = new IndexedSeqNode(0)
-  def lastNode: BiSeqNode[T] = new IndexedSeqNode(length - 1)
+  def lastNode: BiSeqNode[T] = new IndexedSeqNode(fastLength - 1)
 
   override def foreach[V](f: T => V): Unit = {
     FastLoop.ascending(0, length, 1) { i => f(apply(i)) }
@@ -43,8 +47,8 @@ trait IndexedSeq[+T] extends BiSeq[T] { self =>
   // HELPER FUNCTIONS
 
   override def map[U](f: T => U): IndexedSeq[U] = new AbstractIndexedSeq[U] {
-    def length = self.length
-    def apply(i: Int) = f(self(i))
+    def fastLength = self.length
+    def fastApply(i: Int) = f(self(i))
   }
 
   /**
@@ -57,18 +61,18 @@ trait IndexedSeq[+T] extends BiSeq[T] { self =>
   }
 
   def concat[U >: T](that: IndexedSeq[U]): IndexedSeq[U] = new AbstractIndexedSeq[U] {
-    def length = self.length + that.length
-    def apply(i: Int) = if (i < self.length) self(i) else that(i - self.length)
+    def fastLength = self.length + that.length
+    def fastApply(i: Int) = if (i < self.length) self(i) else that(i - self.length)
   }
 
   override def prepend[U >: T](x: U): IndexedSeq[U] = new AbstractIndexedSeq[U] {
-    def length = self.length + 1
-    def apply(i: Int) = if (i == 0) x else self(i - 1)
+    def fastLength = self.length + 1
+    def fastApply(i: Int) = if (i == 0) x else self(i - 1)
   }
 
   override def append[U >: T](x: U): IndexedSeq[U] = new AbstractIndexedSeq[U] {
-    def length = self.length + 1
-    def apply(i: Int) = if (i == self.length) x else self(i)
+    def fastLength = self.length + 1
+    def fastApply(i: Int) = if (i == self.length) x else self(i)
   }
 
   override def reduce[U >: T](f: (U, U) => U): U = {
@@ -82,14 +86,14 @@ trait IndexedSeq[+T] extends BiSeq[T] { self =>
    */
   def rotate(j: Int): IndexedSeq[T] = new AbstractIndexedSeq[T] {
     val len = self.length
-    def apply(i: Int): T = self((j + i) % len)
-    def length: Int = len
+    def fastApply(i: Int): T = self((j + i) % len)
+    def fastLength: Int = len
   }
 
 
   override def slice(i: Int, j: Int) = new AbstractIndexedSeq[T] {
-    def apply(n: Int) = self(i + n)
-    def length = j - i
+    def fastApply(n: Int) = self(i + n)
+    def fastLength = j - i
   }
 
   /**
@@ -100,18 +104,18 @@ trait IndexedSeq[+T] extends BiSeq[T] { self =>
    */
   override def asIfSorted[U >: T](implicit O: WeakOrder[U]): IndexedSortedSeq[U] = new IndexedSortedSeq[U] {
     val order: WeakOrder[U] = O
-    def length: Int = self.length
-    def apply(i: Int): T = self.apply(i)
+    def fastLength: Int = self.length
+    def fastApply(i: Int): T = self.apply(i)
   }
 
   def interleave[U >: T](that: IndexedSeq[U]): IndexedSeq[U] = new AbstractIndexedSeq[U] {
-    def length = math.min(this.length, that.length) * 2
-    def apply(i: Int) = if (i % 2 == 0) self(i / 2) else that(i / 2)
+    def fastLength = math.min(this.length, that.length) * 2
+    def fastApply(i: Int) = if (i % 2 == 0) self(i / 2) else that(i / 2)
   }
 
   override def sliding(windowSize: Int, step: Int = 1): IndexedSeq[IndexedSeq[T]] = new AbstractIndexedSeq[IndexedSeq[T]] {
-    val length = (self.length - windowSize) / step + 1
-    def apply(i: Int) = self.slice(step * i, step * i + windowSize)
+    def fastLength = (self.length - windowSize) / step + 1
+    def fastApply(i: Int) = self.slice(step * i, step * i + windowSize)
   }
 
   // HELPER OBJECTS / CLASSES
@@ -136,18 +140,18 @@ trait IndexedSeq[+T] extends BiSeq[T] { self =>
 object IndexedSeq {
 
   object empty extends IndexedSeq[Nothing] {
-    def apply(i: Int): Nothing = throw new NoSuchElementException
-    def length: Int = 0
+    def fastApply(i: Int): Nothing = throw new NoSuchElementException
+    def fastLength: Int = 0
   }
 
   def fill[T](n: Int)(x: => T): IndexedSeq[T] = new AbstractIndexedSeq[T] {
-    def length = n
-    def apply(i: Int) = x
+    def fastLength = n
+    def fastApply(i: Int) = x
   }
 
   def tabulate[T](n: Int)(f: Int => T): IndexedSeq[T] = new AbstractIndexedSeq[T] {
-    def length: Int = n
-    def apply(i: Int): T = f(i)
+    def fastLength: Int = n
+    def fastApply(i: Int): T = f(i)
   }
 
 }

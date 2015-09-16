@@ -14,9 +14,11 @@ class ListSeq[T] private(private val data: SinglyLinkedList[T]) extends KeyMutab
 
   def headNode: SeqNode[T] = data.dummy.next
 
-  def apply(i: Int) = data.apply(i)
+  override def hasKnownSize = true
 
-  def length = data.length
+  override def apply(i: Int) = data.apply(i)
+
+  override def length = data.length
 
   def appendInplace(x: T) = data.appendInplace(x)
 

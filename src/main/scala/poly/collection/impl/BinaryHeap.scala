@@ -16,7 +16,7 @@ class BinaryHeap[T](val data: ResizableSeq[T])(implicit val order: WeakOrder[T])
 
   @inline private[this] def smallerChildIndex(x: Int) = {
     val l = 2 * x + 1
-    if (l < data.length - 1 && data(l + 1) < data(l)) l + 1 else l
+    if (l < data.fastLength - 1 && data(l + 1) < data(l)) l + 1 else l
   }
 
   def siftUp(i: Int): Unit = {
@@ -33,7 +33,7 @@ class BinaryHeap[T](val data: ResizableSeq[T])(implicit val order: WeakOrder[T])
     var p = i
     var c = smallerChildIndex(p)
     val t = data(p)
-    while (c < data.length && t > data(c)) {
+    while (c < data.fastLength && t > data(c)) {
       data(p) = data(c)
       p = c
       c = smallerChildIndex(p)
@@ -43,20 +43,20 @@ class BinaryHeap[T](val data: ResizableSeq[T])(implicit val order: WeakOrder[T])
 
   def push(x: T): Unit = {
     data.appendInplace(x)
-    siftUp(data.length - 1)
+    siftUp(data.fastLength - 1)
   }
 
   def pop(): T = {
     val front = data(0)
-    data.swapInplace(0, data.length - 1)
-    data.deleteAt(data.length - 1)
-    if (data.length > 1) siftDown(0)
+    data.swapInplace(0, data.fastLength - 1)
+    data.deleteAt(data.fastLength - 1)
+    if (data.fastLength > 1) siftDown(0)
     front
   }
 
   def top = if (size <= 0) throw new NoSuchElementException else data(0)
 
-  def size: Int = data.length
+  def size: Int = data.fastLength
 
 }
 

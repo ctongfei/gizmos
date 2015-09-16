@@ -52,7 +52,7 @@ class ArrayBinaryTree[T] (
 
 
   @inline private[this] def nodeExists(i: Int) = {
-    i >= 0 && i < data.length && state(i)
+    i >= 0 && i < data.fastLength && state(i)
   }
 
 }

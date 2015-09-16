@@ -13,18 +13,18 @@ import scala.reflect._
  */
 class ArrayStack[T] (private var data: ResizableSeq[T] = null) extends Queue[T] {
 
-  override def size = data.length
+  override def size = data.fastLength
 
   def push(x: T): Unit = data.appendInplace(x)
 
   def top: T = {
     if (isEmpty) throw new QueueEmptyException
-    data(data.length - 1)
+    data(data.fastLength - 1)
   }
 
   def pop(): T = {
     val x = top
-    data.deleteAt(data.length - 1)
+    data.deleteAt(data.fastLength - 1)
     x
   }
 

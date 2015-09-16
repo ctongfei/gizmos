@@ -12,11 +12,11 @@ import poly.util.specgroup._
 trait BiGraph[@sp(i) K, +V, +E] extends Graph[K, V, E] { self =>
 
   def incomingKeysOf(i: K): Iterable[K]
-  def incomingVerticesOf(i: K): Iterable[Vertex] = incomingKeysOf(i).map(j => new Vertex(j))
+  def incomingNodesOf(i: K): Iterable[Node] = incomingKeysOf(i).map(j => new Node(j))
   def incomingEdgesOf(i: K): Iterable[Edge] = incomingKeysOf(i).map(j => Edge(j, i))
   def inDegree(i: K) = incomingKeysOf(i).size
 
-  override def outgoingVerticesOf(i: K): Iterable[Vertex] = outgoingKeysOf(i).map(j => new Vertex(j))
+  override def outgoingNodesOf(i: K): Iterable[Node] = outgoingKeysOf(i).map(j => new Node(j))
 
   // HELPER FUNCTIONS
   /**
@@ -26,7 +26,7 @@ trait BiGraph[@sp(i) K, +V, +E] extends Graph[K, V, E] { self =>
   def reverse: BiGraph[K, V, E] = new AbstractBiGraph[K, V, E] {
     override def reverse = self
     def keySet: Set[K] = self.keySet
-    def containsVertex(i: K): Boolean = self.containsVertex(i)
+    def containsNode(i: K): Boolean = self.containsNode(i)
     def containsEdge(i: K, j: K) = self.containsEdge(j, i)
     def incomingKeysOf(i: K) = self.outgoingKeysOf(i)
     def outgoingKeysOf(i: K) = self.incomingKeysOf(i)
@@ -34,9 +34,9 @@ trait BiGraph[@sp(i) K, +V, +E] extends Graph[K, V, E] { self =>
     def apply(i: K, j: K): E = self.apply(j, i)
   }
 
-  class Vertex(override val key: K) extends super.Vertex(key) with BiNode[V] {
-    def pred = self.incomingVerticesOf(key)
-    override def succ = self.outgoingVerticesOf(key)
+  class Node(override val key: K) extends super.Node(key) with BiNode[V] {
+    def pred = self.incomingNodesOf(key)
+    override def succ = self.outgoingNodesOf(key)
   }
 
 }

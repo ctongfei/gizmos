@@ -44,8 +44,8 @@ package object conversion {
     override def length = xs.length
   }
   implicit def scalaIndexedSeqAsPoly[T](xs: sc.IndexedSeq[T]): IndexedSeq[T] = new AbstractIndexedSeq[T] {
-    def apply(i: Int) = xs.apply(i)
-    def length = xs.length
+    def fastApply(i: Int) = xs.apply(i)
+    def fastLength = xs.length
   }
 
 
@@ -63,8 +63,8 @@ package object conversion {
     }
   }
   implicit def javaListAsPoly[T](xs: ju.List[T]): IndexedSeq[T] = new DataMutableIndexedSeq[T] {
-    def length = xs.size
-    def apply(i: Int) = xs.get(i)
+    def fastLength = xs.size
+    def fastApply(i: Int) = xs.get(i)
     def update(i: Int, x: T) = xs.set(i, x)
   }
   implicit def javaMapAsPoly[K, V](jm: ju.Map[K, V]): Map[K, V] = new KeyMutableMap[K, V] {
@@ -137,7 +137,7 @@ package object conversion {
     }
   }
 
-  implicit class PolyLinearSeqAsScala[T](val xs: LinkedSeq[T]) extends AnyVal {
+  implicit class PolyLinearSeqAsScala[T](val xs: Seq[T]) extends AnyVal {
     def asScalaLinearSeq: sc.LinearSeq[T] = new sc.LinearSeq[T] {
       def apply(i: Int) = xs.apply(i)
       def length = xs.length
@@ -148,7 +148,7 @@ package object conversion {
 
   implicit class PolyIndexedSeqAsScala[T](val xs: IndexedSeq[T]) extends AnyVal {
     def asScalaIndexedSeq: sc.IndexedSeq[T] = new sc.IndexedSeq[T] {
-      def length: Int = xs.length
+      def length: Int = xs.fastLength
       def apply(i: Int): T = xs(i)
     }
   }

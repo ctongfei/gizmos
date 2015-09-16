@@ -19,14 +19,14 @@ class FenwickTree[T] private(private val data: ResizableSeq[T])
 
   import FenwickTree._
 
-  def length = data.length
+  def fastLength = data.fastLength
 
   /**
    * Returns an element from this Fenwick tree. This operation has O(log n) complexity.
    * @param i Index
    * @return
    */
-  def apply(i: Int): T = {
+  def fastApply(i: Int): T = {
     var idx = i
     var sum = data(i)
     if (idx > 0) {
@@ -56,7 +56,7 @@ class FenwickTree[T] private(private val data: ResizableSeq[T])
 
   def increment(i: Int, delta: T) = {
     var idx = i
-    while (idx < data.length) {
+    while (idx < data.fastLength) {
       data(idx) += delta
       idx += lowBit(idx)
     }

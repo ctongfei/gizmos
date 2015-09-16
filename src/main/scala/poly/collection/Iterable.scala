@@ -341,10 +341,10 @@ object Iterable {
     }
   }
 
-  def infinite[T](x: T) = ofIterator {
+  def infinite[T](x: => T) = ofIterator {
     new AbstractIterator[T] {
-      def advance() = true
       def current = x
+      def advance() = true
     }
   }
 

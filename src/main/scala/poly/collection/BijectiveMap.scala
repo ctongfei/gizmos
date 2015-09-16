@@ -14,9 +14,11 @@ trait BijectiveMap[K, V] extends Map[K, V] with Bijection[K, V] { self =>
   def invertOption(v: V): Option[K]
 
   def containsValue(v: V): Boolean
-  
+
+  // HELPER FUNCTIONS
+
   /** Returns a map that maps values to keys. */
-  override def inverse: BijectiveMap[V, K] = new BijectiveMap[V, K] {
+  override def inverse: BijectiveMap[V, K] = new AbstractBijectiveMap[V, K] {
     def invert(k: K) = self(k)
     def invertOption(k: K) = self ? k
     def ?(v: V) = self.invertOption(v)
@@ -28,7 +30,7 @@ trait BijectiveMap[K, V] extends Map[K, V] with Bijection[K, V] { self =>
     override def inverse = self
   }
 
-  def map[W](that: BijectiveMap[V, W]): BijectiveMap[K, W] = new BijectiveMap[K, W] {
+  def map[W](that: BijectiveMap[V, W]): BijectiveMap[K, W] = new AbstractBijectiveMap[K, W] {
     def apply(k: K) = that(self(k))
     def ?(k: K) = for (v ← self ? k; w ← that ? v) yield w
     def invert(w: W) = self.invert(that.invert(w))
@@ -43,3 +45,6 @@ trait BijectiveMap[K, V] extends Map[K, V] with Bijection[K, V] { self =>
   def compose[J](that: BijectiveMap[J, K]) = that map this
 
 }
+
+abstract class AbstractBijectiveMap[K, V] extends AbstractMap[K, V] with BijectiveMap[K, V]
+

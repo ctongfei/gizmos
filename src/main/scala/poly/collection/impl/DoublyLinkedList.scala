@@ -25,7 +25,7 @@ class DoublyLinkedList[T] extends BiSeq[T] with KeyMutableSeq[T] {
   dummy.prev = dummy
   dummy.next = dummy
 
-  def length = len
+  override def length = len
 
   /**
    * Locates the ''i''th element in a doubly linked list.
@@ -61,7 +61,7 @@ class DoublyLinkedList[T] extends BiSeq[T] with KeyMutableSeq[T] {
     len += 1
   }
 
-  def apply(i: Int) = locate(i).data
+  override def apply(i: Int) = locate(i).data
 
   def update(i: Int, x: T) = {
     val node = locate(i)

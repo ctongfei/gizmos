@@ -19,8 +19,8 @@ class HashTable[K, V](implicit val hashing: Hashing[K, Int]) {
   var size: Int = 0
   var used: Int = 0
 
-  def mask = stat.length - 1
-  def limit = (stat.length * Settings.HashLoadFactor).toInt
+  def mask = stat.fastLength - 1
+  def limit = (stat.fastLength * Settings.HashLoadFactor).toInt
 
   protected def grow() = {
     keys.grow()

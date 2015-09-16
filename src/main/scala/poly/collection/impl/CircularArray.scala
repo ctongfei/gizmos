@@ -14,7 +14,7 @@ import scala.reflect._
 class CircularArray[T](private val data: ResizableSeq[T]) {
 
   private[collection] var frontPtr = 0
-  private[collection] var backPtr = data.length
+  private[collection] var backPtr = data.fastLength
 
   private[this] def isFull = {
     val diff = backPtr - frontPtr

@@ -13,7 +13,9 @@ class ListBiSeq[T] private(private val data: DoublyLinkedList[T]) extends BiSeq[
   def headNode: BiSeqNode[T] = data.dummy.next
   def lastNode: BiSeqNode[T] = data.dummy.prev
 
-  def length = data.length
+  override def hasKnownSize = true
+
+  override def length = data.length
 
   def appendInplace(x: T) = data.appendInplace(x)
 
@@ -27,7 +29,7 @@ class ListBiSeq[T] private(private val data: DoublyLinkedList[T]) extends BiSeq[
 
   def update(i: Int, x: T) = data(i) = x
 
-  def apply(i: Int) = data.apply(i)
+  override def apply(i: Int) = data.apply(i)
 }
 
 object ListBiSeq extends SeqFactory[ListBiSeq] {

@@ -26,7 +26,7 @@ class SinglyLinkedList[T] extends Seq[T] with KeyMutableSeq[T] {
   private[poly] var len: Int = 0
   dummy.next = dummy
 
-  def length = len
+  override def length = len
 
   /**
    * Locates the ''i''th element in a singly linked list.
@@ -73,7 +73,7 @@ class SinglyLinkedList[T] extends Seq[T] with KeyMutableSeq[T] {
    * @param i Index
    * @return The ''i''-th element.
    */
-  def apply(i: Int) = locate(i)._2.data
+  override def apply(i: Int) = locate(i)._2.data
 
   /**
    * Sets the ''i''-th element of this doubly linked list to the specified value.

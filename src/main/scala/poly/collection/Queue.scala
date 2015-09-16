@@ -1,6 +1,7 @@
 package poly.collection
 
 /**
+ * Represents a queue.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
 //TODO: conform to Enumerable[T]?

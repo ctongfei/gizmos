@@ -16,29 +16,29 @@ trait Graph[@sp(i) K, +V, +E] { self =>
   def apply(i: K): V
   def apply(i: K, j: K): E
 
-  def vertex(i: K): Vertex = new Vertex(i)
+  def vertex(i: K): Node = new Node(i)
   def edge(i: K, j: K): Edge = Edge(i, j)
 
-  def numVertices: Int = keySet.size
+  def numNodes: Int = keySet.size
   def numEdges: Int = edges.size
 
   def keySet: Set[K]
   def keys: Iterable[K] = keySet.elements
-  def vertices: Iterable[Vertex] = keys.map(i => new Vertex(i))
+  def nodes: Iterable[Node] = keys.map(i => new Node(i))
   def edges: Iterable[Edge] = for (i ← keys; j ← outgoingKeysOf(i)) yield new Edge(i, j)
 
-  def containsVertex(i: K): Boolean
+  def containsNode(i: K): Boolean
   def containsEdge(i: K, j: K): Boolean
 
   def outgoingKeysOf(i: K): Iterable[K]
-  def outgoingVerticesOf(i: K): Iterable[Vertex] = outgoingKeysOf(i).map(j => new Vertex(j))
+  def outgoingNodesOf(i: K): Iterable[Node] = outgoingKeysOf(i).map(j => new Node(j))
   def outgoingEdgesOf(i: K): Iterable[Edge] = outgoingKeysOf(i).map(j => Edge(i, j))
   def outDegree(i: K) = outgoingKeysOf(i).size
 
-  class Vertex(val key: K) extends ForwardNode[V] {
+  class Node(val key: K) extends ForwardNode[V] {
     def isDummy = false
     def data = self.apply(key)
-    def succ = self.outgoingVerticesOf(key)
+    def succ = self.outgoingNodesOf(key)
   }
 
   case class Edge(key1: K, key2: K) {
@@ -50,7 +50,7 @@ trait Graph[@sp(i) K, +V, +E] { self =>
   def mapVertices[V1](f: V => V1): Graph[K, V1, E] = new AbstractGraph[K, V1, E] {
     def apply(i: K): V1 = f(self(i))
     def containsEdge(i: K, j: K): Boolean = self.containsEdge(i, j)
-    def containsVertex(i: K): Boolean = self.containsVertex(i)
+    def containsNode(i: K): Boolean = self.containsNode(i)
     def keySet: Set[K] = self.keySet
     def apply(i: K, j: K): E = self.apply(i, j)
     def outgoingKeysOf(i: K): Iterable[K] = self.outgoingKeysOf(i)
@@ -59,7 +59,7 @@ trait Graph[@sp(i) K, +V, +E] { self =>
   def mapEdges[E1](f: E => E1): Graph[K, V, E1] = new AbstractGraph[K, V, E1] {
     def apply(i: K): V = self(i)
     def containsEdge(i: K, j: K): Boolean = self.containsEdge(i, j)
-    def containsVertex(i: K): Boolean = self.containsVertex(i)
+    def containsNode(i: K): Boolean = self.containsNode(i)
     def keySet: Set[K] = self.keySet
     def apply(i: K, j: K): E1 = f(self.apply(i, j))
     def outgoingKeysOf(i: K): Iterable[K] = self.outgoingKeysOf(i)
@@ -74,7 +74,7 @@ trait Graph[@sp(i) K, +V, +E] { self =>
     }
     def containsEdge(i: K, j: K): Boolean = f(self(i)) && f(self(j))
 
-    def containsVertex(i: K): Boolean = f(self(i))
+    def containsNode(i: K): Boolean = f(self(i))
 
     def apply(i: K, j: K): E = if (containsEdge(i, j)) self(i, j) else throw new NoSuchElementException
 
@@ -85,13 +85,14 @@ trait Graph[@sp(i) K, +V, +E] { self =>
 
   def to[G[_, _, _]](implicit builder: GraphBuilder[K, V@uv, E@uv, G[K, V@uv, E@uv]]): G[K, V@uv, E@uv] = {
     val b = builder
-    b.numVerticesHint(self.numVertices)
-    b.addVertices(self.vertices.map(v => (v.key, v.data)))
+    b.numVerticesHint(self.numNodes)
+    b.addVertices(self.nodes.map(v => (v.key, v.data)))
     b.addEdges(self.edges.map(e => (e.key1, e.key2, e.data)))
     b.result
   }
 
 }
 
+object Graph {}
 
 abstract class AbstractGraph[@sp(i) K, +V, +E] extends Graph[K, V, E]

@@ -12,9 +12,9 @@ class SortedArray[T] private[poly](val data: ResizableSeq[T])(implicit val order
   extends IndexedSortedSeq[T]
 {
 
-  def length = data.length
+  def fastLength = data.fastLength
 
-  def apply(i: Int) = data(i)
+  def fastApply(i: Int) = data(i)
 
   def add(x: T) = data.insertAt(lowerBound(x), x)
 
