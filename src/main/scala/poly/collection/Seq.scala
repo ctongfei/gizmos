@@ -66,7 +66,7 @@ trait Seq[+T] extends Iterable[T] with Map[Int, T] { self =>
     self.map(x => { i += 1; (i, x) })
   }
 
-  def asLinearSeq = LinearSeq.ofNode(self.headNode)
+  def asLinkedSeq = LinkedSeq.ofNode(self.headNode)
 
   // HELPER FUNCTIONS
 
@@ -74,21 +74,21 @@ trait Seq[+T] extends Iterable[T] with Map[Int, T] { self =>
 
   override def head = headNode.data
 
-  override def tail = asLinearSeq.tail
+  override def tail = asLinkedSeq.tail
 
-  override def map[U](f: T => U): Seq[U] = asLinearSeq.map(f)
+  override def map[U](f: T => U): Seq[U] = asLinkedSeq.map(f)
 
-  def flatMap[U](f: T => Seq[U]): Seq[U] = asLinearSeq.flatMap(f)
+  def flatMap[U](f: T => Seq[U]): Seq[U] = asLinkedSeq.flatMap(f)
 
-  override def filter(f: T => Boolean): Seq[T] = asLinearSeq.filter(f)
+  override def filter(f: T => Boolean): Seq[T] = asLinkedSeq.filter(f)
 
-  def concat[U >: T](that: Seq[U]): Seq[U] = asLinearSeq.concat(that)
+  def concat[U >: T](that: Seq[U]): Seq[U] = asLinkedSeq.concat(that)
 
-  override def prepend[U >: T](x: U): Seq[U] = asLinearSeq.prepend(x)
+  override def prepend[U >: T](x: U): Seq[U] = asLinkedSeq.prepend(x)
 
-  override def append[U >: T](x: U): Seq[U] = asLinearSeq.append(x)
+  override def append[U >: T](x: U): Seq[U] = asLinkedSeq.append(x)
 
-  override def foldRight[U](z: U)(f: (T, U) => U): U = asLinearSeq.foldRight(z)(f)
+  override def foldRight[U](z: U)(f: (T, U) => U): U = asLinkedSeq.foldRight(z)(f)
 
   /**
    * Pretends that this sequence is sorted under the given order.
@@ -107,7 +107,7 @@ trait Seq[+T] extends Iterable[T] with Map[Int, T] { self =>
     case _ => false
   }
 
-  override def toString = "(" + buildString(",") + " #)" // overridden the `toString` in Map
+  override def toString = "(" + buildString(",") + ")" // overridden the `toString` in Map
 
   override def hashCode = ???
 

@@ -137,7 +137,7 @@ package object conversion {
     }
   }
 
-  implicit class PolyLinearSeqAsScala[T](val xs: LinearSeq[T]) extends AnyVal {
+  implicit class PolyLinearSeqAsScala[T](val xs: LinkedSeq[T]) extends AnyVal {
     def asScalaLinearSeq: sc.LinearSeq[T] = new sc.LinearSeq[T] {
       def apply(i: Int) = xs.apply(i)
       def length = xs.length

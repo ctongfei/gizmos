@@ -41,33 +41,6 @@ object Iterator {
     def advance() = false
     def current = throw new NoSuchElementException
   }
-
-  def single[T](x: T): Iterator[T] = new AbstractIterator[T] {
-    var curr: T = _
-    var first = false
-    def advance() = {
-      if (first) {
-        curr = x
-        first = false
-        true
-      } else false
-    }
-    def current = curr
-  }
-
-  def iterate[T](s: T)(next: T => T): Iterator[T] = new AbstractIterator[T] {
-    private[this] var curr: T = _
-    private[this] var first = true
-    def advance() = {
-      if (first) {
-        first = false
-        curr = s
-      } else curr = next(curr)
-      true
-    }
-    def current = curr
-  }
-
 }
 
 abstract class AbstractIterator[+T] extends Iterator[T]

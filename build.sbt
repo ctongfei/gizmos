@@ -10,9 +10,9 @@ scalaVersion := "2.11.7"
 
 resolvers += Resolver.sonatypeRepo("snapshots")
 
-libraryDependencies += "me.tongfei"        %% "poly-util"       % "0.2.3-SNAPSHOT"
+libraryDependencies += "me.tongfei"        %% "poly-util"       % "0.2.4-SNAPSHOT"
 
-libraryDependencies += "me.tongfei"        %% "poly-algebra"    % "0.2.6-SNAPSHOT"
+libraryDependencies += "me.tongfei"        %% "poly-algebra"    % "0.2.7-SNAPSHOT"
 
 libraryDependencies += "org.scalatest"     %% "scalatest"       % "2.2.2"          % Test
 

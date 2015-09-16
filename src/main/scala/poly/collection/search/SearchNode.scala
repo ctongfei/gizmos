@@ -23,11 +23,12 @@ object SearchNode {
     val depth = d
     val state = s
     val parent = p
+    def isDummy = false
   }
   object dummy extends SearchNode[Nothing] {
     def depth = -1
     def state = throw new NoSuchElementException
     def parent = this
-    override def isDummy = true
+    def isDummy = true
   }
 }

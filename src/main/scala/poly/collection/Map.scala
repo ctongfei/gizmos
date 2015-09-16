@@ -22,16 +22,18 @@ trait Map[@sp(i) K, +V] extends PartialFunction[K, V] { self =>
 
   /**
    * Optionally retrieves the value associated with the specified key.
-   * @param x The given key
+   * @param k The given key
    * @return The associated value. If the key is not found, return [[None]].
    */
   def ?(k: K): Option[V]
 
   /**
    * Retrieves the value associated with the specified key.
-   * @param x The given key
+   * If the key is not found, its behavior is undefined (this is a deliberate design for efficiency).
+   * For maximum safety, use `?` to optionally access an element.
+   * @param k The given key
    * @return The associated value
-   * @throws NoSuchElementException if key not found
+   * @throws NoSuchElementException if key not found (may or may not throw)
    */
   def apply(k: K): V
 

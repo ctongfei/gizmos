@@ -34,6 +34,7 @@ object SearchNodeWithHeuristic {
     val depth = d
     val h = hv
     val parent = p
+    def isDummy = false
   }
 
   def dummy[@sp(fdi) C]: SearchNodeWithHeuristic[Nothing, C] = new SearchNodeWithHeuristic[Nothing, C] {
@@ -41,7 +42,7 @@ object SearchNodeWithHeuristic {
     def depth: Int = -1
     def h = throw new NoSuchElementException()
     def parent: SearchNodeWithHeuristic[Nothing, C] = this
-    override def isDummy = true
+    def isDummy = true
   }
 }
 

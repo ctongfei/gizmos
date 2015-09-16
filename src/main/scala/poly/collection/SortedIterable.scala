@@ -14,7 +14,7 @@ trait SortedIterable[T] extends Iterable[T] { self =>
   implicit def order: WeakOrder[T]
 
   /**
-   * Merges two sorted sequences into one sorted sequence. $LAZY
+   * Merges two sorted sequences into one sorted sequence. $LAZY $CX_1
    * @param that Another sorted sequence. These two sequences must be sorted under the same order.
    * @return A merged sorted sequence
    * @throws IncompatibleOrderException If two sequences are not sorted under the same order.

@@ -33,6 +33,7 @@ object SearchNodeWithCostAndHeuristic {
       val h = hv
       val g = gv
       val parent = p
+      def isDummy = false
     }
 
   def dummy[@sp(fdi) C: AdditiveMonoid]: SearchNodeWithCostAndHeuristic[Nothing, C] = new SearchNodeWithCostAndHeuristic[Nothing, C] {
@@ -41,7 +42,7 @@ object SearchNodeWithCostAndHeuristic {
     def g = zero[C]
     def h = zero[C]
     def parent: SearchNodeWithCostAndHeuristic[Nothing, C] = this
-    override def isDummy = true
+    def isDummy = true
   }
 }
 

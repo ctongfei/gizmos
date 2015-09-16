@@ -2,6 +2,7 @@ package poly.collection.node
 
 import poly.collection._
 import poly.collection.mut._
+import poly.collection.ops._
 
 /**
  * Represents a node that has only one predecessor node.
@@ -25,5 +26,5 @@ trait SinglePredNode[+T] extends BackwardNode[T] { self =>
   }
 
   /** Backtracks from this node to the initial node. */
-  def pathToRoot = Iterable.iterate(this)(_.parent).takeUntil(_.isDummy)
+  def pathToRoot = this.iterate(_.parent).takeUntil(_.isDummy)
 }

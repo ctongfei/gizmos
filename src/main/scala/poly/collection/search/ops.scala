@@ -12,7 +12,7 @@ object ops {
   
   implicit class withSearchingOps[S](val s: S) extends AnyVal {
 
-    private def search(e: SearchIterator[S], goal: S => Boolean): BiSeq[S] = {
+    private def searchByIterator(e: SearchIterator[S], goal: S => Boolean): BiSeq[S] = {
       while (e.advance()) {
         if (goal(e.current))
           return e.currentNode.pathToRoot.map(_.data).reverse
@@ -21,10 +21,10 @@ object ops {
     }
 
     def depthFirstTreeSearch(goal: S => Boolean)(implicit ss: StateSpace[S]) =
-      search(new DepthFirstTreeSearchIterator[S](s)(ss), goal)
+      searchByIterator(new DepthFirstTreeSearchIterator[S](s)(ss), goal)
 
     def breadthFirstTreeSearch(goal: S => Boolean)(implicit ss: StateSpace[S]) =
-      search(new BreadthFirstTreeSearchIterator[S](s)(ss), goal)
+      searchByIterator(new BreadthFirstTreeSearchIterator[S](s)(ss), goal)
 
   }
 }

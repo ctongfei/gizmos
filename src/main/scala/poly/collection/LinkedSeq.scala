@@ -7,9 +7,9 @@ import scala.collection._
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-trait LinearSeq[+T] extends Seq[T] { self =>
+trait LinkedSeq[+T] extends Seq[T] { self =>
 
-  import LinearSeq._
+  import LinkedSeq._
 
   /**
    * Returns the length of this sequence.
@@ -42,9 +42,9 @@ trait LinearSeq[+T] extends Seq[T] { self =>
 
   // HELPER FUNCTIONS
 
-  override def map[U](f: T => U): LinearSeq[U] = ofNode(self.headNode.map(f))
+  override def map[U](f: T => U): LinkedSeq[U] = ofNode(self.headNode.map(f))
 
-  override def flatMap[U](f: T => Seq[U]): LinearSeq[U] = {
+  override def flatMap[U](f: T => Seq[U]): LinkedSeq[U] = {
     class FlatMappedSeqNode(val outer: SeqNode[T], val inner: SeqNode[U]) extends SeqNode[U] {
       override def isDummy = outer.isDummy
       def data = inner.data
@@ -72,7 +72,7 @@ trait LinearSeq[+T] extends Seq[T] { self =>
     ofNode(new FlatMappedSeqNode(outer, inner))
   }
 
-  override def filter(f: T => Boolean): LinearSeq[T] = {
+  override def filter(f: T => Boolean): LinkedSeq[T] = {
     class FilteredSeqNode(val node: SeqNode[T]) extends SeqNode[T] {
       override def isDummy = node.isDummy
       def data = node.data
@@ -89,7 +89,7 @@ trait LinearSeq[+T] extends Seq[T] { self =>
 
   override def filterNot(f: T => Boolean) = filter(x => !f(x))
 
-  override def concat[U >: T](that: Seq[U]): LinearSeq[U] = {
+  override def concat[U >: T](that: Seq[U]): LinkedSeq[U] = {
     class ConcatenatedSeqNode(val first: Boolean, val node: SeqNode[U]) extends SeqNode[U] {
       override def isDummy = !first && node.isDummy
       def data = node.data
@@ -102,16 +102,16 @@ trait LinearSeq[+T] extends Seq[T] { self =>
     ofNode(new ConcatenatedSeqNode(true, headNode))
   }
 
-  override def prepend[U >: T](x: U): LinearSeq[U] = {
-    val newNode: SeqNode[U] = new SeqNode[U] {
+  override def prepend[U >: T](x: U): LinkedSeq[U] = {
+    val prependedNode: SeqNode[U] = new SeqNode[U] {
       def isDummy = false
       def data = x
       def next = self.headNode
     }
-    ofNode(newNode)
+    ofNode(prependedNode)
   }
 
-  override def append[U >: T](x: U): LinearSeq[U] = {
+  override def append[U >: T](x: U): LinkedSeq[U] = {
     class AppendedSeqNode(val outer: SeqNode[U], val lastPassed: Boolean) extends SeqNode[U] {
       override def isDummy = outer.isDummy && lastPassed
       def data = if (outer.notDummy) outer.data else x
@@ -120,7 +120,7 @@ trait LinearSeq[+T] extends Seq[T] { self =>
     ofNode(new AppendedSeqNode(self.headNode, false))
   }
 
-  override def tail: LinearSeq[T] = ofNode(headNode.next)
+  override def tail: LinkedSeq[T] = ofNode(headNode.next)
 
   override def foldRight[U](z: U)(f: (T, U) => U): U = { //TODO: change to non-recursion with an ArrayStack
     if (headNode.isDummy) z
@@ -129,17 +129,17 @@ trait LinearSeq[+T] extends Seq[T] { self =>
 
 }
 
-object LinearSeq {
+object LinkedSeq {
 
-  object empty extends LinearSeq[Nothing] {
+  object empty extends LinkedSeq[Nothing] {
     def headNode = SeqNode.dummy
   }
 
-  def ofNode[T](node: => SeqNode[T]): LinearSeq[T] = new AbstractLinearSeq[T] {
+  def ofNode[T](node: SeqNode[T]): LinkedSeq[T] = new AbstractLinkedSeq[T] {
     def headNode = node
   }
 
-  def iterate[T](s: T)(f: T => T): LinearSeq[T] = {
+  def iterate[T](s: T)(f: T => T): LinkedSeq[T] = {
     class IteratedSeqNode(val data: T) extends SeqNode[T] {
       def next = new IteratedSeqNode(f(data))
       def isDummy = false
@@ -148,4 +148,4 @@ object LinearSeq {
   }
 }
 
-abstract class AbstractLinearSeq[+T] extends AbstractSeq[T] with LinearSeq[T]
+abstract class AbstractLinkedSeq[+T] extends AbstractSeq[T] with LinkedSeq[T]

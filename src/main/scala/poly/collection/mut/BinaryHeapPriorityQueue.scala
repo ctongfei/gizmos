@@ -35,7 +35,7 @@ object BinaryHeapPriorityQueue extends CollectionFactoryWithOrder[BinaryHeapPrio
     // heap building algorithm
     def result: BinaryHeapPriorityQueue[T] = {
       val h = new BinaryHeap[T](data)
-      for (i ← data.length / 2 - 1 to 0 by -1)
+      for (i ← Range.inclusive(data.length / 2 - 1, 0, step = -1))
         h.siftDown(i)
       new BinaryHeapPriorityQueue[T](h)
     }

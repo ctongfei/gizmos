@@ -33,6 +33,7 @@ object SearchNodeWithCost {
     val depth = d
     val g = gv
     val parent = p
+    def isDummy = false
   }
 
   def dummy[@sp(fdi) C: AdditiveMonoid]: SearchNodeWithCost[Nothing, C] = new SearchNodeWithCost[Nothing, C] {
@@ -40,7 +41,7 @@ object SearchNodeWithCost {
     def depth: Int = -1
     def g = zero[C]
     def parent: SearchNodeWithCost[Nothing, C] = this
-    override def isDummy = true
+    def isDummy = true
   }
 }
 

@@ -12,7 +12,7 @@ import scala.reflect._
 /**
  * Basic trait for indexed sequences.
  *
- * Indexed sequences should support efficient random access (typically O(1)).
+ * Indexed sequences should support efficient random access (typically O(1), sometimes may be O(log ''n'')).
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
 trait IndexedSeq[+T] extends BiSeq[T] { self =>
@@ -138,6 +138,11 @@ object IndexedSeq {
   object empty extends IndexedSeq[Nothing] {
     def apply(i: Int): Nothing = throw new NoSuchElementException
     def length: Int = 0
+  }
+
+  def fill[T](n: Int)(x: => T): IndexedSeq[T] = new AbstractIndexedSeq[T] {
+    def length = n
+    def apply(i: Int) = x
   }
 
   def tabulate[T](n: Int)(f: Int => T): IndexedSeq[T] = new AbstractIndexedSeq[T] {

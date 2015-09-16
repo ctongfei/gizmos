@@ -14,8 +14,9 @@ import scala.language.higherKinds
 import scala.annotation.unchecked.{uncheckedVariance => uv}
 
 /**
- * Basic trait for Poly-collection traversable collections.
+ * Basic trait for traversable collections.
  * @author Tongfei Chen (ctongfei@gmail.com).
+ * @since 0.1.0
  *
  * @define LAZY This function is lazily executed.
  * @define EAGER This function is eagerly executed.
@@ -365,7 +366,7 @@ trait Traversable[+T] { self =>
 
   def takeUntil(f: T => Boolean): Traversable[T] = takeWhile(x => !f(x))
 
-  def skipWhile(f: T => Boolean) = new AbstractTraversable[T] {
+  def skipWhile(f: T => Boolean): Traversable[T] = new AbstractTraversable[T] {
     def foreach[U](g: T => U): Unit = {
       var starts = false
       for (x ← self) {
@@ -376,6 +377,18 @@ trait Traversable[+T] { self =>
   }
 
   def slice(i: Int, j: Int) = skip(i).take(j - i)
+
+  def distinct: Traversable[T] = new AbstractTraversable[T] {
+    def foreach[U](f: T => U): Unit = {
+      val set = HashSet[T]()
+      for (x ← self) {
+        if (!set.contains(x)) {
+          set.add(x)
+          f(x)
+        }
+      }
+    }
+  }
 
   def reverse: BiSeq[T] = self.to[ArraySeq].reverse
 
@@ -391,7 +404,7 @@ trait Traversable[+T] { self =>
     seq.asIfSorted(WeakOrder by f)
   }
 
-  def sum[X >: T](implicit G: AdditiveMonoid[X]): X = fold(zero)(_+_)
+  def sum[X >: T : AdditiveMonoid]: X = fold(zero)(_+_)
 
   def isum[X >: T](implicit G: InplaceAdditiveCMonoid[X]) = {
     val sum = zero[X]
@@ -519,7 +532,7 @@ trait Traversable[+T] { self =>
 
   //endregion
 
-  override def toString = "(" + buildString(",") + " #)"
+  override def toString = "(" + buildString(",") + ")"
 }
 
 object Traversable {

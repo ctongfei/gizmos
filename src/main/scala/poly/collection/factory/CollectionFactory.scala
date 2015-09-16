@@ -2,13 +2,11 @@ package poly.collection.factory
 
 import poly.collection._
 import poly.collection.conversion._
-import poly.util.specgroup._
 import scala.language.higherKinds
 
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-
 trait CollectionFactory[+C[_]] {
 
   /** Returns a new builder of this collection type. */
@@ -44,6 +42,6 @@ trait CollectionFactory[+C[_]] {
     b.result
   }
 
-  implicit def factory: CollectionFactory[C] = this
+  //implicit def factory: CollectionFactory[C] = this
 
 }

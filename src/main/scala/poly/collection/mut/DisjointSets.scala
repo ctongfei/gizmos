@@ -16,6 +16,7 @@ class DisjointSets[T] private() extends Eq[T] {
     var rank: Int = 0
     var parent: Node = this
     val data = ()
+    def isDummy = false
   }
 
   private var sets = 0

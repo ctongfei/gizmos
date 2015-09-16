@@ -20,7 +20,7 @@ trait GraphFactory[+G[_, _, _]] {
     b.result
   }
 
-  implicit def factory: GraphFactory[G] = this
+  //implicit def factory: GraphFactory[G] = this
 
 }
 

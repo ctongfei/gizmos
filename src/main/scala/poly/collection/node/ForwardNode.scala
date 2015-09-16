@@ -5,7 +5,7 @@ import poly.collection._
 import poly.collection.search._
 
 /**
- * Basic trait for forward nodes. A node may contain a list of successor nodes.
+ * Basic trait for forward nodes. A forward node may contain a list of successor nodes.
  *
  * This trait serves as a common trait for sequence nodes, tree nodes and graph nodes.
  * Nodes provide a unified view for lists, trees and graphs, as well as search nodes

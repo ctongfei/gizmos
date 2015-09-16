@@ -8,7 +8,7 @@ import scala.language.higherKinds
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-trait CollectionFactoryWithOrder[C[_]] {
+trait CollectionFactoryWithOrder[+C[_]] {
 
   /** Returns a new builder of this collection type. */
   implicit def newBuilder[T: WeakOrder]: Builder[T, C[T]]
@@ -30,6 +30,6 @@ trait CollectionFactoryWithOrder[C[_]] {
     b.result
   }
 
-  implicit def factory: CollectionFactoryWithOrder[C] = this
+  //implicit def factory: CollectionFactoryWithOrder[C] = this
 
 }
