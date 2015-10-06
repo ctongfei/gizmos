@@ -6,7 +6,6 @@ import poly.algebra.ops._
 import poly.algebra.function._
 import poly.collection.exception._
 import poly.collection.mut._
-import poly.util.fastloop._
 import poly.util.typeclass._
 import poly.util.typeclass.ops._
 
@@ -42,7 +41,7 @@ trait Traversable[+T] { self =>
 
   //region Monadic operations (map, flatMap, product)
   /**
-   * Returns a new traversable collection by applying a function to all elements in this collection.
+   * Returns a new collection by applying a function to all elements in this collection.
    * $LAZY $CX_1
    * @param f Function to apply
    * @tparam U Type of the image of the function
@@ -119,7 +118,7 @@ trait Traversable[+T] { self =>
    * @param fs
    * @return
    */
-  def filterMany(fs: (T => Boolean)*): Seq[Seq[T]] = {
+  def filterMany(fs: (T => Boolean)*): IndexedSeq[Seq[T]] = {
     val l = ArraySeq.fill(fs.length)(ArraySeq[T]())
     for (x ← self)
       for (i ← Range(fs.length))
@@ -212,15 +211,16 @@ trait Traversable[+T] { self =>
   }
 
   /** $EAGER $CX_N */
-  def foldRight[U](z: U)(f: (T, U) => U): U = {
-    reverse.foldLeft(z)((x, y) => f(y, x))
-  }
+  def foldRight[U](z: U)(f: (T, U) => U): U = reverse.foldLeft(z)((u, t) => f(t, u))
 
   /** $EAGER $CX_N */
   def fold[U >: T](z: U)(f: (U, U) => U): U = foldLeft(z)(f)
 
   /** $EAGER $CX_N */
-  def reduce[U >: T](f: (U, U) => U): U = {
+  def foldByMonoid[U >: T : Monoid]: U = foldLeft(id)(_ op _)
+  
+  /** $EAGER $CX_N */
+  def reduceLeft[U >: T](f: (U, T) => U): U = {
     var first = true
     var res = default[U]
     for (x ← self) {
@@ -230,18 +230,18 @@ trait Traversable[+T] { self =>
       }
       else res = f(res, x)
     }
+    if (first) throw new EmptyCollectionReductionException
     res
   }
 
-  /** $EAGER $CX_N */
-  def reduceByMonoid[U >: T](m: Monoid[U]): U = {
-    var res = m.id
-    for (x ← self) res = m.op(res, x)
-    res
-  }
+  def reduceRight[U >: T](f: (T, U) => U): U = self.reverse.reduceLeft[U]((u, t) => f(t, u))
+
+  def reduce[U >: T](f: (U, U) => U) = reduceLeft(f)
+
+  def reduceBySemigroup[U >: T : Semigroup]: U = reduceLeft[U](_ op _)
 
   /** $LAZY $CX_1 */
-  def scanLeft[U >: T](z: U)(f: (U, T) => U): Traversable[U] = new AbstractTraversable[U] {
+  def scanLeft[U](z: U)(f: (U, T) => U): Traversable[U] = new AbstractTraversable[U] {
     def foreach[V](g: U => V) = {
       var accum = z
       for (x ← self) {
@@ -252,13 +252,20 @@ trait Traversable[+T] { self =>
     }
   }
 
+  def scanRight[U](z: U)(f: (T, U) => U) = self.reverse.scanLeft(z)((x, y) => f(y, x))
+
   /** $LAZY $CX_1 */
   def scan[U >: T](z: U)(f: (U, U) => U): Traversable[U] = scanLeft(z)(f)
 
   /** $LAZY $CX_1 */
-  def scanByMonoid[U >: T](m: Monoid[U]): Traversable[U] = scanLeft(m.id)(m.op)
+  def scanByMonoid[U >: T : Monoid]: Traversable[U] = scanLeft(id)(_ op _)
 
-  /** $LAZY $CX_1 */
+  /**
+   * Returns the consecutive differences of the sentences. E.g. {{{
+   *   (0, 1, 3, 6, 10, 15).diff(_ - _) == (1, 2, 3, 4, 5)
+   * }}}.
+   * $LAZY $CX_1
+   */
   def diff[U](f: (T, T) => U): Traversable[U] = new AbstractTraversable[U] {
     var first = true
     var prev: T = _
@@ -277,7 +284,7 @@ trait Traversable[+T] { self =>
   }
 
   /** $LAZY $CX_1 */
-  def diffByGroup[U >: T](g: Group[U]) = diff((x, y) => g.op(x, g.inv(y)))
+  def diffByGroup[U >: T](implicit U: Group[U]) = diff((x, y) => U.op(x, U.inv(y)))
 
   /** $EAGER $CX_1 */
   def head: T = {
@@ -344,6 +351,8 @@ trait Traversable[+T] { self =>
     }
   }
 
+  def rotate(n: Int): Traversable[T] = self.skip(n) ++ self.take(n)
+
   def takeWhile(f: T => Boolean): Traversable[T] = new AbstractTraversable[T] {
     def foreach[U](g: T => U): Unit = {
       for (x ← self) {
@@ -378,6 +387,10 @@ trait Traversable[+T] { self =>
 
   def slice(i: Int, j: Int) = skip(i).take(j - i)
 
+  /**
+   * Returns the unique elements in this collection while retaining its original order.
+   */
+  //TODO: should be [U >: T](implicit U: Equiv[U]): Traversable[U], but postponed to later versions
   def distinct: Traversable[T] = new AbstractTraversable[T] {
     def foreach[U](f: T => U): Unit = {
       val set = HashSet[T]()
@@ -390,37 +403,89 @@ trait Traversable[+T] { self =>
     }
   }
 
+  //TODO: should be [U >: T](implicit U: Equiv[U]): Traversable[U], but postponed to later versions
+  def union[U >: T](that: Traversable[U]): Traversable[U] = (this concat that).distinct
+
+  def intersect[U >: T](that: Traversable[U]): Traversable[U] = new AbstractTraversable[U] {
+    def foreach[V](f: U => V): Unit = {
+      val set = this.to[HashSet]
+      for (x ← that)
+        if (set contains x) f(x)
+    }
+  }
+
   def reverse: BiSeq[T] = self.to[ArraySeq].reverse
 
-  def sort[X >: T](implicit O: WeakOrder[X]): IndexedSeq[X] = {
-    val seq = self.map(_.asInstanceOf[X]).to[ArraySeq]
-    seq.sortInplace()(O)
-    seq
+  def sort[U >: T](implicit U: WeakOrder[U]): SortedIndexedSeq[U] = {
+    val seq = self.map(_.asInstanceOf[U]).to[ArraySeq]
+    seq.sortInplace()(U)
+    seq.asIfSorted(U)
   }
 
-  def sortBy[U >: T, X](f: U => X)(implicit O: WeakOrder[X]): IndexedSortedSeq[U] = {
+  def sortBy[U >: T, X](f: U => X)(implicit X: WeakOrder[X]): SortedIndexedSeq[U] = {
     val seq = self.to[ArraySeq]
-    seq.sortInplace()(WeakOrder by f)
-    seq.asIfSorted(WeakOrder by f)
+    val o = WeakOrder by f
+    seq.sortInplace()(o)
+    seq.asIfSorted(o)
   }
 
+  /**
+   * Repeats this collection ''n'' times. For example, `(1, 2, 3).repeat(2)` becomes `(1, 2, 3, 1, 2, 3)`.
+   * @param n Number of times to repeat
+   */
+  def repeat(n: Int): Traversable[T] = new AbstractTraversable[T] {
+    def foreach[V](f: T => V) = {
+      for (i ← Range(n))
+        for (x ← self) f(x)
+    }
+  }
+
+  /**
+   * Returns the sum of the elements in this collection. For example, `(1, 2, 3).sum` returns `6`.
+   * @tparam X Supertype of the type of elements: must be endowed with an additive monoid.
+   * @return The sum
+   */
   def sum[X >: T : AdditiveMonoid]: X = fold(zero)(_+_)
 
-  def isum[X >: T](implicit G: InplaceAdditiveCMonoid[X]) = {
+  def isum[X >: T](implicit X: InplaceAdditiveCMonoid[X]) = {
     val sum = zero[X]
-    for (x ← self) G.inplaceAdd(sum, x)
+    for (x ← self) X.inplaceAdd(sum, x)
     sum
   }
 
-  def prefixSums[X >: T](implicit G: AdditiveMonoid[X]) = scan(zero)(G.add)
+  /**
+   * Returns the prefix sums of this collection. For example, `(1, 2, 3, 4).prefixSums` becomes `(0, 1, 3, 6, 10)`.
+   * @tparam X Supertype of the type of elements: must be endowed with an additive monoid
+   * @return The prefix sums sequence
+   */
+  def prefixSums[X >: T](implicit X: AdditiveMonoid[X]) = scan(zero)(_+_)
 
-  def differences[X >: T](implicit G: AdditiveGroup[X]) = diff(G.sub)
+  /**
+   * Returns the consecutive differences sequence of this collection. For example, `(0, 1, 3, 6, 10).differences`
+   * becomes `(1, 2, 3, 4)`. This is the inverse operator of `prefixSums` that the following invariant holds:
+   * {{{
+   *   l.prefixSums.differences == l
+   * }}}
+   * @tparam X Supertype of the type of elements: must be endowed with an additive group (to enable the `sub(-)` operation).
+   * @return The consecutive differences sequence
+   */
+  def differences[X >: T](implicit X: AdditiveGroup[X]) = diff(X.sub)
 
-  def product[X >: T](implicit G: MultiplicativeMonoid[X]): X = fold(G.one)(G.mul)
+  /**
+   * Returns the product of the elements in this collection. For example, `(1, 2, 3, 4, 5).product` returns `120`.
+   * @tparam X Supertype of the type of elements: must be endowed with a multiplicative monoid.
+   * @return The product
+   */
+  def product[X >: T](implicit X: MultiplicativeMonoid[X]): X = fold(one)(_*_)
 
-  def min[X >: T](implicit O: WeakOrder[X]): X = reduce(O.min[X])
+  /**
+   * Returns the minimum element in this collection.
+   * @tparam X Supertype of the type of elements: must be endowed with a weak order.
+   * @return The minimum element
+   */
+  def min[X >: T](implicit X: WeakOrder[X]): X = reduceLeft(X.min[X])
 
-  def max[X >: T](implicit O: WeakOrder[X]): X = reduce(O.max[X])
+  def max[X >: T](implicit X: WeakOrder[X]): X = reduceLeft(X.max[X])
 
   def argmin[U: WeakOrder](f: T => U): T = argminWithValue(f)._1
 
@@ -441,6 +506,7 @@ trait Traversable[+T] { self =>
         first = false
       }
     }
+    if (first) throw new EmptyCollectionReductionException
     (minVal, maxVal)
   }
 
@@ -457,6 +523,7 @@ trait Traversable[+T] { self =>
         first = false
       }
     }
+    if (first) throw new EmptyCollectionReductionException
     (minKey, minVal)
   }
 
@@ -473,6 +540,7 @@ trait Traversable[+T] { self =>
         first = false
       }
     }
+    if (first) throw new EmptyCollectionReductionException
     (maxKey, maxVal)
   }
 
@@ -527,9 +595,8 @@ trait Traversable[+T] { self =>
   def |>[U](f: T => U) = this map f
   def |?(f: T => Boolean) = this filter f
   def ||>[U](f: T => Traversable[U]) = this flatMap f
-  def |&[U >: T](f: (U, U) => U) = this reduce f
+  def |+[U >: T](f: (U, U) => U) = this reduce f
   //endregion
-
   //endregion
 
   override def toString = "(" + buildString(",") + ")"

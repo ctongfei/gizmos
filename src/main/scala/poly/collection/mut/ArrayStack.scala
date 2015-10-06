@@ -11,7 +11,7 @@ import scala.reflect._
  * An array-backed stack.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class ArrayStack[T] (private var data: ResizableSeq[T] = null) extends Queue[T] {
+class ArrayStack[T] private(private var data: ResizableSeq[T] = null) extends Queue[T] {
 
   override def size = data.fastLength
 

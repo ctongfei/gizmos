@@ -15,6 +15,8 @@ import poly.util.specgroup._
  */
 trait SearchNodeWithCost[+S, @sp(fdi) C] extends SearchNode[S] {
 
+  implicit def groupOnCost: OrderedAdditiveGroup[C]
+
   def parent: SearchNodeWithCost[S, C]
 
   /** The known cost from the initial node to this node. */
@@ -24,11 +26,12 @@ trait SearchNodeWithCost[+S, @sp(fdi) C] extends SearchNode[S] {
 
 object SearchNodeWithCost {
 
-  implicit def order[S, @sp(fdi) C: WeakOrder]: WeakOrder[SearchNodeWithCost[S, C]] = new WeakOrder[SearchNodeWithCost[S, C]] {
+  implicit def order[S, @sp(fdi) C: OrderedAdditiveGroup]: WeakOrder[SearchNodeWithCost[S, C]] = new WeakOrder[SearchNodeWithCost[S, C]] {
     def cmp(x: SearchNodeWithCost[S, C], y: SearchNodeWithCost[S, C]) = x.g >?< y.g
   }
 
-  def apply[S, @sp(fdi) C](s: S, d: Int, gv: C, p: SearchNodeWithCost[S, C]): SearchNodeWithCost[S, C] = new SearchNodeWithCost[S, C] {
+  def apply[S, @sp(fdi) C: OrderedAdditiveGroup](s: S, d: Int, gv: C, p: SearchNodeWithCost[S, C]): SearchNodeWithCost[S, C] = new SearchNodeWithCost[S, C] {
+    def groupOnCost = OrderedAdditiveGroup[C]
     val state = s
     val depth = d
     val g = gv
@@ -36,7 +39,8 @@ object SearchNodeWithCost {
     def isDummy = false
   }
 
-  def dummy[@sp(fdi) C: AdditiveMonoid]: SearchNodeWithCost[Nothing, C] = new SearchNodeWithCost[Nothing, C] {
+  def dummy[@sp(fdi) C: OrderedAdditiveGroup]: SearchNodeWithCost[Nothing, C] = new SearchNodeWithCost[Nothing, C] {
+    def groupOnCost = OrderedAdditiveGroup[C]
     def state: Nothing = throw new NoSuchElementException()
     def depth: Int = -1
     def g = zero[C]

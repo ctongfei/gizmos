@@ -15,7 +15,7 @@ trait IntIndexedGraphFactory[+IG[_, _]] {
 
    def apply[V, E](vs: V*)(es: (Int, Int, E)*): IG[V, E] = {
      val b = newBuilder[V, E]
-     b addVertices vs.zipWithIndex.map(_.swap) //TODO: efficiency?
+     b addNodes vs.zipWithIndex.map(_.swap) //TODO: efficiency?
      b addEdges es
      b.result
    }

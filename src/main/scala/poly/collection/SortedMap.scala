@@ -7,7 +7,7 @@ import poly.algebra._
  */
 trait SortedMap[K, V] extends Map[K, V] { self =>
 
-  def order: WeakOrder[K]
+  def orderOnKey: WeakOrder[K]
 
   def pairs: SortedIterable[(K, V)]
 

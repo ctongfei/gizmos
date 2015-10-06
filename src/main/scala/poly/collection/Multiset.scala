@@ -4,11 +4,12 @@ import poly.algebra._
 
 /**
  * Basic trait for multisets.
- * Deliberately not inheriting `Enumerable` because of contravariance issues.
  * @author Tongfei Chen (ctongfei@gmail.com).
  * @since 0.1.0
  */
 trait Multiset[T] extends PredicateSet[T] { self =>
+
+  def equivOnKey: Equiv[T]
 
   /** Returns the multiplicity (number of occurrence) of an element in this multiset. */
   def multiplicity(x: T): Int
@@ -23,7 +24,7 @@ trait Multiset[T] extends PredicateSet[T] { self =>
   // HELPER FUNCTIONS
 
   def distinct: Set[T] = new Set[T] {
-    /** Tests if an element belongs to this set. */
+    def equivOnKey = self.equivOnKey
     def contains(x: T) = self.contains(x)
     def size = elements.size
     def elements = self.elements.distinct
@@ -35,7 +36,7 @@ trait Multiset[T] extends PredicateSet[T] { self =>
 
   def exists(f: T => Boolean) = elements.exists(f)
 
-  def reduce[U >: T](f: (U, U) => U): U = elements.reduce(f)
+  def reduce[U >: T](f: (U, U) => U): U = elements.reduceLeft(f)
 
   /** Returns the union of two sets. */
   def |(that: Multiset[T]): Multiset[T] = ???

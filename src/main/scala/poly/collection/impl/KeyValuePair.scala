@@ -1,8 +1,8 @@
 package poly.collection.impl
 
 import poly.algebra._
-import poly.util.specgroup._
-import poly.util.typeclass._
+import poly.algebra.specgroup._
+import poly.algebra.ops._
 
 /**
  * A key-value pair used in maps.
@@ -34,21 +34,24 @@ object KeyValuePair {
   def apply[@sp(i) K, V](key: K, value: V) = new KeyValuePair(key, value)
 
   /** Returns a hashing function on key-value pairs that operates only on the key. */
-  implicit def hashByKey[@sp(i) K, V](implicit H: Hashing[K, Int]): Hashing[KeyValuePair[K, V], Int] =
+  implicit def hashByKey[@sp(i) K, V](implicit K: Hashing[K, Int]): Hashing[KeyValuePair[K, V], Int] =
     new Hashing[KeyValuePair[K, V], Int] {
-      def hash(x: KeyValuePair[K, V]) = H.hash(x.key)
-      def eq(x: KeyValuePair[K, V], y: KeyValuePair[K, V]) = x.key == y.key
+      def hash(x: KeyValuePair[K, V]) = K.hash(x.key)
+      def eq(x: KeyValuePair[K, V], y: KeyValuePair[K, V]) = x.key =~= y.key
+      override def fromJavaHashCode = implicitly[Hashing[K, Int]].fromJavaHashCode
     }
 
   /** Returns a weak order on key-value pairs that is based on the weak order on the key. */
-  implicit def orderByKey[@sp(i) K, V](implicit O: WeakOrder[K]): WeakOrder[KeyValuePair[K, V]] =
+  implicit def orderByKey[@sp(i) K: WeakOrder, V]: WeakOrder[KeyValuePair[K, V]] =
     new WeakOrder[KeyValuePair[K, V]] {
-      def cmp(x: KeyValuePair[K, V], y: KeyValuePair[K, V]) = O.cmp(x.key, y.key)
+      def cmp(x: KeyValuePair[K, V], y: KeyValuePair[K, V]) = x.key >?< y.key
+      override def fromJavaComparable = implicitly[WeakOrder[K]].fromJavaComparable
     }
 
   /** Returns an equivalence relation on key-value pairs that is based on the equivalence relation on the key. */
-  implicit def eqByKey[@sp(i) K, V](implicit E: Eq[K]): Eq[KeyValuePair[K, V]] =
-    new Eq[KeyValuePair[K, V]] {
-      def eq(x: KeyValuePair[K, V], y: KeyValuePair[K, V]) = E.eq(x.key, y.key)
+  implicit def equivByKey[@sp(i) K: Equiv, V]: Equiv[KeyValuePair[K, V]] =
+    new Equiv[KeyValuePair[K, V]] {
+      def eq(x: KeyValuePair[K, V], y: KeyValuePair[K, V]) = x.key =~= y.key
+      override def fromJavaEquals = implicitly[Equiv[K]].fromJavaEquals
     }
 }

@@ -6,10 +6,11 @@ import poly.algebra.ops._
  * Trait for an indexed sorted sequence.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-trait IndexedSortedSeq[T] extends SortedSeq[T] with IndexedSeq[T] { self =>
+trait SortedIndexedSeq[T] extends SortedSeq[T] with IndexedSeq[T] { self =>
 
   /** Casts this indexed sorted sequence as a multiset. */
   def asMultiset: Multiset[T] = new Multiset[T] {
+    def equivOnKey = self.orderOnKey
     def size = self.size
     def multiplicity(x: T) = ???
     def elements = self

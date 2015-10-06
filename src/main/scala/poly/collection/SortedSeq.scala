@@ -13,11 +13,11 @@ import scala.reflect._
  */
 trait SortedSeq[T] extends Seq[T] with SortedIterable[T] { self =>
 
-  override def distinct: SortedSeq[T] = ???
+  override def distinct: SortedSeq[T] = self
 
   def asSortedSet = ???
 
-  def thenSortBy[X](f: T => X)(implicit subOrder: WeakOrder[T]): IndexedSortedSeq[T] = {
+  def thenSortBy[X](f: T => X)(implicit subOrder: WeakOrder[T]): SortedIndexedSeq[T] = {
     ???
   }
 

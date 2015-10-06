@@ -13,7 +13,7 @@ e.sort
 e :+ 0
 0 +: e
 
-e.reduce(_+_)
+e.reduceLeft(_+_)
 
 
 e.to[ArraySeq]
@@ -41,3 +41,7 @@ e.init
 
 0.infinite.take(10)
 
+0.repeat(10)
+e.repeat(4)
+
+e.cycle.take(12)

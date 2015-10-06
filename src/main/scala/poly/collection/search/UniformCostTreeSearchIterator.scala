@@ -12,11 +12,13 @@ import poly.collection.node._
  * @author Tongfei Chen (ctongfei@gmail.com).
  * @since 0.1.0
  */
-class UniformCostTreeSearchIterator[S, C: WeakOrder : AdditiveMonoid]
+class UniformCostTreeSearchIterator[S, C]
   (val start: S)
   (implicit ss: StateSpaceWithCost[S, C])
   extends SearchIterator[S]
 {
+
+  implicit def groupOnCost = ss.groupOnCost
 
   val fringe = BinaryHeapPriorityQueue[SearchNodeWithCost[S, C]]()(SearchNodeWithCost.order)
 

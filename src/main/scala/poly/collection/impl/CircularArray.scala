@@ -32,7 +32,7 @@ class CircularArray[T](private val data: ResizableSeq[T]) {
     //                   *****
     val originalCapacity = data.capacity
     data.ensureCapacity(originalCapacity * 2)
-    data.inplaceMove(0, frontPtr, originalCapacity)
+    data.moveInplace(0, frontPtr, originalCapacity)
     backPtr += originalCapacity
   }
 

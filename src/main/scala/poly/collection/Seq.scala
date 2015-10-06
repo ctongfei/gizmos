@@ -2,8 +2,11 @@ package poly.collection
 
 import poly.algebra._
 import poly.algebra.ops._
+import poly.algebra.implicits._
 import poly.collection.node._
+
 /**
+ * Represents a sequence that guarantees the same order every time it is traversed.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
 trait Seq[+T] extends Iterable[T] with Map[Int, T] { self =>
@@ -41,6 +44,7 @@ trait Seq[+T] extends Iterable[T] with Map[Int, T] { self =>
     node.data
   }
 
+  def equivOnKey = TotalOrder[Int]
 
   override def size = length
 
@@ -52,9 +56,9 @@ trait Seq[+T] extends Iterable[T] with Map[Int, T] { self =>
     }
   }
 
-  def newIterator: Iterator[T] = new AbstractIterator[T] {
-    var node: SeqNode[T] = SeqNode.dummy
-    var first = true
+  def newIterator: Iterator[T] = new Iterator[T] {
+    private[this] var node: SeqNode[T] = SeqNode.dummy
+    private[this] var first = true
     def advance() = {
       if (first) {
         first = false
@@ -170,24 +174,40 @@ trait Seq[+T] extends Iterable[T] with Map[Int, T] { self =>
     else f(head, tail.foldRight(z)(f))
   }
 
+  override def takeWhile(f: T => Boolean) = {
+    class TakenWhileNode(val outer: SeqNode[T]) extends SeqNode[T] {
+      def data = outer.data
+      def next = if (!f(outer.data)) SeqNode.dummy else new TakenWhileNode(outer.next)
+      def isDummy = outer.isDummy
+    }
+    ofNode(new TakenWhileNode(self.headNode))
+  }
+
+  override def takeUntil(f: T => Boolean) = takeWhile(x => !f(x))
+
   /**
-   * Pretends that this sequence is sorted under the given order.
-   * @param O The implicit order
+   * Pretends that this sequence is sorted under the given implicit order.
+   * @param U The implicit order
    * @return A sorted order (WARNING: Actual orderedness is not guaranteed! The user should make sure that it is sorted.)
    */
-  def asIfSorted[U >: T](implicit O: WeakOrder[U]): SortedSeq[U] = new SortedSeq[U] {
-    val order: WeakOrder[U] = O
+  override def asIfSorted[U >: T](implicit U: WeakOrder[U]): SortedSeq[U] = new SortedSeq[U] {
+    val orderOnKey: WeakOrder[U] = U
     def headNode: SeqNode[T] = self.headNode
   }
 
   override def equals(that: Any) = that match {
-    case (that: Seq[T]) => Eq[T].eq(this, that)
+    case (that: Seq[T]) => Equiv[T].eq(this, that)
     case _ => false
   }
 
   override def toString = "(" + buildString(",") + ")" // overridden the `toString` in Map
 
   override def hashCode = ???
+
+
+  override def |>[U](f: T => U): Seq[U] = ofNode(self.headNode.map(f))
+
+  def asIterable = Iterable.ofIterator(self.newIterator)
 
 }
 
@@ -214,7 +234,17 @@ object Seq {
     ofNode(new IteratedSeqNode(s))
   }
 
-  implicit def Eq[T: Eq]: Eq[Seq[T]] = new Eq[Seq[T]] {
+  def infinite[T](x: => T): Seq[T] = {
+    class InfiniteSeqNode extends SeqNode[T] {
+      def next = this
+      def data = x
+      def isDummy = false
+    }
+    ofNode(new InfiniteSeqNode)
+  }
+
+
+  implicit def Equiv[T: Equiv]: Equiv[Seq[T]] = new Equiv[Seq[T]] {
     def eq(x: Seq[T], y: Seq[T]): Boolean = {
       val xi = x.newIterator
       val yi = y.newIterator

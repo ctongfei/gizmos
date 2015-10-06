@@ -37,9 +37,9 @@ class AdjacencyListGraph[@sp(i) K, V, E]() extends Graph[K, V, E] {
 object AdjacencyListGraph extends GraphFactory[AdjacencyListGraph] {
   implicit def newBuilder[K, V, E] = new GraphBuilder[K, V, E, AdjacencyListGraph[K, V, E]] {
     private val g = new AdjacencyListGraph[K, V, E]()
-    def numVerticesHint(n: Int) = ???
+    def numNodesHint(n: Int) = ???
     def addEdge(i: K, j: K, e: E) = ???
-    def addVertex(i: K, v: V) = ???
+    def addNode(i: K, v: V) = ???
     def result = ???
   }
 }

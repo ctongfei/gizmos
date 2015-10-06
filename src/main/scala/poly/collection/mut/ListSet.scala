@@ -1,12 +1,15 @@
 package poly.collection.mut
 
+import poly.algebra._
+import poly.algebra.ops._
 import poly.collection._
 import poly.collection.impl._
 
 /**
+ * A set backed by a linked list.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class ListSet[T] private(private val data: SinglyLinkedList[T]) extends MutableSet[T] {
+class ListSet[T] private(private val data: SinglyLinkedList[T])(implicit val equivOnKey: Equiv[T]) extends MutableSet[T] {
 
   override def size = data.len
 
@@ -14,7 +17,7 @@ class ListSet[T] private(private val data: SinglyLinkedList[T]) extends MutableS
     var found = false
     var c = data.dummy.next
     while (c ne data.dummy) {
-      if (c.data == x)
+      if (c.data =~= x)
         return true
       c = c.next
     }
@@ -29,7 +32,7 @@ class ListSet[T] private(private val data: SinglyLinkedList[T]) extends MutableS
     var p = data.dummy
     var c = data.dummy.next
     while (c ne data.dummy) {
-      if (c.data == x) p.next = c.next
+      if (c.data =~= x) p.next = c.next
       p = c
       c = c.next
     }

@@ -14,6 +14,7 @@ import scala.reflect._
  *
  * Indexed sequences should support efficient random access (typically O(1), sometimes may be O(log ''n'')).
  * @author Tongfei Chen (ctongfei@gmail.com).
+ * @since 0.1.0
  */
 trait IndexedSeq[+T] extends BiSeq[T] { self =>
 
@@ -27,8 +28,8 @@ trait IndexedSeq[+T] extends BiSeq[T] { self =>
 
   override def apply(i: Int) = fastApply(i)
 
-  // Overridden enumerator method for performance.
-  override def newIterator: Iterator[T] = new AbstractIterator[T] {
+  // Overridden newIterator method for performance.
+  override def newIterator: Iterator[T] = new Iterator[T] {
     private[this] var i: Int = -1
     def current = self(i)
     def advance(): Boolean = {
@@ -51,10 +52,15 @@ trait IndexedSeq[+T] extends BiSeq[T] { self =>
     def fastApply(i: Int) = f(self(i))
   }
 
+  def cartesianProduct[U](that: IndexedSeq[U]): IndexedSeq[(T, U)] = new AbstractIndexedSeq[(T, U)] {
+    def fastLength = self.length * that.length
+    def fastApply(i: Int) = (self(i / self.length), that(i % self.length))
+  }
+
   /**
    * Returns the Cartesian product of two indexed sequences. The returning value is a table.
    */
-  def cartesianProduct[U](that: IndexedSeq[U]): Table[(T, U)] = new AbstractTable[(T, U)] {
+  def cartesianProductToTable[U](that: IndexedSeq[U]): Table[(T, U)] = new AbstractTable[(T, U)] {
     def apply(i: Int, j: Int) = (self(i), that(j))
     def numRows = self.length
     def numCols = that.length
@@ -76,7 +82,7 @@ trait IndexedSeq[+T] extends BiSeq[T] { self =>
   }
 
   override def reduce[U >: T](f: (U, U) => U): U = {
-    MapReduceOps.bySemigroup[U](length, x => (self(x): U), f) // optimize through macros
+    MapReduceOps.bySemigroup[U](length, x => self(x): U, f) // optimize through macros
   }
 
   /**
@@ -84,14 +90,13 @@ trait IndexedSeq[+T] extends BiSeq[T] { self =>
    * @param j Rotation starts here
    * @return
    */
-  def rotate(j: Int): IndexedSeq[T] = new AbstractIndexedSeq[T] {
+  override def rotate(j: Int): IndexedSeq[T] = new AbstractIndexedSeq[T] {
     val len = self.length
     def fastApply(i: Int): T = self((j + i) % len)
     def fastLength: Int = len
   }
 
-
-  override def slice(i: Int, j: Int) = new AbstractIndexedSeq[T] {
+  override def slice(i: Int, j: Int): IndexedSeq[T] = new AbstractIndexedSeq[T] {
     def fastApply(n: Int) = self(i + n)
     def fastLength = j - i
   }
@@ -99,11 +104,11 @@ trait IndexedSeq[+T] extends BiSeq[T] { self =>
   /**
    * Pretends that this sequence is sorted under the given order.
    * (WARNING: Actual orderedness is not guaranteed! The user should make sure that it is sorted.)
-   * @param O The implicit order
+   * @param U The implicit order
    * @return A sorted order
    */
-  override def asIfSorted[U >: T](implicit O: WeakOrder[U]): IndexedSortedSeq[U] = new IndexedSortedSeq[U] {
-    val order: WeakOrder[U] = O
+  override def asIfSorted[U >: T](implicit U: WeakOrder[U]): SortedIndexedSeq[U] = new SortedIndexedSeq[U] {
+    val orderOnKey: WeakOrder[U] = U
     def fastLength: Int = self.length
     def fastApply(i: Int): T = self.apply(i)
   }

@@ -5,11 +5,17 @@ import poly.algebra._
 import poly.collection.mut._
 
 /**
- * Basic trait for enumerable sets.
+ * Basic trait for iterable sets.
  * @author Tongfei Chen (ctongfei@gmail.com).
  * @since 0.1.0
  */
+//TODO: make theses set operations lazy? e.g. a & b == (a.elements ++ b.elements).distinct?
 trait Set[T] extends PredicateSet[T] with Multiset[T] { self =>
+
+  // ListSet: Equiv[T]
+  // HashSet: IntHashing[T]
+  // TreeSet: WeakOrder[T]
+  def equivOnKey: Equiv[T]
 
   def multiplicity(x: T) = if (contains(x)) 1 else 0
 
@@ -37,7 +43,8 @@ trait Set[T] extends PredicateSet[T] with Multiset[T] { self =>
   /** Tests if this set is a superset of another set. */
   def >=(that: Set[T]): Boolean = that <= this
 
-  def filter(f: T => Boolean): Set[T] = new Set[T] {
+  def filter(f: T => Boolean): Set[T] = new AbstractSet[T] {
+    def equivOnKey = self.equivOnKey
     def contains(x: T) = self.contains(x) && f(x)
     def size = elements.size
     def elements = self.elements.filter(f)
@@ -59,7 +66,8 @@ object Set {
    * @tparam T Type
    * @return An empty set
    */
-  def empty[T]: Set[T] = new Set[T] {
+  def empty[T](implicit eqv: Equiv[T]): Set[T] = new Set[T] {
+    def equivOnKey = eqv
     override def size = 0
     def elements = Iterable.empty
     def contains(x: T) = false
@@ -78,3 +86,5 @@ object Set {
       def sup(x: Set[T], y: Set[T]) = x | y
   }
 }
+
+abstract class AbstractSet[T] extends Set[T]

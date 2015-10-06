@@ -1,7 +1,6 @@
 package poly.collection.impl
 
 import poly.collection._
-import poly.collection.exception._
 import poly.collection.node._
 
 /**
@@ -10,7 +9,7 @@ import poly.collection.node._
  */
 class LinkedBinaryTree[T] extends BinaryTree[T] {
 
-  class Node (
+  case class Node (
     var data: T,
     var left: Node = dummy,
     var right: Node = dummy,
@@ -23,7 +22,7 @@ class LinkedBinaryTree[T] extends BinaryTree[T] {
     override def isDummy = true 
   }
 
-  var rootNode: Node = null
+  var rootNode: Node = dummy
 
   def addRoot(x: T) = {
     if (rootNode.isDummy) {

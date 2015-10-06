@@ -16,7 +16,10 @@ trait Graph[@sp(i) K, +V, +E] { self =>
   def apply(i: K): V
   def apply(i: K, j: K): E
 
-  def vertex(i: K): Node = new Node(i)
+  /** Gets the node with the specific key. */
+  def node(i: K): Node = new Node(i)
+
+  /** Gets the edge between the specific edges. */
   def edge(i: K, j: K): Edge = Edge(i, j)
 
   def numNodes: Int = keySet.size
@@ -85,8 +88,8 @@ trait Graph[@sp(i) K, +V, +E] { self =>
 
   def to[G[_, _, _]](implicit builder: GraphBuilder[K, V@uv, E@uv, G[K, V@uv, E@uv]]): G[K, V@uv, E@uv] = {
     val b = builder
-    b.numVerticesHint(self.numNodes)
-    b.addVertices(self.nodes.map(v => (v.key, v.data)))
+    b.numNodesHint(self.numNodes)
+    b.addNodes(self.nodes.map(v => (v.key, v.data)))
     b.addEdges(self.edges.map(e => (e.key1, e.key2, e.data)))
     b.result
   }

@@ -1,5 +1,6 @@
 package poly.collection.mut
 
+import poly.algebra._
 import poly.collection._
 import poly.collection.exception._
 import poly.collection.impl._
@@ -7,7 +8,7 @@ import poly.collection.impl._
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class ListMap[K, V] private(private val data: SinglyLinkedList[KeyValuePair[K, V]]) extends KeyMutableMap[K, V] {
+class ListMap[K, V] private(private val data: SinglyLinkedList[KeyValuePair[K, V]])(implicit val equivOnKey: Equiv[K]) extends KeyMutableMap[K, V] {
 
   def size = data.size
 

@@ -41,9 +41,9 @@ trait BinaryTreeNode[+T] extends ForwardNode[T] { self =>
    * @return A non-strict sequence of the pre-order traversal.
    */
   def preOrder: Iterable[T] = Iterable.ofIterator {
-    new AbstractIterator[T] {
+    new Iterator[T] {
       private val s = ArrayStack[BinaryTreeNode[T]](self)
-      private var curr: BinaryTreeNode[T] = null
+      private var curr: BinaryTreeNode[T] = BinaryTreeNode.Dummy
       def advance(): Boolean = {
         if (s.isEmpty) return false
         curr = s.pop()
@@ -60,10 +60,10 @@ trait BinaryTreeNode[+T] extends ForwardNode[T] { self =>
    * @return A non-strict sequence of the in-order traversal.
    */
   def inOrder: Iterable[T] = Iterable.ofIterator {
-    new AbstractIterator[T] {
+    new Iterator[T] {
       private[this] val s = ArrayStack[BinaryTreeNode[T]]()
-      private[this] var v: BinaryTreeNode[T] = null
-      private[this] var curr: BinaryTreeNode[T] = null
+      private[this] var v: BinaryTreeNode[T] = BinaryTreeNode.Dummy
+      private[this] var curr: BinaryTreeNode[T] = BinaryTreeNode.Dummy
       pushLeft(self)
 
       private[this] def pushLeft(n: BinaryTreeNode[T]) = {
@@ -90,10 +90,10 @@ trait BinaryTreeNode[+T] extends ForwardNode[T] { self =>
    * @return A non-strict sequence of the post-order traversal.
    */
   def postOrder: Iterable[T] = Iterable.ofIterator {
-    new AbstractIterator[T] {
+    new Iterator[T] {
       private[this] val s = ArrayStack[BinaryTreeNode[T]]()
-      private[this] var v: BinaryTreeNode[T] = null
-      private[this] var curr: BinaryTreeNode[T] = null
+      private[this] var v: BinaryTreeNode[T] = BinaryTreeNode.Dummy
+      private[this] var curr: BinaryTreeNode[T] = BinaryTreeNode.Dummy
       pushLeft(self)
 
       private[this] def pushLeft(n: BinaryTreeNode[T]) = {
@@ -119,4 +119,17 @@ trait BinaryTreeNode[+T] extends ForwardNode[T] { self =>
 
 }
 
+object BinaryTreeNode {
 
+  object Dummy extends BinaryTreeNode[Nothing] {
+    def data = throw new NoSuchElementException
+    def left = Dummy
+    def right = Dummy
+    def isDummy = true
+  }
+
+  def unapply[T](t: BinaryTreeNode[T]): Option[(T, BinaryTreeNode[T], BinaryTreeNode[T])] = {
+    if (t.isDummy) None else Some((t.data, t.left, t.right))
+  }
+
+}

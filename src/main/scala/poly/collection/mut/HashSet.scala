@@ -1,5 +1,6 @@
 package poly.collection.mut
 
+import poly.algebra._
 import poly.collection._
 import poly.collection.conversion._
 import poly.collection.factory._
@@ -8,6 +9,8 @@ import poly.collection.factory._
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
 class HashSet[T] private(val data: java.util.HashSet[T]) extends MutableSet[T] {
+
+  def equivOnKey = Equiv.default[T]
 
   def add(x: T) = data.add(x)
 

@@ -3,6 +3,7 @@ package poly.collection
 import poly.algebra.hkt._
 import poly.collection.exception._
 import poly.collection.node._
+import poly.collection.ops._
 import poly.util.typeclass._
 import poly.util.typeclass.ops._
 
@@ -89,13 +90,14 @@ trait BinaryTree[+T] extends PartialFunction[Int, T] { self =>
    * compactly represented by this binary tree through Knuth transform (left-child-right-sibling
    * representation). $LAZY $CX_1
    */
-  def inverseKnuthTransform: Tree[T] = {
+  def inverseKnuthTransform: Tree[T] = new Tree[T] {
     class InverseKnuthTransformedTreeNode(val node: BinaryTreeNode[T]) extends TreeNode[T] {
       override def isDummy = node.isDummy
-      def children = ??? //LinearSeq.iterate(node.left)(_.right).takeUntil(_.isDummy).map(btn => new InverseKnuthTransformedTreeNode(btn))
+      def children = node.left.iterate(_.right).takeUntil(_.isDummy).map(btn => new InverseKnuthTransformedTreeNode(btn))
       def data = node.data
     }
-    Tree.ofNode(new InverseKnuthTransformedTreeNode(self.rootNode))
+    def rootNode = new InverseKnuthTransformedTreeNode(self.rootNode)
+    override def knuthTransform = self
   }
 
   def toGraph: Graph[Int, T, Nothing] = ???

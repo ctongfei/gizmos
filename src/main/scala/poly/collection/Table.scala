@@ -1,5 +1,7 @@
 package poly.collection
 
+import poly.algebra._
+
 /**
  * A table is an indexed 2-D array.
  * @author Tongfei Chen (ctongfei@gmail.com).
@@ -13,9 +15,11 @@ trait Table[+T] extends Map[(Int, Int), T] { self =>
   def apply(pair: (Int, Int)): T = apply(pair._1, pair._2)
   def ?(x: (Int, Int)): Option[T] = if (containsKey(x)) Some(self(x)) else None
 
+  def equivOnKey = Equiv.create((x, y) => x._1 == y._1 && x._2 == y._2)
+
   def pairs = for { (i: Int) ← Range(numRows); j ← Range(numCols) } yield (i → j) → self(i, j)
 
-  def newIterator: Iterator[T] = new AbstractIterator[T] {
+  def newIterator: Iterator[T] = new Iterator[T] {
     private[this] var i = 0
     private[this] var j = 0
     def advance() = {
@@ -40,15 +44,13 @@ trait Table[+T] extends Map[(Int, Int), T] { self =>
     i >= 0 && i < numRows && j >= 0 && j < numCols
   }
 
-  def rows: IndexedSeq[IndexedSeq[T]] =
-    IndexedSeq.tabulate(numRows)(i =>
-      IndexedSeq.tabulate(numCols)(j => self(i, j))
-    )
+  def row(i: Int): IndexedSeq[T] = IndexedSeq.tabulate(numCols)(j => self(i, j))
 
-  def cols: IndexedSeq[IndexedSeq[T]] =
-    IndexedSeq.tabulate(numCols)(j =>
-      IndexedSeq.tabulate(numRows)(i => self(i, j))
-    )
+  def col(j: Int): IndexedSeq[T] = IndexedSeq.tabulate(numRows)(i => self(i, j))
+
+  def rows: IndexedSeq[IndexedSeq[T]] = IndexedSeq.tabulate(numRows)(row)
+
+  def cols: IndexedSeq[IndexedSeq[T]] = IndexedSeq.tabulate(numCols)(col)
 
   override def map[U](f: T => U): Table[U] = new Table[U] {
     def numCols = self.numCols
@@ -69,9 +71,7 @@ trait Table[+T] extends Map[(Int, Int), T] { self =>
     def apply(i: Int, j: Int) = (self(i, j), that(i, j))
   }
 
-  def grouped(i: Int, j: Int): Table[Table[T]] = ???
-
-  def sliding(i: Int, j: Int): Table[Table[T]] = ???
+  def sliding(i: Int, j: Int, rowStep: Int = 1, colStep: Int = 1): Table[Table[T]] = ???
 
   override def equals(that: Any) = that match {
     case other: Table[T] => ???

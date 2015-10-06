@@ -1,5 +1,6 @@
 package poly.collection
 
+import poly.algebra._
 import poly.algebra.hkt._
 import poly.collection.exception._
 import poly.util.specgroup._
@@ -14,9 +15,11 @@ import scala.language.reflectiveCalls
  */
 trait Map[@sp(i) K, +V] extends PartialFunction[K, V] { self =>
 
+  def equivOnKey: Equiv[K]
+
   /**
    * Returns all key-value pairs stored in this map.
-   * @return An enumerable sequence of key-value pairs.
+   * @return An iterable sequence of key-value pairs.
    */
   def pairs: Iterable[(K, V)]
 
@@ -55,6 +58,7 @@ trait Map[@sp(i) K, +V] extends PartialFunction[K, V] { self =>
   def isDefinedAt(x: K) = containsKey(x)
 
   def keySet: Set[K] = new Set[K] {
+    def equivOnKey = self.equivOnKey
     def contains(x: K): Boolean = self.containsKey(x)
     def size: Int = self.size
     def elements: Iterable[K] = self.pairs.map(_._1)
@@ -71,9 +75,10 @@ trait Map[@sp(i) K, +V] extends PartialFunction[K, V] { self =>
    * WARNING: This function is equivalent to the Scala library's `mapValues`.
    * To transform all pairs in this map, use `this.pairs.map`.
    * @param f The specific function
-   * @return A map view that maps every key of this map to `f(self(key))`.
+   * @return A map view that maps every key of this map to `f(this(key))`.
    */
   def map[W](f: V => W): Map[K, W] = new AbstractMap[K, W] {
+    def equivOnKey = self.equivOnKey
     def containsKey(x: K): Boolean = self.containsKey(x)
     def ?(x: K): Option[W] = (self ? x).map(f)
     def apply(x: K): W = f(self(x))
@@ -81,14 +86,19 @@ trait Map[@sp(i) K, +V] extends PartialFunction[K, V] { self =>
     def size: Int = self.size
   }
 
-  def zip[W](that: Map[K, W]): Map[K, (V, W)] = new AbstractMap[K, (V, W)] {
-    def apply(x: K): (V, W) = (self(x), that(x))
-    def ?(x: K): Option[(V, W)] = for { v ← self ? x; w ← that ? x } yield (v, w)
-    def pairs = self.pairs filter { case (k, v) => that containsKey k } map { case (k, v) => (k, (v, that(k))) }
-    def size: Int = pairs.size
-    def containsKey(x: K): Boolean = self.containsKey(x) && that.containsKey(x)
+  def zip[W](that: Map[K, W]): Map[K, (V, W)] = {
+    require(this.equivOnKey equivSameAs that.equivOnKey)
+    new AbstractMap[K, (V, W)] {
+      def equivOnKey = self.equivOnKey
+      def apply(x: K): (V, W) = (self(x), that(x))
+      def ?(x: K): Option[(V, W)] = for {v ← self ? x; w ← that ? x} yield (v, w)
+      def pairs = self.pairs filter { case (k, v) => that containsKey k } map { case (k, v) => (k, (v, that(k))) }
+      def size: Int = pairs.size
+      def containsKey(x: K): Boolean = self.containsKey(x) && that.containsKey(x)
+    }
   }
 
+  def |>[W](f: V => W) = self map f
 }
 
 object Map {

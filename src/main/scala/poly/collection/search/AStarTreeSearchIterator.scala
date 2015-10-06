@@ -12,17 +12,19 @@ import poly.collection.node._
  * @author Tongfei Chen (ctongfei@gmail.com).
  * @since 0.1.0
  */
-class AStarTreeSearchIterator[S, C: WeakOrder: AdditiveMonoid]
+class AStarTreeSearchIterator[S, C]
   (val start: S)
-  (implicit ss: StateSpaceWithCostAndHeuristic[S, C])
+  (implicit ss: StateSpaceWithHeuristic[S, C])
   extends SearchIterator[S]
 {
 
-  val fringe = BinaryHeapPriorityQueue[SearchNodeWithCostAndHeuristic[S, C]]()(SearchNodeWithCostAndHeuristic.order)
+  implicit def groupOnCost = ss.groupOnCost
 
-  private[this] var curr: SearchNodeWithCostAndHeuristic[S, C] = SearchNodeWithCostAndHeuristic.dummy[C]
+  val fringe = BinaryHeapPriorityQueue[SearchNodeWithHeuristic[S, C]]()(SearchNodeWithHeuristic.order)
 
-  fringe += SearchNodeWithCostAndHeuristic(start, 0, zero, ss.heuristic(start), curr)
+  private[this] var curr: SearchNodeWithHeuristic[S, C] = SearchNodeWithHeuristic.dummy[C]
+
+  fringe += SearchNodeWithHeuristic(start, 0, zero[C], ss.heuristic(start), curr)
 
   def currentNode = curr
 
@@ -30,7 +32,7 @@ class AStarTreeSearchIterator[S, C: WeakOrder: AdditiveMonoid]
     if (fringe.notEmpty) {
       curr = fringe.pop()
       fringe ++= ss.succWithCost(curr.state).map { case (s, cost) =>
-        SearchNodeWithCostAndHeuristic(s, curr.depth + 1, curr.g + cost, ss.heuristic(s), curr)
+        SearchNodeWithHeuristic(s, curr.depth + 1, curr.g + cost, ss.heuristic(s), curr)
       }
       true
     }

@@ -15,10 +15,11 @@ trait GraphFactory[+G[_, _, _]] {
 
   def apply[K, V, E](vs: (K, V)*)(es: (K, K, E)*): G[K, V, E] = {
     val b = newBuilder[K, V, E]
-    b addVertices vs
+    b addNodes vs
     b addEdges es
     b.result
   }
+
 
   //implicit def factory: GraphFactory[G] = this
 

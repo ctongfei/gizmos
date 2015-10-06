@@ -2,6 +2,7 @@ package poly.collection
 
 import poly.algebra._
 import poly.algebra.hkt._
+import poly.algebra.hkt.ops._
 
 /**
  * Represents a pure, mathematical set (equivalent to a predicate).
@@ -41,7 +42,6 @@ object PredicateSet {
   def universal[T]: PredicateSet[T] = new PredicateSet[T] {
     def contains(x: T) = true
   }
-
   /** Predicate sets form a contravariant functor. */
   implicit object ContravariantFunctor extends ContravariantFunctor[PredicateSet] {
     def contramap[X, Y](sx: PredicateSet[X])(f: Y => X): PredicateSet[Y] = sx contramap f

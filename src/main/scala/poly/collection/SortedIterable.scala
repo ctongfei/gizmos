@@ -6,12 +6,15 @@ import poly.collection.exception._
 import poly.collection.mut._
 
 /**
+ * Represents an iterable collection that is sorted according to a specific weak order
+ * every time it is iterated.
  * @author Tongfei Chen (ctongfei@gmail.com).
+ * @since 0.1.0
  */
 trait SortedIterable[T] extends Iterable[T] { self =>
 
   /** The order under which this sequence is sorted. */
-  implicit def order: WeakOrder[T]
+  implicit def orderOnKey: WeakOrder[T]
 
   /**
    * Merges two sorted sequences into one sorted sequence. $LAZY $CX_1
@@ -20,14 +23,14 @@ trait SortedIterable[T] extends Iterable[T] { self =>
    * @throws IncompatibleOrderException If two sequences are not sorted under the same order.
    */
   def merge(that: SortedIterable[T]): SortedIterable[T] = new SortedIterable[T] {
-    if (this.order ne that.order) throw new IncompatibleOrderException
-    implicit def order: WeakOrder[T] = self.order
-    def newIterator: Iterator[T] = new AbstractIterator[T] {
-      val ai = self.newIterator
-      val bi = that.newIterator
-      var curr: T = _
-      var aNotComplete = ai.advance()
-      var bNotComplete = bi.advance()
+    if (!(this.orderOnKey weakOrderSameAs that.orderOnKey)) throw new IncompatibleOrderException
+    implicit def orderOnKey: WeakOrder[T] = self.orderOnKey
+    def newIterator: Iterator[T] = new Iterator[T] {
+      private[this] val ai = self.newIterator
+      private[this] val bi = that.newIterator
+      private[this] var curr: T = _
+      private[this] var aNotComplete = ai.advance()
+      private[this] var bNotComplete = bi.advance()
       def advance(): Boolean = {
         if (aNotComplete && bNotComplete) {
           if (ai.current <= bi.current) {
@@ -55,6 +58,7 @@ trait SortedIterable[T] extends Iterable[T] { self =>
     }
   }
 
+  //TODO: delete?
   def merge(that: SortedSeq[T]): SortedSeq[T] = {
     val ai = this.newIterator
     val bi = that.newIterator
@@ -74,7 +78,7 @@ trait SortedIterable[T] extends Iterable[T] { self =>
     // Appends remaining elements
     if (aNotComplete) do c.appendInplace(ai.current) while (ai.advance())
     if (bNotComplete) do c.appendInplace(bi.current) while (bi.advance())
-    c.asIfSorted(this.order)
+    c.asIfSorted(this.orderOnKey)
   }
 
 }

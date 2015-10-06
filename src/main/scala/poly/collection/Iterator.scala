@@ -32,6 +32,15 @@ trait Iterator[+T] { self =>
    */
   def advance(): Boolean
 
+  /**
+   * Alternative abstraction: Optionally reads the iterator by one step.
+   * @return
+   */
+  def read(): Option[T] = {
+    if (self.advance()) Some(self.current)
+    else None
+  }
+
   override def toString = "Current = " + this.current.toString
 
 }
@@ -42,5 +51,3 @@ object Iterator {
     def current = throw new NoSuchElementException
   }
 }
-
-abstract class AbstractIterator[+T] extends Iterator[T]

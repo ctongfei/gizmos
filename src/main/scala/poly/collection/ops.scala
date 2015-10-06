@@ -7,11 +7,13 @@ object ops {
 
   implicit class withCollectionOps[T](val x: T) extends AnyVal {
 
-    def infinite = Iterable.infinite(x)
+    def single = IndexedSeq.fill(1)(x)
+
+    def infinite = Seq.infinite(x)
 
     def repeat(n: Int) = IndexedSeq.fill(n)(x)
 
-    def iterate(f: T => T) = Iterable.iterate(x)(f)
+    def iterate(f: T => T) = Seq.iterate(x)(f)
 
   }
 

@@ -1,5 +1,6 @@
 package poly.collection.mut
 
+import poly.algebra._
 import poly.collection._
 import poly.collection.conversion._
 import poly.collection.factory._
@@ -9,6 +10,8 @@ import scala.collection.JavaConverters._
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
 class HashMap[K, V] private(private val data: java.util.HashMap[K, V]) extends KeyMutableMap[K, V] {
+
+  def equivOnKey = ??? //TODO: IntHashing
 
   def apply(x: K): V = data.get(x)
 

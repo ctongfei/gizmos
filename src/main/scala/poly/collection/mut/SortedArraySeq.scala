@@ -10,9 +10,9 @@ import scala.reflect._
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class SortedArraySeq[T] private(private val data: SortedArray[T]) extends MutableIndexedSortedSeq[T] {
+class SortedArraySeq[T] private(private val data: SortedArray[T]) extends MutableSortedIndexedSeq[T] {
 
-  val order = data.order
+  val orderOnKey = data.orderOnKey
 
   def fastLength = data.fastLength
 

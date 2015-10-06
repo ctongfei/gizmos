@@ -1,7 +1,7 @@
 package poly.collection
 
 // dummy
-abstract class Extractors
+private[poly] abstract class Extractors
 
 object +: {
 

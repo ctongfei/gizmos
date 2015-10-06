@@ -4,7 +4,7 @@ package poly.collection
  * Represents a queue.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-//TODO: conform to Enumerable[T]?
+//TODO: conform to Iterable[T]?
 trait Queue[T] {
 
   /** Checks if this queue is empty. */

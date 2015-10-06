@@ -15,20 +15,21 @@ import poly.util.specgroup._
  * @author Tongfei Chen (ctongfei@gmail.com).
  * @since 0.1.0
  */
-class Range private(val left: Int, val right: Int, val step: Int = 1) extends IndexedSortedSeq[Int] {
+class Range private(val left: Int, val right: Int, val step: Int = 1) extends SortedIndexedSeq[Int] {
 
   // Ensures that this is a valid range
   require((step > 0 && left < right) || (step < 0 && left > right))
 
   def fastLength = {
     val gap = right - left
-    gap / step + (if (gap % step != 0) 1 else 0)
+    val len = gap / step + (if (gap % step != 0) 1 else 0)
+    if (len < 0) 0 else len
   }
 
-  implicit def order: WeakOrder[Int] = if (step > 0) WeakOrder[Int] else WeakOrder[Int].reverse
+  implicit def orderOnKey: TotalOrder[Int] = if (step > 0) TotalOrder[Int] else TotalOrder[Int].reverse
 
   def fastApply(i: Int): Int = {
-    if (i < 0 || i >= fastLength) throw new NoSuchElementException
+    if (i < 0 || i >= length) throw new NoSuchElementException
     left + i * step
   }
 
@@ -40,7 +41,12 @@ class Range private(val left: Int, val right: Int, val step: Int = 1) extends In
       FastLoop.descending(left, right, step)(f)
   }
 
-  override def reverse = Range(left + step * (fastLength - 1), left - math.signum(step), -step)
+  // HELPER FUNCTIONS
+  override def head = left
+
+  override def tail = Range(left + step, right, step)
+
+  override def reverse = Range(left + step * (length - 1), left - math.signum(step), -step)
 }
 
 object Range {

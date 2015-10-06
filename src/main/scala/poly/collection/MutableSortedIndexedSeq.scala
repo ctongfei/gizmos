@@ -3,7 +3,7 @@ package poly.collection
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-trait MutableIndexedSortedSeq[T] extends IndexedSortedSeq[T] {
+trait MutableSortedIndexedSeq[T] extends SortedIndexedSeq[T] {
 
   def add(x: T): Unit
 

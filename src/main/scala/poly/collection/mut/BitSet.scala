@@ -1,11 +1,14 @@
 package poly.collection.mut
 
+import poly.algebra._
 import poly.collection._
 
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
 class BitSet extends MutableSet[Int] {
+
+  def equivOnKey = Equiv.default[Int]
 
   def add(x: Int) = ???
 

@@ -10,20 +10,22 @@ import poly.collection.node._
  * @author Tongfei Chen (ctongfei@gmail.com).
  * @since 0.1.0
  */
-class DisjointSets[T] private() extends Eq[T] {
+class DisjointSets[T] private() extends Equiv[T] {
 
-  private class Node extends SinglePredNode[Unit] {
+  private class Node extends SinglePredNode[Nothing] {
     var rank: Int = 0
     var parent: Node = this
-    val data = ()
+    def data = throw new NoSuchElementException
     def isDummy = false
   }
 
   private var sets = 0
   private var data = HashMap[T, Node]()
 
+  /** Returns the number of element this disjoint-sets structure is managing. */
   def size = data.size
 
+  /** Returns the number of distinct disjoint sets in this structure. */
   def numPartitions = sets
 
   /** Links two node to form one set using union by rank. */

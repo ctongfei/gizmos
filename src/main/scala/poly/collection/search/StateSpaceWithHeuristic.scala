@@ -7,14 +7,15 @@ import poly.util.specgroup._
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-trait StateSpaceWithHeuristic[S, @sp(fdi) C] extends StateSpace[S] {
-
-  implicit def monoidOfCost: AdditiveMonoid[C]
+trait StateSpaceWithHeuristic[S, @sp(fdi) C] extends StateSpaceWithCost[S, C] {
 
   def heuristic(s: S): C
 
-  def greedyBestFirstTreeTraversal(start: S)(implicit ev1: WeakOrder[C], ev2: AdditiveMonoid[C]): Iterable[S] =
-    Iterable.ofIterator(new GreedyBestFirstTreeSearchIterator[S, C](start)(ev1, ev2, this))
+  def greedyBestFirstTreeTraversal(start: S): Iterable[S] =
+    Iterable.ofIterator(new GreedyBestFirstTreeSearchIterator[S, C](start)(this))
+
+  def aStarTreeTraversal(start: S): Iterable[S] =
+    Iterable.ofIterator(new AStarTreeSearchIterator[S, C](start)(this))
 
 
 }

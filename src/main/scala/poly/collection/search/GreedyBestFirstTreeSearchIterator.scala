@@ -1,9 +1,8 @@
 package poly.collection.search
 
 import poly.algebra._
-import poly.algebra.ops._
 import poly.algebra.function._
-import poly.collection._
+import poly.algebra.specgroup._
 import poly.collection.mut._
 import poly.collection.node._
 
@@ -12,26 +11,26 @@ import poly.collection.node._
  * @author Tongfei Chen (ctongfei@gmail.com).
  * @since 0.1.0
  */
-class GreedyBestFirstTreeSearchIterator[S, C: WeakOrder: AdditiveMonoid]
+class GreedyBestFirstTreeSearchIterator[S, @sp(fdi) C]
   (val start: S)
   (implicit ss: StateSpaceWithHeuristic[S, C])
   extends SearchIterator[S]
 {
 
-  val fringe = BinaryHeapPriorityQueue[SearchNodeWithHeuristic[S, C]]()(SearchNodeWithHeuristic.order)
+  implicit def groupOnCost = ss.groupOnCost
 
-  private implicit def numericOfCost = ss.monoidOfCost
+  val fringe = BinaryHeapPriorityQueue[SearchNodeWithHeuristic[S, C]]()(SearchNodeWithHeuristic.order)
 
   private[this] var curr: SearchNodeWithHeuristic[S, C] = SearchNodeWithHeuristic.dummy[C]
 
-  fringe += SearchNodeWithHeuristic(start, 0, ss.heuristic(start), curr)
+  fringe += SearchNodeWithHeuristic(start, 0, zero[C], ss.heuristic(start), curr)
 
   def currentNode = curr
 
   def advance() = {
     if (fringe.notEmpty) {
       curr = fringe.pop()
-      fringe ++= ss.succ(curr.state).map(s => SearchNodeWithHeuristic(s, curr.depth + 1, ss.heuristic(s), curr))
+      fringe ++= ss.succ(curr.state).map{ s => SearchNodeWithHeuristic(s, curr.depth + 1, zero[C], ss.heuristic(s), curr) }
       true
     }
     else false

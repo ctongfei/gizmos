@@ -9,12 +9,12 @@ import poly.util.specgroup._
  */
 trait StateSpaceWithCost[S, @sp(fdi) C] extends StateSpace[S] {
 
-  implicit def monoidOfCost: AdditiveMonoid[C]
+  implicit def groupOnCost: OrderedAdditiveGroup[C]
   def succWithCost(x: S): Traversable[(S, C)]
   def succ(x: S) = succWithCost(x).map(_._1)
 
-  def uniformCostTreeTraversal(start: S)(implicit ev1: WeakOrder[C], ev2: AdditiveMonoid[C]): Iterable[S] =
-    Iterable.ofIterator(new UniformCostTreeSearchIterator[S, C](start)(ev1, ev2, this))
+  def uniformCostTreeTraversal(start: S): Iterable[S] =
+    Iterable.ofIterator(new UniformCostTreeSearchIterator[S, C](start)(this))
 
 
 }

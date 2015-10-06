@@ -25,6 +25,7 @@ trait UndirectedGraph[K, +V, +E] extends BiGraph[K, V, E] { self =>
   override def edges = ??? //TODO: super.edges.distinct
 
   class UndirectedEdge(override val key1: K, override val key2: K) extends super.Edge(key1, key2) with Set[K] {
+    def equivOnKey = ??? //TODO:!!!
     override def equals(that: Any) = that match {
       case that: UndirectedEdge =>
         (this.key1 == that.key1 && this.key2 == that.key2) ||

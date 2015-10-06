@@ -72,7 +72,7 @@ final class ResizableSeq[T]
     len -= 1
   }
 
-  def inplaceMove(i: Int, j: Int, k: Int): Unit = {
+  def moveInplace(i: Int, j: Int, k: Int): Unit = {
     Array.copy(data, i, data, k, j - i)
   }
 

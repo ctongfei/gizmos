@@ -12,13 +12,13 @@ trait GraphBuilder[-K, -V, -E, +G] {
    * Provides a hint to this builder about how many vertices are expected to be added.
    * @param n The hint how many vertices is to be added
    */
-  def numVerticesHint(n: Int): Unit
+  def numNodesHint(n: Int): Unit
 
-  def addVertex(i: K, v: V): Unit
+  def addNode(i: K, v: V): Unit
 
   def addEdge(i: K, j: K, e: E): Unit
 
-  def addVertices(kvs: Traversable[(K, V)]) = kvs foreach { case (i, v) => addVertex(i, v) }
+  def addNodes(kvs: Traversable[(K, V)]) = kvs foreach { case (i, v) => addNode(i, v) }
 
   def addEdges(kkes: Traversable[(K, K, E)]) = kkes foreach { case (i, j, e) => addEdge(i, j, e) }
 
