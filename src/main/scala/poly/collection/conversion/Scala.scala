@@ -1,25 +1,19 @@
-package poly.collection
+package poly.collection.conversion
 
-import poly.algebra._
-import poly.collection.conversion._
+import poly.collection._
 import poly.collection.node._
-
-import java.{util => ju}
-import java.{lang => jl}
 import scala.{collection => sc}
 import scala.language.implicitConversions
 
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
- * @since 0.1.0
  */
-package object conversion {
-
-  //region Scala/Java to Poly
+object Scala {
 
   implicit def scalaTraversableAsPoly[T](xs: sc.Traversable[T]): Traversable[T] = new AbstractTraversable[T] {
     def foreach[U](f: T => U) = xs.foreach(f)
   }
+
   implicit def scalaIteratorAsPoly[T](xs: sc.Iterator[T]): Iterator[T] = new Iterator[T] {
     var current: T = default[T]
     def advance() = {
@@ -30,58 +24,31 @@ package object conversion {
       else false
     }
   }
+
   implicit def scalaIterableAsPoly[T](xs: sc.Iterable[T]): Iterable[T] = new AbstractIterable[T] {
     def newIterator = scalaIteratorAsPoly[T](xs.iterator)
   }
+
   implicit def scalaSeqAsPoly[T](xs: sc.Seq[T]): Seq[T] = new Seq[T] {
     class WrappedNode(val s: sc.Seq[T], override val isDummy: Boolean = false) extends SeqNode[T] {
       def data = s.head
-      def next = new WrappedNode(s.tail, s.tail.isEmpty)
+      def next = {
+        val t = s.tail
+        new WrappedNode(t, t.isEmpty)
+      }
     }
     override def newIterator = scalaIteratorAsPoly[T](xs.iterator)
     def headNode = new WrappedNode(xs.view, xs.isEmpty)
     override def apply(i: Int) = xs(i)
     override def length = xs.length
   }
+
   implicit def scalaIndexedSeqAsPoly[T](xs: sc.IndexedSeq[T]): IndexedSeq[T] = new AbstractIndexedSeq[T] {
     def fastApply(i: Int) = xs.apply(i)
     def fastLength = xs.length
   }
 
 
-  implicit def javaIterableAsPoly[T](xs: jl.Iterable[T]): Iterable[T] = new AbstractIterable[T] {
-    def newIterator = javaIteratorAsPoly[T](xs.iterator())
-  }
-  implicit def javaIteratorAsPoly[T](xs: ju.Iterator[T]): Iterator[T] = new Iterator[T] {
-    var current: T = default[T]
-    def advance() = {
-      if (xs.hasNext) {
-        current = xs.next()
-        true
-      }
-      else false
-    }
-  }
-  implicit def javaListAsPoly[T](xs: ju.List[T]): IndexedSeq[T] = new DataMutableIndexedSeq[T] {
-    def fastLength = xs.size
-    def fastApply(i: Int) = xs.get(i)
-    def update(i: Int, x: T) = xs.set(i, x)
-  }
-  implicit def javaMapAsPoly[K, V](jm: ju.Map[K, V]): Map[K, V] = new KeyMutableMap[K, V] {
-    def equivOnKey = Equiv.default[K]
-    def add(x: K, y: V): Unit = jm.put(x, y)
-    def clear(): Unit = jm.clear()
-    def remove(x: K): Unit = jm.remove(x)
-    def update(x: K, y: V): Unit = jm.put(x, y)
-    def ?(x: K): Option[V] = Option(jm.get(x))
-    def pairs: Iterable[(K, V)] = jm.entrySet.map(e => e.getKey → e.getValue)
-    def size = jm.size
-    def apply(x: K): V = jm.get(x)
-    def containsKey(x: K): Boolean = jm.containsKey(x)
-  }
-  //endregion
-
-  //region Poly to Scala
 
   implicit class PolyIteratorAsScala[T](val e: Iterator[T]) extends AnyVal {
 
@@ -124,7 +91,7 @@ package object conversion {
     }
   }
 
-  implicit class PolyEnumerableAsScala[T](val xs: Iterable[T]) extends AnyVal {
+  implicit class PolyIterableAsScala[T](val xs: Iterable[T]) extends AnyVal {
     def asScalaIterable: sc.Iterable[T] = new sc.AbstractIterable[T] {
       def iterator: sc.Iterator[T] = xs.newIterator.asScalaIterator
     }
@@ -135,15 +102,6 @@ package object conversion {
       def length: Int = xs.length
       def apply(i: Int): T = xs(i)
       def iterator: sc.Iterator[T] = xs.newIterator.asScalaIterator
-    }
-  }
-
-  implicit class PolyLinearSeqAsScala[T](val xs: Seq[T]) extends AnyVal {
-    def asScalaLinearSeq: sc.LinearSeq[T] = new sc.LinearSeq[T] {
-      def apply(i: Int) = xs.apply(i)
-      def length = xs.length
-      override def head = xs.head
-      override def tail = xs.tail.asScalaLinearSeq
     }
   }
 
@@ -160,6 +118,6 @@ package object conversion {
       def iterator: sc.Iterator[(K, V)] = xs.pairs.newIterator.asScalaIterator
     }
   }
-  //endregion
+
 
 }

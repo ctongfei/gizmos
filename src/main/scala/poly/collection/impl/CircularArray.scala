@@ -48,13 +48,13 @@ class CircularArray[T](private val data: ResizableSeq[T]) {
 
   def capacity = data.capacity
 
-  def inplaceAppend(x: T) = {
+  def appendInplace(x: T) = {
     if (isFull) grow()
     data(backPtr) = x
     backPtr = (backPtr + 1) % data.capacity
   }
 
-  def inplacePrepend(x: T) = {
+  def prependInplace(x: T) = {
     if (isFull) grow()
     val newFrontPtr = if (frontPtr > 0) frontPtr - 1 else data.capacity - 1
     data(newFrontPtr) = x

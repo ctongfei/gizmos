@@ -7,11 +7,11 @@ import scala.language.higherKinds
 import scala.annotation.unchecked.{uncheckedVariance => uv}
 
 /**
- * Basic trait for a forward directed graph.
+ * Represents a forward directed graph.
  * @author Tongfei Chen (ctongfei@gmail.com).
  * @since 0.1.0
  */
-trait Graph[@sp(i) K, +V, +E] { self =>
+trait Graph[@sp(i) K, +V, +E] extends Keyed[K] { self =>
 
   def apply(i: K): V
   def apply(i: K, j: K): E
@@ -76,13 +76,9 @@ trait Graph[@sp(i) K, +V, +E] { self =>
       else throw new NoSuchElementException
     }
     def containsEdge(i: K, j: K): Boolean = f(self(i)) && f(self(j))
-
     def containsNode(i: K): Boolean = f(self(i))
-
     def apply(i: K, j: K): E = if (containsEdge(i, j)) self(i, j) else throw new NoSuchElementException
-
     def outgoingKeysOf(i: K): Iterable[K] = ???
-
     def keySet: Set[K] = ???
   }
 

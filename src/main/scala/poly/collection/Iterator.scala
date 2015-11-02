@@ -34,7 +34,7 @@ trait Iterator[+T] { self =>
 
   /**
    * Alternative abstraction: Optionally reads the iterator by one step.
-   * @return
+   * @return If the next element exists, returns it and advances itself; otherwise Null.
    */
   def read(): Option[T] = {
     if (self.advance()) Some(self.current)

@@ -7,9 +7,7 @@ import poly.algebra._
  * @author Tongfei Chen (ctongfei@gmail.com).
  * @since 0.1.0
  */
-trait Multiset[T] extends PredicateSet[T] { self =>
-
-  def equivOnKey: Equiv[T]
+trait Multiset[T] extends PredicateSet[T] with Keyed[T] { self =>
 
   /** Returns the multiplicity (number of occurrence) of an element in this multiset. */
   def multiplicity(x: T): Int
@@ -19,6 +17,7 @@ trait Multiset[T] extends PredicateSet[T] { self =>
 
   def size: Int
 
+  /** The elements in this set. */
   def elements: Iterable[T]
 
   // HELPER FUNCTIONS

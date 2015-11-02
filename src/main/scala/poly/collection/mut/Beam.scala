@@ -9,24 +9,24 @@ import scala.language.higherKinds
  *
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class Beam[T] private(k: Int, val pq: PriorityQueue[T]) extends PriorityQueue[T] {
+class Beam[T] private(k: Int, val pq: PriorityQueue[T]) extends Iterable[T] with HasKnownSize {
 
   def capacity = k
 
-  implicit def order = pq.order
+  implicit def order = pq.order.reverse
 
-  def top = pq.top
+  override def size = pq.size
 
-  def pop() = pq.pop()
 
-  def size = pq.size
 
   def push(x: T) = {
-    if (x < top) { // if not, discard
+    if (x < pq.top) { // if not, discard
       pq.pop()
       pq.push(x)
     }
   }
+
+  def newIterator = pq.newIterator
 
 }
 

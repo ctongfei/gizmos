@@ -10,7 +10,7 @@ import poly.collection.mut._
  * Runs the Floyd-Warshall algorithm on a specified graph.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class AllPairsShortestPath[K, E : AdditiveMonoid : WeakOrder : HasTop]
+class AllPairsShortestPath[K, E : OrderedAdditiveGroup : HasTop]
   (val graph: Graph[K, Any, E]) extends MetricSpace[K, E]
 {
 

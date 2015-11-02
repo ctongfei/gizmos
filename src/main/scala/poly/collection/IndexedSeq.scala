@@ -16,9 +16,7 @@ import scala.reflect._
  * @author Tongfei Chen (ctongfei@gmail.com).
  * @since 0.1.0
  */
-trait IndexedSeq[+T] extends BiSeq[T] { self =>
-
-  override def hasKnownSize = true
+trait IndexedSeq[+T] extends BiSeq[T] with HasKnownSize { self =>
 
   def fastLength: Int
 
@@ -108,7 +106,7 @@ trait IndexedSeq[+T] extends BiSeq[T] { self =>
    * @return A sorted order
    */
   override def asIfSorted[U >: T](implicit U: WeakOrder[U]): SortedIndexedSeq[U] = new SortedIndexedSeq[U] {
-    val orderOnKey: WeakOrder[U] = U
+    val orderOnValue: WeakOrder[U] = U
     def fastLength: Int = self.length
     def fastApply(i: Int): T = self.apply(i)
   }

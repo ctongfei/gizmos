@@ -13,18 +13,18 @@ import poly.collection.mut._
  */
 trait SortedIterable[T] extends Iterable[T] { self =>
 
-  /** The order under which this sequence is sorted. */
-  implicit def orderOnKey: WeakOrder[T]
+  /** The order under which the elements of this sequence is sorted. */
+  implicit def orderOnValue: WeakOrder[T]
 
   /**
-   * Merges two sorted sequences into one sorted sequence. $LAZY $CX_1
+   * Merges two sorted sequences into one sorted sequence. $LAZY $O1
    * @param that Another sorted sequence. These two sequences must be sorted under the same order.
    * @return A merged sorted sequence
    * @throws IncompatibleOrderException If two sequences are not sorted under the same order.
    */
   def merge(that: SortedIterable[T]): SortedIterable[T] = new SortedIterable[T] {
-    if (!(this.orderOnKey weakOrderSameAs that.orderOnKey)) throw new IncompatibleOrderException
-    implicit def orderOnKey: WeakOrder[T] = self.orderOnKey
+    if (!(this.orderOnValue weakOrderSameAs that.orderOnValue)) throw new IncompatibleOrderException
+    implicit def orderOnValue: WeakOrder[T] = self.orderOnValue
     def newIterator: Iterator[T] = new Iterator[T] {
       private[this] val ai = self.newIterator
       private[this] val bi = that.newIterator
@@ -78,7 +78,7 @@ trait SortedIterable[T] extends Iterable[T] { self =>
     // Appends remaining elements
     if (aNotComplete) do c.appendInplace(ai.current) while (ai.advance())
     if (bNotComplete) do c.appendInplace(bi.current) while (bi.advance())
-    c.asIfSorted(this.orderOnKey)
+    c.asIfSorted(this.orderOnValue)
   }
 
 }

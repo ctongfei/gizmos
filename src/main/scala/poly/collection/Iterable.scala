@@ -207,7 +207,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
    * Pretends that this iterable collection is sorted.
    */
   def asIfSorted[U >: T](implicit U: WeakOrder[U]): SortedIterable[U] = new SortedIterable[U] {
-    implicit def orderOnKey = U
+    implicit def orderOnValue = U
     def newIterator = self.newIterator
   }
   /**
@@ -395,11 +395,10 @@ object Iterable {
     override def filter[X](mx: Iterable[X])(f: X => Boolean) = mx.filter(f)
   }
 
-  object ZipApplicative extends Applicative[Iterable] {
+  object ZipApplicative extends ApplicativeFunctor[Iterable] {
     def id[X](u: X) = Iterable.infinite(u)
-    def liftedApply[X, Y](mx: Iterable[X])(mf: Iterable[X => Y]) = (mx zip mf) map { case (x, f) => f(x) }
-    /*TODO: in poly-algebra 0.2.9 override*/
-    def product[X, Y](mx: Iterable[X])(my: Iterable[Y]) = mx zip my
+    def liftedMap[X, Y](mx: Iterable[X])(mf: Iterable[X => Y]) = (mx zip mf) map { case (x, f) => f(x) }
+    override def product[X, Y](mx: Iterable[X])(my: Iterable[Y]) = mx zip my
   }
 
   /** Implicitly converts an `Option` to an `Iterable` that contains one or zero element. */

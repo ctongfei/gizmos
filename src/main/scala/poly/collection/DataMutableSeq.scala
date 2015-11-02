@@ -2,9 +2,8 @@ package poly.collection
 
 /**
  * Represents a sequence in which data can be mutated.
- * @tparam T
  */
-trait DataMutableSeq[T] extends Seq[T] { self =>
+trait DataMutableSeq[T] extends Seq[T] with DataMutableMap[Int, T] { self =>
 
   /**
    * Updates the element at the specific location.

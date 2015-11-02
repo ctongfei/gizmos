@@ -19,7 +19,7 @@ class GreedyBestFirstTreeSearchIterator[S, @sp(fdi) C]
 
   implicit def groupOnCost = ss.groupOnCost
 
-  val fringe = BinaryHeapPriorityQueue[SearchNodeWithHeuristic[S, C]]()(SearchNodeWithHeuristic.order)
+  val fringe = BinaryHeapPriorityQueue[SearchNodeWithHeuristic[S, C]]()
 
   private[this] var curr: SearchNodeWithHeuristic[S, C] = SearchNodeWithHeuristic.dummy[C]
 

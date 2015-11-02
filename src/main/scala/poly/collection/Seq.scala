@@ -4,21 +4,20 @@ import poly.algebra._
 import poly.algebra.ops._
 import poly.algebra.implicits._
 import poly.collection.node._
+import scala.annotation.unchecked.{uncheckedVariance => uv}
 
 /**
  * Represents a sequence that guarantees the same order every time it is traversed.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-trait Seq[+T] extends Iterable[T] with Map[Int, T] { self =>
+trait Seq[+T] extends SortedMap[Int, T] with Iterable[T] { self =>
 
   import Seq._
 
+  /** Returns the node that points to the head of this sequence. $O1 */
   def headNode: SeqNode[T]
 
-  /**
-   * Returns the length of this sequence.
-   * @return The length of this sequence
-   */
+  /** Returns the length of this sequence. $On */
   def length: Int = {
     var node = headNode
     var n = 0
@@ -30,7 +29,7 @@ trait Seq[+T] extends Iterable[T] with Map[Int, T] { self =>
   }
 
   /**
-   * Returns the ''i''-th element of this sequence.
+   * Returns the ''i''-th element of this sequence. $On
    * @param i Index
    * @return The ''i''-th element of this sequence
    */
@@ -44,7 +43,9 @@ trait Seq[+T] extends Iterable[T] with Map[Int, T] { self =>
     node.data
   }
 
-  def equivOnKey = TotalOrder[Int]
+
+  /** Returns the weak order on keys. In this case (`Seq`), it returns the total order on integers. */
+  def orderOnKey = TotalOrder[Int]
 
   override def size = length
 
@@ -77,9 +78,9 @@ trait Seq[+T] extends Iterable[T] with Map[Int, T] { self =>
 
   def containsKey(i: Int) = i >= 0 && i < size
 
-  def pairs = {
+  def pairs: SortedSeq[(Int, T @uv)] = {
     var i = -1
-    self.map(x => { i += 1; (i, x) })
+    self.map(x => { i += 1; (i, x) }).asIfSorted(WeakOrder by first)
   }
 
 
@@ -188,10 +189,11 @@ trait Seq[+T] extends Iterable[T] with Map[Int, T] { self =>
   /**
    * Pretends that this sequence is sorted under the given implicit order.
    * @param U The implicit order
-   * @return A sorted order (WARNING: Actual orderedness is not guaranteed! The user should make sure that it is sorted.)
+   * @note Actual orderedness is not guaranteed! The user should make sure that it is sorted.
+   * @return A sorted order
    */
   override def asIfSorted[U >: T](implicit U: WeakOrder[U]): SortedSeq[U] = new SortedSeq[U] {
-    val orderOnKey: WeakOrder[U] = U
+    val orderOnValue: WeakOrder[U] = U
     def headNode: SeqNode[T] = self.headNode
   }
 

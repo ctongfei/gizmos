@@ -31,10 +31,10 @@ trait BiSeq[+T] extends Seq[T] { self =>
     accum
   }
 
-  /** Retrieves the last element of this sequence. $EAGER $CX_1 */
+  /** Retrieves the last element of this sequence. $EAGER $O1 */
   override def last = lastNode.data
 
-  /** Returns the reverse of this bidirectional sequence. $LAZY $CX_1 */
+  /** Returns the reverse of this bidirectional sequence. $LAZY $O1 */
   override def reverse: BiSeq[T] = new AbstractBiSeq[T] {
     def lastNode = self.headNode.reverse
     def headNode = self.lastNode.reverse

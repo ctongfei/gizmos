@@ -5,12 +5,14 @@ import poly.algebra.hkt._
 import poly.algebra.ops._
 import poly.algebra.function._
 import poly.collection.exception._
+import poly.collection.factory._
 import poly.collection.mut._
 import poly.util.typeclass._
 import poly.util.typeclass.ops._
 
 import scala.language.higherKinds
 import scala.annotation.unchecked.{uncheckedVariance => uv}
+import scala.reflect._
 
 /**
  * Basic trait for traversable collections.
@@ -19,30 +21,27 @@ import scala.annotation.unchecked.{uncheckedVariance => uv}
  *
  * @define LAZY This function is lazily executed.
  * @define EAGER This function is eagerly executed.
- * @define CX_NLOGN Time complexity: O(''n'' log ''n'').
- * @define CX_N Time complexity: O(''n'').
- * @define CX_LOGN Time complexity: O(log ''n'').
- * @define CX_AMORTIZED_1 Time complexity: Amortized O(1).
- * @define CX_1 Time complexity: O(1).
+ * @define Onlogn Time complexity: O(n log n).
+ * @define On Time complexity: O(n).
+ * @define Ologn Time complexity: O(log n).
+ * @define O1amortized Time complexity: Amortized O(1).
+ * @define O1 Time complexity: O(1).
  */
 trait Traversable[+T] { self =>
 
   /**
-   * Applies a function ''f'' to each element of this collection. $EAGER $CX_N
+   * Applies a function ''f'' to each element of this collection. $EAGER $On
    * @param f The function to be applied. Return values are discarded.
    * @tparam V Type of the result of function ''f''
    */
   def foreach[V](f: T => V): Unit
-
-  /** Returns whether the size of this collection can be efficiently retrieved. $CX_1 */
-  def hasKnownSize = false
 
   //region HELPER FUNCTIONS
 
   //region Monadic operations (map, flatMap, product)
   /**
    * Returns a new collection by applying a function to all elements in this collection.
-   * $LAZY $CX_1
+   * $LAZY $O1
    * @param f Function to apply
    * @tparam U Type of the image of the function
    * @return A new collection that each element is the image of the original element applied by ''f''.
@@ -53,7 +52,7 @@ trait Traversable[+T] { self =>
     }
   }
 
-  /** $LAZY $CX_1 */
+  /** $LAZY $O1 */
   def flatMap[U](f: T => Traversable[U]): Traversable[U] = new AbstractTraversable[U] {
     def foreach[V](g: U => V): Unit = {
       for (x ← self)
@@ -62,7 +61,7 @@ trait Traversable[+T] { self =>
     }
   }
 
-  /** $LAZY $CX_1 */
+  /** $LAZY $O1 */
   def cartesianProduct[U](that: Traversable[U]): Traversable[(T, U)] =
     self flatMap (x => that map (y => (x, y)))
 
@@ -71,7 +70,7 @@ trait Traversable[+T] { self =>
   //region Filtering & grouping (count, filter, filterNot, filterMany, partition, groupBy)
 
   /**
-   * Counts the number of elements that satisfy the specified predicate. $EAGER $CX_1
+   * Counts the number of elements that satisfy the specified predicate. $EAGER $O1
    * @param f The specified predicate
    * @return The number of elements that satisfy ''f''
    */
@@ -83,7 +82,7 @@ trait Traversable[+T] { self =>
   }
 
   /**
-   * Selects the elements that satisfy the specified predicate. $LAZY $CX_1
+   * Selects the elements that satisfy the specified predicate. $LAZY $O1
    * @param f The specified predicate
    * @return A traversable collection that contains all elements that satisfy ''f''.
    */
@@ -95,14 +94,14 @@ trait Traversable[+T] { self =>
   }
 
   /**
-   * Selects the elements that do not satisfy the specified predicate. $LAZY $CX_1
+   * Selects the elements that do not satisfy the specified predicate. $LAZY $O1
    * @param f The specified predicate
    * @return A traversable collection that contains all elements that do not satisfy ''f''.
    */
   def filterNot(f: T => Boolean): Traversable[T] = filter(e => !f(e))
 
   /**
-   * Partitions this collection to two collections according to a predicate. $EAGER $CX_N
+   * Partitions this collection to two collections according to a predicate. $EAGER $On
    * @param f The specified predicate
    * @return A pair of collections: ( {x|f(x)} , {x|!f(x)} )
    */
@@ -114,7 +113,7 @@ trait Traversable[+T] { self =>
   }
 
   /**
-   * $EAGER $CX_N
+   * $EAGER $On
    * @param fs
    * @return
    */
@@ -126,20 +125,20 @@ trait Traversable[+T] { self =>
     l
   }
 
-  /** $EAGER $CX_N */
+  /** $EAGER $On */
   def findFirst(f: T => Boolean): Option[T] = {
     for (x ← self)
       if (f(x)) return Some(x)
     None
   }
 
-  /** $EAGER $CX_N */
-  def groupBy[S >: T, K](f: S => K): Multimap[K, S] = ???
+  /** $EAGER $On */
+  def groupBy[S >: T, K](f: S => K): Map[K, Traversable[S]] = ???
   //endregion
 
   //region Concatenation (concat, prepend, append)
   /**
-   * Concatenates two traversable collections into one. $LAZY $CX_1
+   * Concatenates two traversable collections into one. $LAZY $O1
    * @param that Another collection
    * @return A concatenated collection
    */
@@ -152,7 +151,7 @@ trait Traversable[+T] { self =>
     }
   }
 
-  /** $LAZY $CX_1 */
+  /** $LAZY $O1 */
   def prepend[U >: T](x: U): Traversable[U] = new AbstractTraversable[U] {
     def foreach[V](f: U => V) = {
       f(x)
@@ -160,7 +159,7 @@ trait Traversable[+T] { self =>
     }
   }
 
-  /** $LAZY $CX_1 */
+  /** $LAZY $O1 */
   def append[U >: T](x: U): Traversable[U] = new AbstractTraversable[U] {
     def foreach[V](f: U => V) = {
       self foreach f
@@ -170,7 +169,7 @@ trait Traversable[+T] { self =>
   //endregion
 
   /**
-   * Returns the number of elements in this collection. $EAGER $CX_N
+   * Returns the number of elements in this collection. $EAGER $On
    * @return The size of this collection
    */
   def size: Int = {
@@ -180,7 +179,7 @@ trait Traversable[+T] { self =>
   }
 
   /**
-   * Checks if this collection is empty. $EAGER $CX_1
+   * Checks if this collection is empty. $EAGER $O1
    * @return
    */
   def isEmpty = headOption match {
@@ -188,21 +187,21 @@ trait Traversable[+T] { self =>
     case None => true
   }
 
-  /** $EAGER $CX_N */
+  /** $EAGER $On */
   def exists(f: T => Boolean): Boolean = {
     for (x ← self)
       if (f(x)) return true
     false
   }
 
-  /** $EAGER $CX_N */
+  /** $EAGER $On */
   def forall(f: T => Boolean): Boolean = {
     for (x ← self)
       if (!f(x)) return false
     true
   }
 
-  /** $EAGER $CX_N */
+  /** $EAGER $On */
   def foldLeft[U](z: U)(f: (U, T) => U): U = {
     var r = z
     for (x ← self)
@@ -210,16 +209,16 @@ trait Traversable[+T] { self =>
     r
   }
 
-  /** $EAGER $CX_N */
+  /** $EAGER $On */
   def foldRight[U](z: U)(f: (T, U) => U): U = reverse.foldLeft(z)((u, t) => f(t, u))
 
-  /** $EAGER $CX_N */
+  /** $EAGER $On */
   def fold[U >: T](z: U)(f: (U, U) => U): U = foldLeft(z)(f)
 
-  /** $EAGER $CX_N */
+  /** $EAGER $On */
   def foldByMonoid[U >: T : Monoid]: U = foldLeft(id)(_ op _)
   
-  /** $EAGER $CX_N */
+  /** $EAGER $On */
   def reduceLeft[U >: T](f: (U, T) => U): U = {
     var first = true
     var res = default[U]
@@ -240,7 +239,7 @@ trait Traversable[+T] { self =>
 
   def reduceBySemigroup[U >: T : Semigroup]: U = reduceLeft[U](_ op _)
 
-  /** $LAZY $CX_1 */
+  /** $LAZY $O1 */
   def scanLeft[U](z: U)(f: (U, T) => U): Traversable[U] = new AbstractTraversable[U] {
     def foreach[V](g: U => V) = {
       var accum = z
@@ -254,17 +253,17 @@ trait Traversable[+T] { self =>
 
   def scanRight[U](z: U)(f: (T, U) => U) = self.reverse.scanLeft(z)((x, y) => f(y, x))
 
-  /** $LAZY $CX_1 */
+  /** $LAZY $O1 */
   def scan[U >: T](z: U)(f: (U, U) => U): Traversable[U] = scanLeft(z)(f)
 
-  /** $LAZY $CX_1 */
+  /** $LAZY $O1 */
   def scanByMonoid[U >: T : Monoid]: Traversable[U] = scanLeft(id)(_ op _)
 
   /**
-   * Returns the consecutive differences of the sentences. E.g. {{{
+   * Returns the consecutive differences of the sentences. $LAZY $O1
+   * @example {{{
    *   (0, 1, 3, 6, 10, 15).diff(_ - _) == (1, 2, 3, 4, 5)
-   * }}}.
-   * $LAZY $CX_1
+   * }}}
    */
   def diff[U](f: (T, T) => U): Traversable[U] = new AbstractTraversable[U] {
     var first = true
@@ -283,24 +282,24 @@ trait Traversable[+T] { self =>
     }
   }
 
-  /** $LAZY $CX_1 */
+  /** $LAZY $O1 */
   def diffByGroup[U >: T](implicit U: Group[U]) = diff((x, y) => U.op(x, U.inv(y)))
 
-  /** $EAGER $CX_1 */
+  /** $EAGER $O1 */
   def head: T = {
     for (x ← self)
       return x
     throw new NoSuchElementException
   }
 
-  /** $EAGER $CX_1 */
+  /** $EAGER $O1 */
   def headOption: Option[T] = {
     for (x ← self)
       return Some(x)
     None
   }
 
-  /** $LAZY $CX_1 */
+  /** $LAZY $O1 */
   def tail: Traversable[T] = new AbstractTraversable[T] {
     def foreach[U](f: T => U): Unit = {
       var first = true
@@ -311,7 +310,7 @@ trait Traversable[+T] { self =>
     }
   }
 
-  /** $EAGER $CX_N */
+  /** $EAGER $On */
   def last: T = {
     var p = head
     for (x ← this) p = x
@@ -449,7 +448,7 @@ trait Traversable[+T] { self =>
 
   def isum[X >: T](implicit X: InplaceAdditiveCMonoid[X]) = {
     val sum = zero[X]
-    for (x ← self) X.inplaceAdd(sum, x)
+    for (x ← self) X.addInplace(sum, x)
     sum
   }
 
@@ -461,8 +460,11 @@ trait Traversable[+T] { self =>
   def prefixSums[X >: T](implicit X: AdditiveMonoid[X]) = scan(zero)(_+_)
 
   /**
-   * Returns the consecutive differences sequence of this collection. For example, `(0, 1, 3, 6, 10).differences`
-   * becomes `(1, 2, 3, 4)`. This is the inverse operator of `prefixSums` that the following invariant holds:
+   * Returns the consecutive differences sequence of this collection.
+   * @example {{{
+   *   (0, 1, 3, 6, 10).differences == (1, 2, 3, 4)
+   * }}}
+   * @note This is the inverse operator of `prefixSums` that the following invariant holds:
    * {{{
    *   l.prefixSums.differences == l
    * }}}
@@ -549,13 +551,28 @@ trait Traversable[+T] { self =>
    * Converts this traversable sequence to any collection type.
    * @param builder An implicit builder
    * @tparam C Higher-order type of the collection to be built
-   * @return
    */
-  def to[C[_]](implicit builder: Builder[T @uv, C[T] @uv]): C[T @uv] = {
-    val b = builder
-    if (hasKnownSize) b.sizeHint(size)
-    b ++= self
-    b.result
+  def to[C[_]](implicit builder: Builder[T @uv, C[T] @uv]): C[T @uv] = build(builder)
+
+  /**
+   * Converts this traversable sequence to any collection type given a factory.
+   * @param factory A collection factory
+   * @tparam C Higher-order type of the collection to be built
+   */
+  def to[C[_]](factory: CollectionFactory[C]): C[T @uv] = to(factory.newBuilder[T])
+
+  /**
+   * Converts this traversable sequence to an array.
+   */
+  def toArray[U >: T](implicit ct: ClassTag[U]): Array[U] = {
+    val n = self.size
+    val a = Array.ofDim[U](n)
+    var i = 0
+    for (x ← self) {
+      a(i) = x
+      i += 1
+    }
+    a
   }
 
   /**
@@ -566,7 +583,7 @@ trait Traversable[+T] { self =>
    */
   def build[S](implicit builder: Builder[T, S]): S = {
     val b = builder
-    if (hasKnownSize) b.sizeHint(size)
+    if (self.isInstanceOf[HasKnownSize]) b.sizeHint(size)
     b ++= self
     b.result
   }
@@ -591,7 +608,7 @@ trait Traversable[+T] { self =>
   def :+[U >: T](x: U) = this append x
   def +:[U >: T](x: U) = this prepend x
   def ++[U >: T](that: Traversable[U]) = this concat that
-  def ×[U](that: Traversable[U]) = this cartesianProduct that
+  def |*|[U](that: Traversable[U]) = this cartesianProduct that
   def |>[U](f: T => U) = this map f
   def |?(f: T => Boolean) = this filter f
   def ||>[U](f: T => Traversable[U]) = this flatMap f

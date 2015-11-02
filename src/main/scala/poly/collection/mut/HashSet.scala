@@ -2,7 +2,7 @@ package poly.collection.mut
 
 import poly.algebra._
 import poly.collection._
-import poly.collection.conversion._
+import poly.collection.conversion.Java._
 import poly.collection.factory._
 
 /**

@@ -9,15 +9,13 @@ import scala.reflect._
  */
 object Auto {
 
-  private val PrimitiveIntType = java.lang.Integer.TYPE
-
   def Map[K: ClassTag, V]: Map[K, V] = implicitly[ClassTag[K]].runtimeClass match {
-    case PrimitiveIntType => ???
+    case Integer.TYPE => ???
     case _ => ???
   }
 
   def Graph[K: ClassTag, V, E]: Graph[K, V, E] = implicitly[ClassTag[K]].runtimeClass match {
-    case PrimitiveIntType => ???
+    case Integer.TYPE => ???
     case _ => ???
   }
 

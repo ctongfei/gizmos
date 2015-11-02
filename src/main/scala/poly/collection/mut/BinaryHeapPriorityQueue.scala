@@ -11,7 +11,7 @@ import scala.reflect._
  * A binary heap backed priority queue.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class BinaryHeapPriorityQueue[T] private(private val heap: BinaryHeap[T]) extends PriorityQueue[T] {
+class BinaryHeapPriorityQueue[T] private(private val heap: BinaryHeap[T]) extends PriorityQueue[T] with HasKnownSize {
 
   val order: WeakOrder[T] = heap.order
 
@@ -21,7 +21,9 @@ class BinaryHeapPriorityQueue[T] private(private val heap: BinaryHeap[T]) extend
 
   def top: T = heap.data(0)
 
-  def size: Int = heap.size
+  override def size: Int = heap.size
+
+  def newIterator = heap.newIterator
 
 }
 

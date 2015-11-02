@@ -34,11 +34,11 @@ object KeyValuePair {
   def apply[@sp(i) K, V](key: K, value: V) = new KeyValuePair(key, value)
 
   /** Returns a hashing function on key-value pairs that operates only on the key. */
-  implicit def hashByKey[@sp(i) K, V](implicit K: Hashing[K, Int]): Hashing[KeyValuePair[K, V], Int] =
-    new Hashing[KeyValuePair[K, V], Int] {
+  implicit def hashByKey[@sp(i) K, V](implicit K: IntHashing[K]): IntHashing[KeyValuePair[K, V]] =
+    new IntHashing[KeyValuePair[K, V]] {
       def hash(x: KeyValuePair[K, V]) = K.hash(x.key)
       def eq(x: KeyValuePair[K, V], y: KeyValuePair[K, V]) = x.key =~= y.key
-      override def fromJavaHashCode = implicitly[Hashing[K, Int]].fromJavaHashCode
+      override def fromJavaHashCode = implicitly[IntHashing[K]].fromJavaHashCode
     }
 
   /** Returns a weak order on key-value pairs that is based on the weak order on the key. */

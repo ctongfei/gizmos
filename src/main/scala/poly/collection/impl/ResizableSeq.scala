@@ -21,15 +21,12 @@ import scala.reflect._
  * This class serves as the basic building block for a series of structures in Poly-collection.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-//TODO: specializing this?
 final class ResizableSeq[T]
   (private[this] var cap: Int = Settings.ArrayInitialSize) extends KeyMutableSeq[T] with DataMutableIndexedSeq[T]
 { self =>
 
-  var data: Array[AnyRef] = Array.ofDim[AnyRef](math.max(nextPowerOfTwo(cap), Settings.ArrayInitialSize))
-  var len: Int = 0
-
-  private[poly] def getData = data // exposed for math libraries
+  private[poly] var data: Array[AnyRef] = Array.ofDim[AnyRef](math.max(nextPowerOfTwo(cap), Settings.ArrayInitialSize))
+  private[poly] var len: Int = 0
 
   case class Node(i: Int) extends BiSeqNode[T] {
     override val isDummy = i < 0 || i >= len
@@ -42,7 +39,7 @@ final class ResizableSeq[T]
     if (cap < minCapacity) {
       val newCapacity = nextPowerOfTwo(minCapacity)
       val newData = Array.ofDim[AnyRef](newCapacity)
-      Array.copy(data, 0, newData, 0, cap) // copy all for ArrayQueue
+      System.arraycopy(data, 0, newData, 0, cap)
       data = newData
       cap = newCapacity
     }
@@ -61,7 +58,7 @@ final class ResizableSeq[T]
   def clear() = len = 0
 
   def insertAt(i: Int, x: T) = {
-    ensureCapacity(len + 1)
+    if (cap < len + 1) ensureCapacity(len + 1)
     Array.copy(data, i, data, i + 1, len - i)
     data(i) = x.asInstanceOf[AnyRef]
     len += 1
@@ -79,7 +76,7 @@ final class ResizableSeq[T]
   def prependInplace(x: T) = insertAt(0, x)
 
   def appendInplace(x: T) = {
-    ensureCapacity(len + 1)
+    if (cap < len + 1) ensureCapacity(len + 1)
     data(len) = x.asInstanceOf[AnyRef]
     len += 1
   }

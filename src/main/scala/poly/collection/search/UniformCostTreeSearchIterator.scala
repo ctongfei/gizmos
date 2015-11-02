@@ -1,11 +1,8 @@
 package poly.collection.search
 
-import poly.algebra._
 import poly.algebra.ops._
 import poly.algebra.function._
-import poly.collection._
 import poly.collection.mut._
-import poly.collection.node._
 
 /**
  * An enumerator that executes a search on trees (assumes that there's no loop).
@@ -20,7 +17,7 @@ class UniformCostTreeSearchIterator[S, C]
 
   implicit def groupOnCost = ss.groupOnCost
 
-  val fringe = BinaryHeapPriorityQueue[SearchNodeWithCost[S, C]]()(SearchNodeWithCost.order)
+  val fringe = BinaryHeapPriorityQueue[SearchNodeWithCost[S, C]]()
 
   private[this] var curr: SearchNodeWithCost[S, C] = SearchNodeWithCost.dummy[C]
 

@@ -40,4 +40,13 @@ object ArraySeq extends SeqFactory[ArraySeq] {
     def result = new ArraySeq[T](a)
   }
 
+  override def tabulate[T](n: Int)(f: Int => T): ArraySeq[T] = {
+    val cap = nextPowerOfTwo(n)
+    val a = Array.ofDim[AnyRef](cap)
+    for (i ← Range(n))
+      a(i) = f(i).asInstanceOf[AnyRef]
+    val rs = new ResizableSeq[T](cap); rs.data = a
+    new ArraySeq[T](rs)
+  }
+
 }

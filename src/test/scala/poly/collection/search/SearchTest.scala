@@ -1,6 +1,6 @@
 package poly.collection.search
 
-import poly.collection.conversion._
+import poly.collection.conversion.Scala._
 import poly.collection.search.ops._
 
 /**

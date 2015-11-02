@@ -12,7 +12,7 @@ trait Builder[-T, +C] {
 
   /**
    * Provides a hint to this builder about how many elements are expected to be added.
-   * @param n The hint how many elements is to be added
+   * @param n The hint how many elements is expected to be added
    */
   def sizeHint(n: Int)
 

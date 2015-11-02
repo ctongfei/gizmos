@@ -10,7 +10,7 @@ trait SortedIndexedSeq[T] extends SortedSeq[T] with IndexedSeq[T] { self =>
 
   /** Casts this indexed sorted sequence as a multiset. */
   def asMultiset: Multiset[T] = new Multiset[T] {
-    def equivOnKey = self.orderOnKey
+    def equivOnKey = self.orderOnValue
     def size = self.size
     def multiplicity(x: T) = ???
     def elements = self

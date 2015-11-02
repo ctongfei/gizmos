@@ -2,12 +2,14 @@ package poly.collection.mut
 
 import poly.algebra._
 import poly.collection._
+import poly.collection.factory._
 
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
 class Alphabet[T] private(private val w2i: HashMap[T, Int], private val i2w: ArraySeq[T])(implicit val equivOnKey: Equiv[T])
-  extends BijectiveMap[T, Int] {
+  extends BijectiveMap[T, Int]
+{
 
   def equivOnValue = Equiv.default[Int]
 
@@ -36,5 +38,9 @@ class Alphabet[T] private(private val w2i: HashMap[T, Int], private val i2w: Arr
     w2i.clear()
     i2w.clear()
   }
+
+}
+
+object Alphabet {
 
 }

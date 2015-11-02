@@ -1,15 +1,13 @@
 package poly.collection
 
-import poly.collection.exception._
 import poly.algebra._
 import poly.collection.mut._
 
 /**
- * Basic trait for iterable sets.
+ * Basic trait for sets whose elements can be enumerated.
  * @author Tongfei Chen (ctongfei@gmail.com).
  * @since 0.1.0
  */
-//TODO: make theses set operations lazy? e.g. a & b == (a.elements ++ b.elements).distinct?
 trait Set[T] extends PredicateSet[T] with Multiset[T] { self =>
 
   // ListSet: Equiv[T]
@@ -17,25 +15,54 @@ trait Set[T] extends PredicateSet[T] with Multiset[T] { self =>
   // TreeSet: WeakOrder[T]
   def equivOnKey: Equiv[T]
 
+  override def distinct = self
+
   def multiplicity(x: T) = if (contains(x)) 1 else 0
 
   /** Tests if an element belongs to this set. */
   def contains(x: T): Boolean
 
+  /** Tests if an element does not belong to this set. */
+  def notContains(x: T) = !contains(x)
+
   /** Returns the union of two sets. */
-  def |(that: Set[T]): Set[T] = ???
+  def |(that: Set[T]): Set[T] = {
+    require(self.equivOnKey equivSameAs that.equivOnKey)
+    new AbstractSet[T] {
+      def equivOnKey = self.equivOnKey
+      def contains(x: T) = self.contains(x) && that.contains(x)
+      def size = elements.size
+      def elements = self.elements ++ that.elements.filter(self.notContains)
+    }
+  }
 
   /** Returns the intersection of two sets. */
-  def &(that: Set[T]): Set[T] = ???
+  def &(that: Set[T]): Set[T] = {
+    require(self.equivOnKey equivSameAs that.equivOnKey)
+    new AbstractSet[T] {
+      def equivOnKey = self.equivOnKey
+      def contains(x: T) = self.contains(x) && that.contains(x)
+      def size = elements.size
+      def elements = self.elements.filter(that.contains)
+    }
+  }
 
   /** Returns the difference of two sets. */
-  def &~(that: Set[T]): Set[T] = ???
+  def &~(that: Set[T]): Set[T] = {
+    require(self.equivOnKey equivSameAs that.equivOnKey)
+    new AbstractSet[T] {
+      def equivOnKey: Equiv[T] = self.equivOnKey
+      def contains(x: T): Boolean = self.contains(x) && that.notContains(x)
+      def size = elements.size
+      def elements = self.elements.filter(that.notContains)
+    }
+  }
 
   /** Tests if this set is a subset of another set. */
-  def <=(that: Set[T]): Boolean = this.forall(x => that.contains(x))
+  def <=(that: Set[T]): Boolean = this.forall(that.contains)
 
   /** Tests if this set is a strict subset of another set. */
-  def <(that: Set[T]): Boolean = this.forall(x => that.contains(x)) && that.exists(x => !this.contains(x))
+  def <(that: Set[T]): Boolean = this.forall(that.contains) && that.exists(this.notContains)
 
   /** Tests if this set is a strict superset of another set. */
   def >(that: Set[T]): Boolean = that < this
@@ -43,20 +70,30 @@ trait Set[T] extends PredicateSet[T] with Multiset[T] { self =>
   /** Tests if this set is a superset of another set. */
   def >=(that: Set[T]): Boolean = that <= this
 
-  def filter(f: T => Boolean): Set[T] = new AbstractSet[T] {
+  def filterKeys(f: T => Boolean): Set[T] = new AbstractSet[T] {
     def equivOnKey = self.equivOnKey
     def contains(x: T) = self.contains(x) && f(x)
     def size = elements.size
     def elements = self.elements.filter(f)
   }
 
-  def map[U](f: T => U): Set[U] = ??? //elements.map(f).to[HashSet]
+  def mapKeys[U](f: T => U)(implicit U: Equiv[U]): Set[U] = {
+    self.elements.map(f).to(Set.autoBuilder(U))
+  }
 
   override def equals(that: Any) = that match {
-    case that: Set[T] => this.forall(x => that.contains(x)) && that.forall(x => this.contains(x))
+    case that: Set[T] => this.forall(that.contains) && that.forall(this.contains)
     case that: Multiset[T] => that.equals(this)
     case _ => false
   }
+
+  //Symbolic aliases
+  def ⊂(that: Set[T]) = this < that
+  def ⊃(that: Set[T]) = this > that
+  def ⊆(that: Set[T]) = this <= that
+  def ⊇(that: Set[T]) = this >= that
+  def ∩(that: Set[T]) = this & that
+  def ∪(that: Set[T]) = this | that
 }
 
 object Set {
@@ -66,8 +103,8 @@ object Set {
    * @tparam T Type
    * @return An empty set
    */
-  def empty[T](implicit eqv: Equiv[T]): Set[T] = new Set[T] {
-    def equivOnKey = eqv
+  def empty[T: Equiv]: Set[T] = new Set[T] {
+    def equivOnKey = implicitly[Equiv[T]]
     override def size = 0
     def elements = Iterable.empty
     def contains(x: T) = false
@@ -84,6 +121,12 @@ object Set {
       def bot = empty[T]
       def inf(x: Set[T], y: Set[T]) = x & y
       def sup(x: Set[T], y: Set[T]) = x | y
+  }
+
+  def autoBuilder[T](implicit e: Equiv[T]): Builder[T, Set[T]] = e match {
+    case e: IntHashing[T] => HashSet.newBuilder[T]
+    case e: WeakOrder[T] => ???
+    case _ => ???
   }
 }
 

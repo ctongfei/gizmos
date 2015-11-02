@@ -1,6 +1,7 @@
 package poly.collection
 
 import poly.algebra._
+import poly.algebra.hkt._
 import poly.collection.mut._
 import poly.collection.search._
 import poly.util.typeclass._
@@ -50,7 +51,9 @@ trait Tree[+T] { self =>
     override def inverseKnuthTransform = self
   }
 
-  def preOrder: Iterable[T] = ??? // DFS
+  def preOrder: Iterable[T] = Iterable.ofIterator {
+    new DepthFirstTreeSearchIterator[ForwardNode[T]](rootNode)(ForwardNode.StateSpace[T])
+  }.map(_.data)
 
   def levelOrder: Iterable[T] = ??? // BFS
 
@@ -66,6 +69,11 @@ object Tree {
   implicit def KnuthTransform[T]: Bijection[Tree[T], BinaryTree[T]] = new Bijection[Tree[T], BinaryTree[T]] {
     def apply(x: Tree[T]) = x.knuthTransform
     def invert(y: BinaryTree[T]) = y.inverseKnuthTransform
+  }
+
+  implicit object Comonad extends Comonad[Tree] {
+    def id[X](u: Tree[X]): X = u.root
+    def extend[X, Y](wx: Tree[X])(f: Tree[X] => Y): Tree[Y] = ???
   }
 
   /**

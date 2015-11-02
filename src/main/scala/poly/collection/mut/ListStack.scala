@@ -6,11 +6,13 @@ import poly.collection.impl._
 import poly.util.specgroup._
 
 /**
+ * A stack backed by a singly linked list.
  * @author Tongfei Chen (ctongfei@gmail.com).
+ * @since 0.1.0
  */
-class ListStack[T] (private var data: SinglyLinkedList[T]) extends Queue[T] {
+class ListStack[T] private(private var data: SinglyLinkedList[T]) extends Queue[T] with HasKnownSize {
 
-  def size = data.len
+  override def size = data.len
 
   def push(x: T): Unit = data.prependInplace(x)
 
@@ -21,6 +23,8 @@ class ListStack[T] (private var data: SinglyLinkedList[T]) extends Queue[T] {
     data.deleteAt(0)
     t
   }
+
+  def newIterator = data.newIterator
 
 }
 

@@ -13,9 +13,7 @@ import scala.language.reflectiveCalls
  * @author Tongfei Chen (ctongfei@gmail.com).
  * @since 0.1.0
  */
-trait Map[@sp(i) K, +V] extends PartialFunction[K, V] { self =>
-
-  def equivOnKey: Equiv[K]
+trait Map[@sp(i) K, +V] extends Keyed[K] with PartialFunction[K, V] { self =>
 
   /**
    * Returns all key-value pairs stored in this map.
@@ -71,9 +69,9 @@ trait Map[@sp(i) K, +V] extends PartialFunction[K, V] { self =>
   // HELPER FUNCTIONS
   /**
    * Transforms the values of this map according to the specified function.
-   *
-   * WARNING: This function is equivalent to the Scala library's `mapValues`.
-   * To transform all pairs in this map, use `this.pairs.map`.
+   * @note This function is equivalent to the Scala library's `mapValues`.
+   *       To transform all pairs in this map, use `this.pairs.map`.
+   * @example {{{Map(1 -> 2, 2 -> 3) map {_ * 2} == Map(1 -> 4, 2 -> 6)}}}
    * @param f The specific function
    * @return A map view that maps every key of this map to `f(this(key))`.
    */
@@ -86,6 +84,14 @@ trait Map[@sp(i) K, +V] extends PartialFunction[K, V] { self =>
     def size: Int = self.size
   }
 
+
+  /**
+   * Zips two maps with the same key type into one.
+   * @note This function is not the same as the Scala library's `zip`. Please
+   *       use `this.pairs.zip` instead for zipping pairs.
+   * @example {{{Map(1 -> 2, 2 -> 3) zip Map(2 -> 5, 3 -> 6) == Map(2 -> (3, 5))}}}
+   * @param that Another map to be zipped
+   */
   def zip[W](that: Map[K, W]): Map[K, (V, W)] = {
     require(this.equivOnKey equivSameAs that.equivOnKey)
     new AbstractMap[K, (V, W)] {

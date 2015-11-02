@@ -16,13 +16,11 @@ final class ResizableArray[T]
 
   private[this] var data: Array[AnyRef] = Array.ofDim[AnyRef](math.max(nextPowerOfTwo(cap), Settings.ArrayInitialSize))
 
-  private[poly] def getData = data // exposed for math libraries
-
   def ensureCapacity(minCapacity: Int): Unit = {
     if (cap < minCapacity) {
       val newCapacity = nextPowerOfTwo(minCapacity)
       val newData = Array.ofDim[AnyRef](newCapacity)
-      Array.copy(data, 0, newData, 0, cap) // copy all for ArrayQueue
+      System.arraycopy(data, 0, newData, 0, cap)
       data = newData
       cap = newCapacity
     }

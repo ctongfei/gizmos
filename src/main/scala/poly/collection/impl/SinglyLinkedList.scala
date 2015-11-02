@@ -18,12 +18,11 @@ import poly.collection.node._
  */
 class SinglyLinkedList[T] extends Seq[T] with KeyMutableSeq[T] {
 
-  class Node(var data: T, var next: Node = null) extends SeqNode[T] {
-    def isDummy = false
-  }
+  type Node = SinglyLinkedList.Node[T]
 
-  private[poly] val dummy: Node = new Node(default[T]) { override def isDummy = true }
+  private[poly] val dummy: Node = new Node(default[T], dummy) { override def isDummy = true }
   private[poly] var len: Int = 0
+  private[poly] var lastNode: Node = dummy
   dummy.next = dummy
 
   override def length = len
@@ -48,18 +47,18 @@ class SinglyLinkedList[T] extends Seq[T] with KeyMutableSeq[T] {
   }
 
   /**
-   * Appends an element to the end of the singly linked list.
+   * Appends an element to the end of the singly linked list. $O1
    * @param x The element to be appended
    */
   def appendInplace(x: T) = {
-    val (_, last) = locate(len - 1)
     val node = new Node(x, dummy)
-    last.next = node
+    lastNode.next = node
+    lastNode = node
     len += 1
   }
 
   /**
-   * Prepends an element to the start of the doubly linked list.
+   * Prepends an element to the start of the doubly linked list. $O1
    * @param x The element to be prepended.
    */
   def prependInplace(x: T) = {
@@ -121,5 +120,8 @@ class SinglyLinkedList[T] extends Seq[T] with KeyMutableSeq[T] {
 
 object SinglyLinkedList {
 
+  private[poly] class Node[T](var data: T, var next: Node[T]) extends SeqNode[T] {
+    def isDummy = false
+  }
 
 }

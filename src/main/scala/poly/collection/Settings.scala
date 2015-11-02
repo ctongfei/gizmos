@@ -7,8 +7,8 @@ object Settings {
 
   private[collection] final val MaxElemToString = 20
 
-  private[collection] final val ArrayInitialSize = 4
+  private[collection] final val ArrayInitialSize = 8
 
-  private[collection] final val HashLoadFactor = 0.7
+  private[collection] final val HashTableLoadFactor = 0.7
 
 }

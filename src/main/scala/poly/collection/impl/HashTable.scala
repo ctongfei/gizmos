@@ -7,7 +7,7 @@ import poly.collection._
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class HashTable[K, V](implicit val hashing: Hashing[K, Int]) {
+class HashTable[K, V](implicit val hashing: IntHashing[K]) {
 
   import HashTable._
 
@@ -18,7 +18,7 @@ class HashTable[K, V](implicit val hashing: Hashing[K, Int]) {
   var used: Int = 0
 
   def mask = stat.fastLength - 1
-  def limit = (stat.fastLength * Settings.HashLoadFactor).toInt
+  def limit = (stat.fastLength * Settings.HashTableLoadFactor).toInt
 
   protected def grow() = {
     keys.grow()

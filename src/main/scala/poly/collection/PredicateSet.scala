@@ -55,5 +55,6 @@ object PredicateSet {
     def or(x: PredicateSet[T], y: PredicateSet[T]) = x | y
     def bot = PredicateSet.empty
   }
+  // Order will not be implemented: not computationally feasible on a Turing machine!
 
 }

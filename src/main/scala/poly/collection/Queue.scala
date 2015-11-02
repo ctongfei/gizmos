@@ -3,12 +3,12 @@ package poly.collection
 /**
  * Represents a queue.
  * @author Tongfei Chen (ctongfei@gmail.com).
+ * @since 0.1.0
  */
-//TODO: conform to Iterable[T]?
-trait Queue[T] {
+trait Queue[T] extends Iterable[T] {
 
   /** Checks if this queue is empty. */
-  def isEmpty: Boolean = size == 0
+  override def isEmpty: Boolean = size == 0
 
   /** Checks if this queue is not empty. */
   def notEmpty: Boolean = size != 0

@@ -1,8 +1,5 @@
 package poly.collection
 
-// dummy
-private[poly] abstract class Extractors
-
 object +: {
 
   /** Decomposes a sequence into its head and its tail. */
@@ -20,6 +17,16 @@ object :+ {
     else Some((t.init, t.last))
   }
 
+}
+
+object :|: {
+
+  /** Decomposes an indexed sequence into its first half and its second half. */
+  def unapply[T](t: IndexedSeq[T]) = {
+    val len = t.length
+    val mid = len / 2
+    Some(t.slice(0, mid), t.slice(mid, len))
+  }
 }
 
 
@@ -58,7 +65,7 @@ object \: {
    *    case (l :/ n \: r) => ...
    *   }
    * }}}
-   * The symbols follow the same mnemonics as `:+` and `+:` : ''The COLon side is where the COLlection is''.
+   * The symbols follow the same mnemonics as `:++` and `++:` : ''The COLon side is where the COLlection is''.
    */
   def unapply[T](t: :/.BinaryTreeNodeWithRight[T]) = {
     Some(t.root, t.right)

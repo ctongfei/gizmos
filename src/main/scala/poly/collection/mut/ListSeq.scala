@@ -10,11 +10,9 @@ import poly.collection.node._
  * A sequence backed by a linked list.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class ListSeq[T] private(private val data: SinglyLinkedList[T]) extends KeyMutableSeq[T] {
+class ListSeq[T] private(private val data: SinglyLinkedList[T]) extends KeyMutableSeq[T] with HasKnownSize {
 
-  def headNode: SeqNode[T] = data.dummy.next
-
-  override def hasKnownSize = true
+  def headNode: SeqNode[T] = data.headNode
 
   override def apply(i: Int) = data.apply(i)
 
@@ -32,7 +30,13 @@ class ListSeq[T] private(private val data: SinglyLinkedList[T]) extends KeyMutab
 
   def deleteAt(i: Int) = data.deleteAt(i)
 
-  override def mapInplace(f: T => T) = ???
+  override def mapInplace(f: T => T) = {
+    var n = data.headNode
+    while (n.notDummy) {
+      n.data = f(n.data)
+      n = n.next
+    }
+  }
 
   def inplaceReverse() = ???
 

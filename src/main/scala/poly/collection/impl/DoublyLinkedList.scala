@@ -10,17 +10,9 @@ import poly.collection.node._
  */
 class DoublyLinkedList[T] extends BiSeq[T] with KeyMutableSeq[T] {
 
-  /**
-   * Type of the internal node of a linked list.
-   * @param data Data held in this node
-   * @param prev The previous node
-   * @param next The next node
-   */
-  class Node (var data: T, var prev: Node = dummy, var next: Node = dummy) extends BiSeqNode[T] {
-    def isDummy = false
-  }
+  type Node = DoublyLinkedList.Node[T]
 
-  private[poly] val dummy = new Node(default[T]) { override def isDummy = true }
+  private[poly] val dummy: Node = new Node(default[T], dummy, dummy) { override def isDummy = true }
   private[poly] var len: Int = 0
   dummy.prev = dummy
   dummy.next = dummy
@@ -79,6 +71,7 @@ class DoublyLinkedList[T] extends BiSeq[T] with KeyMutableSeq[T] {
   def clear() = {
     dummy.prev = dummy
     dummy.next = dummy
+    // leave the other nodes to GC!
   }
 
   def deleteAt(i: Int) = {
@@ -102,6 +95,14 @@ class DoublyLinkedList[T] extends BiSeq[T] with KeyMutableSeq[T] {
 }
 
 object DoublyLinkedList {
-
+  /**
+   * Type of the internal node of a linked list.
+   * @param data Data held in this node
+   * @param prev The previous node
+   * @param next The next node
+   */
+  private[poly] class Node[T](var data: T, var prev: Node[T], var next: Node[T]) extends BiSeqNode[T] {
+    def isDummy = false
+  }
 
 }

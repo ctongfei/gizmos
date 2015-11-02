@@ -20,8 +20,8 @@ trait BinaryTree[+T] extends PartialFunction[Int, T] { self =>
 
   def root: T = rootNode.data
 
-  /** Returns the maximal depth of this tree. */
-  def depth: Int = ???
+  /** Returns the maximal depth of this tree. */ //TODO: a recursive-free version?
+  def depth: Int = foldBottomUp(0)((l, r, _) => math.max(l, r) + 1)
 
   /** Returns the number of nodes in this tree. */
   def size: Int = rootNode.preOrder.size
@@ -71,10 +71,12 @@ trait BinaryTree[+T] extends PartialFunction[Int, T] { self =>
 
   def map[U](f: T => U): BinaryTree[U] = ofNode(rootNode.map(f))
 
-  /** Folds a binary tree bottom-up. This is analogous to the sequence `foldRight`. */
-  def foldBottomUp[U](z: U)(f: (T, U, U) => U): U = { //TODO: change to non-recursive version
+  /** Folds a binary tree bottom-up. This is analogous to the sequence `foldRight` in that both
+    * are catamorphisms on recursive structures.
+    */
+  def foldBottomUp[U](z: U)(f: (U, U, T) => U): U = { //TODO: change to non-recursive version
     if (self.rootNode.isDummy) z
-    else f(self.root, self.left.foldBottomUp(z)(f), self.right.foldBottomUp(z)(f))
+    else f(self.left.foldBottomUp(z)(f), self.right.foldBottomUp(z)(f), self.root)
   }
 
   def fold[U >: T](z: U)(f: (U, U, U) => U) = foldBottomUp(z)(f)
@@ -118,7 +120,7 @@ object BinaryTree {
   }
 
   object empty extends BinaryTree[Nothing] {
-    def rootNode: BinaryTreeNode[Nothing] = throw new NoSuchElementException
+    def rootNode: BinaryTreeNode[Nothing] = BinaryTreeNode.Dummy
   }
 
   def ofNode[T](n: BinaryTreeNode[T]): BinaryTree[T] = new BinaryTree[T] {
