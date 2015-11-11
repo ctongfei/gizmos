@@ -2,6 +2,7 @@ package poly.collection
 
 import poly.collection.exception._
 import poly.collection.node._
+import poly.collection.search._
 import poly.util.specgroup._
 import scala.language.higherKinds
 import scala.annotation.unchecked.{uncheckedVariance => uv}
@@ -11,16 +12,18 @@ import scala.annotation.unchecked.{uncheckedVariance => uv}
  * @author Tongfei Chen (ctongfei@gmail.com).
  * @since 0.1.0
  */
-trait Graph[@sp(i) K, +V, +E] extends Keyed[K] { self =>
+trait Graph[@sp(i) K, +V, +E] extends KeyedStructure[K, Graph[K, V, E]] with StateSpace[K] { self =>
+
+  import Graph._
 
   def apply(i: K): V
   def apply(i: K, j: K): E
 
   /** Gets the node with the specific key. */
-  def node(i: K): Node = new Node(i)
+  def node(i: K) = new Node(self, i)
 
   /** Gets the edge between the specific edges. */
-  def edge(i: K, j: K): Edge = Edge(i, j)
+  def edge(i: K, j: K) = new Edge(self, i, j)
 
   def numNodes: Int = keySet.size
   def numEdges: Int = edges.size
@@ -28,27 +31,20 @@ trait Graph[@sp(i) K, +V, +E] extends Keyed[K] { self =>
   def equivOnKey = keySet.equivOnKey
   def keySet: Set[K]
   def keys: Iterable[K] = keySet.elements
-  def nodes: Iterable[Node] = keys.map(i => new Node(i))
-  def edges: Iterable[Edge] = for (i ← keys; j ← outgoingKeysOf(i)) yield new Edge(i, j)
+  def nodes: Iterable[Graph.Node[K, V]] = keys.map(node)
+  def edges: Iterable[Graph.Edge[K, E]] = for (i ← keys; j ← outgoingKeysOf(i)) yield edge(i, j)
 
   final def containsKey(i: K) = containsNode(i)
   def containsNode(i: K): Boolean
   def containsEdge(i: K, j: K): Boolean
 
   def outgoingKeysOf(i: K): Iterable[K]
-  def outgoingNodesOf(i: K): Iterable[Node] = outgoingKeysOf(i).map(j => new Node(j))
-  def outgoingEdgesOf(i: K): Iterable[Edge] = outgoingKeysOf(i).map(j => Edge(i, j))
+  def outgoingNodesOf(i: K) = outgoingKeysOf(i).map(j => node(j))
+  def outgoingEdgesOf(i: K) = outgoingKeysOf(i).map(j => edge(i, j))
   def outDegree(i: K) = outgoingKeysOf(i).size
 
-  class Node(val key: K) extends ForwardNode[V] {
-    def isDummy = false
-    def data = self.apply(key)
-    def succ = self.outgoingNodesOf(key)
-  }
+  def succ(i: K) = outgoingKeysOf(i)
 
-  case class Edge(key1: K, key2: K) {
-    def data = self.apply(key1, key2)
-  }
 
   // HELPER FUNCTIONS
 
@@ -91,6 +87,31 @@ trait Graph[@sp(i) K, +V, +E] extends Keyed[K] { self =>
     b.addEdges(self.edges.map(e => (e.key1, e.key2, e.data)))
     b.result
   }
+
+}
+
+object Graph {
+  class Node[K, +V](val graph: Graph[K, V, _], val key: K) extends ForwardNode[V] {
+    def isDummy = false
+    def data = graph.apply(key)
+    def succ = graph.outgoingNodesOf(key)
+
+    override def equals(that: Any) = that match {
+      case that: Node[K, V] => (this.graph eq that.graph) && (this.key == that.key)
+    }
+    //TODO: hashing
+  }
+
+
+  class Edge[K, +E](val graph: Graph[K, _, E], val key1: K, val key2: K) {
+    def data = graph.apply(key1, key2)
+
+    override def equals(that: Any) = that match {
+      case that: Edge[K, E] => (this.graph eq that.graph) && (this.key1 == that.key1) && (this.key2 == that.key2)
+    }
+    //TODO: hashing
+  }
+
 
 }
 

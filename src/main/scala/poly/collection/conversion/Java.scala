@@ -31,6 +31,15 @@ object Java {
     def update(i: Int, x: T) = xs.set(i, x)
   }
 
+  implicit def javaSetAsPoly[T](xs: ju.Set[T]): Set[T] = new MutableSet[T] {
+    def remove(x: T) = xs.remove(x)
+    def add(x: T) = xs.add(x)
+    def equivOnKey = Equiv.default[T]
+    def contains(x: T) = xs.contains(x)
+    def size = xs.size()
+    def elements = Iterable.ofIterator(xs.iterator())
+  }
+
   implicit def javaMapAsPoly[K, V](jm: ju.Map[K, V]): Map[K, V] = new KeyMutableMap[K, V] {
     def equivOnKey = Equiv.default[K]
     def add(x: K, y: V): Unit = jm.put(x, y)

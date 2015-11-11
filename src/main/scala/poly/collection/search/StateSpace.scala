@@ -9,6 +9,7 @@ import poly.collection._
  */
 trait StateSpace[S] {
 
+  /** Returns the successor states of the specified state under this state space. */
   def succ(x: S): Traversable[S]
 
   def depthFirstTreeTraversal(start: S): Iterable[S] =

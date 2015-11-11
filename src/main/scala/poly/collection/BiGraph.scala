@@ -11,12 +11,17 @@ import poly.util.specgroup._
  */
 trait BiGraph[@sp(i) K, +V, +E] extends Graph[K, V, E] { self =>
 
+  import BiGraph._
+
+  override def node(i: K) = new Node(self, i)
+  override def edge(i: K, j: K) = new Edge(self, i, j)
+
   def incomingKeysOf(i: K): Iterable[K]
-  def incomingNodesOf(i: K): Iterable[Node] = incomingKeysOf(i).map(j => new Node(j))
-  def incomingEdgesOf(i: K): Iterable[Edge] = incomingKeysOf(i).map(j => Edge(j, i))
+  def incomingNodesOf(i: K) = incomingKeysOf(i).map(j => node(j))
+  def incomingEdgesOf(i: K) = incomingKeysOf(i).map(j => edge(j, i))
   def inDegree(i: K) = incomingKeysOf(i).size
 
-  override def outgoingNodesOf(i: K): Iterable[Node] = outgoingKeysOf(i).map(j => new Node(j))
+  override def outgoingNodesOf(i: K) = outgoingKeysOf(i).map(j => node(j))
 
   // HELPER FUNCTIONS
   /**
@@ -34,11 +39,15 @@ trait BiGraph[@sp(i) K, +V, +E] extends Graph[K, V, E] { self =>
     def apply(i: K, j: K): E = self.apply(j, i)
   }
 
-  class Node(override val key: K) extends super.Node(key) with BiNode[V] {
-    def pred = self.incomingNodesOf(key)
-    override def succ = self.outgoingNodesOf(key)
+}
+
+object BiGraph {
+  class Node[K, +V](override val graph: BiGraph[K, V, _], override val key: K) extends Graph.Node(graph, key) with BiNode[V] {
+    def pred = graph.incomingNodesOf(key)
+    override def succ = graph.outgoingNodesOf(key)
   }
 
+  type Edge[K, +E] = Graph.Edge[K, E]
 }
 
 abstract class AbstractBiGraph[@sp(i) K, +V, +E] extends BiGraph[K, V, E]
