@@ -1,5 +1,7 @@
 package poly
 
+import scala.language.implicitConversions
+
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
@@ -15,12 +17,12 @@ package object collection {
   /**
    * Returns the first element of a pair.
    */
-  @inline def first[A, B](pair: Product2[A, B]) = pair._1
+  @inline def first[A, B](pair: (A, B)) = pair._1
 
   /**
    * Returns the second element of a pair.
    */
-  @inline def second[A, B](pair: Product2[A, B]) = pair._2
+  @inline def second[A, B](pair: (A, B)) = pair._2
   
   private[collection] def nextPowerOfTwo(x: Int): Int = {
     var c = x - 1

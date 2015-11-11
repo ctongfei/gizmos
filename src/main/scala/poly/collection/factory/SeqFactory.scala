@@ -1,6 +1,7 @@
 package poly.collection.factory
 
 import scala.language.higherKinds
+import scala.reflect.ClassTag
 
 /**
  * Contains common constructors for sequences.

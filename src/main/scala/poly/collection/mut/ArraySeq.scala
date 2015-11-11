@@ -11,7 +11,7 @@ import scala.reflect._
  * A mutable sequence backed by an array.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class ArraySeq[T] private(private var data: ResizableSeq[T] = null) extends DataMutableIndexedSeq[T] with KeyMutableSeq[T] {
+class ArraySeq[T] private(private var data: ResizableSeq[T] = null) extends AbstractIndexedSeq[T] with DataMutableIndexedSeq[T] with KeyMutableSeq[T] {
 
   def fastLength = data.fastLength
 
@@ -48,5 +48,6 @@ object ArraySeq extends SeqFactory[ArraySeq] {
     val rs = new ResizableSeq[T](cap); rs.data = a
     new ArraySeq[T](rs)
   }
+
 
 }

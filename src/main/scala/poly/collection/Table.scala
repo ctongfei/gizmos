@@ -3,7 +3,7 @@ package poly.collection
 import poly.algebra._
 
 /**
- * A table is an indexed 2-D array.
+ * Represents a table, which is an indexed 2-D array.
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
 trait Table[+T] extends Map[(Int, Int), T] { self =>
@@ -15,7 +15,7 @@ trait Table[+T] extends Map[(Int, Int), T] { self =>
   def apply(pair: (Int, Int)): T = apply(pair._1, pair._2)
   def ?(x: (Int, Int)): Option[T] = if (containsKey(x)) Some(self(x)) else None
 
-  def equivOnKey = Equiv.create((x, y) => x._1 == y._1 && x._2 == y._2)
+  def equivOnKey = Equiv.default[(Int, Int)]
 
   def pairs = for { (i: Int) ← Range(numRows); j ← Range(numCols) } yield (i → j) → self(i, j)
 

@@ -3,16 +3,86 @@ import poly.collection._
 import poly.algebra._
 import poly.algebra.implicits._
 
-val l = ArraySeq(5, 4, 3, 2, 1, 0)
-val f = (x: Int) => ArraySeq(x, x)
-l.map(_ * 2)
-l.flatMap((x: Int) => ArraySeq.fill(x)(x))
-l.count(_ == 3)
-l.filter(_ > 2)
-l.filterNot(_ > 2)
-l.scan(0)(_+_)
-l.diff(_-_)
-l.scan(0)(_+_).diff(_-_)
-l.sliding(3)
-l.prefixSums
-l.prefixSums.differences
+val a = ArraySeq(5, 3, 3, 2, 1, 0).asTraversable
+val b = ArraySeq('a', 'b', 'c').asTraversable
+val c: Traversable[Int] = ArraySeq().asTraversable
+val f = (x: Int) => ArraySeq(x, x).asTraversable
+
+a |> {_ * 2}
+a ||> {(x: Int) => ArraySeq.fill(x)(x)}
+a |×| b
+a |×| c
+
+a.isEmpty
+b.isEmpty
+c.isEmpty
+
+a.count(_ == 3)
+b.count(_ < 'c')
+
+
+a.filter(_ > 2)
+a.filterNot(_ > 2)
+c.filter(_ != 0)
+
+a.filterMany(_ > 1, _ > 2, _ > 3)
+a.partition(_ > 3)
+a.findFirst(_ < 3)
+a.findFirst(_ < 0)
+c.findFirst(_ < 0)
+
+a ++ b
+a ++ c
+a ++ a ++ a
+
+a :+ 1
+1 +: a
+0 +: c
+c :+ 0
+
+a.foldLeft(-1)(_+_)
+a.foldRight(-1)(_+_)
+
+
+a.scan(0)(_+_)
+a.diff(_-_)
+a.scan(0)(_+_).diff(_-_)
+//l.sliding(3)
+a.prefixSums
+a.prefixSums.differences
+
+a.head
+a.tail
+a.init
+a.last
+a.tails
+a.inits
+a skip 2
+a take 3
+a take 7
+a skip -1
+a skip 8
+a.skipWhile(_ >= 3)
+a.takeWhile(_ >= 3)
+a.takeTo(_ == 2)
+a.takeUntil(_ <= 3)
+a.slice(3, 4)
+a.reverse
+a.sort
+a.sort(TotalOrder[Int].reverse)
+a.forall(_ >= 0)
+a.forall(_ >= 3)
+a.exists(_ >= 3)
+a.exists(_ >= 7)
+a.sum
+a.max
+a.min
+a.argmax(-_)
+a.argmin(-_)
+a.argmaxWithValue(_ * 2)
+val d = ArraySeq(ArraySeq(1, 2, 3).asTraversable,
+  ArraySeq(3, 4, 5).asTraversable).asTraversable
+val e = ArraySeq((1, 'a'), (2, 'b')).asTraversable
+d.flatten
+e.unzip
+e.unzipForced

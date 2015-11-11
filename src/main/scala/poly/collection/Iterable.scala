@@ -203,17 +203,16 @@ trait Iterable[+T] extends Traversable[T] { self =>
 
   override def distinct: Iterable[T] = ???
 
-  /**
-   * Pretends that this iterable collection is sorted.
-   */
+  /** Pretends that this iterable collection is sorted. */
   def asIfSorted[U >: T](implicit U: WeakOrder[U]): SortedIterable[U] = new SortedIterable[U] {
     implicit def orderOnValue = U
     def newIterator = self.newIterator
   }
   /**
    * Returns a collection formed from this collection and another iterable collection by combining
-   * corresponding elements in pairs. For example, [1, 2, 3] zip [-1, -2, -3] yields [(1, -1), (2, -2), (3, -3)].
+   * corresponding elements in pairs.
    * @param that Another enumerable collection
+   * @example {{{(1, 2, 3) zip (-1, -2, -3, -4) == ((1, -1), (2, -2), (3, -3))}}}
    * @return Zipped sequence
    */
   def zip[U](that: Iterable[U]): Iterable[(T, U)] = ofIterator {
@@ -236,9 +235,9 @@ trait Iterable[+T] extends Traversable[T] { self =>
   }
 
   /**
-   * Returns the interleave sequence of two sequences. For example, [1, 2, 3] interleave [-1, -2, -3]
-   * yields [1, -1, 2, -2, 3, -3].
+   * Returns the interleave sequence of two sequences.
    * @param that Another enumerable sequence
+   * @example {{{(1, 2, 3, 4) interleave (-1, -2, -3) == (1, -1, 2, -2, 3, -3)}}}
    * @return Interleave sequence
    */
   def interleave[U >: T](that: Iterable[U]): Iterable[U] = ofIterator {
@@ -291,8 +290,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
 
   /**
    * Infinitely cycles through this collection.
-   * For example, `(1, 2, 3).cycle` becomes `(1, 2, 3, 1, 2, 3, 1...)`.
-   * @return
+   * @example {{{(1, 2, 3).cycle == (1, 2, 3, 1, 2, 3, 1...)}}}
    */
   def cycle: Iterable[T] = ofIterator {
     new Iterator[T] {
@@ -322,9 +320,6 @@ trait Iterable[+T] extends Traversable[T] { self =>
   override def |?(f: T => Boolean) = this filter f
   //endregion
 
-  def asTraversable = new AbstractTraversable[T] {
-    def foreach[U](f: T => U) = self.foreach(f)
-  }
 }
 
 object Iterable {

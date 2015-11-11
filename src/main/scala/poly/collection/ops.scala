@@ -11,26 +11,26 @@ object ops {
     /**
      * Constructs a sequence of length 1 with this specific element.
      * @return A sequence with only `this` element
-     * @example `3.single == (3)`
+     * @example {{{3.single == (3)}}}
      */
     def single = IndexedSeq.fill(1)(x)
 
     /**
-     * Constructs an sequence that repeats the specific element infinitely.
+     * Constructs a lazy sequence that repeats the specific element infinitely.
      * @return An infinite sequence
-     * @example `2.infinite == (2, 2, 2, 2, 2, ...)`
+     * @example {{{2.infinite == (2, 2, 2, 2, 2, ...)}}}
      */
     def infinite = Seq.infinite(x)
 
     /**
-     * Constructs a sequence that repeats the specific element for the given number of times.
-     * @example `4.repeat(5) == (4, 4, 4, 4, 4)`
+     * Constructs a lazy sequence that repeats the specific element for the given number of times.
+     * @example {{{4.repeat(5) == (4, 4, 4, 4, 4)}}}
      */
     def repeat(n: Int) = IndexedSeq.fill(n)(x)
 
     /**
-     * Constructs an infinite sequence by iteratively applying a function from a starting element.
-     * @example `0.iterate(_ + 2) == (0, 2, 4, 6, 8, ...)`
+     * Constructs a lazy infinite sequence by iteratively applying a function from a starting element.
+     * @example {{{0.iterate(_ + 2) == (0, 2, 4, 6, 8, ...)}}}
      * @return
      */
     def iterate(f: T => T) = Seq.iterate(x)(f)

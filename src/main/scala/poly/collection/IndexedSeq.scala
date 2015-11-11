@@ -10,7 +10,7 @@ import scala.annotation.unchecked.{uncheckedVariance => uV}
 import scala.reflect._
 
 /**
- * Basic trait for indexed sequences.
+ * Represents an indexed sequence.
  *
  * Indexed sequences should support efficient random access (typically O(1), sometimes may be O(log ''n'')).
  * @author Tongfei Chen (ctongfei@gmail.com).

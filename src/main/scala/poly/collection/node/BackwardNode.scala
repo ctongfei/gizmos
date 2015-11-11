@@ -20,5 +20,5 @@ trait BackwardNode[+T] extends NotNull { self =>
     def isDummy = self.isDummy
   }
 
-  override def toString = s"Node($data)"
+  override def toString = if (notDummy) s"Node($data)" else "<dummy>"
 }

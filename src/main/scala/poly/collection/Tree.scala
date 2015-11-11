@@ -11,6 +11,7 @@ import poly.collection.node._
 /**
  * Represents a multi-way tree.
  * @author Tongfei Chen (ctongfei@gmail.com).
+ * @since 0.1.0
  */
 trait Tree[+T] { self =>
 

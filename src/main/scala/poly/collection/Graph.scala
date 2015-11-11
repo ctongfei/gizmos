@@ -25,6 +25,7 @@ trait Graph[@sp(i) K, +V, +E] extends Keyed[K] { self =>
   def numNodes: Int = keySet.size
   def numEdges: Int = edges.size
 
+  def equivOnKey = keySet.equivOnKey
   def keySet: Set[K]
   def keys: Iterable[K] = keySet.elements
   def nodes: Iterable[Node] = keys.map(i => new Node(i))
@@ -70,7 +71,7 @@ trait Graph[@sp(i) K, +V, +E] extends Keyed[K] { self =>
 
   def filterKeys(f: K => Boolean): Graph[K, V, E] = ???
 
-  def filterVertices(f: V => Boolean): Graph[K, V, E] = new AbstractGraph[K, V, E] {
+  def filterNodes(f: V => Boolean): Graph[K, V, E] = new AbstractGraph[K, V, E] {
     def apply(i: K): V = {
       if (f(self(i))) self(i)
       else throw new NoSuchElementException
@@ -91,7 +92,5 @@ trait Graph[@sp(i) K, +V, +E] extends Keyed[K] { self =>
   }
 
 }
-
-object Graph {}
 
 abstract class AbstractGraph[@sp(i) K, +V, +E] extends Graph[K, V, E]

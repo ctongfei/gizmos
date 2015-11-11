@@ -6,27 +6,24 @@ import poly.collection.node._
 /**
  * A linked binary tree with parent pointer.
  * @author Tongfei Chen (ctongfei@gmail.com).
+ * @since 0.1.0
  */
 class LinkedBinaryTree[T] extends BinaryTree[T] {
 
-  case class Node (
-    var data: T,
-    var left: Node = dummy,
-    var right: Node = dummy,
-    var parent: Node = dummy
-  ) extends BiBinaryTreeNode[T] {
-    def isDummy = false
-  }
+  type Node = LinkedBinaryTree.Node[T]
 
   final val dummy: Node = new Node(default[T], dummy, dummy, dummy) {
-    override def isDummy = true 
+    override def isDummy = true
   }
+  dummy.left = dummy
+  dummy.right = dummy
+  dummy.parent = dummy
 
   var rootNode: Node = dummy
 
   def addRoot(x: T) = {
     if (rootNode.isDummy) {
-      rootNode = new Node(x, parent = dummy)
+      rootNode = new Node(x, dummy, dummy, dummy)
       dummy.right = rootNode
     }
   }
@@ -147,5 +144,13 @@ class LinkedBinaryTree[T] extends BinaryTree[T] {
 
 object LinkedBinaryTree {
 
+  case class Node[T] (
+    var data: T,
+    var left: Node[T],
+    var right: Node[T],
+    var parent: Node[T]
+  ) extends BiBinaryTreeNode[T] {
+    def isDummy = false
+  }
 
 }

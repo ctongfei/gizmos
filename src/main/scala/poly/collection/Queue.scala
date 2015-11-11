@@ -7,40 +7,31 @@ package poly.collection
  */
 trait Queue[T] extends Iterable[T] {
 
-  /** Checks if this queue is empty. */
+  /** Checks if this queue is empty. $O1 */
   override def isEmpty: Boolean = size == 0
 
-  /** Checks if this queue is not empty. */
+  /** Checks if this queue is not empty. $O1 */
   def notEmpty: Boolean = size != 0
 
-  /**
-   * Pushes the specified element into this queue.
-   * @param x The element to be pushed
-   */
+  /** Pushes the specified element into this queue. $O1 */
   def push(x: T): Unit
 
-  /**
-   * Returns the top element of the queue.
-   * @return The top element
-   */
+  /** Returns the top element of the queue. $O1 */
   def top: T
 
-  /**
-   * Removes the top element from the queue and returns it.
-   * @return The removed element
-   */
+  /** Removes the top element from the queue and returns it. $O1 */
   def pop(): T
 
-  /**
-   * Returns the number of elements in this queue.
-   * @return The number of elements
-   */
+  /** Returns the number of elements in this queue. */
   def size: Int
 
+  /** Pushes the specified element into this queue. $O1 */
   def +=(x: T): Unit = push(x)
 
+  /** Pushes all the specified elements into this queue. */
   def pushAll(xs: Traversable[T]) = xs foreach +=
 
+  /** Pushes all the specified elements into this queue. */
   def ++=(xs: Traversable[T]) = pushAll(xs)
 
   def enqueue(x: T) = push(x)

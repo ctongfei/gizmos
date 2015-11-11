@@ -12,6 +12,14 @@ import scala.language.reflectiveCalls
  * It can also be viewed as a collection of (key, value) pairs, in which each key is unique.
  * @author Tongfei Chen (ctongfei@gmail.com).
  * @since 0.1.0
+  *
+  * @define LAZY The resulting collection will be lazily evaluated.
+  * @define EAGER The resulting collection will be eagerly evaluated.
+  * @define Onlogn Time complexity: O(n log n).
+  * @define On Time complexity: O(n).
+  * @define Ologn Time complexity: O(log n).
+  * @define O1amortized Time complexity: Amortized O(1).
+  * @define O1 Time complexity: O(1).
  */
 trait Map[@sp(i) K, +V] extends Keyed[K] with PartialFunction[K, V] { self =>
 
@@ -48,27 +56,30 @@ trait Map[@sp(i) K, +V] extends Keyed[K] with PartialFunction[K, V] { self =>
    */
   def containsKey(x: K): Boolean
 
-  def getOrElse[W >: V](x: K, default: => W) = ?(x) match {
+  def getOrElse[V1 >: V](x: K, default: => V1) = ?(x) match {
     case Some(y) => y
     case None => default
   }
 
   def isDefinedAt(x: K) = containsKey(x)
 
-  def keySet: Set[K] = new Set[K] {
+  /** Returns the set of the keys of this map. $LAZY $O1 */
+  def keySet: Set[K] = new AbstractSet[K] {
     def equivOnKey = self.equivOnKey
     def contains(x: K): Boolean = self.containsKey(x)
     def size: Int = self.size
     def elements: Iterable[K] = self.pairs.map(_._1)
   }
 
+  /** Returns an iterable collection of the keys in this map. $LAZY $O1 */
   def keys = self.pairs.map(_._1)
 
+  /** Returns an iterable collection of the values in this map. $LAZY $O1 */
   def values = self.pairs.map(_._2)
 
   // HELPER FUNCTIONS
   /**
-   * Transforms the values of this map according to the specified function.
+   * Transforms the values of this map according to the specified function. $LAZY $O1
    * @note This function is equivalent to the Scala library's `mapValues`.
    *       To transform all pairs in this map, use `this.pairs.map`.
    * @example {{{Map(1 -> 2, 2 -> 3) map {_ * 2} == Map(1 -> 4, 2 -> 6)}}}
@@ -86,7 +97,7 @@ trait Map[@sp(i) K, +V] extends Keyed[K] with PartialFunction[K, V] { self =>
 
 
   /**
-   * Zips two maps with the same key type into one.
+   * Zips two maps with the same key type into one. $LAZY $O1
    * @note This function is not the same as the Scala library's `zip`. Please
    *       use `this.pairs.zip` instead for zipping pairs.
    * @example {{{Map(1 -> 2, 2 -> 3) zip Map(2 -> 5, 3 -> 6) == Map(2 -> (3, 5))}}}

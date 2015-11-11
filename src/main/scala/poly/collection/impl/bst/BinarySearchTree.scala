@@ -43,7 +43,7 @@ class BinarySearchTree[T](implicit val order: WeakOrder[T]) extends LinkedBinary
         case cmp if cmp > 0 => c = c.right
       }
     }
-    c = new Node(x, parent = p)
+    c = new Node(x, dummy, dummy, p)
     if (p.isDummy)
       rootNode = c
     else if (x < p.data)

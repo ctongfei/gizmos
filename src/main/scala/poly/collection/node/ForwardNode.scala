@@ -29,7 +29,7 @@ trait ForwardNode[+T] extends NotNull { self =>
   def isDummy: Boolean
   def notDummy = !isDummy
 
-  override def toString = s"Node($data)"
+  override def toString = if (notDummy) s"Node($data)" else "<dummy>"
 
   def reverse: BackwardNode[T] = new BackwardNode[T] {
     def pred = self.succ.map(_.reverse)

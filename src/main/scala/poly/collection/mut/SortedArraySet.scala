@@ -8,7 +8,7 @@ import poly.collection.impl._
  */
 class SortedArraySet[T] private(private val data: SortedArray[T]) extends SortedSet[T] with MutableSet[T] {
 
-  override val order = data.orderOnValue
+  override def orderOnKey = data.orderOnValue
 
   def contains(x: T) = data.tryBinarySearch(x) >= 0
 
@@ -19,4 +19,5 @@ class SortedArraySet[T] private(private val data: SortedArray[T]) extends Sorted
   def remove(x: T) = data.remove(x)
 
   def size: Int = data.size
+
 }

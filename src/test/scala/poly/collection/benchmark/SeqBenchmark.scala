@@ -34,9 +34,6 @@ object SeqBenchmark extends App {
     }
     println(s"Vanilla Java ArrayList: $tArrayList")
 
-    val a = (0 until 4).toList
-
-
     val t1 = conf measure {
       val l1 = ArrayBuffer.tabulate(n)(i => i)
     }
@@ -47,7 +44,6 @@ object SeqBenchmark extends App {
       val l3 = mut.ArraySeq.tabulate(n)(i => i)
     }
     println(s"Poly-collection ArraySeq: $t3")
-
 
     val tjll = conf measure {
       val tjll = new java.util.LinkedList[Int]

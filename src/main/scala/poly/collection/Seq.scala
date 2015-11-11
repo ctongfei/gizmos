@@ -9,6 +9,7 @@ import scala.annotation.unchecked.{uncheckedVariance => uv}
 /**
  * Represents a sequence that guarantees the same order every time it is traversed.
  * @author Tongfei Chen (ctongfei@gmail.com).
+ * @since 0.1.0
  */
 trait Seq[+T] extends SortedMap[Int, T] with Iterable[T] { self =>
 
@@ -71,13 +72,17 @@ trait Seq[+T] extends SortedMap[Int, T] with Iterable[T] { self =>
     def current = node.data
   }
 
-
   override def isDefinedAt(i: Int) = containsKey(i)
 
   def ?(i: Int) = if (containsKey(i)) Some(this(i)) else None
 
   def containsKey(i: Int) = i >= 0 && i < size
 
+  /**
+    * Pairs each element with its index. $LAZY
+    * @example {{{('a', 'b', 'c').pairs == ((0, 'a'), (1, 'b'), (2, 'c'))}}}
+    * @return A sequence of index-element pairs.
+    */
   def pairs: SortedSeq[(Int, T @uv)] = {
     var i = -1
     self.map(x => { i += 1; (i, x) }).asIfSorted(WeakOrder by first)
@@ -177,11 +182,20 @@ trait Seq[+T] extends SortedMap[Int, T] with Iterable[T] { self =>
 
   override def takeWhile(f: T => Boolean) = {
     class TakenWhileNode(val outer: SeqNode[T]) extends SeqNode[T] {
+      def isDummy = outer.isDummy && !f(outer.data)
       def data = outer.data
-      def next = if (!f(outer.data)) SeqNode.dummy else new TakenWhileNode(outer.next)
-      def isDummy = outer.isDummy
+      def next = if (!f(outer.next.data)) SeqNode.dummy else new TakenWhileNode(outer.next)
     }
     ofNode(new TakenWhileNode(self.headNode))
+  }
+
+  override def takeTo(f: T => Boolean) = {
+    class TakenToNode(val outer: SeqNode[T]) extends SeqNode[T] {
+      def data = outer.data
+      def next = if (!f(outer.data)) SeqNode.dummy else new TakenToNode(outer.next)
+      def isDummy = outer.isDummy
+    }
+    ofNode(new TakenToNode(self.headNode))
   }
 
   override def takeUntil(f: T => Boolean) = takeWhile(x => !f(x))
@@ -197,6 +211,33 @@ trait Seq[+T] extends SortedMap[Int, T] with Iterable[T] { self =>
     def headNode: SeqNode[T] = self.headNode
   }
 
+  // INDEXING OPERATIONS
+  def firstIndexOf[U >: T](x: U): Int = {
+    var i = 0
+    for (y ← this) {
+      if (y == x) return i
+      i += 1
+    }
+    -1
+  }
+
+  def lastIndexOf[U >: T](x: U): Int = ???
+
+  def firstIndexWhere(f: T => Boolean): Int = {
+    var i = 0
+    for (y ← this) {
+      if (f(y)) return i
+      i += 1
+    }
+    -1
+  }
+
+  def lastIndexWhere(f: T => Boolean): Int = ???
+
+  def permutations: Seq[Seq[T]] = new AbstractSeq[Seq[T]] {
+    def headNode = ???
+  }
+
   override def equals(that: Any) = that match {
     case (that: Seq[T]) => Equiv[T].eq(this, that)
     case _ => false
@@ -205,7 +246,6 @@ trait Seq[+T] extends SortedMap[Int, T] with Iterable[T] { self =>
   override def toString = "(" + buildString(",") + ")" // overridden the `toString` in Map
 
   override def hashCode = ???
-
 
   override def |>[U](f: T => U): Seq[U] = ofNode(self.headNode.map(f))
 

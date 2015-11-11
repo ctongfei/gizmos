@@ -7,10 +7,7 @@ package poly.collection
  */
 trait Deque[T] extends Queue[T] {
 
-  /**
-   * Returns the bottom element of the queue.
-   * @return
-   */
+  /** Returns the bottom element of the queue. */
   def bottom: T
 
   def popTop(): T
