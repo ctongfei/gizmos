@@ -6,7 +6,7 @@ import poly.collection._
  * Represents a node that has a list of predecessor nodes.
  * @since 0.1.0
  */
-trait BackwardNode[+T] extends NotNull { self =>
+trait BackwardNode[+T] { self =>
   def data: T
   def pred: Iterable[BackwardNode[T]]
 

@@ -77,11 +77,15 @@ trait Iterable[+T] extends Traversable[T] { self =>
   def concat[U >: T](that: Iterable[U]): Iterable[U] = ofIterator {
     new Iterator[U] {
       private[this] var e: Iterator[U] = self.newIterator
+      private[this] var first = true
       def advance() = {
-        if (e.advance()) true else {
+        if (e.advance()) true
+        else if (first) {
           e = that.newIterator
+          first = false
           e.advance()
         }
+        else false
       }
       def current = e.current
     }
@@ -127,11 +131,17 @@ trait Iterable[+T] extends Traversable[T] { self =>
       private[this] var accum = z
       private[this] var first = true
       def advance() = {
-        if (first) first = false
-        else accum = f(accum, i.current)
-        i.advance()
+        if (first) {
+          first = false
+          true
+        }
+        else {
+          val r = i.advance()
+          if (r) accum = f(accum, i.current)
+          r
+        }
       }
-      def current = if (!first) accum else throw new NoSuchElementException
+      def current = accum
     }
   }
 
@@ -177,9 +187,13 @@ trait Iterable[+T] extends Traversable[T] { self =>
     }
   }
 
+  override def tails = Iterable.iterate(self)(_.tail).takeTo(_.isEmpty)
+
+  override def inits = Iterable.iterate(self)(_.init).takeTo(_.isEmpty)
+
   override def take(n: Int): Iterable[T] = ofIterator {
     new Iterator[T] {
-      val i = self.newIterator
+      private[this] val i = self.newIterator
       private[this] var remaining = n
       def advance() = remaining > 0 && { remaining -= 1; i.advance() }
       def current = i.current
@@ -187,8 +201,8 @@ trait Iterable[+T] extends Traversable[T] { self =>
   }
 
   /**
-   * Advances this enumerator past the first ''n'' elements.
-   * @param n The number of elements to be dropped
+   * Advances this iterator past the first ''n'' elements.
+   * @param n The number of elements to be skipped
    */
   override def skip(n: Int): Iterable[T] = {
     val skippedIterator = self.newIterator
@@ -197,11 +211,40 @@ trait Iterable[+T] extends Traversable[T] { self =>
     ofIterator(skippedIterator)
   }
 
-  override def rotate(n: Int): Iterable[T] = self.skip(n) ++ self.take(n)
+  override def skipWhile(f: T => Boolean): Iterable[T] = {
+    val skippedIterator = self.newIterator
+    while (skippedIterator.advance() && f(skippedIterator.current)) {}
+    ofIterator(skippedIterator)
+  }
+
+  override def takeWhile(f: T => Boolean) = ofIterator {
+    new Iterator[T] {
+      private[this] val i = self.newIterator
+      def advance() = i.advance() && f(i.current)
+      def current = i.current
+    }
+  }
+
+  override def takeTo(f: T => Boolean) = ofIterator {
+    new Iterator[T] {
+      private[this] val i = self.newIterator
+      private[this] var satisfied = false
+      def advance() = {
+        val r = (!satisfied) && i.advance()
+        if (r) satisfied = f(current)
+        r
+      }
+      def current = i.current
+    }
+  }
+
+  override def takeUntil(f: T => Boolean) = takeWhile(x => !f(x))
 
   override def slice(i: Int, j: Int): Iterable[T] = self.skip(i).take(j - i)
 
   override def distinct: Iterable[T] = ???
+
+  override def rotate(n: Int): Iterable[T] = self.skip(n) ++ self.take(n)
 
   /** Pretends that this iterable collection is sorted. */
   def asIfSorted[U >: T](implicit U: WeakOrder[U]): SortedIterable[U] = new SortedIterable[U] {
@@ -242,14 +285,14 @@ trait Iterable[+T] extends Traversable[T] { self =>
    */
   def interleave[U >: T](that: Iterable[U]): Iterable[U] = ofIterator {
     new Iterator[U] {
-      val ti = self.newIterator
-      val ui = that.newIterator
-      var first = true
+      private[this] val ti = self.newIterator
+      private[this] val ui = that.newIterator
+      private[this] var first = false
       def advance() = {
         first = !first
         if (!first) ti.advance() else ui.advance()
       }
-      def current = if (first) ti.current else ui.current
+      def current = if (!first) ti.current else ui.current
     }
   }
 
@@ -288,11 +331,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
 
   override def repeat(n: Int): Iterable[T] = Range(n).flatMap((i: Int) => self)
 
-  /**
-   * Infinitely cycles through this collection.
-   * @example {{{(1, 2, 3).cycle == (1, 2, 3, 1, 2, 3, 1...)}}}
-   */
-  def cycle: Iterable[T] = ofIterator {
+  override def cycle: Iterable[T] = ofIterator {
     new Iterator[T] {
       private[this] var outer = self.newIterator
       def current = outer.current
@@ -319,6 +358,10 @@ trait Iterable[+T] extends Traversable[T] { self =>
   def ||>[U](f: T => Iterable[U]) = this flatMap f
   override def |?(f: T => Boolean) = this filter f
   //endregion
+
+  def asIterable: Iterable[T] = new AbstractIterable[T] {
+    def newIterator = self.newIterator
+  }
 
 }
 
@@ -380,6 +423,16 @@ object Iterable {
     }
   }
 
+  def zipN[T](xss: Iterable[T]*) = ofIterator {
+    new Iterator[IndexedSeq[T]] {
+      private[this] val is = ArraySeq.tabulate(xss.length)(i => xss(i).newIterator)
+      def current = is.map(_.current)
+      def advance() = is.forall(_.advance())
+    }
+  }
+
+  def interleaveN[T](xss: Iterable[T]*) = ???
+
   /** Returns the natural monad on Iterables. */
   implicit object Monad extends ConcatenativeMonad[Iterable] {
     def flatMap[X, Y](mx: Iterable[X])(f: X => Iterable[Y]): Iterable[Y] = mx.flatMap(f)
@@ -400,6 +453,12 @@ object Iterable {
   implicit def fromOption[T](o: Option[T]): Iterable[T] = o match {
     case Some(x) => Iterable.single(x)
     case None    => Iterable.empty
+  }
+
+  implicit class ofPairs[K, V](val underlying: Iterable[(K, V)]) extends AnyVal {
+
+    def unzip = (underlying map first, underlying map second)
+
   }
 }
 

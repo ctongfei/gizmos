@@ -15,10 +15,14 @@ trait Multiset[T] extends PredicateSet[T] with Keyed[T] { self =>
   /** Tests if an element belongs to this set. */
   def contains(x: T): Boolean
 
+  final def containsKey(x: T) = contains(x)
+
   def size: Int
 
   /** The elements in this set. */
   def elements: Iterable[T]
+
+  def keys = elements.distinct
 
   // HELPER FUNCTIONS
 

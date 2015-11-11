@@ -31,6 +31,7 @@ trait Graph[@sp(i) K, +V, +E] extends Keyed[K] { self =>
   def nodes: Iterable[Node] = keys.map(i => new Node(i))
   def edges: Iterable[Edge] = for (i ← keys; j ← outgoingKeysOf(i)) yield new Edge(i, j)
 
+  final def containsKey(i: K) = containsNode(i)
   def containsNode(i: K): Boolean
   def containsEdge(i: K, j: K): Boolean
 

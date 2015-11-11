@@ -13,4 +13,8 @@ trait Keyed[@sp(i) K] {
   /** Returns the equivalence relation on keys. */
   def equivOnKey: Equiv[K]
 
+  def containsKey(k: K): Boolean
+
+  def keys: Iterable[K]
+
 }

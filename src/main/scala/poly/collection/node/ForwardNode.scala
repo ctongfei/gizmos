@@ -11,13 +11,10 @@ import poly.collection.search._
  * Nodes provide a unified view for lists, trees and graphs, as well as search nodes
  * in searching algorithms provided in package [[poly.collection.search]].
  *
- * Explicitly inherits the deprecated trait [[scala.NotNull]] to emphasize that a node
- * in Poly-collection should never be null.
- *
  * @author Tongfei Chen (ctongfei@gmail.com).
  * @since 0.1.0
  */
-trait ForwardNode[+T] extends NotNull { self =>
+trait ForwardNode[+T] { self =>
 
   /** Returns the data on this node. */
   def data: T

@@ -22,6 +22,8 @@ trait Set[T] extends PredicateSet[T] with Multiset[T] { self =>
   /** Tests if an element belongs to this set. */
   def contains(x: T): Boolean
 
+  final override def keys = elements
+
   /** Tests if an element does not belong to this set. */
   def notContains(x: T) = !contains(x)
 

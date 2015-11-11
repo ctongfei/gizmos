@@ -358,8 +358,6 @@ trait Traversable[+T] { self =>
     }
   }
 
-  def rotate(n: Int): Traversable[T] = (self skip n) ++ (self take n)
-
   def takeWhile(f: T => Boolean): Traversable[T] = new AbstractTraversable[T] {
     def foreach[U](g: T => U): Unit = {
       for (x ← self) {
@@ -422,6 +420,15 @@ trait Traversable[+T] { self =>
   /** Returns the reverse of this sequence. $EAGER */
   def reverse: BiSeq[T] = self.to[ArraySeq].reverse
 
+  /** Returns a randomly shuffled version of this sequence. $EAGER */
+  def shuffle: IndexedSeq[T] = {
+    val a = self.to[ArraySeq]
+    a.shuffleInplace()
+    a
+  }
+
+  def rotate(n: Int): Traversable[T] = (self skip n) ++ (self take n)
+
   def sort[U >: T](implicit U: WeakOrder[U]): SortedIndexedSeq[U] = {
     val seq = self.map(_.asInstanceOf[U]).to[ArraySeq]
     seq.sortInplace()(U)
@@ -436,13 +443,24 @@ trait Traversable[+T] { self =>
   }
 
   /**
-   * Repeats this collection ''n'' times. For example, `(1, 2, 3).repeat(2)` becomes `(1, 2, 3, 1, 2, 3)`.
+   * Repeats this collection for a specific number of times.
+   * @example {{{(1, 2, 3).repeat(2) == (1, 2, 3, 1, 2, 3)}}}
    * @param n Number of times to repeat
    */
   def repeat(n: Int): Traversable[T] = new AbstractTraversable[T] {
     def foreach[V](f: T => V) = {
       for (i ← Range(n))
         for (x ← self) f(x)
+    }
+  }
+
+  /**
+    * Infinitely cycles through this collection.
+    * @example {{{(1, 2, 3).cycle == (1, 2, 3, 1, 2, 3, 1, 2...)}}}
+    */
+  def cycle: Traversable[T] = new AbstractTraversable[T] {
+    def foreach[V](f: T => V) = {
+      while (true) for (x ← self) f(x)
     }
   }
 

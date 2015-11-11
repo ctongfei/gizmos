@@ -4,6 +4,8 @@ import poly.algebra._
 import poly.algebra.ops._
 import poly.util.specgroup._
 
+import scala.util._
+
 /**
  * Basic trait for mutable indexed sequences.
  * Fast random access and update should be guaranteed.
@@ -59,6 +61,17 @@ trait DataMutableIndexedSeq[T] extends DataMutableSeq[T] with IndexedSeq[T] {
     while (i < length) {
       update(i, f(apply(i)))
       i += 1
+    }
+  }
+
+  /**
+    * Randomly shuffles this sequence in-place using the Fisher-Yates shuffling algorithm.
+    */
+  def shuffleInplace(): Unit = {
+    val r = new Random()
+    for (i ← Range(length - 1, 0, -1)) {
+      val j = r.nextInt(i + 1)
+      swapInplace(i, j)
     }
   }
 

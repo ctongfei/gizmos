@@ -45,7 +45,7 @@ object ArraySeq extends SeqFactory[ArraySeq] {
     val a = Array.ofDim[AnyRef](cap)
     for (i ← Range(n))
       a(i) = f(i).asInstanceOf[AnyRef]
-    val rs = new ResizableSeq[T](cap); rs.data = a
+    val rs = new ResizableSeq[T](cap); rs.data = a; rs.len = n
     new ArraySeq[T](rs)
   }
 

@@ -249,8 +249,6 @@ trait Seq[+T] extends SortedMap[Int, T] with Iterable[T] { self =>
 
   override def |>[U](f: T => U): Seq[U] = ofNode(self.headNode.map(f))
 
-  def asIterable = Iterable.ofIterator(self.newIterator)
-
 }
 
 object Seq {

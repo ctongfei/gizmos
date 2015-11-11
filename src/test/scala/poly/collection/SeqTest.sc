@@ -14,3 +14,6 @@ b.flatMap((x: Int) => a)
 a prepend 0
 
 a append 0
+
+val c = ArraySeq(1, 2, 3)
+val d :|< (e |: f) = c

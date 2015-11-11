@@ -67,6 +67,7 @@ a.takeWhile(_ >= 3)
 a.takeTo(_ == 2)
 a.takeUntil(_ <= 3)
 a.slice(3, 4)
+a.rotate(3)
 a.reverse
 a.sort
 a.sort(TotalOrder[Int].reverse)
@@ -86,3 +87,6 @@ val e = ArraySeq((1, 'a'), (2, 'b')).asTraversable
 d.flatten
 e.unzip
 e.unzipForced
+
+a.cycle.map(_ - 1).take(10)
+

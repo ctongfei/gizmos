@@ -18,9 +18,9 @@ object ops {
     /**
      * Constructs a lazy sequence that repeats the specific element infinitely.
      * @return An infinite sequence
-     * @example {{{2.infinite == (2, 2, 2, 2, 2, ...)}}}
+     * @example {{{2.cycle == (2, 2, 2, 2, 2, ...)}}}
      */
-    def infinite = Seq.infinite(x)
+    def cycle = Seq.infinite(x)
 
     /**
      * Constructs a lazy sequence that repeats the specific element for the given number of times.
