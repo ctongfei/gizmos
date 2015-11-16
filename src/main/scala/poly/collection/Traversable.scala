@@ -264,12 +264,12 @@ trait Traversable[+T] { self =>
   def scanByMonoid[U >: T : Monoid]: Traversable[U] = scanLeft(id)(_ op _)
 
   /**
-   * Returns the consecutive differences of the sentences. $LAZY $O1
+   * Returns the consecutive differences of the sequences. $LAZY $O1
    * @example {{{
    *   (0, 1, 3, 6, 10, 15).diff(_ - _) == (1, 2, 3, 4, 5)
    * }}}
    */
-  def diff[U](f: (T, T) => U): Traversable[U] = new AbstractTraversable[U] {
+  def consecutive[U](f: (T, T) => U): Traversable[U] = new AbstractTraversable[U] {
     var first = true
     var prev: T = _
     def foreach[V](g: U => V) = {
@@ -287,7 +287,7 @@ trait Traversable[+T] { self =>
   }
 
   /** $LAZY $O1 */
-  def diffByGroup[U >: T](implicit U: Group[U]) = diff((x, y) => U.op(x, U.inv(y)))
+  def diffByGroup[U >: T](implicit U: Group[U]) = consecutive((x, y) => U.op(x, U.inv(y)))
 
   /** $EAGER $O1 */
   def head: T = {
@@ -335,7 +335,7 @@ trait Traversable[+T] { self =>
 
   def tails = Iterable.iterate(self)(_.tail).takeTo(_.isEmpty)
 
-  def inits = Iterable.iterate(self)(_.init).takeTo(_.isEmpty)
+  def inits: IndexedSeq[IndexedSeq[T]] = to[ArraySeq].inits
 
   def take(n: Int): Traversable[T] = new AbstractTraversable[T] {
     def foreach[U](f: T => U): Unit = {
@@ -427,7 +427,13 @@ trait Traversable[+T] { self =>
     a
   }
 
-  def rotate(n: Int): Traversable[T] = (self skip n) ++ (self take n)
+
+  /**
+    * Rotates this sequence from the index specified.
+    * @example {{{(1, 2, 3, 4).rotate(1) == (2, 3, 4, 1)}}}
+    * @param n Rotation starts here
+    */
+  def rotate(n: Int) = (self skip n) ++ (self take n)
 
   def sort[U >: T](implicit U: WeakOrder[U]): SortedIndexedSeq[U] = {
     val seq = self.map(_.asInstanceOf[U]).to[ArraySeq]
@@ -472,7 +478,7 @@ trait Traversable[+T] { self =>
    */
   def sum[X >: T : AdditiveMonoid]: X = fold(zero)(_+_)
 
-  def isum[X >: T](implicit X: InplaceAdditiveCMonoid[X]) = {
+  def sumInplace[X >: T](implicit X: InplaceAdditiveCMonoid[X]) = {
     val sum = zero[X]
     for (x ← self) X.addInplace(sum, x)
     sum
@@ -498,7 +504,7 @@ trait Traversable[+T] { self =>
    * @tparam X Supertype of the type of elements: must be endowed with an additive group (to enable the `sub(-)` operation).
    * @return The consecutive differences sequence
    */
-  def differences[X >: T](implicit X: AdditiveGroup[X]) = diff(X.sub)
+  def differences[X >: T](implicit X: AdditiveGroup[X]) = consecutive(X.sub)
 
   /**
    * Returns the product of the elements in this collection. For example, `(1, 2, 3, 4, 5).product` returns `120`.

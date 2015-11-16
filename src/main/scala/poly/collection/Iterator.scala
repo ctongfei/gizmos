@@ -44,7 +44,7 @@ trait Iterator[+T] { self =>
   override def toString = try {
     s"Current = ${current.toString}"
   } catch {
-    case _: Exception => "Bad iterator position"
+    case _: Exception => "<invalid position>"
   }
 
 }

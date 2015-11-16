@@ -4,8 +4,7 @@ import poly.algebra._
 import poly.collection.factory._
 import poly.collection.mut._
 import poly.collection.node._
-import poly.util.fastloop._
-import poly.util.specgroup._
+import poly.macroutil._
 import scala.annotation.unchecked.{uncheckedVariance => uV}
 import scala.reflect._
 
@@ -21,6 +20,8 @@ trait IndexedSeq[+T] extends BiSeq[T] with HasKnownSize { self =>
   def fastLength: Int
 
   def fastApply(i: Int): T
+
+  override def size = fastLength
 
   override def length = fastLength
 
@@ -39,6 +40,7 @@ trait IndexedSeq[+T] extends BiSeq[T] with HasKnownSize { self =>
   def headNode: BiSeqNode[T] = new IndexedSeqNode(0)
   def lastNode: BiSeqNode[T] = new IndexedSeqNode(fastLength - 1)
 
+  // Overridden foreach method for performance.
   override def foreach[V](f: T => V): Unit = {
     FastLoop.ascending(0, length, 1) { i => f(apply(i)) }
   }
@@ -83,11 +85,10 @@ trait IndexedSeq[+T] extends BiSeq[T] with HasKnownSize { self =>
     MapReduceOps.bySemigroup[U](length, x => self(x): U, f) // optimize through macros
   }
 
-  /**
-   * Rotates this sequence from the index specified.
-   * @param j Rotation starts here
-   * @return
-   */
+  override def take(n: Int) = slice(0, n)
+
+  override def inits = Range(0, length).reverse map take
+
   override def rotate(j: Int): IndexedSeq[T] = new AbstractIndexedSeq[T] {
     val len = self.length
     def fastApply(i: Int): T = self((j + i) % len)

@@ -13,6 +13,8 @@ import scala.reflect._
  */
 class ArrayQueue[T] private(private val data: CircularArray[T]) extends Queue[T] with HasKnownSize {
 
+  def fastSize = data.length
+
   def newIterator = ???
 
   def top = {

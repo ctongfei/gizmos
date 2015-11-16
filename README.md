@@ -6,19 +6,19 @@ Poly-collection is a Scala collection framework that aims to provide an alternat
  
   - Full support for trees and graphs, with all kinds of functional operators defined on them.
   
+  - Lazy by default: Higher-order transformational functions are nearly always executed in a non-strict manner:
+   functions like `map`, `filter`, `flatMap` are always evaluated lazily. This allows chain application like 
+   `xs.map(f).filter(g).reduce(h)` to be much faster than the standard library.
+  
   - Various algorithms provided out of the box: binary search; disjoint sets; A* search; ...
 
   - Concretely based on basic algebraic concepts through [poly-algebra](https://github.com/ctongfei/poly-algebra) by extensive use
-   of typeclass patterns.
-  
-  - Always non-strict when using higher-order transformational functions: functions like
-   `map`, `filter`, `flatMap` are always evaluated lazily. This allows chain application like 
-   `xs.map(f).filter(g).reduce(h)` to be much faster than the standard library.
+   of typeclass patterns (Equiv / Order / Hashing / ...).
   
   - Macros sparingly used to boost performance on Int-indexed structures.
 
 Implicit conversions from Scala & Java collections to Poly collections are provided by importing the
-package `poly.collection.conversion._`.
+objects `poly.collection.conversion.{Java, Scala}`.
 
 ## Installation
 

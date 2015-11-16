@@ -41,7 +41,7 @@ object SeqBenchmark extends App {
 
 
     val t3 = conf measure {
-      val l3 = mut.ArraySeq.tabulate(n)(i => i)
+      val pcmArraySeq = mut.ArraySeq.tabulate(n)(i => i)
     }
     println(s"Poly-collection ArraySeq: $t3")
 

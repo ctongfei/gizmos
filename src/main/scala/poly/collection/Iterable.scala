@@ -149,7 +149,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
 
   override def scanByMonoid[U >: T : Monoid] = scanLeft(id)(_ op _)
 
-  override def diff[U](f: (T, T) => U) = ofIterator {
+  override def consecutive[U](f: (T, T) => U) = ofIterator {
     new Iterator[U] {
       private[this] val i = self.newIterator
       private[this] var a = default[T]
@@ -165,7 +165,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
     }
   }
 
-  override def diffByGroup[U >: T](implicit U: Group[U]) = diff((x, y) => U.op(y, U.inv(x)))
+  override def diffByGroup[U >: T](implicit U: Group[U]) = consecutive((x, y) => U.op(y, U.inv(x)))
 
   override def tail: Iterable[T] = {
     val tailIterator = self.newIterator
@@ -188,8 +188,6 @@ trait Iterable[+T] extends Traversable[T] { self =>
   }
 
   override def tails = Iterable.iterate(self)(_.tail).takeTo(_.isEmpty)
-
-  override def inits = Iterable.iterate(self)(_.init).takeTo(_.isEmpty)
 
   override def take(n: Int): Iterable[T] = ofIterator {
     new Iterator[T] {
@@ -455,7 +453,16 @@ object Iterable {
     case None    => Iterable.empty
   }
 
-  implicit class ofPairs[K, V](val underlying: Iterable[(K, V)]) extends AnyVal {
+
+  implicit class ofIterables[T](val underlying: Iterable[Iterable[T]]) extends AnyVal {
+    /**
+      * "Flattens" this collection of collection into one collection.
+      * @example {{{((1, 2, 3), (4, 5), (), (7)).flatten == (1, 2, 3, 4, 5, 7)}}}
+      */
+    def flatten: Iterable[T] = underlying.flatMap(identity)
+  }
+
+  implicit class ofPairs[A, B](val underlying: Iterable[(A, B)]) extends AnyVal {
 
     def unzip = (underlying map first, underlying map second)
 

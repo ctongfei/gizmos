@@ -37,7 +37,7 @@ trait ForwardNode[+T] { self =>
 
   def map[U](f: T => U): ForwardNode[U] = new ForwardNode[U] {
     def data = f(self.data)
-    def succ = self.succ.map(n => n.map(f))
+    def succ = self.succ.map(_.map(f))
     override def isDummy = self.isDummy
   }
 

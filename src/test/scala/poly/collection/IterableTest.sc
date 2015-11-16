@@ -21,7 +21,7 @@ e :+ 0
 
 e.scanLeft(0)(_+_)
 e.scanByMonoid(AdditiveMonoid[Int].asMonoidWithAdd)
-e.diff(_-_)
+e.consecutive(_-_)
 
 
 
