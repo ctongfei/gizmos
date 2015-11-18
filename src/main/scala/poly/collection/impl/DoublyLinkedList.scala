@@ -12,7 +12,7 @@ class DoublyLinkedList[T] extends BiSeq[T] with KeyMutableSeq[T] {
 
   type Node = DoublyLinkedList.Node[T]
 
-  private[poly] val dummy: Node = new Node(default[T], dummy, dummy) { override def isDummy = true }
+  val dummy: Node = new Node(default[T], dummy, dummy) { override def isDummy = true }
   private[poly] var len: Int = 0
   dummy.prev = dummy
   dummy.next = dummy

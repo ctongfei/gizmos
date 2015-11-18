@@ -20,10 +20,11 @@ class SinglyLinkedList[T] extends Seq[T] with KeyMutableSeq[T] {
 
   type Node = SinglyLinkedList.Node[T]
 
-  private[poly] val dummy: Node = new Node(default[T], dummy) { override def isDummy = true }
+  val dummy: Node = new Node(default[T], dummy) { override def isDummy = true }
+  dummy.next = dummy
+
   private[poly] var len: Int = 0
   private[poly] var lastNode: Node = dummy
-  dummy.next = dummy
 
   override def length = len
 
@@ -112,8 +113,6 @@ class SinglyLinkedList[T] extends Seq[T] with KeyMutableSeq[T] {
     prev.next = curr.next
     len -= 1
   }
-
-  def headNode = dummy.next
 
   override def mapInplace(f: (T) => T): Unit = ???
 }

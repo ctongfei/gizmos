@@ -187,7 +187,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
     }
   }
 
-  override def tails = Iterable.iterate(self)(_.tail).takeTo(_.isEmpty)
+  override def suffixes = Iterable.iterate(self)(_.tail).takeTo(_.isEmpty)
 
   override def take(n: Int): Iterable[T] = ofIterator {
     new Iterator[T] {

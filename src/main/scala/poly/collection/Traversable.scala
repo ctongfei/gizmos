@@ -333,9 +333,9 @@ trait Traversable[+T] { self =>
     }
   }
 
-  def tails = Iterable.iterate(self)(_.tail).takeTo(_.isEmpty)
+  def suffixes = Iterable.iterate(self)(_.tail).takeUntil(_.isEmpty)
 
-  def inits: IndexedSeq[IndexedSeq[T]] = to[ArraySeq].inits
+  def prefixes: Iterable[Iterable[T]] = to[ArraySeq].prefixes
 
   def take(n: Int): Traversable[T] = new AbstractTraversable[T] {
     def foreach[U](f: T => U): Unit = {

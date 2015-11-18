@@ -10,7 +10,7 @@ class TraversableTest extends FunSuite {
 
   test("Traversable functions") {
     val a = ArraySeq(5, 3, 3, 2, 1, 0).asTraversable
-    val b = a.tails
+    val b = a.suffixes
     val bp = 0
   }
 

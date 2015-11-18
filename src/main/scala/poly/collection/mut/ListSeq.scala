@@ -12,7 +12,7 @@ import poly.collection.node._
  */
 class ListSeq[T] private(private val data: SinglyLinkedList[T]) extends AbstractSeq[T] with KeyMutableSeq[T] with HasKnownSize {
 
-  def headNode: SeqNode[T] = data.headNode
+  def dummy: SeqNode[T] = data.dummy
 
   override def apply(i: Int) = data.apply(i)
 
@@ -31,7 +31,7 @@ class ListSeq[T] private(private val data: SinglyLinkedList[T]) extends Abstract
   def deleteAt(i: Int) = data.deleteAt(i)
 
   override def mapInplace(f: T => T) = {
-    var n = data.headNode
+    var n = data.dummy.next
     while (n.notDummy) {
       n.data = f(n.data)
       n = n.next

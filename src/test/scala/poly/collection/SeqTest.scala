@@ -23,7 +23,7 @@ object SeqTest extends App {
 
   val t8 = a.scanLeft(0)(_+_)
   val t9 = t8.consecutive(_+_)
-  val t10 = a.tails
+  val t10 = a.suffixes
 
   val bp = 0
 

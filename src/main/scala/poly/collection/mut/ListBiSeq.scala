@@ -10,9 +10,7 @@ import poly.collection.node._
  */
 class ListBiSeq[T] private(private val data: DoublyLinkedList[T]) extends AbstractBiSeq[T] with KeyMutableSeq[T] with HasKnownSize {
 
-  def headNode: BiSeqNode[T] = data.dummy.next
-  def lastNode: BiSeqNode[T] = data.dummy.prev
-
+  def dummy: BiSeqNode[T] = data.dummy
 
   override def length = data.length
 

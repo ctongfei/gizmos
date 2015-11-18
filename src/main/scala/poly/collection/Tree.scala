@@ -45,10 +45,10 @@ trait Tree[+T] { self =>
     class LeftChildRightSiblingBinaryTreeNode(val node: SeqNode[TreeNode[T]]) extends BinaryTreeNode[T] {
       override def isDummy = node.isDummy || node.data.isDummy
       def data = node.data.data
-      def left = new LeftChildRightSiblingBinaryTreeNode(node.data.children.headNode)
+      def left = new LeftChildRightSiblingBinaryTreeNode(node.data.children.dummy.next)
       def right = new LeftChildRightSiblingBinaryTreeNode(node.next)
     }
-    def rootNode = new LeftChildRightSiblingBinaryTreeNode(ListSeq(self.rootNode).headNode)
+    def rootNode = new LeftChildRightSiblingBinaryTreeNode(ListSeq(self.rootNode).dummy.next)
     override def inverseKnuthTransform = self
   }
 

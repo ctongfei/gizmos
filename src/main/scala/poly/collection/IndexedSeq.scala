@@ -39,8 +39,12 @@ trait IndexedSeq[+T] extends BiSeq[T] with HasKnownSize { self =>
     }
   }
 
-  def headNode: BiSeqNode[T] = new IndexedSeqNode(self, 0)
-  def lastNode: BiSeqNode[T] = new IndexedSeqNode(self, fastLength - 1)
+  def dummy: BiSeqNode[T] = new BiSeqNode[T] {
+    def next = new IndexedSeqNode[T](self, 0)
+    def prev = new IndexedSeqNode[T](self, length - 1)
+    def data = throw new NoSuchElementException
+    def isDummy = true
+  }
 
   // Overridden foreach method for performance.
   override def foreach[V](f: T => V): Unit = {
@@ -96,9 +100,9 @@ trait IndexedSeq[+T] extends BiSeq[T] with HasKnownSize { self =>
 
   override def init = self.take(length - 1)
 
-  override def tails = Range.inclusive(1, length) map skip
+  override def suffixes = Range(0, length) map skip
 
-  override def inits = Range(0, length).reverse map take
+  override def prefixes = Range(length, 0, -1) map take
 
   override def take(n: Int) = slice(0, n)
 

@@ -38,7 +38,11 @@ object Scala {
       }
     }
     override def newIterator = scalaIteratorAsPoly[T](xs.iterator)
-    def headNode = new WrappedNode(xs.view, xs.isEmpty)
+    def dummy = new SeqNode[T] {
+      def data = throw new NoSuchElementException
+      def next = new WrappedNode(xs.view, xs.isEmpty)
+      def isDummy = true
+    }
     override def apply(i: Int) = xs(i)
     override def length = xs.length
   }

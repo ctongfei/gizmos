@@ -15,11 +15,11 @@ a append 0
 
 a.head
 a.tail
-a.tails
+a.suffixes
 
 a.last
 a.init
-a.inits
+a.prefixes
 
 a.reverse
 a.rotate(2)
@@ -27,4 +27,3 @@ a.repeat(3)
 
 a zip b
 a interleave b
-

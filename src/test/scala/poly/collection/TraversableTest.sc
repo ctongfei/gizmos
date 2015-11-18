@@ -55,8 +55,8 @@ a.head
 a.tail
 a.init
 a.last
-a.tails
-a.inits
+a.suffixes
+a.prefixes
 a skip 2
 a take 3
 a take 7
