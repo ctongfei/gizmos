@@ -11,7 +11,7 @@ import poly.collection.node._
  * @author Tongfei Chen (ctongfei@gmail.com).
  * @since 0.1.0
  */
-trait SearchNode[+S] extends SinglePredNode[S] {
+trait SearchNode[+S] extends NodeWithParent[S] {
   def depth: Int
   def state: S
   def parent: SearchNode[S]

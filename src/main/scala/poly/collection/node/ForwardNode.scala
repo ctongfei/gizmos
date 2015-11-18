@@ -32,13 +32,19 @@ trait ForwardNode[+T] { self =>
     def pred = self.succ.map(_.reverse)
     def data = self.data
     override def reverse = self
-    override def isDummy = self.isDummy
+    def isDummy = self.isDummy
   }
 
   def map[U](f: T => U): ForwardNode[U] = new ForwardNode[U] {
     def data = f(self.data)
     def succ = self.succ.map(_.map(f))
-    override def isDummy = self.isDummy
+    def isDummy = self.isDummy
+  }
+
+  def zip[U](that: ForwardNode[U]): ForwardNode[(T, U)] = new ForwardNode[(T, U)] {
+    def data = (self.data, that.data)
+    def succ = (self.succ zip that.succ).map { case (a, b) => a zip b }
+    def isDummy = self.isDummy || that.isDummy
   }
 
 }

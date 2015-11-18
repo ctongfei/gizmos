@@ -17,15 +17,17 @@ import scala.reflect._
  */
 trait IndexedSeq[+T] extends BiSeq[T] with HasKnownSize { self =>
 
+  import IndexedSeq._
+
   def fastLength: Int
 
   def fastApply(i: Int): T
 
-  override def size = fastLength
+  @inline override def size = fastLength
 
-  override def length = fastLength
+  @inline override def length = fastLength
 
-  override def apply(i: Int) = fastApply(i)
+  @inline override def apply(i: Int) = fastApply(i)
 
   // Overridden newIterator method for performance.
   override def newIterator: Iterator[T] = new Iterator[T] {
@@ -37,8 +39,8 @@ trait IndexedSeq[+T] extends BiSeq[T] with HasKnownSize { self =>
     }
   }
 
-  def headNode: BiSeqNode[T] = new IndexedSeqNode(0)
-  def lastNode: BiSeqNode[T] = new IndexedSeqNode(fastLength - 1)
+  def headNode: BiSeqNode[T] = new IndexedSeqNode(self, 0)
+  def lastNode: BiSeqNode[T] = new IndexedSeqNode(self, fastLength - 1)
 
   // Overridden foreach method for performance.
   override def foreach[V](f: T => V): Unit = {
@@ -53,8 +55,9 @@ trait IndexedSeq[+T] extends BiSeq[T] with HasKnownSize { self =>
   }
 
   def cartesianProduct[U](that: IndexedSeq[U]): IndexedSeq[(T, U)] = new AbstractIndexedSeq[(T, U)] {
+    val stride = that.length
     def fastLength = self.length * that.length
-    def fastApply(i: Int) = (self(i / self.length), that(i % self.length))
+    def fastApply(i: Int) = (self(i / stride), that(i % stride))
   }
 
   /**
@@ -85,19 +88,55 @@ trait IndexedSeq[+T] extends BiSeq[T] with HasKnownSize { self =>
     MapReduceOps.bySemigroup[U](length, x => self(x): U, f) // optimize through macros
   }
 
-  override def take(n: Int) = slice(0, n)
+  override def head = self(0)
+
+  override def last = self(length - 1)
+
+  override def tail = self.skip(1)
+
+  override def init = self.take(length - 1)
+
+  override def tails = Range.inclusive(1, length) map skip
 
   override def inits = Range(0, length).reverse map take
 
-  override def rotate(j: Int): IndexedSeq[T] = new AbstractIndexedSeq[T] {
-    val len = self.length
-    def fastApply(i: Int): T = self((j + i) % len)
-    def fastLength: Int = len
-  }
+  override def take(n: Int) = slice(0, n)
+
+  override def skip(n: Int) = slice(n, self.length)
 
   override def slice(i: Int, j: Int): IndexedSeq[T] = new AbstractIndexedSeq[T] {
     def fastApply(n: Int) = self(i + n)
     def fastLength = j - i
+  }
+
+  override def rotate(j: Int): IndexedSeq[T] = new AbstractIndexedSeq[T] {
+    def fastApply(i: Int): T = self((j + i) % self.length)
+    def fastLength: Int = self.length
+  }
+
+  override def reverse: IndexedSeq[T] = new AbstractIndexedSeq[T] {
+    def fastApply(i: Int) = self(self.length - 1 - i)
+    def fastLength = self.length
+  }
+
+  override def repeat(n: Int): IndexedSeq[T] = new AbstractIndexedSeq[T] {
+    def fastApply(i: Int) = self(i % self.length)
+    def fastLength = self.length * n
+  }
+
+  override def sliding(windowSize: Int, step: Int = 1): IndexedSeq[IndexedSeq[T]] = new AbstractIndexedSeq[IndexedSeq[T]] {
+    def fastLength = (self.length - windowSize) / step + 1
+    def fastApply(i: Int) = self.slice(step * i, step * i + windowSize)
+  }
+
+  def zip[U](that: IndexedSeq[U]): IndexedSeq[(T, U)] = new AbstractIndexedSeq[(T, U)] {
+    def fastApply(i: Int) = (self(i), that(i))
+    def fastLength = math.min(self.length, that.length)
+  }
+
+  def interleave[U >: T](that: IndexedSeq[U]): IndexedSeq[U] = new AbstractIndexedSeq[U] {
+    def fastLength = math.min(self.length, that.length) * 2
+    def fastApply(i: Int) = if (i % 2 == 0) self(i / 2) else that(i / 2)
   }
 
   /**
@@ -112,33 +151,10 @@ trait IndexedSeq[+T] extends BiSeq[T] with HasKnownSize { self =>
     def fastApply(i: Int): T = self.apply(i)
   }
 
-  def interleave[U >: T](that: IndexedSeq[U]): IndexedSeq[U] = new AbstractIndexedSeq[U] {
-    def fastLength = math.min(this.length, that.length) * 2
-    def fastApply(i: Int) = if (i % 2 == 0) self(i / 2) else that(i / 2)
+  def asIndexedSeq: IndexedSeq[T] = new AbstractIndexedSeq[T] {
+    def fastApply(i: Int) = self.fastApply(i)
+    def fastLength = self.fastLength
   }
-
-  override def sliding(windowSize: Int, step: Int = 1): IndexedSeq[IndexedSeq[T]] = new AbstractIndexedSeq[IndexedSeq[T]] {
-    def fastLength = (self.length - windowSize) / step + 1
-    def fastApply(i: Int) = self.slice(step * i, step * i + windowSize)
-  }
-
-  // HELPER OBJECTS / CLASSES
-
-  case class IndexedSeqNode(i: Int) extends BiSeqNode[T] {
-    def isDummy = (i < 0) || (i >= length)
-    def data = self(i)
-    def next = if (i == length - 1) Dummy else new IndexedSeqNode(i + 1)
-    def prev = if (i == 0) Dummy else new IndexedSeqNode(i - 1)
-  }
-
-  private object Dummy extends BiSeqNode[Nothing] {
-    def next: BiSeqNode[Nothing] = this
-    def prev: BiSeqNode[Nothing] = this
-    def data: Nothing = throw new NoSuchElementException
-    override def isDummy = true
-    override def reverse = this
-  }
-
 }
 
 object IndexedSeq {
@@ -157,6 +173,19 @@ object IndexedSeq {
     def fastLength: Int = n
     def fastApply(i: Int): T = f(i)
   }
+
+
+  class IndexedSeqNode[T](val seq: IndexedSeq[T], val i: Int) extends BiSeqNode[T] {
+    def isDummy = (i < 0) || (i >= seq.length)
+    def data = seq(i)
+    def next = if (i == seq.length - 1) BiSeqNode.dummy else new IndexedSeqNode(seq, i + 1)
+    def prev = if (i == 0) BiSeqNode.dummy else new IndexedSeqNode(seq, i - 1)
+
+    override def equals(that: Any) = that match {
+      case that: IndexedSeqNode[T] => (this.seq eq that.seq) && (this.i == that.i)
+    }
+  }
+
 
 }
 

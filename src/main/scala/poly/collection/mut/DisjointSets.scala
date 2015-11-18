@@ -12,7 +12,7 @@ import poly.collection.node._
  */
 class DisjointSets[T] private() extends Equiv[T] {
 
-  private class Node extends SinglePredNode[Nothing] {
+  private class Node extends NodeWithParent[Nothing] {
     var rank: Int = 0
     var parent: Node = this
     def data = throw new NoSuchElementException

@@ -8,7 +8,7 @@ import poly.collection.mut._
  * It is the type of nodes in a bidirectional sequence ([[poly.collection.BiSeq]]).
  * @since 0.1.0
  */
-trait BiSeqNode[+T] extends BiNode[T] with SeqNode[T] with SinglePredNode[T] { self =>
+trait BiSeqNode[+T] extends BiNode[T] with SeqNode[T] with NodeWithParent[T] { self =>
   def data: T
   def prev: BiSeqNode[T]
   def next: BiSeqNode[T]

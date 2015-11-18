@@ -20,5 +20,17 @@ trait BackwardNode[+T] { self =>
     def isDummy = self.isDummy
   }
 
+  def map[U](f: T => U): BackwardNode[U] = new BackwardNode[U] {
+    def pred = self.pred.map(_.map(f))
+    def data = f(self.data)
+    def isDummy = self.isDummy
+  }
+
+  def zip[U](that: BackwardNode[U]): BackwardNode[(T, U)] = new BackwardNode[(T, U)] {
+    def data = (self.data, that.data)
+    def pred = (self.pred zip that.pred).map { case (a, b) => a zip b }
+    def isDummy = self.isDummy || that.isDummy
+  }
+
   override def toString = if (notDummy) s"Node($data)" else "<dummy>"
 }
