@@ -16,9 +16,6 @@ class QueueEmptyException
 class EmptyCollectionReductionException
   extends Exception("Cannot reduce an empty collection by a semigroup operation.")
 
-class IncompatibleOrderException
-  extends Exception("Attempted to merge two sorted sequence based on different orders.")
-
 class GoalNotFoundException[S](state: S)
   extends Exception(s"Goal $state not found.")
 

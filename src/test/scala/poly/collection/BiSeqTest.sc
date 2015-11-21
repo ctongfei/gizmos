@@ -12,3 +12,5 @@ a.suffixes
 a.prefixes
 
 a.rotate(2)
+
+a.scanLeft(1)(_+_).consecutive(_-_)

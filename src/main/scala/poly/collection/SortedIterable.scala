@@ -17,13 +17,11 @@ trait SortedIterable[T] extends Iterable[T] { self =>
   implicit def orderOnValue: WeakOrder[T]
 
   /**
-   * Merges two sorted sequences into one sorted sequence. $LAZY $O1
+   * Merges two sorted sequences into one sorted sequence. $LAZY
    * @param that Another sorted sequence. These two sequences must be sorted under the same order.
    * @return A merged sorted sequence
-   * @throws IncompatibleOrderException If two sequences are not sorted under the same order.
    */
   def merge(that: SortedIterable[T]): SortedIterable[T] = new SortedIterable[T] {
-    if (!(this.orderOnValue weakOrderSameAs that.orderOnValue)) throw new IncompatibleOrderException
     implicit def orderOnValue: WeakOrder[T] = self.orderOnValue
     def newIterator: Iterator[T] = new Iterator[T] {
       private[this] val ai = self.newIterator

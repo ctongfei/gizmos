@@ -8,7 +8,7 @@ import poly.collection.factory._
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
-class HashSet[T] private(val data: java.util.HashSet[T]) extends MutableSet[T] {
+class HashSet[T] private(val data: java.util.HashSet[T]) extends MutableSet[T] with HasKnownSize {
 
   def equivOnKey = Equiv.default[T]
 
@@ -20,7 +20,7 @@ class HashSet[T] private(val data: java.util.HashSet[T]) extends MutableSet[T] {
 
   def elements = data
 
-  def size: Int = data.size
+  override def size: Int = data.size
 }
 
 object HashSet extends CollectionFactory[HashSet] {

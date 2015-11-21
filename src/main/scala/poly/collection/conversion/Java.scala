@@ -36,7 +36,7 @@ object Java {
     def add(x: T) = xs.add(x)
     def equivOnKey = Equiv.default[T]
     def contains(x: T) = xs.contains(x)
-    def size = xs.size()
+    override def size = xs.size()
     def elements = Iterable.ofIterator(xs.iterator())
   }
 

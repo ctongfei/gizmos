@@ -249,6 +249,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
     implicit def orderOnValue = U
     def newIterator = self.newIterator
   }
+
   /**
    * Returns a collection formed from this collection and another iterable collection by combining
    * corresponding elements in pairs.
@@ -294,6 +295,12 @@ trait Iterable[+T] extends Traversable[T] { self =>
     }
   }
 
+  /**
+    * Groups elements in fixed size blocks by passing a sliding window over them.
+    * @param windowSize The size of the sliding window
+    * @param step Step size. The default value is 1.
+    * @example {{{(1, 2, 3, 4).sliding(2) == ((1, 2), (2, 3), (3, 4))}}}
+    */
   def sliding(windowSize: Int, step: Int = 1) = ofIterator {
     new Iterator[IndexedSeq[T]] {
       val it = self.newIterator
@@ -351,10 +358,11 @@ trait Iterable[+T] extends Traversable[T] { self =>
   override def +:[U >: T](u: U): Iterable[U] = this prepend u
   override def :+[U >: T](u: U): Iterable[U] = this append u
   def ++[U >: T](that: Iterable[U]) = this concat that
-  def ×[U](that: Iterable[U]) = this cartesianProduct that
   override def |>[U](f: T => U) = this map f
   def ||>[U](f: T => Iterable[U]) = this flatMap f
   override def |?(f: T => Boolean) = this filter f
+  def |×|[U](that: Iterable[U]) = this cartesianProduct that
+  def |~|[U](that: Iterable[U]) = this zip that
   //endregion
 
   def asIterable: Iterable[T] = new AbstractIterable[T] {

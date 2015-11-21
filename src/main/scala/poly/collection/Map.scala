@@ -21,7 +21,7 @@ import scala.language.reflectiveCalls
   * @define O1amortized Time complexity: Amortized O(1).
   * @define O1 Time complexity: O(1).
  */
-trait Map[@sp(i) K, +V] extends Keyed[K] with PartialFunction[K, V] { self =>
+trait Map[@sp(i) K, +V] extends KeyedStructure[K, Map[K, V]] with PartialFunction[K, V] { self =>
 
   /**
    * Returns all key-value pairs stored in this map.
@@ -67,7 +67,7 @@ trait Map[@sp(i) K, +V] extends Keyed[K] with PartialFunction[K, V] { self =>
   def keySet: Set[K] = new AbstractSet[K] {
     def equivOnKey = self.equivOnKey
     def contains(x: K): Boolean = self.containsKey(x)
-    def size: Int = self.size
+    override def size: Int = self.size
     def elements: Iterable[K] = self.pairs.map(_._1)
   }
 
@@ -78,6 +78,16 @@ trait Map[@sp(i) K, +V] extends Keyed[K] with PartialFunction[K, V] { self =>
   def values = self.pairs.map(_._2)
 
   // HELPER FUNCTIONS
+
+  def filterKeys(f: K => Boolean): Map[K, V] = new AbstractMap[K, V] {
+    def apply(k: K) = if (!f(k)) throw new NoSuchElementException else self(k)
+    def ?(k: K) = if (!f(k)) None else self ? k
+    def pairs = self.pairs.filter { case (k, _) => f(k) }
+    def size = pairs.size
+    def containsKey(k: K) = if (!f(k)) false else self.containsKey(k)
+    def equivOnKey = self.equivOnKey
+  }
+
   /**
    * Transforms the values of this map according to the specified function. $LAZY $O1
    * @note This function is equivalent to the Scala library's `mapValues`.
@@ -99,7 +109,7 @@ trait Map[@sp(i) K, +V] extends Keyed[K] with PartialFunction[K, V] { self =>
   /**
    * Zips two maps with the same key type into one. $LAZY $O1
    * @note This function is not the same as the Scala library's `zip`. Please
-   *       use `this.pairs.zip` instead for zipping pairs.
+   *       use `this.pairs.zip` instead for zipping a sequence of pairs.
    * @example {{{Map(1 -> 2, 2 -> 3) zip Map(2 -> 5, 3 -> 6) == Map(2 -> (3, 5))}}}
    * @param that Another map to be zipped
    */

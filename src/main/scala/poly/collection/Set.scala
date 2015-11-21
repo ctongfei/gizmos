@@ -8,63 +8,76 @@ import poly.collection.mut._
  * @author Tongfei Chen (ctongfei@gmail.com).
  * @since 0.1.0
  */
-trait Set[T] extends PredicateSet[T] with Multiset[T] { self =>
+trait Set[T] extends PredicateSet[T] with KeyedStructure[T, Set[T]] { self =>
 
   // ListSet: Equiv[T]
   // HashSet: IntHashing[T]
   // TreeSet: WeakOrder[T]
   def equivOnKey: Equiv[T]
 
-  override def distinct = self
 
-  def multiplicity(x: T) = if (contains(x)) 1 else 0
+
+  def elements: Iterable[T]
+
+  def distinct = self
 
   /** Tests if an element belongs to this set. */
   def contains(x: T): Boolean
 
-  final override def keys = elements
-
   /** Tests if an element does not belong to this set. */
   def notContains(x: T) = !contains(x)
 
-  /** Returns the union of two sets. */
-  def |(that: Set[T]): Set[T] = {
-    require(self.equivOnKey equivSameAs that.equivOnKey)
-    new AbstractSet[T] {
-      def equivOnKey = self.equivOnKey
-      def contains(x: T) = self.contains(x) && that.contains(x)
-      def size = elements.size
-      def elements = self.elements ++ that.elements.filter(self.notContains)
-    }
+  def containsKey(x: T) = contains(x)
+
+  final override def keys = elements
+
+  def size = elements.size
+
+  def foreach[U](f: T => U) = elements foreach f
+
+  def fold[U >: T](z: U)(f: (U, U) => U) = elements.fold(z)(f)
+
+  def reduce[U >: T](f: (U, U) => U) = elements.reduce(f)
+
+  def forall(f: T => Boolean) = elements.forall(f)
+
+  def exists(f: T => Boolean) = elements.exists(f)
+
+  /**
+    * Returns the union of two sets.
+    * @example {{{ {1, 2, 3} | {2, 4} == {1, 2, 3, 4} }}}
+    */
+  def |(that: Set[T]): Set[T] = new AbstractSet[T] {
+    def equivOnKey = self.equivOnKey
+    def contains(x: T) = self.contains(x) && that.contains(x)
+    def elements = self.elements ++ that.elements.filter(self.notContains)
   }
 
-  /** Returns the intersection of two sets. */
-  def &(that: Set[T]): Set[T] = {
-    require(self.equivOnKey equivSameAs that.equivOnKey)
-    new AbstractSet[T] {
-      def equivOnKey = self.equivOnKey
-      def contains(x: T) = self.contains(x) && that.contains(x)
-      def size = elements.size
-      def elements = self.elements.filter(that.contains)
-    }
+  /**
+    * Returns the intersection of two sets.
+    * @example {{{ {1, 2, 3} & {3, 1} == {1, 3} }}}
+    */
+  def &(that: Set[T]): Set[T] = new AbstractSet[T] {
+    def equivOnKey = self.equivOnKey
+    def contains(x: T) = self.contains(x) && that.contains(x)
+    def elements = self.elements.filter(that.contains)
   }
 
-  /** Returns the difference of two sets. */
-  def &~(that: Set[T]): Set[T] = {
-    require(self.equivOnKey equivSameAs that.equivOnKey)
-    new AbstractSet[T] {
-      def equivOnKey: Equiv[T] = self.equivOnKey
-      def contains(x: T): Boolean = self.contains(x) && that.notContains(x)
-      def size = elements.size
-      def elements = self.elements.filter(that.notContains)
-    }
+  /**
+    * Returns the difference of two sets.
+    * @example {{{ {1, 2, 3} \ {2, 3} == {1} }}}
+    */
+  def \(that: Set[T]): Set[T] = new AbstractSet[T] {
+    def equivOnKey: Equiv[T] = self.equivOnKey
+    def contains(x: T): Boolean = self.contains(x) && that.notContains(x)
+    def elements = self.elements.filter(that.notContains)
   }
 
   /** Tests if this set is a subset of another set. */
-  def <=(that: Set[T]): Boolean = this.forall(that.contains)
+  def <=(that: Set[T]): Boolean = this forall that
 
   /** Tests if this set is a strict subset of another set. */
-  def <(that: Set[T]): Boolean = this.forall(that.contains) && that.exists(this.notContains)
+  def <(that: Set[T]): Boolean = (this forall that) && (that exists !this)
 
   /** Tests if this set is a strict superset of another set. */
   def >(that: Set[T]): Boolean = that < this
@@ -72,10 +85,19 @@ trait Set[T] extends PredicateSet[T] with Multiset[T] { self =>
   /** Tests if this set is a superset of another set. */
   def >=(that: Set[T]): Boolean = that <= this
 
-  def filterKeys(f: T => Boolean): Set[T] = new AbstractSet[T] {
+  def createMapBy[V](f: T => V): Map[T, V] = new AbstractMap[T, V] {
+    def apply(k: T) = f(k)
+    def ?(k: T) = if (self.contains(k)) Some(f(k)) else None
+    def equivOnKey = self.equivOnKey
+    def pairs = self.keys.map(k => k → f(k))
+    override def size = self.size
+    def containsKey(x: T) = self.contains(x)
+  }
+
+
+  override def filterKeys(f: T => Boolean): Set[T] = new AbstractSet[T] {
     def equivOnKey = self.equivOnKey
     def contains(x: T) = self.contains(x) && f(x)
-    def size = elements.size
     def elements = self.elements.filter(f)
   }
 
@@ -84,8 +106,7 @@ trait Set[T] extends PredicateSet[T] with Multiset[T] { self =>
   }
 
   override def equals(that: Any) = that match {
-    case that: Set[T] => this.forall(that.contains) && that.forall(this.contains)
-    case that: Multiset[T] => that.equals(this)
+    case that: Set[T] => Set.Equiv[T].eq(this, that)
     case _ => false
   }
 
@@ -111,10 +132,15 @@ object Set {
     def elements = Iterable.empty
     def contains(x: T) = false
     override def |(that: Set[T]) = that
-    override def &~(that: Set[T]) = this
+    override def \(that: Set[T]) = this
     override def &(that: Set[T]) = this
     override def <=(that: Set[T]) = true
     override def <(that: Set[T]) = that.size != 0
+  }
+
+  /** Returns the equivalence relation on sets. */
+  implicit def Equiv[T]: Equiv[Set[T]] = new Equiv[Set[T]] {
+    def eq(x: Set[T], y: Set[T]) = (x forall y) && (y forall x)
   }
 
   /** Returns the lattice on sets. */

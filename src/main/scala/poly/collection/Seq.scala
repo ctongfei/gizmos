@@ -1,6 +1,7 @@
 package poly.collection
 
 import poly.algebra._
+import poly.algebra.hkt._
 import poly.algebra.ops._
 import poly.algebra.implicits._
 import poly.algebra.function._
@@ -172,6 +173,8 @@ trait Seq[+T] extends SortedMap[Int, T] with Iterable[T] { self =>
     }
     ofHeadNode(new ScannedNode(self.dummy, z))
   }
+
+  override def scan[U >: T](z: U)(f: (U, U) => U) = scanLeft(z)(f)
 
   override def scanByMonoid[U >: T : Monoid] = scanLeft(id[U])(_ op _)
 
@@ -382,6 +385,11 @@ object Seq {
       if (yi.advance()) return false
       true
     }
+  }
+
+  implicit object Comonad extends Comonad[Seq] {
+    def id[X](u: Seq[X]) = u.head
+    def extend[X, Y](wx: Seq[X])(f: (Seq[X]) => Y) = wx.suffixes.map(f)
   }
 }
 

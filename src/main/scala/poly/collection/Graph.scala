@@ -31,8 +31,10 @@ trait Graph[@sp(i) K, +V, +E] extends KeyedStructure[K, Graph[K, V, E]] with Sta
   def equivOnKey = keySet.equivOnKey
   def keySet: Set[K]
   def keys: Iterable[K] = keySet.elements
-  def nodes: Iterable[Graph.Node[K, V]] = keys.map(node)
-  def edges: Iterable[Graph.Edge[K, E]] = for (i ← keys; j ← outgoingKeysOf(i)) yield edge(i, j)
+  def nodeMap: Map[K, V] = keySet createMapBy (k => self(k))
+  def nodes: Iterable[Node[K, V]] = keys.map(node)
+  def edgeMap: Map[(K, K), E] = ???
+  def edges: Iterable[Edge[K, E]] = for (i ← keys; j ← outgoingKeysOf(i)) yield edge(i, j)
 
   final def containsKey(i: K) = containsNode(i)
   def containsNode(i: K): Boolean
@@ -48,7 +50,7 @@ trait Graph[@sp(i) K, +V, +E] extends KeyedStructure[K, Graph[K, V, E]] with Sta
 
   // HELPER FUNCTIONS
 
-  def mapVertices[V1](f: V => V1): Graph[K, V1, E] = new AbstractGraph[K, V1, E] {
+  def mapNodes[V1](f: V => V1): Graph[K, V1, E] = new AbstractGraph[K, V1, E] {
     def apply(i: K): V1 = f(self(i))
     def containsEdge(i: K, j: K): Boolean = self.containsEdge(i, j)
     def containsNode(i: K): Boolean = self.containsNode(i)
@@ -78,6 +80,15 @@ trait Graph[@sp(i) K, +V, +E] extends KeyedStructure[K, Graph[K, V, E]] with Sta
     def apply(i: K, j: K): E = if (containsEdge(i, j)) self(i, j) else throw new NoSuchElementException
     def outgoingKeysOf(i: K): Iterable[K] = ???
     def keySet: Set[K] = ???
+  }
+
+  def zip[V1, E1](that: Graph[K, V1, E1]): Graph[K, (V, V1), (E, E1)] = new AbstractGraph[K, (V, V1), (E, E1)] {
+    def apply(i: K) = (self(i), that(i))
+    def containsNode(i: K) = self.containsNode(i) && that.containsNode(i)
+    def containsEdge(i: K, j: K) = self.containsEdge(i, j) && that.containsEdge(i, j)
+    def apply(i: K, j: K) = (self(i, j), that(i, j))
+    def outgoingKeysOf(i: K) = ??? // self.outgoingKeysOf(i) intersect that.outgoingKeysOf(i)
+    def keySet = self.keySet & that.keySet
   }
 
   def to[G[_, _, _]](implicit builder: GraphBuilder[K, V@uv, E@uv, G[K, V@uv, E@uv]]): G[K, V@uv, E@uv] = {

@@ -29,6 +29,27 @@ trait BiSeq[+T] extends Seq[T] { self =>
     accum
   }
 
+  def concat[U >: T](that: BiSeq[U]): BiSeq[U] = {
+    ???
+  }
+
+  override def consecutive[U](f: (T, T) => U): BiSeq[U] = {
+    class ConsecutiveNode(val n0: BiSeqNode[T], val n1: BiSeqNode[T]) extends BiSeqNode[U] {
+      def data = f(n1.data, n0.data)
+      def next = new ConsecutiveNode(n1, n1.next)
+      def prev = new ConsecutiveNode(n0.prev, n0)
+      def isDummy = n0.isDummy || n1.isDummy
+    }
+    ofNode {
+      new BiSeqNode[U] {
+        def data = throw new NoSuchElementException
+        def next = new ConsecutiveNode(self.dummy.next, self.dummy.next.next)
+        def prev = new ConsecutiveNode(self.dummy.prev.prev, self.dummy.prev)
+        def isDummy = true
+      }
+    }
+  }
+
   override def tail = ofHeadNode(dummy.next.next, dummy.prev)
 
   override def init = ofHeadNode(dummy.next, dummy.prev.prev)
@@ -59,6 +80,8 @@ trait BiSeq[+T] extends Seq[T] { self =>
     def dummy = self.dummy.reverse
     override def reverse = self
   }
+
+  override def rotate(n: Int): BiSeq[T] = ???
 
   def asBiSeq: BiSeq[T] = new AbstractBiSeq[T] {
     def dummy = self.dummy

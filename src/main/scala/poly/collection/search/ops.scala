@@ -18,7 +18,7 @@ object ops {
     BiSeq.empty
   }
 
-  implicit class withTreeSearchingOps[S, S1 >: S](val s: S)(implicit ss: TreeStateSpace[S1]) {
+  implicit class withSearchingOps[S, S1 >: S](val s: S)(implicit ss: StateSpace[S1]) {
 
     def depthFirstTreeSearch(goal: S1 => Boolean) =
       searchByIterator(new DepthFirstTreeSearchIterator[S1](s)(ss), goal)

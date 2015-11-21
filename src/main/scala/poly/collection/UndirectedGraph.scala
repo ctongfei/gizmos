@@ -46,7 +46,7 @@ object UndirectedGraph {
         case _ => false
       }
 
-    def size = 2
+    override def size = 2
     override def hashCode = key1.## ^ key2.##
     def contains(x: K) = x == key1 || x == key2
     def elements = ListSeq(key1, key2)

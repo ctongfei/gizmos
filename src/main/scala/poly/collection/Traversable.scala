@@ -16,7 +16,7 @@ import scala.annotation.unchecked.{uncheckedVariance => uv}
 import scala.reflect._
 
 /**
- * Basic trait for traversable collections.
+ * Represents a collection whose elements can be traversed through.
  * @author Tongfei Chen (ctongfei@gmail.com).
  * @since 0.1.0
  *
@@ -31,9 +31,8 @@ import scala.reflect._
 trait Traversable[+T] { self =>
 
   /**
-   * Applies a function ''f'' to each element of this collection. $EAGER
+   * Applies a function ''f'' to each element of this collection.
    * @param f The function to be applied. Return values are discarded.
-   * @tparam V Type of the result of function ''f''
    */
   def foreach[V](f: T => V): Unit
 
@@ -41,8 +40,10 @@ trait Traversable[+T] { self =>
 
   //region Monadic operations (map, flatMap, product)
   /**
-   * Returns a new collection by applying a function to all elements in this collection. $LAZY
+   * Returns a new collection by applying a function to all elements in this collection.
+   * `|>` is a symbolic alias of this method. $LAZY
    * @param f Function to apply
+   * @example {{{(1, 2, 3) |> { _ + 1 } == (2, 3, 4)}}}
    * @return A new collection that each element is the image of the original element applied by ''f''.
    */
   def map[U](f: T => U): Traversable[U] = new AbstractTraversable[U] {
@@ -51,7 +52,13 @@ trait Traversable[+T] { self =>
     }
   }
 
-  /** $LAZY $O1 */
+  /**
+    * Builds a new collection by applying a function to all elements of this collection
+    * and using the elements of the resulting collections. `||>` is a symbolic alias of this method.
+    * $LAZY This is the direct equivalent of the Haskell function `bind`/`>>=`.
+    * @example {{{(0, 1, 3).flatMap(i => i.repeat(i)) == (1, 3, 3, 3)}}}
+    * @param f Function to apply
+    */
   def flatMap[U](f: T => Traversable[U]): Traversable[U] = new AbstractTraversable[U] {
     def foreach[V](g: U => V): Unit = {
       for (x ← self)
@@ -70,11 +77,11 @@ trait Traversable[+T] { self =>
   def cartesianProduct[U](that: Traversable[U]): Traversable[(T, U)] =
     self flatMap (x => that map (y => (x, y)))
 
-  //endregion¸
+  //endregion
   //region Filtering & grouping (count, filter, filterNot, filterMany, partition, groupBy)
 
   /**
-   * Counts the number of elements that satisfy the specified predicate.
+   * Counts the number of elements in this collection that satisfy the specified predicate.
    * @param f The specified predicate
    * @return The number of elements that satisfy ''f''
    */
@@ -86,8 +93,10 @@ trait Traversable[+T] { self =>
   }
 
   /**
-   * Selects the elements that satisfy the specified predicate. $LAZY
+   * Selects the elements that satisfy the specified predicate.
+   * `|?` is a symoblic alias of this method. $LAZY
    * @param f The specified predicate
+   * @example {{{(1, 2, 3, 4) filter { _ > 2 } == (3, 4)}}}
    * @return A traversable collection that contains all elements that satisfy ''f''.
    */
   def filter(f: T => Boolean): Traversable[T] = new AbstractTraversable[T] {
@@ -137,12 +146,13 @@ trait Traversable[+T] { self =>
   }
 
   /** $EAGER $On */
-  def groupBy[S >: T, K](f: S => K): Map[K, Traversable[S]] = ???
+  def groupBy[S >: T, K: Equiv](f: S => K): Map[K, Traversable[S]] = ???
   //endregion
 
   //region Concatenation (concat, prepend, append)
   /**
    * Concatenates two traversable collections into one. $LAZY $O1
+   * @example {{{(1, 2, 3) ++ (4, 5) == (1, 2, 3, 4, 5)}}}
    * @param that Another collection
    * @return A concatenated collection
    */
@@ -681,7 +691,7 @@ object Traversable {
     def id[X](u: X) = Traversable.single(u)
   }
 
-  implicit class ofTraversables[T](val underlying: Traversable[Traversable[T]]) extends AnyVal {
+  implicit class TraversableOfTraversablesOps[T](val underlying: Traversable[Traversable[T]]) extends AnyVal {
     /**
       * "Flattens" this collection of collection into one collection.
       * @example {{{((1, 2, 3), (4, 5), (), (7)).flatten == (1, 2, 3, 4, 5, 7)}}}
@@ -689,7 +699,7 @@ object Traversable {
     def flatten: Traversable[T] = underlying.flatMap(identity)
   }
 
-  implicit class ofPairs[K, V](val underlying: Traversable[(K, V)]) extends AnyVal {
+  implicit class TraversableOfPairsOps[K, V](val underlying: Traversable[(K, V)]) extends AnyVal {
 
     /**
       * Lazily unzips a traversable sequence of pairs.
@@ -697,7 +707,10 @@ object Traversable {
       */
     def unzip: (Traversable[K], Traversable[V]) = (underlying map first, underlying map second)
 
-    def unzipForced: (ArraySeq[K], ArraySeq[V]) = {
+    /**
+      * Eagerly unzips a traversable sequence of pairs. This method only traverses through the collection once.
+      */
+    def unzipEagerly: (ArraySeq[K], ArraySeq[V]) = {
       val ak = ArraySeq.newBuilder[K]
       val av = ArraySeq.newBuilder[V]
       for ((k, v) ← underlying) {
@@ -718,4 +731,3 @@ object Traversable {
 }
 
 abstract class AbstractTraversable[+T] extends Traversable[T]
-

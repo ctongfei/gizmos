@@ -18,6 +18,6 @@ class SortedArraySet[T] private(private val data: SortedArray[T]) extends Sorted
 
   def remove(x: T) = data.remove(x)
 
-  def size: Int = data.size
+  override def size: Int = data.size
 
 }

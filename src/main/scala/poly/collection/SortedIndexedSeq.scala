@@ -8,15 +8,6 @@ import poly.algebra.ops._
  */
 trait SortedIndexedSeq[T] extends SortedSeq[T] with IndexedSeq[T] { self =>
 
-  /** Casts this indexed sorted sequence as a multiset. */
-  def asMultiset: Multiset[T] = new Multiset[T] {
-    def equivOnKey = self.orderOnValue
-    def size = self.size
-    def multiplicity(x: T) = ???
-    def elements = self
-    def contains(x: T) = self.tryBinarySearch(x) >= 0
-  }
-
   /**
    * Finds the key in a sorted array using binary search. The complexity of this operation is O(log n).
    * @param x The key to be found

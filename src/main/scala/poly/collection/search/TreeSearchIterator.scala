@@ -12,7 +12,7 @@ import poly.collection.node._
 class TreeSearchIterator[S](
   val start: S,
   val fringe: Queue[SearchNode[S]]
-)(implicit ss: StateSpace[S]) extends SearchIterator[S] {
+)(implicit S: StateSpace[S]) extends SearchIterator[S] {
 
   private[this] var curr: SearchNode[S] = SearchNode.dummy
 
@@ -23,7 +23,7 @@ class TreeSearchIterator[S](
   def advance() = {
     if (fringe.notEmpty) {
       curr = fringe.pop()
-      fringe ++= ss.succ(curr.data).map(s => SearchNode(s, curr.depth + 1, curr))
+      fringe ++= S.succ(curr.data).map(s => SearchNode(s, curr.depth + 1, curr))
       true
     }
     else false
@@ -32,8 +32,8 @@ class TreeSearchIterator[S](
 
 }
 
-class DepthFirstTreeSearchIterator[S](start: S)(implicit ss: StateSpace[S])
-  extends TreeSearchIterator[S](start, ArrayStack[SearchNode[S]]())(ss)
+class DepthFirstTreeSearchIterator[S: StateSpace](start: S)
+  extends TreeSearchIterator[S](start, ArrayStack[SearchNode[S]]())
 
-class BreadthFirstTreeSearchIterator[S](start: S)(implicit ss: StateSpace[S])
-  extends TreeSearchIterator[S](start, ArrayQueue[SearchNode[S]]())(ss)
+class BreadthFirstTreeSearchIterator[S: StateSpace](start: S)
+  extends TreeSearchIterator[S](start, ArrayQueue[SearchNode[S]]())
