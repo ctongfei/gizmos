@@ -4,10 +4,12 @@ import poly.algebra._
 import poly.algebra.ops._
 import poly.collection._
 import poly.collection.exception._
+import poly.collection.mut._
 
 /**
  * An implementation of a binary min-heap.
  * The least element under the specific order will surface at the top of the heap.
+ *
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
 class BinaryHeap[T](val data: ResizableSeq[T])(implicit val order: WeakOrder[T]) extends PriorityQueue[T] {

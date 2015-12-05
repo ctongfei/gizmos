@@ -1,6 +1,7 @@
 package poly.collection.mut
 
 import poly.collection._
+import poly.collection.builder._
 import poly.collection.exception._
 import poly.collection.factory._
 import poly.collection.impl._
@@ -8,6 +9,7 @@ import poly.collection.node._
 
 /**
  * A sequence backed by a linked list.
+ *
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
 class ListSeq[T] private(private val data: SinglyLinkedList[T]) extends AbstractSeq[T] with KeyMutableSeq[T] with HasKnownSize {

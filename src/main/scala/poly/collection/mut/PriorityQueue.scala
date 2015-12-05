@@ -1,4 +1,4 @@
-package poly.collection
+package poly.collection.mut
 
 import poly.algebra._
 

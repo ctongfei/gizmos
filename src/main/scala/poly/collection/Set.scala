@@ -1,22 +1,23 @@
 package poly.collection
 
 import poly.algebra._
+import poly.collection.builder._
 import poly.collection.mut._
 
 /**
  * Basic trait for sets whose elements can be enumerated.
+ *
  * @author Tongfei Chen (ctongfei@gmail.com).
  * @since 0.1.0
  */
-trait Set[T] extends PredicateSet[T] with KeyedStructure[T, Set[T]] { self =>
+trait Set[T] extends Predicate[T] with KeyedStructure[T, Set[T]] { self =>
 
   // ListSet: Equiv[T]
   // HashSet: IntHashing[T]
   // TreeSet: WeakOrder[T]
   def equivOnKey: Equiv[T]
 
-
-
+  /** Returns an iterable sequence of all the elements in this set. */
   def elements: Iterable[T]
 
   def distinct = self
@@ -43,8 +44,11 @@ trait Set[T] extends PredicateSet[T] with KeyedStructure[T, Set[T]] { self =>
 
   def exists(f: T => Boolean) = elements.exists(f)
 
+  def sum[U >: T](implicit U: AdditiveCMonoid[U]) = elements.sum(U)
+
   /**
     * Returns the union of two sets.
+ *
     * @example {{{ {1, 2, 3} | {2, 4} == {1, 2, 3, 4} }}}
     */
   def |(that: Set[T]): Set[T] = new AbstractSet[T] {
@@ -55,6 +59,7 @@ trait Set[T] extends PredicateSet[T] with KeyedStructure[T, Set[T]] { self =>
 
   /**
     * Returns the intersection of two sets.
+ *
     * @example {{{ {1, 2, 3} & {3, 1} == {1, 3} }}}
     */
   def &(that: Set[T]): Set[T] = new AbstractSet[T] {
@@ -65,6 +70,7 @@ trait Set[T] extends PredicateSet[T] with KeyedStructure[T, Set[T]] { self =>
 
   /**
     * Returns the difference of two sets.
+ *
     * @example {{{ {1, 2, 3} \ {2, 3} == {1} }}}
     */
   def \(that: Set[T]): Set[T] = new AbstractSet[T] {
@@ -123,6 +129,7 @@ object Set {
 
   /**
    * Creates an empty set of a specific type.
+ *
    * @tparam T Type
    * @return An empty set
    */

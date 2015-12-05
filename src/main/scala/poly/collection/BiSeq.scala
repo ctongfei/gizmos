@@ -13,6 +13,9 @@ trait BiSeq[+T] extends Seq[T] { self =>
 
   import BiSeq._
 
+  /** Returns a dummy node whose next node is the head of this sequence,
+    * and whose previous node is the last of this sequence.
+    */
   def dummy: BiSeqNode[T]
 
   //region HELPER FUNCTIONS

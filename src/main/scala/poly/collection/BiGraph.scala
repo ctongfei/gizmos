@@ -50,4 +50,4 @@ object BiGraph {
   type Edge[K, +E] = Graph.Edge[K, E]
 }
 
-abstract class AbstractBiGraph[@sp(i) K, +V, +E] extends BiGraph[K, V, E]
+abstract class AbstractBiGraph[K, +V, +E] extends AbstractGraph[K, V, E] with BiGraph[K, V, E]

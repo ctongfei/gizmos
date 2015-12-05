@@ -5,6 +5,7 @@ import poly.algebra.hkt._
 import poly.algebra.ops._
 import poly.algebra.implicits._
 import poly.algebra.function._
+import poly.collection.mut._
 import poly.collection.node._
 import scala.annotation.unchecked.{uncheckedVariance => uv}
 
@@ -18,6 +19,7 @@ trait Seq[+T] extends SortedMap[Int, T] with Iterable[T] { self =>
 
   import Seq._
 
+  /** Returns a dummy node whose next node is the head of this sequence. */
   def dummy: SeqNode[T]
 
   /** Returns the length of this sequence. $On */
@@ -85,6 +87,10 @@ trait Seq[+T] extends SortedMap[Int, T] with Iterable[T] { self =>
     self.map(x => { i += 1; (i, x) }).asIfSorted(WeakOrder by first)
   }
 
+  override def keys = {
+    var i = -1
+    self.map(_ => { i += 1; i })
+  }
 
   // HELPER FUNCTIONS
 
@@ -195,7 +201,7 @@ trait Seq[+T] extends SortedMap[Int, T] with Iterable[T] { self =>
 
   /**
     * Returns the list of tails of this sequence. $LAZY
-    * @example {{{(1, 2, 3).tails == ((1, 2, 3), (2, 3), (3))}}}
+    * @example {{{(1, 2, 3).suffixes == ((1, 2, 3), (2, 3), (3))}}}
     */
   override def suffixes = {
     class TailsNode(val outer: SeqNode[T]) extends SeqNode[Seq[T]] {
@@ -269,7 +275,7 @@ trait Seq[+T] extends SortedMap[Int, T] with Iterable[T] { self =>
    * Pretends that this sequence is sorted under the given implicit order.
    * @param U The implicit order
    * @note Actual orderedness is not guaranteed! The user should make sure that it is sorted.
-   * @return A sorted order
+   * @return A sorted sequence
    */
   override def asIfSorted[U >: T](implicit U: WeakOrder[U]): SortedSeq[U] = new SortedSeq[U] {
     val orderOnValue: WeakOrder[U] = U
@@ -387,9 +393,14 @@ object Seq {
     }
   }
 
+  implicit object Monad extends Monad[Seq] {
+    def id[X](u: X) = ListSeq(u)
+    def flatMap[X, Y](mx: Seq[X])(f: X => Seq[Y]) = ???
+  }
+
   implicit object Comonad extends Comonad[Seq] {
     def id[X](u: Seq[X]) = u.head
-    def extend[X, Y](wx: Seq[X])(f: (Seq[X]) => Y) = wx.suffixes.map(f)
+    def extend[X, Y](wx: Seq[X])(f: Seq[X] => Y) = wx.suffixes.map(f)
   }
 }
 

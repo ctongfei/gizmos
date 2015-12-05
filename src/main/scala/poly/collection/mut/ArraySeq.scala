@@ -1,6 +1,7 @@
 package poly.collection.mut
 
 import poly.collection._
+import poly.collection.builder._
 import poly.collection.conversion._
 import poly.collection.factory._
 import poly.collection.impl._
@@ -9,6 +10,7 @@ import scala.reflect._
 
 /**
  * A mutable sequence backed by an array.
+ *
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
 class ArraySeq[T] private(private var data: ResizableSeq[T] = null) extends AbstractIndexedSeq[T] with DataMutableIndexedSeq[T] with KeyMutableSeq[T] {

@@ -26,10 +26,8 @@ class AdjacencyListBiGraph[@sp(i) K, V, E] extends BiGraph[K, V, E] {
 
   def keySet = r.keySet
 
-  def outgoingKeysOf(i: K): Iterable[K] = r(i).succ.keySet.elements
+  def outgoingKeysOf(i: K): Iterable[K] = r(i).succ.keys
 
   def incomingKeysOf(i: K): Iterable[K] = r(i).pred.elements
-
-
 
 }

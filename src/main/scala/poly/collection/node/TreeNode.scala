@@ -9,7 +9,7 @@ trait TreeNode[+T] extends ForwardNode[T] { self =>
 
   def children: Seq[TreeNode[T]]
 
-  def succ = children
+  def succ: Iterable[TreeNode[T]] = children
 
   override def map[U](f: T => U): TreeNode[U] = new TreeNode[U] {
     def children = self.children.map(_.map(f))

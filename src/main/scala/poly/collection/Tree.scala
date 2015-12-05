@@ -52,6 +52,8 @@ trait Tree[+T] { self =>
     override def inverseKnuthTransform = self
   }
 
+  def subtrees: Tree[Tree[T]] = ???
+
   def preOrder: Iterable[T] = Iterable.ofIterator {
     new DepthFirstTreeSearchIterator[ForwardNode[T]](rootNode)(ForwardNode.StateSpace[T])
   }.map(_.data)

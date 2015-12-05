@@ -9,11 +9,12 @@ import poly.collection.mut._
  * It is the type of nodes in a binary tree ([[poly.collection.BinaryTree]]).
  * @since 0.1.0
  */
-trait BinaryTreeNode[+T] extends ForwardNode[T] { self =>
+trait BinaryTreeNode[+T] extends TreeNode[T] { self =>
   def data: T
   def left: BinaryTreeNode[T]
   def right: BinaryTreeNode[T]
-  def succ: Iterable[BinaryTreeNode[T]] = ListSeq(right, left).filter(_.notDummy)
+  def children = ListSeq(left, right).filter(_.notDummy)
+  override def succ: Iterable[BinaryTreeNode[T]] = ListSeq(right, left).filter(_.notDummy)
 
 
   /**

@@ -4,6 +4,7 @@ import poly.algebra._
 import poly.algebra.hkt._
 import poly.algebra.ops._
 import poly.algebra.function._
+import poly.collection.builder._
 import poly.collection.exception._
 import poly.collection.factory._
 import poly.collection.ops._
@@ -17,9 +18,9 @@ import scala.reflect._
 
 /**
  * Represents a collection whose elements can be traversed through.
+ *
  * @author Tongfei Chen (ctongfei@gmail.com).
  * @since 0.1.0
- *
  * @define LAZY The resulting collection is lazily executed.
  * @define EAGER The resulting collection is eagerly executed.
  * @define Onlogn Time complexity: O(n log n).
@@ -32,6 +33,7 @@ trait Traversable[+T] { self =>
 
   /**
    * Applies a function ''f'' to each element of this collection.
+ *
    * @param f The function to be applied. Return values are discarded.
    */
   def foreach[V](f: T => V): Unit
@@ -42,6 +44,7 @@ trait Traversable[+T] { self =>
   /**
    * Returns a new collection by applying a function to all elements in this collection.
    * `|>` is a symbolic alias of this method. $LAZY
+ *
    * @param f Function to apply
    * @example {{{(1, 2, 3) |> { _ + 1 } == (2, 3, 4)}}}
    * @return A new collection that each element is the image of the original element applied by ''f''.
@@ -56,6 +59,7 @@ trait Traversable[+T] { self =>
     * Builds a new collection by applying a function to all elements of this collection
     * and using the elements of the resulting collections. `||>` is a symbolic alias of this method.
     * $LAZY This is the direct equivalent of the Haskell function `bind`/`>>=`.
+ *
     * @example {{{(0, 1, 3).flatMap(i => i.repeat(i)) == (1, 3, 3, 3)}}}
     * @param f Function to apply
     */
@@ -70,6 +74,7 @@ trait Traversable[+T] { self =>
   /**
     * Returns the Cartesian product of two traversable sequences.
     * `|×|` is a symbolic alias of this method. $LAZY
+ *
     * @example {{{(1, 2) |×| (1, 2) == ((1, 1), (1, 2), (2, 1), (2, 2))}}}
     * @param that Another traversable sequence
     * @return The Cartesian product
@@ -82,6 +87,7 @@ trait Traversable[+T] { self =>
 
   /**
    * Counts the number of elements in this collection that satisfy the specified predicate.
+ *
    * @param f The specified predicate
    * @return The number of elements that satisfy ''f''
    */
@@ -95,6 +101,7 @@ trait Traversable[+T] { self =>
   /**
    * Selects the elements that satisfy the specified predicate.
    * `|?` is a symoblic alias of this method. $LAZY
+ *
    * @param f The specified predicate
    * @example {{{(1, 2, 3, 4) filter { _ > 2 } == (3, 4)}}}
    * @return A traversable collection that contains all elements that satisfy ''f''.
@@ -108,6 +115,7 @@ trait Traversable[+T] { self =>
 
   /**
    * Selects the elements that do not satisfy the specified predicate. $LAZY
+ *
    * @param f The specified predicate
    * @return A traversable collection that contains all elements that do not satisfy ''f''.
    */
@@ -115,6 +123,7 @@ trait Traversable[+T] { self =>
 
   /**
    * Partitions this collection to two collections according to a predicate. $EAGER
+ *
    * @param f The specified predicate
    * @return A pair of collections: ( {x|f(x)} , {x|!f(x)} )
    */
@@ -127,6 +136,7 @@ trait Traversable[+T] { self =>
 
   /**
    * $EAGER $On
+ *
    * @param fs
    * @return
    */
@@ -152,6 +162,7 @@ trait Traversable[+T] { self =>
   //region Concatenation (concat, prepend, append)
   /**
    * Concatenates two traversable collections into one. $LAZY $O1
+ *
    * @example {{{(1, 2, 3) ++ (4, 5) == (1, 2, 3, 4, 5)}}}
    * @param that Another collection
    * @return A concatenated collection
@@ -184,6 +195,7 @@ trait Traversable[+T] { self =>
 
   /**
    * Returns the number of elements in this collection. $On
+ *
    * @return The size of this collection
    */
   def size: Int = {
@@ -194,6 +206,7 @@ trait Traversable[+T] { self =>
 
   /**
    * Checks if this collection is empty. $O1
+ *
    * @return
    */
   def isEmpty = headOption match {
@@ -274,9 +287,10 @@ trait Traversable[+T] { self =>
   def scanByMonoid[U >: T : Monoid]: Traversable[U] = scanLeft(id)(_ op _)
 
   /**
-   * Returns the consecutive differences of the sequences. $LAZY $O1
+   * Returns the consecutive differences of the sequences. $LAZY
+ *
    * @example {{{
-   *   (0, 1, 3, 6, 10, 15).diff(_ - _) == (1, 2, 3, 4, 5)
+   *   (0, 1, 3, 6, 10).consecutive(_ - _) == (1, 2, 3, 4)
    * }}}
    */
   def consecutive[U](f: (T, T) => U): Traversable[U] = new AbstractTraversable[U] {
@@ -440,6 +454,7 @@ trait Traversable[+T] { self =>
 
   /**
     * Rotates this sequence from the index specified.
+ *
     * @example {{{(1, 2, 3, 4).rotate(1) == (2, 3, 4, 1)}}}
     * @param n Rotation starts here
     */
@@ -460,6 +475,7 @@ trait Traversable[+T] { self =>
 
   /**
    * Repeats this collection for a specific number of times.
+ *
    * @example {{{(1, 2, 3).repeat(2) == (1, 2, 3, 1, 2, 3)}}}
    * @param n Number of times to repeat
    */
@@ -472,6 +488,7 @@ trait Traversable[+T] { self =>
 
   /**
     * Infinitely cycles through this collection.
+ *
     * @example {{{(1, 2, 3).cycle == (1, 2, 3, 1, 2, 3, 1, 2...)}}}
     */
   def cycle: Traversable[T] = new AbstractTraversable[T] {
@@ -482,11 +499,12 @@ trait Traversable[+T] { self =>
 
   /**
    * Returns the sum of the elements in this collection.
+ *
    * @example {{{(1, 2, 3).sum == 6}}}
    * @tparam X Supertype of the type of elements: must be endowed with an additive monoid.
    * @return The sum
    */
-  def sum[X >: T : AdditiveMonoid]: X = fold(zero)(_+_)
+  def sum[X >: T : AdditiveCMonoid]: X = fold(zero)(_+_)
 
   def sumInplace[X >: T](implicit X: InplaceAdditiveCMonoid[X]) = {
     val sum = zero[X]
@@ -496,6 +514,7 @@ trait Traversable[+T] { self =>
 
   /**
    * Returns the prefix sums of this collection.
+ *
    * @example {{{(1, 2, 3, 4).prefixSums == (0, 1, 3, 6, 10)}}}
    * @tparam X Supertype of the type of elements: must be endowed with an additive monoid
    * @return The prefix sums sequence
@@ -504,6 +523,7 @@ trait Traversable[+T] { self =>
 
   /**
    * Returns the consecutive differences sequence of this collection.
+ *
    * @example {{{
    *   (0, 1, 3, 6, 10).differences == (1, 2, 3, 4)
    * }}}
@@ -518,6 +538,7 @@ trait Traversable[+T] { self =>
 
   /**
    * Returns the product of the elements in this collection. For example, `(1, 2, 3, 4, 5).product` returns `120`.
+ *
    * @tparam X Supertype of the type of elements: must be endowed with a multiplicative monoid.
    * @return The product
    */
@@ -525,6 +546,7 @@ trait Traversable[+T] { self =>
 
   /**
    * Returns the minimum element in this collection.
+ *
    * @tparam X Supertype of the type of elements: must be endowed with a weak order.
    * @return The minimum element
    */
@@ -532,8 +554,21 @@ trait Traversable[+T] { self =>
 
   def max[X >: T](implicit X: WeakOrder[X]): X = reduceLeft(X.max[X])
 
+  /**
+    * Returns the first element in this collection that makes the specific function least.
+ *
+    * @param f The function
+    * @tparam U The implicit weak order on the output of the specific function.
+    */
   def argmin[U: WeakOrder](f: T => U): T = argminWithValue(f)._1
 
+  /**
+    * Returns the first element in this collection that makes the specific function greatest.
+ *
+    * @param f
+    * @tparam U
+    * @return
+    */
   def argmax[U: WeakOrder](f: T => U): T = argmaxWithValue(f)._1
 
   def minAndMax[X >: T : WeakOrder]: (X, X) = {
@@ -592,6 +627,7 @@ trait Traversable[+T] { self =>
   //region Building (to, buildString)
   /**
    * Converts this traversable sequence to any collection type.
+ *
    * @param builder An implicit builder
    * @tparam C Higher-order type of the collection to be built
    */
@@ -599,6 +635,7 @@ trait Traversable[+T] { self =>
 
   /**
    * Converts this traversable sequence to any collection type given a factory.
+ *
    * @param factory A collection factory
    * @tparam C Higher-order type of the collection to be built
    */
@@ -619,17 +656,8 @@ trait Traversable[+T] { self =>
   }
 
   /**
-    * Converts this traversable sequence to a map given the specified key selector and value selector.
-    * @param fk Key selector
-    * @param fv Value selector
-    * @param builder Implicit builder of the map
-    */
-  def toMap[K, V, M[_, _]](fk: T => K, fv: T => V)(implicit builder: Builder[(K, V), M[K, V]]): M[K, V] =
-    self.map(t => (fk(t), fv(t))).build(builder)
-
-
-  /**
    * Builds a structure based on this traversable sequence given an implicit builder.
+ *
    * @param builder An implicit builder
    * @tparam S Type of the structure to be built
    * @return A new structure of type `S`
@@ -694,7 +722,8 @@ object Traversable {
   implicit class TraversableOfTraversablesOps[T](val underlying: Traversable[Traversable[T]]) extends AnyVal {
     /**
       * "Flattens" this collection of collection into one collection.
-      * @example {{{((1, 2, 3), (4, 5), (), (7)).flatten == (1, 2, 3, 4, 5, 7)}}}
+ *
+      * @example {{{((1, 2, 3), (), (7)).flatten == (1, 2, 3, 7)}}}
       */
     def flatten: Traversable[T] = underlying.flatMap(identity)
   }
@@ -703,6 +732,7 @@ object Traversable {
 
     /**
       * Lazily unzips a traversable sequence of pairs.
+ *
       * @example {{{((1, 'a'), (2, 'b'), (3, 'c')).unzip == ((1, 2, 3), ('a', 'b', 'c'))}}}
       */
     def unzip: (Traversable[K], Traversable[V]) = (underlying map first, underlying map second)
@@ -722,6 +752,7 @@ object Traversable {
 
     /**
       * Converts this traversable sequence to a map if this sequence consists of (key, value) pairs.
+ *
       * @param builder Implicit builder of the map
       */
     def toMap[M[_, _]](implicit builder: Builder[(K, V), M[K, V]]) = underlying.build(builder)

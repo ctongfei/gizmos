@@ -1,7 +1,10 @@
-package poly.collection
+package poly.collection.mut
+
+import poly.collection._
 
 /**
  * Represents a queue.
+ *
  * @author Tongfei Chen (ctongfei@gmail.com).
  * @since 0.1.0
  */

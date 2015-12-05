@@ -1,6 +1,7 @@
 package poly.collection.impl
 
 import poly.collection._
+import poly.collection.builder._
 import poly.collection.conversion._
 import poly.collection.factory._
 import poly.collection.mut._
@@ -19,6 +20,7 @@ import scala.reflect._
  *  - Deletion at any index: O(''n'')
  *
  * This class serves as the basic building block for a series of structures in Poly-collection.
+ *
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
 final class ResizableSeq[T]

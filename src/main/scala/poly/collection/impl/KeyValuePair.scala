@@ -38,20 +38,17 @@ object KeyValuePair {
     new IntHashing[KeyValuePair[K, V]] {
       def hash(x: KeyValuePair[K, V]) = K.hash(x.key)
       def eq(x: KeyValuePair[K, V], y: KeyValuePair[K, V]) = x.key =~= y.key
-      override def fromJavaHashCode = implicitly[IntHashing[K]].fromJavaHashCode
     }
 
   /** Returns a weak order on key-value pairs that is based on the weak order on the key. */
   implicit def orderByKey[@sp(i) K: WeakOrder, V]: WeakOrder[KeyValuePair[K, V]] =
     new WeakOrder[KeyValuePair[K, V]] {
       def cmp(x: KeyValuePair[K, V], y: KeyValuePair[K, V]) = x.key >?< y.key
-      override def fromJavaComparable = implicitly[WeakOrder[K]].fromJavaComparable
     }
 
   /** Returns an equivalence relation on key-value pairs that is based on the equivalence relation on the key. */
   implicit def equivByKey[@sp(i) K: Equiv, V]: Equiv[KeyValuePair[K, V]] =
     new Equiv[KeyValuePair[K, V]] {
       def eq(x: KeyValuePair[K, V], y: KeyValuePair[K, V]) = x.key =~= y.key
-      override def fromJavaEquals = implicitly[Equiv[K]].fromJavaEquals
     }
 }

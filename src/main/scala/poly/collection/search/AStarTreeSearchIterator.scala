@@ -3,6 +3,7 @@ package poly.collection.search
 import poly.algebra._
 import poly.algebra.ops._
 import poly.algebra.function._
+import poly.algebra.specgroup._
 import poly.collection._
 import poly.collection.mut._
 import poly.collection.node._
@@ -12,9 +13,9 @@ import poly.collection.node._
  * @author Tongfei Chen (ctongfei@gmail.com).
  * @since 0.1.0
  */
-class AStarTreeSearchIterator[S, C]
-  (val start: S)
-  (implicit ss: StateSpaceWithHeuristic[S, C])
+class AStarTreeSearchIterator[S, @sp(fdi) C]
+  (val start: S)(heuristic: S => C)
+  (implicit ss: WeightedStateSpace[S, C])
   extends SearchIterator[S]
 {
 
@@ -24,7 +25,7 @@ class AStarTreeSearchIterator[S, C]
 
   private[this] var curr: SearchNodeWithHeuristic[S, C] = SearchNodeWithHeuristic.dummy[C]
 
-  fringe += SearchNodeWithHeuristic(start, 0, zero[C], ss.heuristic(start), curr)
+  fringe += SearchNodeWithHeuristic(start, 0, zero[C], heuristic(start), curr)
 
   def currentNode = curr
 
@@ -32,7 +33,7 @@ class AStarTreeSearchIterator[S, C]
     if (fringe.notEmpty) {
       curr = fringe.pop()
       fringe ++= ss.succWithCost(curr.state).map { case (s, cost) =>
-        SearchNodeWithHeuristic(s, curr.depth + 1, curr.g + cost, ss.heuristic(s), curr)
+        SearchNodeWithHeuristic(s, curr.depth + 1, curr.g + cost, heuristic(s), curr)
       }
       true
     }

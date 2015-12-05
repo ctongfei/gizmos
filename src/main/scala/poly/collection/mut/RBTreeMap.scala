@@ -1,15 +1,16 @@
 package poly.collection.mut
 
 import poly.algebra._
-import poly.algebra.conversion._
+import poly.algebra.conversion.Java._
 import poly.algebra.hkt.ops._
 import poly.collection._
+import poly.collection.builder._
 import poly.collection.conversion.Java._
 import poly.collection.factory._
-import poly.collection.impl._
 
 /**
   * Represents a map backed by a red-black tree. This class is currently a wrapper of `java.util.TreeMap`.
+ *
   * @author Tongfei Chen (ctongfei@gmail.com).
   */
 class RBTreeMap[K, V] private(val data: java.util.TreeMap[K, V]) extends KeyMutableMap[K, V] with SortedMap[K, V] {

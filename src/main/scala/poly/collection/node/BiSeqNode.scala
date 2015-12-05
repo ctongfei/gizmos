@@ -22,8 +22,8 @@ trait BiSeqNode[+T] extends BiNode[T] with SeqNode[T] with NodeWithParent[T] { s
   }
 
   override def parent: BiSeqNode[T] = prev
-  override def pred: Iterable[BiSeqNode[T]] = ListSeq(prev).filter(_.notDummy)
-  override def succ: Iterable[BiSeqNode[T]] = ListSeq(next).filter(_.notDummy)
+  override def pred: Iterable[BiSeqNode[T]] = if (isDummy) Iterable.empty else Iterable.single(prev)
+  override def succ: Iterable[BiSeqNode[T]] = if (isDummy) Iterable.empty else Iterable.single(next)
   override def map[U](f: T => U): BiSeqNode[U] = new BiSeqNode[U] {
     def isDummy = self.isDummy
     def prev = self.prev map f

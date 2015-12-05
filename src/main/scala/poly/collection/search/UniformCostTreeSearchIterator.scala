@@ -11,7 +11,7 @@ import poly.collection.mut._
  */
 class UniformCostTreeSearchIterator[S, C]
   (val start: S)
-  (implicit ss: StateSpaceWithCost[S, C])
+  (implicit ss: WeightedStateSpace[S, C])
   extends SearchIterator[S]
 {
 

@@ -12,5 +12,4 @@ trait SortedSet[T] extends Set[T] {
 
   def elements: SortedIterable[T]
 
-
 }

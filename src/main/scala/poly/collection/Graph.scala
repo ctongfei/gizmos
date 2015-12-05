@@ -1,5 +1,6 @@
 package poly.collection
 
+import poly.collection.builder._
 import poly.collection.exception._
 import poly.collection.node._
 import poly.collection.search._
@@ -9,6 +10,10 @@ import scala.annotation.unchecked.{uncheckedVariance => uv}
 
 /**
  * Represents a forward directed graph.
+ *
+ * @tparam K Type of keys
+ * @tparam V Type of data associated with vertices
+ * @tparam E Type of data associated with edges
  * @author Tongfei Chen (ctongfei@gmail.com).
  * @since 0.1.0
  */
@@ -16,22 +21,36 @@ trait Graph[@sp(i) K, +V, +E] extends KeyedStructure[K, Graph[K, V, E]] with Sta
 
   import Graph._
 
+  /** Gets the data on the node indexed by the specific key. */
   def apply(i: K): V
+
+  /** Gets the data on the edge indexed by the specific two keys. */
   def apply(i: K, j: K): E
 
   /** Gets the node with the specific key. */
   def node(i: K) = new Node(self, i)
 
-  /** Gets the edge between the specific edges. */
+  /** Gets the edge between the specific vertices. */
   def edge(i: K, j: K) = new Edge(self, i, j)
 
+  /** Returns the number of vertices in this graph. */
   def numNodes: Int = keySet.size
+
+  /** Returns the number of edges in this graph. */
   def numEdges: Int = edges.size
 
   def equivOnKey = keySet.equivOnKey
+
+  /** Returns the set of the keys of the vertices in this graph. */
   def keySet: Set[K]
+
+  /** Returns an iterable collection of the keys in this graph. */
   def keys: Iterable[K] = keySet.elements
+
+  /** Returns a map that maps keys to the data on corresponding vertices. */
   def nodeMap: Map[K, V] = keySet createMapBy (k => self(k))
+
+  /** Returns an iterable collection of the vertices in this graph. */
   def nodes: Iterable[Node[K, V]] = keys.map(node)
   def edgeMap: Map[(K, K), E] = ???
   def edges: Iterable[Edge[K, E]] = for (i ← keys; j ← outgoingKeysOf(i)) yield edge(i, j)
@@ -50,6 +69,13 @@ trait Graph[@sp(i) K, +V, +E] extends KeyedStructure[K, Graph[K, V, E]] with Sta
 
   // HELPER FUNCTIONS
 
+  /**
+    * Maps
+ *
+    * @param f
+    * @tparam V1
+    * @return
+    */
   def mapNodes[V1](f: V => V1): Graph[K, V1, E] = new AbstractGraph[K, V1, E] {
     def apply(i: K): V1 = f(self(i))
     def containsEdge(i: K, j: K): Boolean = self.containsEdge(i, j)
@@ -68,6 +94,13 @@ trait Graph[@sp(i) K, +V, +E] extends KeyedStructure[K, Graph[K, V, E]] with Sta
     def outgoingKeysOf(i: K): Iterable[K] = self.outgoingKeysOf(i)
   }
 
+  /**
+    * Returns the subgraph with only the nodes selected by the given predicate.
+ *
+    * @param f Node selector
+    * @return A subgraph with only the nodes selected. An edge will be selected iff both its ends are selected
+    *         by the predicate.
+    */
   def filterKeys(f: K => Boolean): Graph[K, V, E] = ???
 
   def filterNodes(f: V => Boolean): Graph[K, V, E] = new AbstractGraph[K, V, E] {

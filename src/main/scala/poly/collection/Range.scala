@@ -17,10 +17,7 @@ import poly.util.specgroup._
  */
 class Range private(val left: Int, val right: Int, val step: Int = 1) extends SortedIndexedSeq[Int] {
 
-  // Ensures that this is a valid range
-  require((step > 0 && left < right) || (step < 0 && left > right))
-
-  def fastLength = {
+  lazy val fastLength = {
     val gap = right - left
     val len = gap / step + (if (gap % step != 0) 1 else 0)
     if (len < 0) 0 else len
@@ -28,10 +25,7 @@ class Range private(val left: Int, val right: Int, val step: Int = 1) extends So
 
   implicit def orderOnValue: TotalOrder[Int] = if (step > 0) TotalOrder[Int] else TotalOrder[Int].reverse
 
-  def fastApply(i: Int): Int = {
-    if (i < 0 || i >= length) throw new NoSuchElementException
-    left + i * step
-  }
+  def fastApply(i: Int): Int = left + i * step
 
   // Overridden for performance (rewrite to a while loop and then attempt to inline the loop body)
   override final def foreach[@sp(Unit) U](f: Int => U) = {

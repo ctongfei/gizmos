@@ -10,7 +10,7 @@ import poly.collection.exception._
  */
 object ops {
 
-  private def searchByIterator[S, S1 >: S](e: SearchIterator[S1], goal: S1 => Boolean): BiSeq[S1] = {
+  private def searchByIterator[S](e: SearchIterator[S], goal: S => Boolean): BiSeq[S] = {
     while (e.advance()) {
       if (goal(e.current))
         return e.currentNode.pathToRoot.map(_.data).reverse

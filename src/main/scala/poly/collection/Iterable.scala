@@ -245,14 +245,14 @@ trait Iterable[+T] extends Traversable[T] { self =>
   override def rotate(n: Int): Iterable[T] = self.skip(n) ++ self.take(n)
 
   /** Pretends that this iterable collection is sorted. */
-  def asIfSorted[U >: T](implicit U: WeakOrder[U]): SortedIterable[U] = new SortedIterable[U] {
-    implicit def orderOnValue = U
+  def asIfSorted[U >: T : WeakOrder]: SortedIterable[U] = new SortedIterable[U] {
+    def orderOnValue = implicitly[WeakOrder[U]]
     def newIterator = self.newIterator
   }
 
   /**
    * Returns a collection formed from this collection and another iterable collection by combining
-   * corresponding elements in pairs.
+   * corresponding elements in pairs. `|~|` is a symbolic alias of this method.
    * @param that Another enumerable collection
    * @example {{{(1, 2, 3) zip (-1, -2, -3, -4) == ((1, -1), (2, -2), (3, -3))}}}
    * @return Zipped sequence

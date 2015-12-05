@@ -1,4 +1,6 @@
-package poly.collection
+package poly.collection.builder
+
+import poly.collection._
 
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).

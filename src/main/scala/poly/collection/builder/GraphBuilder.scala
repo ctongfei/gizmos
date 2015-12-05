@@ -1,8 +1,11 @@
-package poly.collection
+package poly.collection.builder
+
+import poly.collection._
 
 /**
- * The base trait for graph builders, which are objects that allow
+  * The base trait for graph builders, which are objects that allow
  * incremental construction of graphs.
+ *
  * @author Tongfei Chen (ctongfei@gmail.com).
  * @since 0.1.0
  */
@@ -10,6 +13,7 @@ trait GraphBuilder[-K, -V, -E, +G] {
 
   /**
    * Provides a hint to this builder about how many vertices are expected to be added.
+ *
    * @param n The hint how many vertices is to be added
    */
   def numNodesHint(n: Int): Unit

@@ -1,12 +1,15 @@
-package poly.collection
+package poly.collection.mut
+
+import poly.collection._
 
 /**
- * Represents a sequence in which data can be mutated.
+  * Represents a sequence in which data can be mutated.
  */
 trait DataMutableSeq[T] extends Seq[T] with DataMutableMap[Int, T] { self =>
 
   /**
    * Updates the element at the specific location.
+ *
    * @param i Index
    * @param x New element
    */
@@ -14,6 +17,7 @@ trait DataMutableSeq[T] extends Seq[T] with DataMutableMap[Int, T] { self =>
 
   /**
    * Swaps two elements in this sequence in-place.
+ *
    * @param i Index of the first element
    * @param j Index of the second element
    */

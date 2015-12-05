@@ -20,5 +20,5 @@ trait NodeWithParent[+T] extends BackwardNode[T] { self =>
   }
 
   /** Backtracks from this node to the initial node. */
-  def pathToRoot = this.iterate(_.parent).takeUntil(_.isDummy)
+  def pathToRoot: Seq[NodeWithParent[T]] = this.iterate(_.parent).takeUntil(_.isDummy)
 }

@@ -1,12 +1,11 @@
 package poly.collection
 
 import poly.algebra._
-import poly.collection.factory._
-import poly.collection.mut._
+import poly.algebra.ops._
 import poly.collection.node._
 import poly.macroutil._
 import scala.annotation.unchecked.{uncheckedVariance => uV}
-import scala.reflect._
+import scala.language.implicitConversions
 
 /**
  * Represents an indexed sequence.
@@ -35,7 +34,7 @@ trait IndexedSeq[+T] extends BiSeq[T] with HasKnownSize { self =>
     def current = self(i)
     def advance(): Boolean = {
       i += 1
-      i < self.fastLength
+      i < self.length
     }
   }
 
@@ -50,6 +49,8 @@ trait IndexedSeq[+T] extends BiSeq[T] with HasKnownSize { self =>
   override def foreach[V](f: T => V): Unit = {
     FastLoop.ascending(0, length, 1) { i => f(apply(i)) }
   }
+
+  override def keys = Range(length)
 
   // HELPER FUNCTIONS
 
@@ -178,6 +179,17 @@ object IndexedSeq {
     def fastApply(i: Int): T = f(i)
   }
 
+  implicit def arrayAsIndexedSeq[T](a: Array[T]): IndexedSeq[T] = new AbstractIndexedSeq[T] {
+    def fastLength = a.length
+    def fastApply(i: Int) = a(i)
+  }
+
+  implicit def Equiv[T: Equiv]: Equiv[IndexedSeq[T]] = new Equiv[IndexedSeq[T]] {
+    def eq(x: IndexedSeq[T], y: IndexedSeq[T]) = {
+      if (x.length != y.length) false
+      else x.keys.forall(i => x(i) =~= y(i))
+    }
+  }
 
   class IndexedSeqNode[T](val seq: IndexedSeq[T], val i: Int) extends BiSeqNode[T] {
     def isDummy = (i < 0) || (i >= seq.length)

@@ -1,4 +1,4 @@
-package poly.collection
+package poly.collection.mut
 
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).

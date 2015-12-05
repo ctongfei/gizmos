@@ -1,18 +1,23 @@
-package poly.collection
+package poly.collection.mut
+
+import poly.collection._
 
 /**
- * Represents a structurally-mutable sequence.
+  * Represents a structurally-mutable sequence.
+ *
  * @tparam T
  */
 trait KeyMutableSeq[T] extends DataMutableSeq[T] {
   /**
    * Prepends the specific element to the start of the sequence.
+ *
    * @param x The element to be prepended
    */
   def prependInplace(x: T): Unit
 
   /**
    * Appends the specific element to the end of the sequence.
+ *
    * @param x The element to be appended
    */
   def appendInplace(x: T): Unit
@@ -24,6 +29,7 @@ trait KeyMutableSeq[T] extends DataMutableSeq[T] {
 
   /**
    * Inserts an element at the specific position.
+ *
    * @param i Position for insertion
    * @param x The element to be inserted
    */
@@ -31,6 +37,7 @@ trait KeyMutableSeq[T] extends DataMutableSeq[T] {
 
   /**
    * Deletes the element at the specific position.
+ *
    * @param i Position for deletion
    */
   def deleteAt(i: Int): Unit

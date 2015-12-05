@@ -2,6 +2,7 @@ package poly.collection.mut
 
 import poly.algebra._
 import poly.collection._
+import poly.collection.builder._
 import poly.collection.conversion.Scala._
 import poly.collection.factory._
 import scala.collection.JavaConverters._

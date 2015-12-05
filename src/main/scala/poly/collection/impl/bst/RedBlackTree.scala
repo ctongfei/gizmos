@@ -4,9 +4,11 @@ import poly.algebra._
 import poly.collection._
 import poly.collection.impl._
 import poly.collection.impl.bst.RedBlackTree._
+import poly.collection.mut._
 
 /**
  * A red-black tree.
+ *
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
 abstract class RedBlackTree[K, V](implicit val order: WeakOrder[K]) extends KeyMutableMap[K, V] {

@@ -89,7 +89,7 @@ trait Map[@sp(i) K, +V] extends KeyedStructure[K, Map[K, V]] with PartialFunctio
   }
 
   /**
-   * Transforms the values of this map according to the specified function. $LAZY $O1
+   * Transforms the values of this map according to the specified function. $LAZY
    * @note This function is equivalent to the Scala library's `mapValues`.
    *       To transform all pairs in this map, use `this.pairs.map`.
    * @example {{{Map(1 -> 2, 2 -> 3) map {_ * 2} == Map(1 -> 4, 2 -> 6)}}}
@@ -107,14 +107,13 @@ trait Map[@sp(i) K, +V] extends KeyedStructure[K, Map[K, V]] with PartialFunctio
 
 
   /**
-   * Zips two maps with the same key type into one. $LAZY $O1
+   * Zips two maps with the same key type into one. $LAZY
    * @note This function is not the same as the Scala library's `zip`. Please
    *       use `this.pairs.zip` instead for zipping a sequence of pairs.
    * @example {{{Map(1 -> 2, 2 -> 3) zip Map(2 -> 5, 3 -> 6) == Map(2 -> (3, 5))}}}
    * @param that Another map to be zipped
    */
   def zip[W](that: Map[K, W]): Map[K, (V, W)] = {
-    require(this.equivOnKey equivSameAs that.equivOnKey)
     new AbstractMap[K, (V, W)] {
       def equivOnKey = self.equivOnKey
       def apply(x: K): (V, W) = (self(x), that(x))
@@ -126,6 +125,7 @@ trait Map[@sp(i) K, +V] extends KeyedStructure[K, Map[K, V]] with PartialFunctio
   }
 
   def |>[W](f: V => W) = self map f
+  def |~|[W](that: Map[K, W]) = self zip that
 }
 
 object Map {

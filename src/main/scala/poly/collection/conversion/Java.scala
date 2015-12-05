@@ -3,6 +3,7 @@ package poly.collection.conversion
 import java.{lang => jl, util => ju}
 import poly.algebra._
 import poly.collection._
+import poly.collection.mut._
 import scala.language.implicitConversions
 
 /**

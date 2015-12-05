@@ -1,5 +1,6 @@
 package poly.collection.node
 
+import poly.algebra._
 import poly.algebra.hkt._
 import poly.collection._
 import poly.collection.search._
@@ -51,6 +52,7 @@ trait ForwardNode[+T] { self =>
 
 object ForwardNode {
   implicit def StateSpace[T]: StateSpace[ForwardNode[T]] = new StateSpace[ForwardNode[T]] {
+    def equivOnKey = Equiv.byRef[ForwardNode[T]]
     def succ(x: ForwardNode[T]) = x.succ
   }
 

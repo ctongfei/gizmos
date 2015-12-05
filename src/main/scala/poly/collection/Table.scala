@@ -87,9 +87,3 @@ object Table {
 }
 
 abstract class AbstractTable[T] extends Table[T]
-
-
-
-
-
-

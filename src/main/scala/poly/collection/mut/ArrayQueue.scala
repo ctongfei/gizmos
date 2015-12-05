@@ -1,6 +1,7 @@
 package poly.collection.mut
 
 import poly.collection._
+import poly.collection.builder._
 import poly.collection.exception._
 import poly.collection.factory._
 import poly.collection.impl._
@@ -9,6 +10,7 @@ import scala.reflect._
 
 /**
  * An array-backed circular queue that supports amortized O(1) time for both insertion and deletion.
+ *
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
 class ArrayQueue[T] private(private val data: CircularArray[T]) extends Queue[T] with HasKnownSize {

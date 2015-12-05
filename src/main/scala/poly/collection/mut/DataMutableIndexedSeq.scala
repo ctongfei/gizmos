@@ -1,20 +1,22 @@
-package poly.collection
+package poly.collection.mut
 
 import poly.algebra._
 import poly.algebra.ops._
-import poly.util.specgroup._
+import poly.collection._
 
 import scala.util._
 
 /**
  * Basic trait for mutable indexed sequences.
  * Fast random access and update should be guaranteed.
+ *
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
 trait DataMutableIndexedSeq[T] extends DataMutableSeq[T] with IndexedSeq[T] {
 
   /**
    * Sorts this sequence in-place using the order provided.
+ *
    * @param order The order for sorting
    */
   def sortInplace()(implicit order: WeakOrder[T]): Unit = {
@@ -54,6 +56,7 @@ trait DataMutableIndexedSeq[T] extends DataMutableSeq[T] with IndexedSeq[T] {
 
   /**
    *  Transforms this sequence in-place given a function.
+ *
    *  @param f The function
    */
   override def mapInplace(f: T => T): Unit = {

@@ -1,6 +1,7 @@
 package poly.collection.factory
 
 import poly.collection._
+import poly.collection.builder._
 import poly.collection.conversion.Scala._
 import scala.language.higherKinds
 
@@ -15,7 +16,7 @@ trait IntIndexedGraphFactory[+IG[_, _]] {
 
    def apply[V, E](vs: V*)(es: (Int, Int, E)*): IG[V, E] = {
      val b = newBuilder[V, E]
-     b addNodes vs.zipWithIndex.map(_.swap) //TODO: efficiency?
+     b addNodes vs.pairs
      b addEdges es
      b.result
    }

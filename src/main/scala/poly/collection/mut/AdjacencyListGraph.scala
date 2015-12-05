@@ -2,6 +2,7 @@ package poly.collection.mut
 
 import poly.algebra.implicits._
 import poly.collection._
+import poly.collection.builder._
 import poly.collection.factory._
 import poly.collection.impl._
 import poly.collection.mut._

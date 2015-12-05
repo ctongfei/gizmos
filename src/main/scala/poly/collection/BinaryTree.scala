@@ -12,13 +12,13 @@ import poly.util.typeclass.ops._
  * @author Tongfei Chen (ctongfei@gmail.com).
  * @since 0.1.0
  */
-trait BinaryTree[+T] extends PartialFunction[Int, T] { self =>
+trait BinaryTree[+T] extends Tree[T] with PartialFunction[Int, T] { self =>
 
   import BinaryTree._
 
   def rootNode: BinaryTreeNode[T]
 
-  def root: T = rootNode.data
+  override def root: T = rootNode.data
 
   /** Returns the maximal depth of this tree. */ //TODO: a recursive-free version?
   def depth: Int = foldBottomUp(0)((l, r, _) => math.max(l, r) + 1)
@@ -31,9 +31,11 @@ trait BinaryTree[+T] extends PartialFunction[Int, T] { self =>
   /**
    * Returns the ''i''th node of this binary tree.
    * The ''i''th is defined as follows:
-   *  - The index of the root node is 0;
-   *  - The left child of node ''i'' is 2''i'' + 1;
-   *  - The right child of node ''i'' is 2''i'' + 2.
+   *  <ul>
+   *    <li> The index of the root node is 0; </li>
+   *    <li> The left child of node ''i'' is 2''i'' + 1; </li>
+   *    <li> The right child of node ''i'' is 2''i'' + 2. </li>
+   * </ul>
    * @param i Index
    * @return The ''i''th node with the index defined above
    */
@@ -83,7 +85,7 @@ trait BinaryTree[+T] extends PartialFunction[Int, T] { self =>
 
   def zip[U](that: BinaryTree[U]): BinaryTree[(T, U)] = ofNode(self.rootNode zip that.rootNode)
 
-  def preOrder = rootNode.preOrder
+  override def preOrder = rootNode.preOrder
   def inOrder = rootNode.inOrder
   def postOrder = rootNode.postOrder
 
@@ -102,7 +104,7 @@ trait BinaryTree[+T] extends PartialFunction[Int, T] { self =>
     override def knuthTransform = self
   }
 
-  def toGraph: Graph[Int, T, Nothing] = ???
+  override def subtrees: BinaryTree[BinaryTree[T]] = ???
 
   override def toString() = self.str
 

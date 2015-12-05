@@ -3,6 +3,7 @@ package poly.collection.mut
 import poly.algebra._
 import poly.algebra.ops._
 import poly.collection._
+import poly.collection.builder._
 import poly.collection.factory._
 import poly.collection.impl._
 import poly.util.specgroup._
@@ -10,6 +11,7 @@ import scala.reflect._
 
 /**
  * A Fenwick tree.
+ *
  * @author Tongfei Chen (ctongfei@gmail.com).
  * @since 0.1.0
  */
@@ -23,6 +25,7 @@ class FenwickTree[T] private(private val data: ResizableSeq[T])
 
   /**
    * Returns an element from this Fenwick tree. This operation has O(log n) complexity.
+ *
    * @param i Index
    * @return
    */
