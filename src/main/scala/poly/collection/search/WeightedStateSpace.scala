@@ -14,12 +14,6 @@ trait WeightedStateSpace[S, @sp(fdi) C] extends StateSpace[S] {
   def succ(x: S) = succWithCost(x) map first
 
   def uniformCostTreeTraversal(start: S): Iterable[S] =
-    Iterable.ofIterator(new UniformCostTreeSearchIterator[S, C](start)(this))
-
-  def greedyBestFirstTreeTraversal(start: S)(heuristic: S => C): Iterable[S] =
-    Iterable.ofIterator(new GreedyBestFirstTreeSearchIterator[S, C](start)(heuristic)(this))
-
-  def aStarTreeTraversal(start: S)(heuristic: S => C): Iterable[S] =
-    Iterable.ofIterator(new AStarTreeSearchIterator[S, C](start)(heuristic)(this))
+    Iterable.ofIterator(new UniformCostIterator[S, C](this, start))
 
 }

@@ -376,7 +376,7 @@ object Iterable {
   object empty extends Iterable[Nothing] {
     def newIterator: Iterator[Nothing] = new Iterator[Nothing] {
       def advance() = false
-      def current = throw new NoSuchElementException
+      def current = throw new DummyNodeException
     }
   }
 

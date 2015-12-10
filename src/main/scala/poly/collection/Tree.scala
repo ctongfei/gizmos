@@ -55,7 +55,7 @@ trait Tree[+T] { self =>
   def subtrees: Tree[Tree[T]] = ???
 
   def preOrder: Iterable[T] = Iterable.ofIterator {
-    new DepthFirstTreeSearchIterator[ForwardNode[T]](rootNode)(ForwardNode.StateSpace[T])
+    new DepthFirstTreeIterator[ForwardNode[T]](ForwardNode.StateSpace[T], rootNode)
   }.map(_.data)
 
   def levelOrder: Iterable[T] = ??? // BFS

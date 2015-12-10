@@ -1,7 +1,6 @@
 package poly.collection.search
 
 import poly.collection.conversion.Scala._
-import poly.collection.search.ops._
 
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).

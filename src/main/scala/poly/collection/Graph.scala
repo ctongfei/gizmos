@@ -39,7 +39,7 @@ trait Graph[@sp(i) K, +V, +E] extends KeyedStructure[K, Graph[K, V, E]] with Sta
   /** Returns the number of edges in this graph. */
   def numEdges: Int = edges.size
 
-  def equivOnKey = keySet.equivOnKey
+  def equivOnState = keySet.equivOnKey
 
   /** Returns the set of the keys of the vertices in this graph. */
   def keySet: Set[K]
@@ -106,11 +106,11 @@ trait Graph[@sp(i) K, +V, +E] extends KeyedStructure[K, Graph[K, V, E]] with Sta
   def filterNodes(f: V => Boolean): Graph[K, V, E] = new AbstractGraph[K, V, E] {
     def apply(i: K): V = {
       if (f(self(i))) self(i)
-      else throw new NoSuchElementException
+      else throw new DummyNodeException
     }
     def containsEdge(i: K, j: K): Boolean = f(self(i)) && f(self(j))
     def containsNode(i: K): Boolean = f(self(i))
-    def apply(i: K, j: K): E = if (containsEdge(i, j)) self(i, j) else throw new NoSuchElementException
+    def apply(i: K, j: K): E = if (containsEdge(i, j)) self(i, j) else throw new KeyNotFoundException(i, j)
     def outgoingKeysOf(i: K): Iterable[K] = ???
     def keySet: Set[K] = ???
   }

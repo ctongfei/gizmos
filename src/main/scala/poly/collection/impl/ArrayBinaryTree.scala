@@ -16,7 +16,7 @@ class ArrayBinaryTree[T] (
 
   class Node (val i: Int) extends BiBinaryTreeNode[T] {
     def isDummy = !state(i)
-    def data = if (state(i)) self.data(i) else throw new NoSuchElementException
+    def data = if (state(i)) self.data(i) else throw new DummyNodeException
     def data_=(x: T) = {
       self.state(i) = true
       self.data(i) = x
@@ -35,11 +35,11 @@ class ArrayBinaryTree[T] (
     def left: BiBinaryTreeNode[T] = this
     def right: BiBinaryTreeNode[T] = rootNode
     def parent: BiBinaryTreeNode[T] = this
-    def data: T = throw new NoSuchElementException
+    def data: T = throw new DummyNodeException
     override val isDummy = true
   }
 
-  override def apply(i: Int) = if (nodeExists(i)) data(i) else throw new NoSuchElementException
+  override def apply(i: Int) = if (nodeExists(i)) data(i) else throw new DummyNodeException
 
   def rootNode = new Node(0)
 

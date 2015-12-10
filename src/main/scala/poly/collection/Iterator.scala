@@ -52,6 +52,6 @@ trait Iterator[+T] { self =>
 object Iterator {
   object empty extends Iterator[Nothing] {
     def advance() = false
-    def current = throw new NoSuchElementException
+    def current = throw new DummyNodeException
   }
 }

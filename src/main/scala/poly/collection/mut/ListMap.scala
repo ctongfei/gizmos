@@ -55,7 +55,7 @@ class ListMap[K, V] private(private val data: SinglyLinkedList[KeyValuePair[K, V
 
   def update(x: K, y: V) = {
     val pc = locateKey(x)
-    if (pc eq null) throw new NoSuchElementException
+    if (pc eq null) throw new KeyNotFoundException(x)
     val (_, c) = pc
     c.data.value = y
   }

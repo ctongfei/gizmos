@@ -56,7 +56,7 @@ class BinaryHeap[T](val data: ResizableSeq[T])(implicit val order: WeakOrder[T])
     front
   }
 
-  def top = if (size <= 0) throw new NoSuchElementException else data(0)
+  def top = if (size <= 0) throw new QueueEmptyException else data(0)
 
   def newIterator = data.newIterator
 

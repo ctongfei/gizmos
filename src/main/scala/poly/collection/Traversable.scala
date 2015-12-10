@@ -317,7 +317,7 @@ trait Traversable[+T] { self =>
   def head: T = {
     for (x ← self)
       return x
-    throw new NoSuchElementException
+    throw new DummyNodeException
   }
 
   /** $EAGER $O1 */

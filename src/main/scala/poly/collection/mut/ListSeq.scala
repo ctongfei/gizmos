@@ -54,7 +54,7 @@ class ListSeq[T] private(private val data: SinglyLinkedList[T]) extends Abstract
     }
 
     def current: T = {
-      if (node.isDummy) throw new NoSuchElementException
+      if (node.isDummy) throw new DummyNodeException
       node.data
     }
   }

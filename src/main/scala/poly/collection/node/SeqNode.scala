@@ -40,7 +40,7 @@ object SeqNode {
 
   object dummy extends SeqNode[Nothing] {
     def isDummy = true
-    def data = throw new NoSuchElementException
+    def data = throw new DummyNodeException
     def next = this
   }
 

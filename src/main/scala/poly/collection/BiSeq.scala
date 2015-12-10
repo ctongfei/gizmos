@@ -6,6 +6,7 @@ import poly.collection.node._
 /**
  * Represents a bidirectional sequence, i.e. a sequence that supports
  * fast access to the last element as well as fast reversed traversal.
+ *
  * @author Tongfei Chen (ctongfei@gmail.com).
  * @since 0.1.0
  */
@@ -45,7 +46,7 @@ trait BiSeq[+T] extends Seq[T] { self =>
     }
     ofNode {
       new BiSeqNode[U] {
-        def data = throw new NoSuchElementException
+        def data = throw new DummyNodeException
         def next = new ConsecutiveNode(self.dummy.next, self.dummy.next.next)
         def prev = new ConsecutiveNode(self.dummy.prev.prev, self.dummy.prev)
         def isDummy = true
@@ -103,7 +104,7 @@ object BiSeq {
       new BiSeqNode[T] {
         def next = hn
         def prev = ln
-        def data = throw new NoSuchElementException
+        def data = throw new DummyNodeException
         def isDummy = true
       }
   }

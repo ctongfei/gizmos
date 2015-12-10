@@ -42,7 +42,7 @@ trait Map[@sp(i) K, +V] extends KeyedStructure[K, Map[K, V]] with PartialFunctio
    * For maximum safety, use `?` to optionally access an element.
    * @param k The given key
    * @return The associated value
-   * @throws NoSuchElementException if key not found (may or may not throw)
+   * @throws KeyNotFoundException if key not found (may or may not throw)
    */
   def apply(k: K): V
 
@@ -80,7 +80,7 @@ trait Map[@sp(i) K, +V] extends KeyedStructure[K, Map[K, V]] with PartialFunctio
   // HELPER FUNCTIONS
 
   def filterKeys(f: K => Boolean): Map[K, V] = new AbstractMap[K, V] {
-    def apply(k: K) = if (!f(k)) throw new NoSuchElementException else self(k)
+    def apply(k: K) = if (!f(k)) throw new KeyNotFoundException(k) else self(k)
     def ?(k: K) = if (!f(k)) None else self ? k
     def pairs = self.pairs.filter { case (k, _) => f(k) }
     def size = pairs.size

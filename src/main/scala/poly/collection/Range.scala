@@ -15,7 +15,12 @@ import poly.util.specgroup._
  * @author Tongfei Chen (ctongfei@gmail.com).
  * @since 0.1.0
  */
-class Range private(val left: Int, val right: Int, val step: Int = 1) extends SortedIndexedSeq[Int] {
+class Range private(
+  private[this] val left: Int,
+  private[this] val right: Int,
+  private[this] val step: Int = 1
+)
+  extends SortedIndexedSeq[Int] {
 
   lazy val fastLength = {
     val gap = right - left

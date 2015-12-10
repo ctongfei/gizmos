@@ -48,7 +48,7 @@ trait BinaryTree[+T] extends Tree[T] with PartialFunction[Int, T] { self =>
         case 0 => curr = curr.left
         case 1 => curr = curr.right
       }
-      if (curr.isDummy) throw new NoSuchElementException
+      if (curr.isDummy) throw new KeyNotFoundException(i)
       x %= depth
       depth <<= 1
     }
