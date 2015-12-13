@@ -38,7 +38,7 @@ object ArrayQueue extends CollectionFactory[ArrayQueue] {
   implicit def newBuilder[T]: Builder[T, ArrayQueue[T]] = new Builder[T, ArrayQueue[T]] {
     var a: ResizableSeq[T] = new ResizableSeq[T]()
     def sizeHint(n: Int) = a.ensureCapacity(n)
-    def +=(x: T) = a.appendInplace(x)
+    def add(x: T) = a.appendInplace(x)
     def result = new ArrayQueue[T](new CircularArray[T](a))
   }
 

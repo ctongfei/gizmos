@@ -15,7 +15,7 @@ trait SeqFactory[+C[_]] extends CollectionFactory[C] {
     val b = newBuilder[T]
     b.sizeHint(n)
     while (i > 0) {
-      b += x
+      b add x
       i -= 1
     }
     b.result
@@ -26,7 +26,7 @@ trait SeqFactory[+C[_]] extends CollectionFactory[C] {
     val b = newBuilder[T]
     b.sizeHint(n)
     while (i < n) {
-      b += f(i)
+      b add f(i)
       i += 1
     }
     b.result
@@ -38,11 +38,11 @@ trait SeqFactory[+C[_]] extends CollectionFactory[C] {
     b.sizeHint(n)
     if (i > 0) {
       var x = start
-      b += x
+      b add x
       i -= 1
       while (i > 0) {
         x = f(x)
-        b += x
+        b add x
         i -= 1
       }
     }
@@ -53,10 +53,10 @@ trait SeqFactory[+C[_]] extends CollectionFactory[C] {
     val b = newBuilder[T]
     var x = start
     while (!goal(x)) {
-      b += x
+      b add x
       x = f(x)
     }
-    b += x
+    b add x
     b.result
   }
 
@@ -64,7 +64,7 @@ trait SeqFactory[+C[_]] extends CollectionFactory[C] {
     val b = newBuilder[T]
     var x = start
     while (!goal(x)) {
-      b += x
+      b add x
       x = f(x)
     }
     b.result

@@ -56,6 +56,8 @@ trait Map[@sp(i) K, +V] extends KeyedStructure[K, Map[K, V]] with PartialFunctio
    */
   def containsKey(x: K): Boolean
 
+  def notContainsKey(x: K) = !containsKey(x)
+
   def getOrElse[V1 >: V](x: K, default: => V1) = ?(x) match {
     case Some(y) => y
     case None => default

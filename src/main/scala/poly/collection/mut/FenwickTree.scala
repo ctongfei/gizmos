@@ -80,7 +80,7 @@ object FenwickTree extends CollectionFactoryWithAdditiveGroup[FenwickTree] {
     val coll = new ResizableSeq[T]()
     val G = implicitly[AdditiveGroup[T]]
     def sizeHint(n: Int): Unit = coll.ensureCapacity(n)
-    def +=(x: T): Unit = coll.appendInplace(x)
+    def add(x: T): Unit = coll.appendInplace(x)
     def result: FenwickTree[T] = ??? //TODO:!!! not implemented
   }
 

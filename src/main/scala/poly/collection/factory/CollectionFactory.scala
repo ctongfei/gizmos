@@ -25,21 +25,21 @@ trait CollectionFactory[+C[_]] {
   /** Creates a collection by adding the arguments into it. */
   def apply[T](xs: T*): C[T] = {
     val b = newBuilder[T]
-    b ++= xs
+    b addAll xs
     b.result
   }
 
   /** Creates a collection by adding the non-null arguments into it. */
   def applyNotNull[T](xs: T*): C[T] = {
     val b = newBuilder[T]
-    for (x ← xs if x != null) b += x
+    for (x ← xs if x != null) b add x
     b.result
   }
 
   /** Creates a collection by adding all the elements in the specific traversable sequence. */
   def from[T](xs: Traversable[T]): C[T] = {
     val b = newBuilder[T]
-    b ++= xs
+    b addAll xs
     b.result
   }
 

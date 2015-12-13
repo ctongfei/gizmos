@@ -2,15 +2,16 @@ package poly.collection.search
 
 import poly.collection._
 import poly.collection.mut._
-import poly.collection.exception._
+import poly.collection.search.node._
 
 /**
   * An extremely generic iterator that executes a search algorithm.
+ *
   * @tparam S Type of state
   * @tparam N Type of search node
   * @param S The searching state space
   * @param N A typeclass instance that witnesses the additional information stored on search nodes
-  * @param pruning A typeclass instance that dictates which nodes should be pruned in the searching process
+  * @param pruningStrategy A typeclass instance that dictates which nodes should be pruned in the searching process
   * @param fringe A fringe for storing the search nodes
   * @param start Starting state
   * @author Yuhuan Jiang (jyuhuan@gmail.com).
@@ -18,22 +19,23 @@ import poly.collection.exception._
   * @since 0.1.0
   */
 abstract class Searcher[S, N](
-  pruning: NodePruning[N],
+  pruningStrategy: NodePruning[N],
   fringe: Queue[N],
   start: S)
-  (implicit S: StateSpace[S], N: SearchNodeInfo[N, S]) extends SearchIterator[S, N] {
+  (implicit S: StateSpace[S], N: SearchNodeInfo[N, S]) extends SearchIterator[N, S] {
 
-  private[this] var curr: N = throw new DummyNodeException
+  private[this] var curr: N = default[N]
 
   fringe += N.startNode(start)
 
   def currentNode = curr
-  def currentState = N.state(curr)
+
+  def current = N.state(curr)
 
   def advance() = {
     if (fringe.notEmpty) {
       curr = fringe.pop()
-      if (!pruning.shouldBePruned(curr))
+      if (!pruningStrategy.shouldBePruned(curr))
         fringe ++= S.succ(N.state(curr)).map(N.nextNode(curr))
       true
     }
@@ -52,3 +54,10 @@ class DepthFirstIterator[S](ss: StateSpace[S], start: S)
 
 class BreadthFirstIterator[S](ss: StateSpace[S], start: S)
   extends Searcher[S, S](NodePruning.None, DistinctQueue[ArrayQueue, S](), start)(ss, SearchNodeInfo.None)
+
+class DepthFirstBacktrackableIterator[S](ss: StateSpace[S], start: S)
+  extends Searcher[S, WithParent[S]](NodePruning.None, DistinctQueue[ArrayStack, WithParent[S]](), start)(ss, WithParent.SearchNodeInfo[S])
+
+class BreadthFirstBacktrackableIterator[S](ss: StateSpace[S], start: S)
+  extends Searcher[S, WithParent[S]](NodePruning.None, DistinctQueue[ArrayQueue, WithParent[S]](), start)(ss, WithParent.SearchNodeInfo[S])
+

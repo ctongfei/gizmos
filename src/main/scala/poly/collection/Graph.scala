@@ -1,10 +1,12 @@
 package poly.collection
 
+import poly.algebra._
+import poly.algebra.syntax._
+import poly.algebra.specgroup._
 import poly.collection.builder._
 import poly.collection.exception._
 import poly.collection.node._
 import poly.collection.search._
-import poly.util.specgroup._
 import scala.language.higherKinds
 import scala.annotation.unchecked.{uncheckedVariance => uv}
 
@@ -39,7 +41,7 @@ trait Graph[@sp(i) K, +V, +E] extends KeyedStructure[K, Graph[K, V, E]] with Sta
   /** Returns the number of edges in this graph. */
   def numEdges: Int = edges.size
 
-  def equivOnState = keySet.equivOnKey
+  implicit def equivOnState = keySet.equivOnKey
 
   /** Returns the set of the keys of the vertices in this graph. */
   def keySet: Set[K]
@@ -66,16 +68,8 @@ trait Graph[@sp(i) K, +V, +E] extends KeyedStructure[K, Graph[K, V, E]] with Sta
 
   def succ(i: K) = outgoingKeysOf(i)
 
-
   // HELPER FUNCTIONS
 
-  /**
-    * Maps
- *
-    * @param f
-    * @tparam V1
-    * @return
-    */
   def mapNodes[V1](f: V => V1): Graph[K, V1, E] = new AbstractGraph[K, V1, E] {
     def apply(i: K): V1 = f(self(i))
     def containsEdge(i: K, j: K): Boolean = self.containsEdge(i, j)
@@ -96,7 +90,6 @@ trait Graph[@sp(i) K, +V, +E] extends KeyedStructure[K, Graph[K, V, E]] with Sta
 
   /**
     * Returns the subgraph with only the nodes selected by the given predicate.
- *
     * @param f Node selector
     * @return A subgraph with only the nodes selected. An edge will be selected iff both its ends are selected
     *         by the predicate.
@@ -106,7 +99,7 @@ trait Graph[@sp(i) K, +V, +E] extends KeyedStructure[K, Graph[K, V, E]] with Sta
   def filterNodes(f: V => Boolean): Graph[K, V, E] = new AbstractGraph[K, V, E] {
     def apply(i: K): V = {
       if (f(self(i))) self(i)
-      else throw new DummyNodeException
+      else throw new KeyNotFoundException(i)
     }
     def containsEdge(i: K, j: K): Boolean = f(self(i)) && f(self(j))
     def containsNode(i: K): Boolean = f(self(i))
@@ -135,27 +128,32 @@ trait Graph[@sp(i) K, +V, +E] extends KeyedStructure[K, Graph[K, V, E]] with Sta
 }
 
 object Graph {
-  class Node[K, +V](val graph: Graph[K, V, _], val key: K) extends ForwardNode[V] {
+  class Node[K: Equiv, +V](val graph: Graph[K, V, _], val key: K) extends ForwardNode[V] {
     def isDummy = false
     def data = graph.apply(key)
     def succ = graph.outgoingNodesOf(key)
 
     override def equals(that: Any) = that match {
-      case that: Node[K, V] => (this.graph eq that.graph) && (this.key == that.key)
+      case that: Node[K, V] => (this.graph eq that.graph) && (this.key =~= that.key)
     }
     //TODO: hashing
   }
 
 
-  class Edge[K, +E](val graph: Graph[K, _, E], val key1: K, val key2: K) {
+  class Edge[K: Equiv, +E](val graph: Graph[K, _, E], val key1: K, val key2: K) {
     def data = graph.apply(key1, key2)
 
     override def equals(that: Any) = that match {
-      case that: Edge[K, E] => (this.graph eq that.graph) && (this.key1 == that.key1) && (this.key2 == that.key2)
+      case that: Edge[K, E] => (this.graph eq that.graph) && (this.key1 =~= that.key1) && (this.key2 =~= that.key2)
     }
     //TODO: hashing
   }
 
+  implicit class asWeightedStateSpace[K, E](g: Graph[K, _, E])(implicit E: OrderedAdditiveGroup[E]) extends WeightedStateSpace[K, E] {
+    implicit def groupOnCost = E
+    def succWithCost(x: K) = g.outgoingEdgesOf(x).map(e => (e.key2, e.data))
+    def equivOnState = g.equivOnState
+  }
 
 }
 

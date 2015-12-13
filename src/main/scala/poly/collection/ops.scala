@@ -20,7 +20,7 @@ object ops {
      * @return An infinite sequence
      * @example {{{2.cycle == (2, 2, 2, 2, 2, ...)}}}
      */
-    def cycle = Seq.infinite(x)
+    def cycle = Iterable.infinite(x)
 
     /**
      * Constructs a lazy sequence that repeats the specific element for the given number of times.

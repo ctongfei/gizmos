@@ -44,7 +44,7 @@ class DisjointSets[T] private() extends Equiv[T] {
   }
 
   /** Joins the two sets in which the two specified elements resides. */
-  def union(x: T, y: T): Unit = {
+  def join(x: T, y: T): Unit = {
     if (x == y) return
     link(find(data(x)), find(data(y)))
     sets -= 1

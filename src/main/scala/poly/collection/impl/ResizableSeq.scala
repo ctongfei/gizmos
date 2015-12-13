@@ -93,7 +93,7 @@ object ResizableSeq extends SeqFactory[ResizableSeq] {
   def newBuilder[T]: Builder[T, ResizableSeq[T]] = new Builder[T, ResizableSeq[T]] {
     val a = new ResizableSeq[T]()
     def sizeHint(n: Int) = a.ensureCapacity(n)
-    def +=(x: T) = a.appendInplace(x)
+    def add(x: T) = a.appendInplace(x)
     def result = a
   }
 

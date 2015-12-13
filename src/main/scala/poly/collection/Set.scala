@@ -12,9 +12,6 @@ import poly.collection.mut._
  */
 trait Set[T] extends Predicate[T] with KeyedStructure[T, Set[T]] { self =>
 
-  // ListSet: Equiv[T]
-  // HashSet: IntHashing[T]
-  // TreeSet: WeakOrder[T]
   def equivOnKey: Equiv[T]
 
   /** Returns an iterable sequence of all the elements in this set. */
@@ -48,7 +45,6 @@ trait Set[T] extends Predicate[T] with KeyedStructure[T, Set[T]] { self =>
 
   /**
     * Returns the union of two sets.
- *
     * @example {{{ {1, 2, 3} | {2, 4} == {1, 2, 3, 4} }}}
     */
   def |(that: Set[T]): Set[T] = new AbstractSet[T] {
@@ -59,7 +55,6 @@ trait Set[T] extends Predicate[T] with KeyedStructure[T, Set[T]] { self =>
 
   /**
     * Returns the intersection of two sets.
- *
     * @example {{{ {1, 2, 3} & {3, 1} == {1, 3} }}}
     */
   def &(that: Set[T]): Set[T] = new AbstractSet[T] {
@@ -70,7 +65,6 @@ trait Set[T] extends Predicate[T] with KeyedStructure[T, Set[T]] { self =>
 
   /**
     * Returns the difference of two sets.
- *
     * @example {{{ {1, 2, 3} \ {2, 3} == {1} }}}
     */
   def \(that: Set[T]): Set[T] = new AbstractSet[T] {
@@ -100,6 +94,7 @@ trait Set[T] extends Predicate[T] with KeyedStructure[T, Set[T]] { self =>
     def containsKey(x: T) = self.contains(x)
   }
 
+  def createGraphBy[V, E](fv: T => V)(fe: (T, T) => Option[E]) = ???
 
   override def filterKeys(f: T => Boolean): Set[T] = new AbstractSet[T] {
     def equivOnKey = self.equivOnKey
@@ -129,7 +124,6 @@ object Set {
 
   /**
    * Creates an empty set of a specific type.
- *
    * @tparam T Type
    * @return An empty set
    */

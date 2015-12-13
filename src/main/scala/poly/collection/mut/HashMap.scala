@@ -39,7 +39,7 @@ object HashMap extends MapFactory[HashMap] {
     private val data = new java.util.HashMap[K, V]()
     scala.collection.mutable.HashMap
     def sizeHint(n: Int) = {}
-    def +=(x: (K, V)) = data.put(x._1, x._2)
+    def add(x: (K, V)) = data.put(x._1, x._2)
     def result = new HashMap[K, V](data)
   }
 }

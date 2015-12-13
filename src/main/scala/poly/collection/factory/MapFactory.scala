@@ -15,7 +15,7 @@ trait MapFactory[M[_, _]] {
   def apply[K, V](kvs: (K, V)*): M[K, V] = {
     val b = newBuilder[K, V]
     b.sizeHint(kvs.length)
-    b ++= kvs
+    b addAll kvs
     b.result
   }
 

@@ -38,7 +38,7 @@ object UndirectedGraph {
   type Node[K, +V] = BiGraph.Node[K, V]
 
   class Edge[K, +E](override val graph: UndirectedGraph[K, _, E], override val key1: K, override val key2: K) extends Graph.Edge(graph, key1, key2) with Set[K] {
-    def equivOnKey = ??? //TODO:!!!
+    def equivOnKey = graph.equivOnKey
     override def equals(that: Any) = that match {
         case that: UndirectedGraph.Edge[K, E] =>
           (this.key1 == that.key1 && this.key2 == that.key2) ||

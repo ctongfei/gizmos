@@ -8,8 +8,12 @@ import poly.collection._
  */
 trait RemovableBuilder[-T, +C] extends Builder[T, C] {
 
-  def -=(x: T): Unit
+  def remove(x: T): Unit
 
-  def --=(xs: Traversable[T]) = xs foreach -=
+  def removeAll(xs: Traversable[T]) = xs foreach remove
+
+  def -=(x: T) = remove(x)
+
+  def --=(xs: Traversable[T]) = xs foreach remove
 
 }

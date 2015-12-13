@@ -20,14 +20,14 @@ trait CollectionFactoryWithAdditiveGroup[+C[_]] {
   /** Creates a collection by adding the arguments into it. */
   def apply[T: AdditiveGroup](xs: T*): C[T] = {
     val b = newBuilder[T]
-    b ++= xs
+    b addAll xs
     b.result
   }
 
   /** Creates a collection by adding all the elements in the specific traversable sequence. */
   def from[T: AdditiveGroup](xs: Traversable[T]): C[T] = {
     val b = newBuilder[T]
-    b ++= xs
+    b addAll xs
     b.result
   }
 

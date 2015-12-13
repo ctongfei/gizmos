@@ -34,7 +34,7 @@ object ListBiSeq extends SeqFactory[ListBiSeq] {
 
   implicit def newBuilder[T]: Builder[T, ListBiSeq[T]] = new Builder[T, ListBiSeq[T]] {
     val a = new DoublyLinkedList[T]()
-    def +=(x: T) = a appendInplace x
+    def add(x: T) = a appendInplace x
     def result = new ListBiSeq[T](a)
     def sizeHint(n: Int) = {}
   }

@@ -28,7 +28,7 @@ object HashSet extends CollectionFactory[HashSet] {
 
   implicit def newBuilder[T]: Builder[T, HashSet[T]] = new Builder[T, HashSet[T]] {
     private[this] var js = new java.util.HashSet[T]()
-    def +=(x: T) = js.add(x)
+    def add(x: T) = js.add(x)
     def result = new HashSet[T](js)
     def sizeHint(n: Int) = js = new java.util.HashSet[T](n)
   }

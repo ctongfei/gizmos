@@ -15,7 +15,7 @@ trait SetFactory[S[_]] {
   def apply[K](ks: K*): S[K] = {
     val b = newBuilder[K]
     b.sizeHint(ks.length)
-    b ++= ks
+    b addAll ks
     b.result
   }
 

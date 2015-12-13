@@ -34,7 +34,7 @@ object BinaryHeapPriorityQueue extends CollectionFactoryWithOrder[BinaryHeapPrio
   implicit def newBuilder[T:WeakOrder]: Builder[T, BinaryHeapPriorityQueue[T]] = new Builder[T, BinaryHeapPriorityQueue[T]] {
     private[this] val data = new ResizableSeq[T]()
     def sizeHint(n: Int): Unit = data.ensureCapacity(n)
-    def +=(x: T): Unit = data.appendInplace(x)
+    def add(x: T): Unit = data.appendInplace(x)
 
     // heap building algorithm
     def result: BinaryHeapPriorityQueue[T] = {

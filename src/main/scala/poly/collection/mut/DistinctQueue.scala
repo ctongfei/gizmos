@@ -1,6 +1,7 @@
 package poly.collection.mut
 
 import poly.collection.builder._
+import scala.language.higherKinds
 
 /**
   * @author Tongfei Chen
@@ -24,6 +25,7 @@ class DistinctQueue[Q[A] <: Queue[A], T] private(private val inner: Q[T]) extend
 
 object DistinctQueue {
   def apply[Q[A] <: Queue[A], T](xs: T*)(implicit b: Builder[T, Q[T]]): DistinctQueue[Q, T] = {
+    xs foreach b.add
     new DistinctQueue[Q, T](b.result)
   }
 }

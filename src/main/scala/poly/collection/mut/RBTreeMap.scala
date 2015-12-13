@@ -48,6 +48,6 @@ object RBTreeMap extends SortedMapFactory[RBTreeMap] {
       })
       def sizeHint(n: Int) = {}
       def result = new RBTreeMap(data)
-      def +=(x: (K, V)) = data.put(x._1, x._2)
+      def add(x: (K, V)) = data.put(x._1, x._2)
     }
 }

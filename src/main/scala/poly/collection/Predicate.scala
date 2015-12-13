@@ -2,13 +2,13 @@ package poly.collection
 
 import poly.algebra._
 import poly.algebra.hkt._
-import poly.algebra.hkt.ops._
+import scala.language.implicitConversions
 
 /**
  * Represents a pure, mathematical set (equivalent to a predicate).
- * A predicate set is contravariant on its type parameter and cannot be enumerated.
+ * A predicate set is contravariant on its type parameter and cannot be iterated.
  *
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  * @since 0.1.0
  */
 trait Predicate[-T] extends (T => Boolean) { self =>
@@ -18,23 +18,25 @@ trait Predicate[-T] extends (T => Boolean) { self =>
   def contains(x: T): Boolean
 
   def unary_! : Predicate[T] = new Predicate[T] {
-    def contains(x: T) = !self.contains(x)
+    def contains(x: T) = !self(x)
   }
 
   def &[U <: T](that: Predicate[U]): Predicate[U] = new Predicate[U] {
-    def contains(x: U) = self.contains(x) && that.contains(x)
+    def contains(x: U) = self(x) && that(x)
   }
 
   def |[U <: T](that: Predicate[U]): Predicate[U] = new Predicate[U] {
-    def contains(x: U) = self.contains(x) || that.contains(x)
+    def contains(x: U) = self(x) || that(x)
   }
 
   def contramap[U](f: U => T): Predicate[U] = new Predicate[U] {
-    def contains(x: U) = self.contains(f(x))
+    def contains(x: U) = self(f(x))
   }
 }
 
 object Predicate {
+
+  // CONSTRUCTORS
 
   object empty extends Predicate[Any] {
     def contains(x: Any) = false
@@ -43,6 +45,14 @@ object Predicate {
   def universal[T]: Predicate[T] = new Predicate[T] {
     def contains(x: T) = true
   }
+
+  // IMPLICIT CONVERSIONS
+
+  implicit def fromFuncToBool[T](f: T => Boolean): Predicate[T] = new Predicate[T] {
+    def contains(x: T) = f(x)
+  }
+
+  // TYPECLASS INSTANCES
 
   /** Predicate sets form a contravariant functor. */
   implicit object ContravariantFunctor extends ContravariantFunctor[Predicate] {
@@ -57,6 +67,6 @@ object Predicate {
     def or(x: Predicate[T], y: Predicate[T]) = x | y
     def bot = Predicate.empty
   }
-  // Order will not be implemented: not computationally feasible on a Turing machine!
+  // Order or Equiv will not be implemented: not computationally feasible on a Turing machine!
 
 }

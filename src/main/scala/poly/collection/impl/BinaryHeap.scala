@@ -35,7 +35,7 @@ class BinaryHeap[T](val data: ResizableSeq[T])(implicit val order: WeakOrder[T])
     var p = i
     var c = smallerChildIndex(p)
     val t = data(p)
-    while (c < data.fastLength && t > data(c)) {
+    while (c < data.length && t > data(c)) {
       data(p) = data(c)
       p = c
       c = smallerChildIndex(p)
@@ -50,17 +50,17 @@ class BinaryHeap[T](val data: ResizableSeq[T])(implicit val order: WeakOrder[T])
 
   def pop(): T = {
     val front = data(0)
-    data.swapInplace(0, data.fastLength - 1)
-    data.deleteAt(data.fastLength - 1)
-    if (data.fastLength > 1) siftDown(0)
+    data.swapInplace(0, data.length - 1)
+    data.deleteAt(data.length - 1)
+    if (data.length > 1) siftDown(0)
     front
   }
 
-  def top = if (size <= 0) throw new QueueEmptyException else data(0)
+  def top = if (data.length <= 0) throw new QueueEmptyException else data(0)
 
   def newIterator = data.newIterator
 
-  override def size: Int = data.fastLength
+  override def size: Int = data.length
 
 }
 

@@ -130,7 +130,7 @@ trait Traversable[+T] { self =>
   def partition(f: T => Boolean): (Seq[T], Seq[T]) = {
     val l, r = ArraySeq.newBuilder[T]
     for (x ← self)
-      if (f(x)) l += x else r += x
+      if (f(x)) l add x else r add x
     (l.result, r.result)
   }
 
@@ -665,7 +665,7 @@ trait Traversable[+T] { self =>
   def build[S](implicit builder: Builder[T, S]): S = {
     val b = builder
     if (self.isInstanceOf[HasKnownSize]) b.sizeHint(size)
-    b ++= self
+    b addAll self
     b.result
   }
 
@@ -744,8 +744,8 @@ object Traversable {
       val ak = ArraySeq.newBuilder[K]
       val av = ArraySeq.newBuilder[V]
       for ((k, v) ← underlying) {
-        ak += k
-        av += v
+        ak add k
+        av add v
       }
       (ak.result, av.result)
     }
