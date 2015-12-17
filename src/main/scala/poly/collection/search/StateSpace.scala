@@ -40,7 +40,7 @@ trait StateSpace[S] extends Keyed[S] {
 
 object StateSpace {
 
-  private def searchByIterator[S, N <: WithParent[S]](si: SearchIterator[N, S], goal: S => Boolean): Seq[S] = {
+  private[collection] def searchByIterator[S, N <: WithParent[S]](si: SearchIterator[N, S], goal: S => Boolean): Seq[S] = {
     while (si.advance())
       if (goal(si.current))
         return si.currentNode.pathToRoot.map(_.data).reverse
