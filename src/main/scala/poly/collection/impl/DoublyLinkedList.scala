@@ -6,7 +6,7 @@ import poly.collection.node._
 
 /**
  * A doubly linked list.
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  */
 class DoublyLinkedList[T] extends BiSeq[T] with KeyMutableSeq[T] {
 

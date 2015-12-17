@@ -1,5 +1,6 @@
 package poly.collection.mut
 
+import poly.collection._
 import poly.collection.builder._
 import scala.language.higherKinds
 
@@ -13,6 +14,16 @@ class DistinctQueue[Q[A] <: Queue[A], T] private(private val inner: Q[T]) extend
   def push(x: T) = if (!seen(x)) {
     inner push x
     seen add x
+  }
+
+  override def pushAll(xs: Traversable[T]) = {
+    val buf = ArraySeq[T]()
+    for (x ← xs)
+      if (!seen(x)) {
+        seen add x
+        buf appendInplace x
+      }
+    inner pushAll buf
   }
 
   def top = inner.top

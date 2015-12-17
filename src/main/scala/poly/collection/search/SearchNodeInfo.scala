@@ -10,7 +10,7 @@ import poly.collection.node._
  * @tparam N Type of search node
  * @tparam S Type of search state
  * @author Yuhuan Jiang (jyuhuan@gmail.com).
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  * @since 0.1.0
  */
 trait SearchNodeInfo[N, S] {

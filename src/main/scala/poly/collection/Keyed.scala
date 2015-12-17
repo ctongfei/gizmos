@@ -5,7 +5,7 @@ import poly.algebra.specgroup._
 
 /**
  * Marker trait for any structure that contains keys (unique identifiers).
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  * @since 0.1.0
  */
 trait Keyed[@sp(i) K] {

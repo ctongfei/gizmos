@@ -6,7 +6,7 @@ import poly.collection.impl._
 
 /**
  * Serves as a basis for self-balancing binary search trees.
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  */
 class BinarySearchTree[T](implicit val order: WeakOrder[T]) extends LinkedBinaryTree[T] {
 

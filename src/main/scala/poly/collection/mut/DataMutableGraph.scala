@@ -3,7 +3,7 @@ package poly.collection.mut
 import poly.collection._
 
 /**
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  */
 trait DataMutableGraph[K, V, E] extends Graph[K, V, E] {
 

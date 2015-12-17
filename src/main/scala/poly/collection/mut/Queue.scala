@@ -5,7 +5,7 @@ import poly.collection._
 /**
  * Represents a queue.
  *
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  * @since 0.1.0
  */
 trait Queue[T] extends Iterable[T] {

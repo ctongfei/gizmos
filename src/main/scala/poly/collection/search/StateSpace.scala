@@ -2,13 +2,14 @@ package poly.collection.search
 
 import poly.algebra._
 import poly.collection._
+import poly.collection.node._
 import poly.collection.search.node._
 
 /**
   * Represents a space of search states.
   *
   * @author Yuhuan Jiang (jyuhuan@gmail.com).
-  * @author Tongfei Chen (ctongfei@gmail.com).
+  * @author Tongfei Chen
   * @since 0.1.0
   */
 trait StateSpace[S] extends Keyed[S] {
@@ -38,10 +39,12 @@ trait StateSpace[S] extends Keyed[S] {
 }
 
 object StateSpace {
+
   private def searchByIterator[S, N <: WithParent[S]](si: SearchIterator[N, S], goal: S => Boolean): Seq[S] = {
     while (si.advance())
       if (goal(si.current))
         return si.currentNode.pathToRoot.map(_.data).reverse
     Seq.empty
   }
+
 }

@@ -7,7 +7,7 @@ import poly.collection.impl._
 import poly.util.fastloop._
 
 /**
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  */
 class ArrayIntMap[T] private(
   private val data: ResizableArray[Option[T]]

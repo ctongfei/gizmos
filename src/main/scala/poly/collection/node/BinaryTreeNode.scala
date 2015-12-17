@@ -14,7 +14,7 @@ trait BinaryTreeNode[+T] extends TreeNode[T] { self =>
   def left: BinaryTreeNode[T]
   def right: BinaryTreeNode[T]
   def children = ListSeq(left, right).filter(_.notDummy)
-  override def succ: Iterable[BinaryTreeNode[T]] = ListSeq(right, left).filter(_.notDummy)
+  override def succ: Iterable[BinaryTreeNode[T]] = ListSeq(left, right).filter(_.notDummy)
 
 
   /**

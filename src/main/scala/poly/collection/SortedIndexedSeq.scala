@@ -4,7 +4,7 @@ import poly.algebra.ops._
 
 /**
  * Trait for an indexed sorted sequence.
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  */
 trait SortedIndexedSeq[T] extends SortedSeq[T] with IndexedSeq[T] { self =>
 

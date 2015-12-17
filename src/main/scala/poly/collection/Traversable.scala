@@ -19,7 +19,7 @@ import scala.reflect._
 /**
  * Represents a collection whose elements can be traversed through.
  *
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  * @since 0.1.0
  * @define LAZY The resulting collection is lazily executed.
  * @define EAGER The resulting collection is eagerly executed.

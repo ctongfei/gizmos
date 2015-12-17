@@ -4,7 +4,7 @@ import poly.collection._
 import poly.util.specgroup._
 
 /**
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  */
 class AdjacencyListBiGraph[@sp(i) K, V, E] extends BiGraph[K, V, E] {
 

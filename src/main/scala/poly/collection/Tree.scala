@@ -3,14 +3,13 @@ package poly.collection
 import poly.algebra._
 import poly.algebra.hkt._
 import poly.collection.mut._
-import poly.collection.search._
 import poly.util.typeclass._
 import poly.util.typeclass.ops._
 import poly.collection.node._
 
 /**
  * Represents a multi-way tree.
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  * @since 0.1.0
  */
 trait Tree[+T] { self =>
@@ -54,11 +53,9 @@ trait Tree[+T] { self =>
 
   def subtrees: Tree[Tree[T]] = ???
 
-  def preOrder: Iterable[T] = Iterable.ofIterator {
-    new DepthFirstTreeIterator[ForwardNode[T]](ForwardNode.StateSpace[T], rootNode)
-  }.map(_.data)
+  def preOrder: Iterable[T] = rootNode.depthFirstTreeTraversal
 
-  def levelOrder: Iterable[T] = ??? // BFS
+  def levelOrder: Iterable[T] = rootNode.breadthFirstTreeTraversal
 
   //endregion
 }

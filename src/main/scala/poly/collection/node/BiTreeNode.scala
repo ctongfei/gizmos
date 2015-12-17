@@ -4,12 +4,11 @@ import poly.collection._
 import poly.collection.mut._
 
 /**
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  */
 trait BiTreeNode[+T] extends BiNode[T] with TreeNode[T] with NodeWithParent[T] { self =>
 
   override def isDummy = false
-  override def notDummy = !isDummy
 
   def parent: BiTreeNode[T]
   override def pred = ListSeq(parent).filter(_.notDummy)

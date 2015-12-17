@@ -12,7 +12,7 @@ import poly.util.specgroup._
  * The difference between this class and [[scala.collection.immutable.Range]] is that
  * [[poly.collection.Range]] will attempt to inline the loop body when iterating over
  * the range using macros, which potentially makes it more efficient.
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  * @since 0.1.0
  */
 class Range private(

@@ -13,24 +13,20 @@ import scala.language.implicitConversions
  */
 trait Predicate[-T] extends (T => Boolean) { self =>
 
-  def apply(x: T) = contains(x)
-
-  def contains(x: T): Boolean
-
   def unary_! : Predicate[T] = new Predicate[T] {
-    def contains(x: T) = !self(x)
+    def apply(x: T) = !self(x)
   }
 
   def &[U <: T](that: Predicate[U]): Predicate[U] = new Predicate[U] {
-    def contains(x: U) = self(x) && that(x)
+    def apply(x: U) = self(x) && that(x)
   }
 
   def |[U <: T](that: Predicate[U]): Predicate[U] = new Predicate[U] {
-    def contains(x: U) = self(x) || that(x)
+    def apply(x: U) = self(x) || that(x)
   }
 
   def contramap[U](f: U => T): Predicate[U] = new Predicate[U] {
-    def contains(x: U) = self(f(x))
+    def apply(x: U) = self(f(x))
   }
 }
 
@@ -39,17 +35,17 @@ object Predicate {
   // CONSTRUCTORS
 
   object empty extends Predicate[Any] {
-    def contains(x: Any) = false
+    def apply(x: Any) = false
   }
 
   def universal[T]: Predicate[T] = new Predicate[T] {
-    def contains(x: T) = true
+    def apply(x: T) = true
   }
 
   // IMPLICIT CONVERSIONS
 
   implicit def fromFuncToBool[T](f: T => Boolean): Predicate[T] = new Predicate[T] {
-    def contains(x: T) = f(x)
+    def apply(x: T) = f(x)
   }
 
   // TYPECLASS INSTANCES

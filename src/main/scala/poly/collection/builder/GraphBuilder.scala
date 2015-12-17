@@ -6,7 +6,7 @@ import poly.collection._
   * The base trait for graph builders, which are objects that allow
  * incremental construction of graphs.
  *
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  * @since 0.1.0
  */
 trait GraphBuilder[-K, -V, -E, +G] {

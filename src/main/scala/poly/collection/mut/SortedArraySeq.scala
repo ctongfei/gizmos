@@ -9,7 +9,7 @@ import poly.util.specgroup._
 import scala.reflect._
 
 /**
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  */
 class SortedArraySeq[T] private(private val data: SortedArray[T]) extends MutableSortedIndexedSeq[T] {
 

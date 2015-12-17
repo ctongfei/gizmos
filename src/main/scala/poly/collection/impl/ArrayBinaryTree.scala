@@ -7,7 +7,7 @@ import poly.collection.node._
 
 /**
  * A binary tree stored in an array.
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  */
 class ArrayBinaryTree[T] (
   private[poly] val data: ResizableSeq[T],

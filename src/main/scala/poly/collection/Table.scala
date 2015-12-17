@@ -4,7 +4,7 @@ import poly.algebra._
 
 /**
  * Represents a table, which is an indexed 2-D array.
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  */
 trait Table[+T] extends Map[(Int, Int), T] { self =>
 

@@ -10,7 +10,7 @@ import scala.util._
  * Basic trait for mutable indexed sequences.
  * Fast random access and update should be guaranteed.
  *
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  */
 trait DataMutableIndexedSeq[T] extends DataMutableSeq[T] with IndexedSeq[T] {
 

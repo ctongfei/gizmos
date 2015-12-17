@@ -11,11 +11,9 @@ trait BiNode[+T] extends ForwardNode[T] with BackwardNode[T] { self =>
   def succ: Iterable[BiNode[T]]
   def pred: Iterable[BiNode[T]]
 
-  override def notDummy = !isDummy
-
   override def reverse: BiNode[T] = new BiNode[T] {
-    def pred = self.succ.map(_.reverse)
     def data = self.data
+    def pred = self.succ.map(_.reverse)
     def succ = self.pred.map(_.reverse)
     override def reverse = self
     def isDummy = self.isDummy

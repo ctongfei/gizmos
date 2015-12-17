@@ -4,20 +4,20 @@ import scala.language.implicitConversions
 
 package object collection {
 
-  @inline def default[T]: T = {
-    class Default {
-      var default: T = _
-    }
-    (new Default).default
-  }
-
   /** Returns the first element of a pair. */
   @inline def first[A, B](pair: (A, B)) = pair._1
 
   /** Returns the second element of a pair. */
   @inline def second[A, B](pair: (A, B)) = pair._2
+
+  @inline private[poly] def default[T]: T = {
+    class Default {
+      var default: T = _
+    }
+    (new Default).default
+  }
   
-  private[collection] def nextPowerOfTwo(x: Int): Int = {
+  private[poly] def nextPowerOfTwo(x: Int): Int = {
     var c = x - 1
     c |= c >>> 1
     c |= c >>> 2

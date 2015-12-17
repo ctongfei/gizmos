@@ -12,7 +12,7 @@ import scala.reflect._
 /**
  * A Fenwick tree.
  *
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  * @since 0.1.0
  */
 class FenwickTree[T] private(private val data: ResizableSeq[T])

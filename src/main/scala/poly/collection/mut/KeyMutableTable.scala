@@ -3,7 +3,7 @@ package poly.collection.mut
 import poly.collection._
 
 /**
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  */
 trait KeyMutableTable[T] extends DataMutableTable[T] {
   def clear(): Unit

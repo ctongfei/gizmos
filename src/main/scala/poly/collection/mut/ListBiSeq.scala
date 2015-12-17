@@ -7,7 +7,7 @@ import poly.collection.impl._
 import poly.collection.node._
 
 /**
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  */
 class ListBiSeq[T] private(private val data: DoublyLinkedList[T]) extends AbstractBiSeq[T] with KeyMutableSeq[T] with HasKnownSize {
 

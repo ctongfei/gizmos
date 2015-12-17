@@ -6,7 +6,7 @@ import poly.collection.mut._
 /**
  * Represents a node that has at most two successors and at most one predecessor.
  * It is the type of nodes in a binary tree with a parent pointer.
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  * @since 0.1.0
  */
 trait BiBinaryTreeNode[+T] extends BiNode[T] with BinaryTreeNode[T] with NodeWithParent[T] { self =>
@@ -17,7 +17,7 @@ trait BiBinaryTreeNode[+T] extends BiNode[T] with BinaryTreeNode[T] with NodeWit
   def parent: BiBinaryTreeNode[T]
 
   override def pred: Iterable[BiBinaryTreeNode[T]] = ListSeq(parent).filter(_.notDummy)
-  override def succ: Iterable[BiBinaryTreeNode[T]] = ListSeq(right, left).filter(_.notDummy)
+  override def succ: Iterable[BiBinaryTreeNode[T]] = ListSeq(left, right).filter(_.notDummy)
 
 
   override def map[U](f: T => U): BiBinaryTreeNode[U] = new BiBinaryTreeNode[U] {

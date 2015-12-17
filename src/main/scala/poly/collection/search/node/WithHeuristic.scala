@@ -9,7 +9,7 @@ import poly.collection.search._
   * Represents a node in the fringe / open set of a searching algorithm.
   *
   * @author Yuhuan Jiang (jyuhuan@gmail.com).
-  * @author Tongfei Chen (ctongfei@gmail.com).
+  * @author Tongfei Chen
   */
 trait WithHeuristic[S, C] extends WithParent[S] {
 
@@ -47,6 +47,6 @@ object WithHeuristic extends WithHeuristicLowPriorityImplicits {
   }
 }
 
-trait WithHeuristicLowPriorityImplicits {
+private[collection] trait WithHeuristicLowPriorityImplicits {
   implicit def order[S, C: OrderedAdditiveGroup]: WeakOrder[WithHeuristic[S, C]] = WeakOrder.by(_.h)
 }

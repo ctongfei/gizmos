@@ -3,7 +3,7 @@ package poly.collection.impl
 import poly.collection._
 
 /**
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  */
 final class ResizableArray[T]
 (private[this] var cap: Int = Settings.ArrayInitialSize) { self =>

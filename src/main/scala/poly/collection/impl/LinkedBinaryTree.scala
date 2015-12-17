@@ -5,7 +5,7 @@ import poly.collection.node._
 
 /**
  * A linked binary tree with parent pointer.
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  * @since 0.1.0
  */
 class LinkedBinaryTree[T] extends BinaryTree[T] {
@@ -144,7 +144,7 @@ class LinkedBinaryTree[T] extends BinaryTree[T] {
 
 object LinkedBinaryTree {
 
-  case class Node[T] (
+  class Node[T] (
     var data: T,
     var left: Node[T],
     var right: Node[T],

@@ -11,7 +11,7 @@ import poly.collection.node._
   * @tparam S Type of search state
   * @tparam C Type of path cost
   * @author Yuhuan Jiang (jyuhuan@gmail.com).
-  * @author Tongfei Chen (ctongfei@gmail.com).
+  * @author Tongfei Chen
   * @since 0.1.0
   */
 trait WeightedSearchNodeInfo[N, S, C] {

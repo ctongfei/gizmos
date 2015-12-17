@@ -3,7 +3,7 @@ package poly.collection
 /**
  * Represents an indexed binary tree (e.g. an array binary tree)
  * where fast random access is possible for its canonical index.
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  * @since 0.1.0
  */
 trait IndexedBinaryTree[+T] extends BinaryTree[T] {

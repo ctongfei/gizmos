@@ -8,7 +8,7 @@ import scala.language.higherKinds
   * The base trait for builders, which are objects that allow
   * incremental construction of other structures (e.g. collections, models).
   *
-  * @author Tongfei Chen (ctongfei@gmail.com).
+  * @author Tongfei Chen
   * @since 0.1.0
   */
 @scala.annotation.implicitNotFound("Cannot find the builder to build ${C} from ${T}.")

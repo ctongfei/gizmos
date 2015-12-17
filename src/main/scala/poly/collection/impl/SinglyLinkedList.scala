@@ -14,7 +14,7 @@ import poly.collection.node._
  *  - Insertion at any index: O(''n'') (searching) + O(1) (insertion)
  *  - Removing at any index: O(''n'') (searching) + O(1) (removing)
  *
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  */
 class SinglyLinkedList[T] extends Seq[T] with KeyMutableSeq[T] {
 

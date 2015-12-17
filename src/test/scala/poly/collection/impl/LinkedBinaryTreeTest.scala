@@ -37,6 +37,9 @@ object LinkedBinaryTreeTest extends App {
     val o2 = T.inOrder
     val o3 = T.postOrder
 
+    T.rootNode.depthFirstSearch(_ == 9) foreach println
+
+
     val breakpoint = 0
 
 }

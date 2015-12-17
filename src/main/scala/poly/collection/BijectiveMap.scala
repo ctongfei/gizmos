@@ -4,7 +4,7 @@ import poly.algebra._
 
 /**
  * Represents a bijective map, which is used to model one-to-one correspondence.
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  * @since 0.1.0
  */
 trait BijectiveMap[K, V] extends Map[K, V] with Bijection[K, V] { self =>

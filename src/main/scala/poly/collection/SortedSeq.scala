@@ -9,7 +9,7 @@ import poly.collection.node._
 import scala.reflect._
 
 /**
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  */
 trait SortedSeq[T] extends Seq[T] with SortedIterable[T] { self =>
 

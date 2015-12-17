@@ -5,7 +5,7 @@ import poly.algebra.ops._
 import poly.collection._
 
 /**
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  */
 class HashTable[K, V](implicit val hashing: IntHashing[K]) {
 

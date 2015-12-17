@@ -18,7 +18,7 @@ import poly.collection.mut._
  *  Poly-collection adopts the C++/C# style of iterators instead of the Java/Scala style
  *  for ease of implementing lazy search algorithms and lazy stream operations.
  *
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  * @since 0.1.0
  */
 trait Iterator[+T] { self =>

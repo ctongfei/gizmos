@@ -17,7 +17,7 @@ object SearchTest extends App {
     def equivOnState = Equiv.default[Int]
   }
 
-  ss.breadthFirstTraversal(0) foreach println
+  ss.depthFirstTraversal(0) foreach println
 
 
 }

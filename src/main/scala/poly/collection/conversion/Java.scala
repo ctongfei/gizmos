@@ -7,7 +7,7 @@ import poly.collection.mut._
 import scala.language.implicitConversions
 
 /**
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  */
 object Java {
 
@@ -48,7 +48,7 @@ object Java {
     def remove(x: K): Unit = jm.remove(x)
     def update(x: K, y: V): Unit = jm.put(x, y)
     def ?(x: K): Option[V] = Option(jm.get(x))
-    def pairs: Iterable[(K, V)] = jm.entrySet.map(e => e.getKey → e.getValue)
+    def pairs: Iterable[(K, V)] = jm.entrySet().elements.map(e => e.getKey → e.getValue)
     def size = jm.size
     def apply(x: K): V = jm.get(x)
     def containsKey(x: K): Boolean = jm.containsKey(x)

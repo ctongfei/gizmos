@@ -13,7 +13,7 @@ import scala.language.implicitConversions
  *
  * `Iterable`s differ from `Traversable`s in that the iteration process can be controlled:
  * It can be paused or resumed by the user.
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  * @since 0.1.0
  */
 trait Iterable[+T] extends Traversable[T] { self =>

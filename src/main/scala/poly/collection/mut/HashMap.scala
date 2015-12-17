@@ -8,7 +8,7 @@ import poly.collection.factory._
 import scala.collection.JavaConverters._
 
 /**
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  */
 class HashMap[K, V] private(private val data: java.util.HashMap[K, V]) extends KeyMutableMap[K, V] {
 

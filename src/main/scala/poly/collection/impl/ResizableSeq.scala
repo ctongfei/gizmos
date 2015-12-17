@@ -21,7 +21,7 @@ import scala.reflect._
  *
  * This class serves as the basic building block for a series of structures in Poly-collection.
  *
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  */
 final class ResizableSeq[T]
   (private[this] var cap: Int = Settings.ArrayInitialSize) extends KeyMutableSeq[T] with DataMutableIndexedSeq[T]

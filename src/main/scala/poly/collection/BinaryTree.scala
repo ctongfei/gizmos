@@ -9,7 +9,7 @@ import poly.util.typeclass.ops._
 
 /**
  * Represents a binary tree.
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  * @since 0.1.0
  */
 trait BinaryTree[+T] extends Tree[T] with PartialFunction[Int, T] { self =>

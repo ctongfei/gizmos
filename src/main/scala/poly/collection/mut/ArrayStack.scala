@@ -11,7 +11,7 @@ import scala.reflect._
 /**
  * An array-backed stack.
  *
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  */
 class ArrayStack[T] private(private var data: ResizableSeq[T] = null) extends Queue[T] {
 
@@ -20,6 +20,11 @@ class ArrayStack[T] private(private var data: ResizableSeq[T] = null) extends Qu
   override def size = data.fastLength
 
   def push(x: T): Unit = data.appendInplace(x)
+
+  override def pushAll(xs: Traversable[T]) = {
+    val reversed = xs.reverse
+    reversed foreach push
+  }
 
   def top: T = {
     if (isEmpty) throw new QueueEmptyException

@@ -6,7 +6,7 @@ import scala.reflect.ClassTag
 /**
  * Contains common constructors for sequences.
  * This trait should be inherited by companion objects of sequence implementation classes.
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  */
 trait SeqFactory[+C[_]] extends CollectionFactory[C] {
 

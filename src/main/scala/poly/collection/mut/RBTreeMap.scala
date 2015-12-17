@@ -11,7 +11,7 @@ import poly.collection.factory._
 /**
   * Represents a map backed by a red-black tree. This class is currently a wrapper of `java.util.TreeMap`.
  *
-  * @author Tongfei Chen (ctongfei@gmail.com).
+  * @author Tongfei Chen
   */
 class RBTreeMap[K, V] private(val data: java.util.TreeMap[K, V]) extends KeyMutableMap[K, V] with SortedMap[K, V] {
 
@@ -27,7 +27,7 @@ class RBTreeMap[K, V] private(val data: java.util.TreeMap[K, V]) extends KeyMuta
 
   def pairs = new SortedIterable[(K, V)] {
     implicit def orderOnValue = orderOnKey contramap first
-    def newIterator = data.entrySet().map(e => (e.getKey, e.getValue)).newIterator
+    def newIterator = data.entrySet().elements.map(e => (e.getKey, e.getValue)).newIterator
   }
 
   def orderOnKey = data.comparator()

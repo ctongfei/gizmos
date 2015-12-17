@@ -4,7 +4,7 @@ import poly.algebra.specgroup._
 
 /**
   * Represents a data structure that can be indexed by keys of a specific type.
-  * @author Tongfei Chen (ctongfei@gmail.com).
+  * @author Tongfei Chen
   * @since 0.1.0
   */
 trait KeyedStructure[@sp(i) K, +Coll <: KeyedStructure[K, Coll]] extends Keyed[K] {
@@ -14,6 +14,8 @@ trait KeyedStructure[@sp(i) K, +Coll <: KeyedStructure[K, Coll]] extends Keyed[K
 
   /** Returns an iterable sequence of all the keys in this structure. */
   def keys: Iterable[K]
+
+  def keySet: Set[K]
 
   /**
     * Returns the restricted substructure obtained by choosing a smaller domain for the key.

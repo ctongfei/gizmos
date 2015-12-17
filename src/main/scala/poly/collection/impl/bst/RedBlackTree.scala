@@ -9,7 +9,7 @@ import poly.collection.mut._
 /**
  * A red-black tree.
  *
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  */
 abstract class RedBlackTree[K, V](implicit val order: WeakOrder[K]) extends KeyMutableMap[K, V] {
 

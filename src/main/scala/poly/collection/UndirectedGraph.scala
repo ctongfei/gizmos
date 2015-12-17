@@ -4,7 +4,7 @@ import poly.collection.mut._
 
 /**
  * Represents an undirected graph.
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  */
 trait UndirectedGraph[K, +V, +E] extends BiGraph[K, V, E] { self =>
 

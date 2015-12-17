@@ -7,7 +7,7 @@ import poly.algebra.ops._
 /**
  * A key-value pair used in maps.
  * The key in a pair is immutable; whereas the value is mutable.
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  */
 private[poly] class KeyValuePair[@sp(i) K, V](val key: K, var value: V) extends Product2[K, V] {
 

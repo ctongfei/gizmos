@@ -6,7 +6,7 @@ import poly.collection.exception._
 import poly.collection.impl._
 
 /**
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  */
 class ListMap[K, V] private(private val data: SinglyLinkedList[KeyValuePair[K, V]])(implicit val equivOnKey: Equiv[K]) extends KeyMutableMap[K, V] {
 

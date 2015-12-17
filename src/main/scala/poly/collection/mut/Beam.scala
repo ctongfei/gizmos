@@ -7,7 +7,7 @@ import scala.language.higherKinds
 
 /**
  *
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  */
 class Beam[T] private(k: Int, val pq: PriorityQueue[T]) extends Iterable[T] with HasKnownSize {
 

@@ -1,7 +1,7 @@
 package poly.collection
 
 /**
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  */
 trait Multimap[K, V] extends Iterable[(K, V)] {
 

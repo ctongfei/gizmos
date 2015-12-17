@@ -9,7 +9,7 @@ import scala.reflect._
 
 /**
  * An circular array.
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  */
 class CircularArray[T](private val data: ResizableSeq[T]) {
 

@@ -8,7 +8,7 @@ import poly.collection.mut._
 /**
  * Represents an iterable collection that is sorted according to a specific weak order
  * every time it is iterated.
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  * @since 0.1.0
  */
 trait SortedIterable[T] extends Iterable[T] { self =>

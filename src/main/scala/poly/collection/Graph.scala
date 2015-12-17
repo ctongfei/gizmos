@@ -16,7 +16,7 @@ import scala.annotation.unchecked.{uncheckedVariance => uv}
  * @tparam K Type of keys
  * @tparam V Type of data associated with vertices
  * @tparam E Type of data associated with edges
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  * @since 0.1.0
  */
 trait Graph[@sp(i) K, +V, +E] extends KeyedStructure[K, Graph[K, V, E]] with StateSpace[K] { self =>
@@ -68,6 +68,8 @@ trait Graph[@sp(i) K, +V, +E] extends KeyedStructure[K, Graph[K, V, E]] with Sta
 
   def succ(i: K) = outgoingKeysOf(i)
 
+  def adjacent(i: K, j: K) = containsEdge(i, j)
+
   // HELPER FUNCTIONS
 
   def mapNodes[V1](f: V => V1): Graph[K, V1, E] = new AbstractGraph[K, V1, E] {
@@ -116,6 +118,16 @@ trait Graph[@sp(i) K, +V, +E] extends KeyedStructure[K, Graph[K, V, E]] with Sta
     def outgoingKeysOf(i: K) = ??? // self.outgoingKeysOf(i) intersect that.outgoingKeysOf(i)
     def keySet = self.keySet & that.keySet
   }
+
+  def generalProduct[K1, V1, E1](that: Graph[K1, V1, E1])(fe: (K, K, K1, K1) => Boolean): Graph[(K, K1), (V, V1), (E, E1)] =
+    new AbstractGraph[(K, K1), (V, V1), (E, E1)] {
+      def apply(k: (K, K1)) = (self(k._1), that(k._2))
+      def containsNode(k: (K, K1)) = self.containsNode(k._1) && that.containsNode(k._2)
+      def containsEdge(i: (K, K1), j: (K, K1)) = fe(i._1, j._1, i._2, j._2)
+      def apply(i: (K, K1), j: (K, K1)) = (self(i._1, j._1), that(i._2, j._2))
+      def keySet = self.keySet cartesianProduct that.keySet
+      def outgoingKeysOf(i: (K, K1)) = ???
+    }
 
   def to[G[_, _, _]](implicit builder: GraphBuilder[K, V@uv, E@uv, G[K, V@uv, E@uv]]): G[K, V@uv, E@uv] = {
     val b = builder

@@ -3,7 +3,7 @@ package poly.collection.mut
 import poly.algebra._
 
 /**
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  */
 trait PriorityQueue[T] extends Queue[T] {
 

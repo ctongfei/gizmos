@@ -12,22 +12,10 @@ import poly.collection.search._
  * Nodes provide a unified view for lists, trees and graphs, as well as search nodes
  * in searching algorithms provided in package [[poly.collection.search]].
  *
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  * @since 0.1.0
  */
-trait ForwardNode[+T] { self =>
-
-  /** Returns the data on this node. */
-  def data: T
-
-  /** Returns a list of successors of this node. */
-  def succ: Iterable[ForwardNode[T]]
-
-  /** Returns whether this node points to an invalid location. */
-  def isDummy: Boolean
-  def notDummy = !isDummy
-
-  override def toString = if (notDummy) s"Node($data)" else "<dummy>"
+trait ForwardNode[+T] extends Node[T] with ForwardNodeLike[T, ForwardNode[T]] { self =>
 
   def reverse: BackwardNode[T] = new BackwardNode[T] {
     def pred = self.succ.map(_.reverse)
@@ -51,10 +39,6 @@ trait ForwardNode[+T] { self =>
 }
 
 object ForwardNode {
-  implicit def StateSpace[T]: StateSpace[ForwardNode[T]] = new StateSpace[ForwardNode[T]] {
-    def equivOnState = Equiv.byRef[ForwardNode[T]]
-    def succ(x: ForwardNode[T]) = x.succ
-  }
 
   implicit object Functor extends Functor[ForwardNode] {
     def map[X, Y](nx: ForwardNode[X])(f: X => Y): ForwardNode[Y] = nx map f

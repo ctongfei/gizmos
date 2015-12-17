@@ -15,7 +15,7 @@ import poly.collection.search.node._
   * @param fringe A fringe for storing the search nodes
   * @param start Starting state
   * @author Yuhuan Jiang (jyuhuan@gmail.com).
-  * @author Tongfei Chen (ctongfei@gmail.com).
+  * @author Tongfei Chen
   * @since 0.1.0
   */
 abstract class Searcher[S, N](

@@ -12,7 +12,7 @@ import scala.annotation.unchecked.{uncheckedVariance => uv}
 /**
  * Represents sequences that guarantee the same order every time it is traversed,
  * henceforth we can talk about indices on sequences.
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  * @since 0.1.0
  */
 trait Seq[+T] extends SortedMap[Int, T] with Iterable[T] { self =>

@@ -10,7 +10,7 @@ import poly.collection.node._
 import poly.util.specgroup._
 
 /**
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  */
 class AdjacencyListGraph[@sp(i) K, V, E]() extends Graph[K, V, E] {
 

@@ -4,7 +4,7 @@ import poly.algebra._
 import poly.collection._
 
 /**
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  */
 class BitSet extends MutableSet[Int] {
 

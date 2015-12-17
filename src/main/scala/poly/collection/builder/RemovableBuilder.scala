@@ -3,7 +3,7 @@ package poly.collection.builder
 import poly.collection._
 
 /**
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  * @since 0.1.0
  */
 trait RemovableBuilder[-T, +C] extends Builder[T, C] {

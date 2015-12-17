@@ -5,7 +5,7 @@ import poly.collection._
 import poly.collection.factory._
 
 /**
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  */
 class Alphabet[T] private(private val w2i: HashMap[T, Int], private val i2w: ArraySeq[T])(implicit val equivOnKey: Equiv[T])
   extends BijectiveMap[T, Int]

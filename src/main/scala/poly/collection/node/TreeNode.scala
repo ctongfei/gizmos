@@ -3,9 +3,9 @@ package poly.collection.node
 import poly.collection._
 
 /**
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  */
-trait TreeNode[+T] extends ForwardNode[T] { self =>
+trait TreeNode[+T] extends ForwardNode[T] with ForwardNodeLike[T, TreeNode[T]] { self =>
 
   def children: Seq[TreeNode[T]]
 

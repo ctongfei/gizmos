@@ -7,7 +7,7 @@ import poly.collection.impl._
 
 /**
  * A set backed by a linked list.
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  */
 class ListSet[T] private(private val data: SinglyLinkedList[T])(implicit val equivOnKey: Equiv[T]) extends MutableSet[T] {
 

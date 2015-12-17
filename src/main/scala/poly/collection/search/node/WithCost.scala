@@ -10,7 +10,7 @@ import poly.util.specgroup._
  * Represents a node in the fringe / open set of a searching algorithm.
  *
  * @author Yuhuan Jiang (jyuhuan@gmail.com).
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  */
 trait WithCost[S, C] extends WithParent[S] {
   def state: S

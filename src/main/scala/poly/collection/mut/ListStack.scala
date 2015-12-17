@@ -9,7 +9,7 @@ import poly.util.specgroup._
 /**
  * A stack backed by a singly linked list.
  *
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  * @since 0.1.0
  */
 class ListStack[T] private(private var data: SinglyLinkedList[T]) extends Queue[T] with HasKnownSize {

@@ -6,7 +6,7 @@ import scala.{collection => sc}
 import scala.language.implicitConversions
 
 /**
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  */
 object Scala {
 

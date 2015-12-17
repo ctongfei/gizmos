@@ -7,7 +7,7 @@ import poly.collection.conversion.Scala._
 import scala.language.higherKinds
 
 /**
-  * @author Tongfei Chen (ctongfei@gmail.com).
+  * @author Tongfei Chen
   */
 trait SortedMapFactory[M[_, _]] {
 

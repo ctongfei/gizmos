@@ -11,7 +11,7 @@ import scala.reflect._
 /**
  * A binary heap backed priority queue.
  *
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  */
 class BinaryHeapPriorityQueue[T] private(private val heap: BinaryHeap[T]) extends PriorityQueue[T] with HasKnownSize {
 

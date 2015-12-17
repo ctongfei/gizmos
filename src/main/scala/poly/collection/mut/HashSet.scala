@@ -7,7 +7,7 @@ import poly.collection.conversion.Java._
 import poly.collection.factory._
 
 /**
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  */
 class HashSet[T] private(val data: java.util.HashSet[T]) extends MutableSet[T] with HasKnownSize {
 

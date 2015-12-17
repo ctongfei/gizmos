@@ -7,7 +7,7 @@ import poly.collection.node._
  * A union-find disjoint sets structure.
  * This structure keeps track of a set of elements partitioned
  * into a number of disjoint subsets.
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  * @since 0.1.0
  */
 class DisjointSets[T] private() extends Equiv[T] {

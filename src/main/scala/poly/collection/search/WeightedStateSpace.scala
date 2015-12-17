@@ -5,7 +5,7 @@ import poly.collection._
 import poly.util.specgroup._
 
 /**
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  */
 trait WeightedStateSpace[S, @sp(fdi) C] extends StateSpace[S] {
 

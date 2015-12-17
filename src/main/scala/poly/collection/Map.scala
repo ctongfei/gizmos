@@ -10,7 +10,7 @@ import scala.language.reflectiveCalls
  * The base trait for maps.
  * A map is a mapping between a key type (domain) and a value type (codomain).
  * It can also be viewed as a collection of (key, value) pairs, in which each key is unique.
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  * @since 0.1.0
   *
   * @define LAZY The resulting collection will be lazily evaluated.
@@ -98,15 +98,23 @@ trait Map[@sp(i) K, +V] extends KeyedStructure[K, Map[K, V]] with PartialFunctio
    * @param f The specific function
    * @return A map view that maps every key of this map to `f(this(key))`.
    */
-  def map[W](f: V => W): Map[K, W] = new AbstractMap[K, W] {
+  def map[V1](f: V => V1): Map[K, V1] = new AbstractMap[K, V1] {
     def equivOnKey = self.equivOnKey
-    def containsKey(x: K): Boolean = self.containsKey(x)
-    def ?(x: K): Option[W] = (self ? x).map(f)
-    def apply(x: K): W = f(self(x))
+    def containsKey(x: K) = self.containsKey(x)
+    def ?(x: K) = (self ? x).map(f)
+    def apply(x: K) = f(self(x))
     def pairs = self.pairs.map { case (k, v) => (k, f(v)) }
-    def size: Int = self.size
+    def size = self.size
   }
 
+  def cartesianProduct[K1, V1](that: Map[K1, V1]): Map[(K, K1), (V, V1)] = new AbstractMap[(K, K1), (V, V1)] {
+    def equivOnKey = ??? // TODO: poly-algebra: Equiv.product
+    def containsKey(k: (K, K1)) = self.containsKey(k._1) && that.containsKey(k._2)
+    def ?(k: (K, K1)) = for (v ← self ? k._1; v1 ← that ? k._2) yield (v, v1)
+    def apply(k: (K, K1)) = (self(k._1), that(k._2))
+    def pairs = for (k ← self.keys; k1 ← that.keys) yield ((k, k1), (self(k), that(k1)))
+    def size = self.size
+}
 
   /**
    * Zips two maps with the same key type into one. $LAZY
@@ -115,15 +123,13 @@ trait Map[@sp(i) K, +V] extends KeyedStructure[K, Map[K, V]] with PartialFunctio
    * @example {{{Map(1 -> 2, 2 -> 3) zip Map(2 -> 5, 3 -> 6) == Map(2 -> (3, 5))}}}
    * @param that Another map to be zipped
    */
-  def zip[W](that: Map[K, W]): Map[K, (V, W)] = {
-    new AbstractMap[K, (V, W)] {
-      def equivOnKey = self.equivOnKey
-      def apply(x: K): (V, W) = (self(x), that(x))
-      def ?(x: K): Option[(V, W)] = for {v ← self ? x; w ← that ? x} yield (v, w)
-      def pairs = self.pairs filter { case (k, v) => that containsKey k } map { case (k, v) => (k, (v, that(k))) }
-      def size: Int = pairs.size
-      def containsKey(x: K): Boolean = self.containsKey(x) && that.containsKey(x)
-    }
+  def zip[W](that: Map[K, W]): Map[K, (V, W)] = new AbstractMap[K, (V, W)] {
+    def equivOnKey = self.equivOnKey
+    def apply(x: K): (V, W) = (self(x), that(x))
+    def ?(x: K): Option[(V, W)] = for {v ← self ? x; w ← that ? x} yield (v, w)
+    def pairs = self.pairs filter { case (k, v) => that containsKey k } map { case (k, v) => (k, (v, that(k))) }
+    def size: Int = pairs.size
+    def containsKey(x: K): Boolean = self.containsKey(x) && that.containsKey(x)
   }
 
   def |>[W](f: V => W) = self map f

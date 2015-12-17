@@ -5,7 +5,7 @@ import scala.annotation.unchecked.{uncheckedVariance => uv}
 
 /**
  * Represents a map that is sorted by key when enumerated.
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  * @since 0.1.0
  */
 trait SortedMap[K, +V] extends Map[K, V] { self =>

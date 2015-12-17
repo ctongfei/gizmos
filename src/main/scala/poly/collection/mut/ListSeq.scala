@@ -10,7 +10,7 @@ import poly.collection.node._
 /**
  * A sequence backed by a linked list.
  *
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  */
 class ListSeq[T] private(private val data: SinglyLinkedList[T]) extends AbstractSeq[T] with KeyMutableSeq[T] with HasKnownSize {
 

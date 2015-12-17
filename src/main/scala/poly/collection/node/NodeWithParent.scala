@@ -10,7 +10,10 @@ import poly.collection.ops._
  */
 trait NodeWithParent[+T] extends BackwardNode[T] { self =>
   def data: T
+
+  /** Gets the unique parent node of this node. */
   def parent: NodeWithParent[T]
+
   def pred: Iterable[NodeWithParent[T]] = ListSeq(parent).filter(_.notDummy)
 
   override def map[U](f: T => U): NodeWithParent[U] = new NodeWithParent[U] {

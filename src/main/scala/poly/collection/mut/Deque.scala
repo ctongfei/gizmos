@@ -3,7 +3,7 @@ package poly.collection.mut
 /**
  * Represents a double-ended queue.
  *
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  * @since 0.1.0
  */
 trait Deque[T] extends Queue[T] {
