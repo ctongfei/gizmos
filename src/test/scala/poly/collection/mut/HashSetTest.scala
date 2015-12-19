@@ -1,22 +1,40 @@
 package poly.collection.mut
 
+import poly.algebra.syntax._
+import poly.collection._
 import poly.collection.impl._
 import poly.util.typeclass.ops._
+
+import scala._
+import scala.util._
+
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
  */
 object HashSetTest extends App {
 
-  val h = new HashTable[Int, Unit]()
+  val p = HashSet[Double]()
+  val s = scala.collection.mutable.HashSet[Double]()
 
-  h.insert(1)
-  h.insert(4)
-  h.insert(8)
-  h.insert(3)
-  h.locate(-1).println
-  h.locate(3).println
-  h.remove(3)
-  h.locate(3).println
+  val r = new Random()
 
+  for (i ← 0 until 10000) {
+    val x = r.nextGaussian()
+    s += x
+    p add x
+    if (TestUtil.checkSet(s, p)) println(s"CHECKED $i")
+    else throw new RuntimeException()
+  }
+
+  val ss = s.clone()
+
+  var i = 10000
+  for (x ← ss) {
+    s -= x
+    p remove x
+    i -= 1
+    if (TestUtil.checkSet(s, p)) println(s"CHECKED $i")
+    else throw new RuntimeException
+  }
 
 }

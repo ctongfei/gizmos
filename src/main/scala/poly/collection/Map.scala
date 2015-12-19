@@ -47,7 +47,7 @@ trait Map[@sp(i) K, +V] extends KeyedStructure[K, Map[K, V]] with PartialFunctio
   def apply(k: K): V
 
   /** Returns the number of (key, value) pairs this map contains. */
-  def size: Int
+  def size: Int = pairs.size
 
   /**
    * Checks if the specified key is present in this map.
@@ -85,7 +85,6 @@ trait Map[@sp(i) K, +V] extends KeyedStructure[K, Map[K, V]] with PartialFunctio
     def apply(k: K) = if (!f(k)) throw new KeyNotFoundException(k) else self(k)
     def ?(k: K) = if (!f(k)) None else self ? k
     def pairs = self.pairs.filter { case (k, _) => f(k) }
-    def size = pairs.size
     def containsKey(k: K) = if (!f(k)) false else self.containsKey(k)
     def equivOnKey = self.equivOnKey
   }
@@ -104,7 +103,7 @@ trait Map[@sp(i) K, +V] extends KeyedStructure[K, Map[K, V]] with PartialFunctio
     def ?(x: K) = (self ? x).map(f)
     def apply(x: K) = f(self(x))
     def pairs = self.pairs.map { case (k, v) => (k, f(v)) }
-    def size = self.size
+    override def size = self.size
   }
 
   def cartesianProduct[K1, V1](that: Map[K1, V1]): Map[(K, K1), (V, V1)] = new AbstractMap[(K, K1), (V, V1)] {
@@ -113,7 +112,7 @@ trait Map[@sp(i) K, +V] extends KeyedStructure[K, Map[K, V]] with PartialFunctio
     def ?(k: (K, K1)) = for (v ← self ? k._1; v1 ← that ? k._2) yield (v, v1)
     def apply(k: (K, K1)) = (self(k._1), that(k._2))
     def pairs = for (k ← self.keys; k1 ← that.keys) yield ((k, k1), (self(k), that(k1)))
-    def size = self.size
+    override def size = self.size * that.size
 }
 
   /**
@@ -128,7 +127,6 @@ trait Map[@sp(i) K, +V] extends KeyedStructure[K, Map[K, V]] with PartialFunctio
     def apply(x: K): (V, W) = (self(x), that(x))
     def ?(x: K): Option[(V, W)] = for {v ← self ? x; w ← that ? x} yield (v, w)
     def pairs = self.pairs filter { case (k, v) => that containsKey k } map { case (k, v) => (k, (v, that(k))) }
-    def size: Int = pairs.size
     def containsKey(x: K): Boolean = self.containsKey(x) && that.containsKey(x)
   }
 

@@ -418,9 +418,10 @@ trait Traversable[+T] { self =>
 
   /** Returns the unique elements in this collection while retaining its original order. */
   //TODO: should be [U >: T](implicit U: Equiv[U]): Traversable[U], but postponed to later versions
-  def distinct: Traversable[T] = new AbstractTraversable[T] {
+  def distinct: Traversable[T] =  ???
+    /*new AbstractTraversable[T] {
     def foreach[U](f: T => U): Unit = {
-      val set = HashSet[T]()
+      val set = HashSet[T]
       for (x ← self) {
         if (!set.contains(x)) {
           set.add(x)
@@ -428,7 +429,7 @@ trait Traversable[+T] { self =>
         }
       }
     }
-  }
+  }*/
 
   //TODO: should be [U >: T](implicit U: Equiv[U]): Traversable[U], but postponed to later versions
   def union[U >: T](that: Traversable[U]): Traversable[U] = (this concat that).distinct

@@ -27,7 +27,7 @@ trait BijectiveMap[K, V] extends Map[K, V] with Bijection[K, V] { self =>
     def invertOption(k: K) = self ? k
     def ?(v: V) = self.invertOption(v)
     def pairs: Iterable[(V, K)] = self.pairs.map(_.swap)
-    def size = self.size
+    override def size = self.size
     def apply(v: V) = self.invert(v)
     def containsKey(v: V) = self.containsValue(v)
     def containsValue(k: K) = self.containsKey(k)
@@ -42,7 +42,6 @@ trait BijectiveMap[K, V] extends Map[K, V] with Bijection[K, V] { self =>
     def invert(w: W) = self.invert(that.invert(w))
     def invertOption(w: W) = for (v ← that.invertOption(w); k ← self.invertOption(v)) yield k
     def pairs: Iterable[(K, W)] = for (k ← keys; v ← self ? k; w ← that ? v) yield (k, w)
-    def size = pairs.size
     def containsKey(k: K) = (this ? k).isDefined
     def containsValue(w: W) = this.invertOption(w).isDefined
   }

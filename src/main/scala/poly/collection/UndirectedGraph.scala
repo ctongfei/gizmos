@@ -14,17 +14,17 @@ trait UndirectedGraph[K, +V, +E] extends BiGraph[K, V, E] { self =>
 
   override def edge(i: K, j: K) = new Edge(self, i, j)
 
-  def incidentKeysOf(i: K): Iterable[K]
-  def incidentNodesOf(i: K) = incidentKeysOf(i).map(j => node(j))
-  def incidentEdgesOf(i: K) = incidentKeysOf(i).map(j => edge(i, j))
+  def adjacentKeysOf(i: K): Iterable[K]
+  def adjacentNodesOf(i: K) = adjacentKeysOf(i).map(j => node(j))
+  def adjacentEdgesOf(i: K) = adjacentKeysOf(i).map(j => edge(i, j))
 
-  def outgoingKeysOf(v: K): Iterable[K] = incidentKeysOf(v)
-  override def outgoingNodesOf(v: K) = incidentNodesOf(v)
-  override def outgoingEdgesOf(v: K) = incidentEdgesOf(v)
+  def outgoingKeysOf(v: K): Iterable[K] = adjacentKeysOf(v)
+  override def outgoingNodesOf(v: K) = adjacentNodesOf(v)
+  override def outgoingEdgesOf(v: K) = adjacentEdgesOf(v)
 
-  def incomingKeysOf(v: K): Iterable[K] = incidentKeysOf(v)
-  override def incomingNodesOf(v: K) = incidentNodesOf(v)
-  override def incomingEdgesOf(v: K) = incidentEdgesOf(v)
+  def incomingKeysOf(v: K): Iterable[K] = adjacentKeysOf(v)
+  override def incomingNodesOf(v: K) = adjacentNodesOf(v)
+  override def incomingEdgesOf(v: K) = adjacentEdgesOf(v)
 
   override def reverse = self
 
@@ -38,7 +38,6 @@ object UndirectedGraph {
   type Node[K, +V] = BiGraph.Node[K, V]
 
   class Edge[K, +E](override val graph: UndirectedGraph[K, _, E], override val key1: K, override val key2: K) extends Graph.Edge(graph, key1, key2) with Set[K] {
-    def equivOnKey = graph.equivOnKey
     override def equals(that: Any) = that match {
         case that: UndirectedGraph.Edge[K, E] =>
           (this.key1 == that.key1 && this.key2 == that.key2) ||

@@ -2,6 +2,7 @@ package poly.collection.conversion
 
 import java.{lang => jl, util => ju}
 import poly.algebra._
+import poly.algebra.conversion.Java._
 import poly.collection._
 import poly.collection.mut._
 import scala.language.implicitConversions
@@ -41,6 +42,30 @@ object Java {
     def elements = Iterable.ofIterator(xs.iterator())
   }
 
+  implicit def javaSortedSetAsPoly[T](xs: ju.SortedSet[T]): SortedSet[T] = new SortedSet[T] { //TODO:// sorted!
+    def elements = new SortedIterable[T] {
+      implicit def orderOnValue = xs.comparator()
+      def newIterator = xs.iterator()
+    }
+    def contains(x: T) = xs.contains(x)
+  }
+
+  implicit def javaQueueAsPoly[T](xs: ju.Queue[T]): Queue[T] = new Queue[T] {
+    def push(x: T) = xs.add(x)
+    def top = xs.peek()
+    def pop() = xs.remove()
+    def newIterator = xs.iterator()
+  }
+
+  implicit def javaDequeAsPoly[T](xs: ju.Deque[T]): Deque[T] = new Deque[T] {
+    def bottom = xs.peekLast()
+    def popTop() = xs.removeFirst()
+    def popBottom() = xs.removeLast()
+    def push(x: T) = xs.add(x)
+    def top = xs.peekFirst()
+    def newIterator = xs.iterator()
+  }
+
   implicit def javaMapAsPoly[K, V](jm: ju.Map[K, V]): Map[K, V] = new KeyMutableMap[K, V] {
     def equivOnKey = Equiv.default[K]
     def add(x: K, y: V): Unit = jm.put(x, y)
@@ -49,10 +74,12 @@ object Java {
     def update(x: K, y: V): Unit = jm.put(x, y)
     def ?(x: K): Option[V] = Option(jm.get(x))
     def pairs: Iterable[(K, V)] = jm.entrySet().elements.map(e => e.getKey → e.getValue)
-    def size = jm.size
+    override def size = jm.size
     def apply(x: K): V = jm.get(x)
     def containsKey(x: K): Boolean = jm.containsKey(x)
   }
+
+
 
 
 }

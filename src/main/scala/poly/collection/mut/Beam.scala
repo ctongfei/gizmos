@@ -6,38 +6,37 @@ import poly.collection._
 import scala.language.higherKinds
 
 /**
- *
- * @author Tongfei Chen
+  * Represents a beam.
+  * @author Tongfei Chen
+  * @since 0.1.0
  */
-class Beam[T] private(k: Int, val pq: PriorityQueue[T]) extends Iterable[T] with HasKnownSize {
-
-  def capacity = k
+class Beam[T] private(val capacity: Int, val pq: PriorityQueue[T]) extends Queue[T] with HasKnownSize {
 
   implicit def order = pq.order.reverse
 
   override def size = pq.size
 
-
-
   def push(x: T) = {
-    if (x < pq.top) { // if not, discard
-      pq.pop()
-      pq.push(x)
+    if (size < capacity)
+      pq push x
+    else if (x < pq.top) {
+      pq pop()
+      pq push x
     }
+    else { /* discard this element */ }
   }
 
   def newIterator = pq.newIterator
 
+  def top = pq.top
+
+  def pop() = pq.pop()
 }
 
 object Beam {
 
   /**
-   * Constructs an empty beam with the specified width.
-   * @param k
-   * @param T
-   * @tparam T
-   * @return
+   * Constructs an empty beam with the specified width.@return
    */
   def ofWidth[T](k: Int)(implicit T: WeakOrder[T]) = new Beam(k, BinaryHeapPriorityQueue()(T.reverse))
 

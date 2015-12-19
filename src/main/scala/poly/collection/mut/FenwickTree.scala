@@ -1,13 +1,11 @@
 package poly.collection.mut
 
 import poly.algebra._
-import poly.algebra.ops._
+import poly.algebra.syntax._
 import poly.collection._
 import poly.collection.builder._
 import poly.collection.factory._
 import poly.collection.impl._
-import poly.util.specgroup._
-import scala.reflect._
 
 /**
  * A Fenwick tree.
@@ -45,7 +43,7 @@ class FenwickTree[T] private(private val data: ResizableSeq[T])
 
   /** Returns the sum of the elements in the range [0, i). */
   def cumulativeSum(i: Int) = {
-    var sum = additiveGroup.zero
+    var sum = zero[T]
     var idx = i - 1
     while (idx > 0) {
       sum += data(idx)

@@ -14,13 +14,13 @@ trait ForwardNodeLike[+T, +N <: ForwardNodeLike[T, N]] extends NodeLike[T, N] { 
   /** Returns a list of successors of this node. */
   def succ: Iterable[N]
 
-  def depthFirstTreeTraversal = StateSpace[T, N].depthFirstTreeTraversal(self).map(_.data)
-  def breadthFirstTreeTraversal = StateSpace[T, N].breadthFirstTreeTraversal(self).map(_.data)
-  def depthFirstTraversal = StateSpace[T, N].depthFirstTraversal(self).map(_.data)
-  def breadthFirstTraversal = StateSpace[T, N].breadthFirstTraversal(self).map(_.data)
+  def depthFirstTreeTraversal = StateSpace[T, N].depthFirstTreeTraversal(self)
+  def breadthFirstTreeTraversal = StateSpace[T, N].breadthFirstTreeTraversal(self)
+  def depthFirstTraversal = StateSpace[T, N].depthFirstTraversal(self)
+  def breadthFirstTraversal = StateSpace[T, N].breadthFirstTraversal(self)
 
-  def depthFirstSearch(goal: T => Boolean) = StateSpace[T, N].depthFirstSearch(self, x => goal(x.data)).map(_.data)
-  def breadthFirstSearch(goal: T => Boolean) = StateSpace[T, N].breadthFirstSearch(self, x => goal(x.data)).map(_.data)
+  def depthFirstSearch(goal: T => Boolean) = StateSpace[T, N].depthFirstSearch(self, x => goal(x.data))
+  def breadthFirstSearch(goal: T => Boolean) = StateSpace[T, N].breadthFirstSearch(self, x => goal(x.data))
 }
 
 object ForwardNodeLike {

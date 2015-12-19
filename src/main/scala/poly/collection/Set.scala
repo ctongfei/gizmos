@@ -111,11 +111,19 @@ trait Set[T] extends Predicate[T] with KeyedStructure[T, Set[T]] { self =>
 
   def createMapBy[V](f: T => V): Map[T, V] = new AbstractMap[T, V] {
     def apply(k: T) = f(k)
-    def ?(k: T) = if (self.contains(k)) Some(f(k)) else None
+    def ?(k: T) = if (self contains k) Some(f(k)) else None
     def equivOnKey = self.equivOnKey
     def pairs = self.keys.map(k => k → f(k))
     override def size = self.size
     def containsKey(x: T) = self.contains(x)
+  }
+
+  def createMapByPartial[V](f: T => Option[V]): Map[T, V] = new AbstractMap[T, V] {
+    def apply(k: T) = f(k).get
+    def ?(k: T) = if (self contains k) f(k) else None
+    def equivOnKey = self.equivOnKey
+    def pairs = for (k ← self.keys; v ← f(k)) yield (k, v)
+    def containsKey(x: T) = (self contains x) && f(x).isDefined
   }
 
   def createGraphBy[V, E](fv: T => V)(fe: (T, T) => Option[E]): Graph[T, V, E] = new AbstractGraph[T, V, E] {

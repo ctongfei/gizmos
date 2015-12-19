@@ -4,7 +4,6 @@ import poly.collection._
 
 /**
  * Represents a queue.
- *
  * @author Tongfei Chen
  * @since 0.1.0
  */

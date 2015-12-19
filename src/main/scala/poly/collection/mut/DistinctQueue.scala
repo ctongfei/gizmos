@@ -1,5 +1,6 @@
 package poly.collection.mut
 
+import poly.algebra._
 import poly.collection._
 import poly.collection.builder._
 import scala.language.higherKinds
@@ -7,7 +8,7 @@ import scala.language.higherKinds
 /**
   * @author Tongfei Chen
   */
-class DistinctQueue[Q[A] <: Queue[A], T] private(private val inner: Q[T]) extends Queue[T] {
+class DistinctQueue[Q[A] <: Queue[A], T: IntHashing] private(private val inner: Q[T]) extends Queue[T] {
 
   private[this] val seen = HashSet[T]()
 
@@ -22,7 +23,7 @@ class DistinctQueue[Q[A] <: Queue[A], T] private(private val inner: Q[T]) extend
       if (!seen(x)) {
         seen add x
         buf appendInplace x
-      }
+      } // buffers unseen elements and push in batch
     inner pushAll buf
   }
 

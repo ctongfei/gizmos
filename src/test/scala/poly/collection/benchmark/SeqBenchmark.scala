@@ -11,11 +11,10 @@ import scala.collection.mutable._
  */
 object SeqBenchmark extends App {
 
-
   val conf = config(Key.exec.benchRuns → 50)
     .withWarmer(new Warmer.Default).withMeasurer(new IgnoringGC)
 
-  for (n ← scala.Seq(1000000, 2000000, 3000000, 4000000, 5000000)) {
+  for (n ← scala.Seq(100000, 200000, 400000, 800000, 1600000)) {
 
     val tNative = conf measure {
       val l0 = Array.ofDim[Int](n)

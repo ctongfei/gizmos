@@ -53,9 +53,9 @@ trait Tree[+T] { self =>
 
   def subtrees: Tree[Tree[T]] = ???
 
-  def preOrder: Iterable[T] = rootNode.depthFirstTreeTraversal
+  def preOrder = rootNode.depthFirstTreeTraversal.map(_.data)
 
-  def levelOrder: Iterable[T] = rootNode.breadthFirstTreeTraversal
+  def levelOrder = rootNode.breadthFirstTreeTraversal.map(_.data)
 
   //endregion
 }

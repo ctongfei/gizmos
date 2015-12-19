@@ -96,15 +96,22 @@ trait Graph[@sp(i) K, +V, +E] extends KeyedStructure[K, Graph[K, V, E]] with Sta
     * @return A subgraph with only the nodes selected. An edge will be selected iff both its ends are selected
     *         by the predicate.
     */
-  def filterKeys(f: K => Boolean): Graph[K, V, E] = ???
+  def filterKeys(f: K => Boolean): Graph[K, V, E] = new AbstractGraph[K, V, E] {
+    def apply(i: K) = self(i)
+    def containsNode(i: K) = self.containsNode(i) && f(i)
+    def containsEdge(i: K, j: K) = self.containsEdge(i, j) && f(i) && f(j)
+    def apply(i: K, j: K) = self(i, j)
+    def outgoingKeysOf(i: K) = if (f(i)) self.outgoingKeysOf(i).filter(f) else Iterable.empty
+    def keySet = self.keySet.filterKeys(f)
+  }
 
   def filterNodes(f: V => Boolean): Graph[K, V, E] = new AbstractGraph[K, V, E] {
     def apply(i: K): V = {
       if (f(self(i))) self(i)
       else throw new KeyNotFoundException(i)
     }
-    def containsEdge(i: K, j: K): Boolean = f(self(i)) && f(self(j))
-    def containsNode(i: K): Boolean = f(self(i))
+    def containsEdge(i: K, j: K): Boolean = f(self(i)) && f(self(j)) && self.containsEdge(i, j)
+    def containsNode(i: K): Boolean = self.containsNode(i) && f(self(i))
     def apply(i: K, j: K): E = if (containsEdge(i, j)) self(i, j) else throw new KeyNotFoundException(i, j)
     def outgoingKeysOf(i: K): Iterable[K] = ???
     def keySet: Set[K] = ???
@@ -115,7 +122,7 @@ trait Graph[@sp(i) K, +V, +E] extends KeyedStructure[K, Graph[K, V, E]] with Sta
     def containsNode(i: K) = self.containsNode(i) && that.containsNode(i)
     def containsEdge(i: K, j: K) = self.containsEdge(i, j) && that.containsEdge(i, j)
     def apply(i: K, j: K) = (self(i, j), that(i, j))
-    def outgoingKeysOf(i: K) = ??? // self.outgoingKeysOf(i) intersect that.outgoingKeysOf(i)
+    def outgoingKeysOf(i: K) = ??? //self.outgoingKeysOf(i) intersect that.outgoingKeysOf(i)
     def keySet = self.keySet & that.keySet
   }
 
@@ -140,10 +147,12 @@ trait Graph[@sp(i) K, +V, +E] extends KeyedStructure[K, Graph[K, V, E]] with Sta
 }
 
 object Graph {
-  class Node[K: Equiv, +V](val graph: Graph[K, V, _], val key: K) extends ForwardNode[V] {
+  class Node[K, +V](val graph: Graph[K, V, _], val key: K) extends ForwardNode[V] with ForwardNodeLike[V, Node[K, V]] {
     def isDummy = false
     def data = graph.apply(key)
     def succ = graph.outgoingNodesOf(key)
+
+    implicit def equivOnKey = graph.equivOnKey
 
     override def equals(that: Any) = that match {
       case that: Node[K, V] => (this.graph eq that.graph) && (this.key =~= that.key)
@@ -152,8 +161,10 @@ object Graph {
   }
 
 
-  class Edge[K: Equiv, +E](val graph: Graph[K, _, E], val key1: K, val key2: K) {
+  class Edge[K, +E](val graph: Graph[K, _, E], val key1: K, val key2: K) {
     def data = graph.apply(key1, key2)
+
+    implicit def equivOnKey = graph.equivOnKey
 
     override def equals(that: Any) = that match {
       case that: Edge[K, E] => (this.graph eq that.graph) && (this.key1 =~= that.key1) && (this.key2 =~= that.key2)
