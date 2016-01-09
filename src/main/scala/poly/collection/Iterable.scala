@@ -240,7 +240,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
 
   override def slice(i: Int, j: Int): Iterable[T] = self.skip(i).take(j - i)
 
-  override def distinct: Iterable[T] = ???
+  override def distinct[T1 >: T](implicit T1: Equiv[T1]): Iterable[T] = ???
 
   override def rotate(n: Int): Iterable[T] = self.skip(n) ++ self.take(n)
 

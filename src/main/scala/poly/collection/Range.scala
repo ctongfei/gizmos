@@ -20,7 +20,7 @@ class Range private(
   private[this] val right: Int,
   private[this] val step: Int = 1
 )
-  extends SortedIndexedSeq[Int] {
+  extends SortedIndexedSeq[Int] { self =>
 
   lazy val fastLength = {
     val gap = right - left
@@ -39,7 +39,7 @@ class Range private(
     else
       FastLoop.descending(left, right, step)(f)
   }
-
+  
   // HELPER FUNCTIONS
   override def head = left
 

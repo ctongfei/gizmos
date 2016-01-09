@@ -126,6 +126,15 @@ trait Graph[@sp(i) K, +V, +E] extends KeyedStructure[K, Graph[K, V, E]] with Sta
     def keySet = self.keySet & that.keySet
   }
 
+  def wrapKeysBy[K1](f: Bijection[K1, K]): Graph[K1, V, E] = new AbstractGraph[K1, V, E] {
+    def apply(i: K1) = self.apply(f(i))
+    def containsNode(i: K1) = self.containsNode(f(i))
+    def containsEdge(i: K1, j: K1) = self.containsEdge(f(i), f(j))
+    def apply(i: K1, j: K1) = self.apply(f(i), f(j))
+    def outgoingKeysOf(i: K1) = self.outgoingKeysOf(f(i)).map(f.invert)
+    def keySet = self.keySet.wrapKeysBy(f)
+  }
+
   def generalProduct[K1, V1, E1](that: Graph[K1, V1, E1])(fe: (K, K, K1, K1) => Boolean): Graph[(K, K1), (V, V1), (E, E1)] =
     new AbstractGraph[(K, K1), (V, V1), (E, E1)] {
       def apply(k: (K, K1)) = (self(k._1), that(k._2))

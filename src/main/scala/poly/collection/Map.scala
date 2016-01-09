@@ -130,6 +130,14 @@ trait Map[@sp(i) K, +V] extends KeyedStructure[K, Map[K, V]] with PartialFunctio
     def containsKey(x: K): Boolean = self.containsKey(x) && that.containsKey(x)
   }
 
+  def wrapKeysBy[K1](f: Bijection[K1, K]) = new AbstractMap[K1, V] {
+    def pairs = self.pairs.map { case (k, v) => (f.invert(k), v) }
+    def containsKey(x: K1) = self containsKey f(x)
+    def apply(k: K1) = self apply f(k)
+    def ?(k: K1) = self ? f(k)
+    implicit def equivOnKey = Equiv by f
+}
+
   def |>[W](f: V => W) = self map f
   def |~|[W](that: Map[K, W]) = self zip that
 }

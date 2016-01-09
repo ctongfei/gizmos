@@ -10,7 +10,7 @@ import poly.collection.impl._
  */
 class ListMap[K, V] private(private val data: SinglyLinkedList[KeyValuePair[K, V]])(implicit val equivOnKey: Equiv[K]) extends KeyMutableMap[K, V] {
 
-  def size = data.size
+  override def size = data.size
 
   private[this] def locateKey(x: K): (data.Node, data.Node) = {
     var p = data.dummy

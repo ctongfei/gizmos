@@ -6,11 +6,11 @@ import poly.collection._
 import scala.language.higherKinds
 
 /**
-  * Represents a beam.
+  * Represents a beam, which is a priority queue that only keeps the k-smallest elements.
   * @author Tongfei Chen
   * @since 0.1.0
  */
-class Beam[T] private(val capacity: Int, val pq: PriorityQueue[T]) extends Queue[T] with HasKnownSize {
+class Beam[T] private[poly](val capacity: Int, val pq: PriorityQueue[T]) extends Queue[T] with HasKnownSize {
 
   implicit def order = pq.order.reverse
 
@@ -28,6 +28,10 @@ class Beam[T] private(val capacity: Int, val pq: PriorityQueue[T]) extends Queue
 
   def newIterator = pq.newIterator
 
+  /**
+    * @note This is the '''LARGEST''', not the smallest element in the beam.
+    * @return the '''LARGEST''' element in the beam
+    */
   def top = pq.top
 
   def pop() = pq.pop()
@@ -36,8 +40,10 @@ class Beam[T] private(val capacity: Int, val pq: PriorityQueue[T]) extends Queue
 object Beam {
 
   /**
-   * Constructs an empty beam with the specified width.@return
+   * Constructs an empty beam with the specified width.
    */
-  def ofWidth[T](k: Int)(implicit T: WeakOrder[T]) = new Beam(k, BinaryHeapPriorityQueue()(T.reverse))
+  def ofWidth[T](k: Int)(implicit T: WeakOrder[T]): Beam[T] = new Beam(k, BinaryHeap()(T.reverse)) {
+    override def order = T
+  }
 
 }

@@ -13,7 +13,7 @@ import scala.reflect._
  */
 trait SortedSeq[T] extends Seq[T] with SortedIterable[T] { self =>
 
-  override def distinct: SortedSeq[T] = self
+  def distinct: SortedSeq[T] = self
 
   def asSortedSet = ???
 

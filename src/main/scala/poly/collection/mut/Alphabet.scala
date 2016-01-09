@@ -24,7 +24,7 @@ class Alphabet[T] private(private val w2i: HashMap[T, Int], private val i2w: Arr
 
   def ?(x: T): Option[Int] = w2i ? x
 
-  def size = w2i.size
+  override def size = w2i.size
 
   def invert(i: Int): T = i2w(i)
   def invertOption(i: Int): Option[T] = i2w ? i

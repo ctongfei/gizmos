@@ -34,7 +34,7 @@ class RBTreeMap[K, V] private(val data: java.util.TreeMap[K, V]) extends KeyMuta
 
   def update(x: K, y: V) = data.put(x, y)
 
-  def size = data.size()
+  override def size = data.size()
 
   def containsKey(x: K) = data.containsKey(x)
 }

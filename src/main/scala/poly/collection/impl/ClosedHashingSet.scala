@@ -11,7 +11,7 @@ import poly.collection.impl.ClosedHashingSet._
 class ClosedHashingSet[K: IntHashing] (
   private[collection] var capacity: Int = Settings.ArrayInitialSize
 ) {
-
+  scala.collection.mutable.HashMap
   private[collection] var keys: Array[AnyRef] = Array.ofDim[AnyRef](capacity)
   private[collection] var stat: Array[EntryStatus] = Array.ofDim[EntryStatus](capacity)
   private[collection] var size: Int = 0
@@ -19,6 +19,11 @@ class ClosedHashingSet[K: IntHashing] (
 
   private[collection] var mask = capacity - 1
   private[collection] var limit = (capacity * Settings.HashTableLoadFactor).toInt
+
+  @inline private def initialSlot(i: Int) = {
+    val r = i % mask
+    if (r < 0) r + mask else r
+  }
 
   protected def grow() = {
     val newCapacity = nextPowerOfTwo(capacity + 1)
@@ -46,7 +51,7 @@ class ClosedHashingSet[K: IntHashing] (
     var i = x.### & 0x7fffffff
     var p = i
     do {
-      val j = i & mask // initial bucket
+      val j = initialSlot(i) // initial bucket
       val status = stat(j)
       if (status == VACANT)
         return -1
@@ -62,7 +67,7 @@ class ClosedHashingSet[K: IntHashing] (
     var i = x.### & 0x7fffffff
     var p = i
     do {
-      val j = i & mask
+      val j = initialSlot(i)
       val status = stat(j)
       if (status == INUSE) {
         if (x =~= keys(j).asInstanceOf[K]) return false
@@ -91,7 +96,7 @@ class ClosedHashingSet[K: IntHashing] (
     var i = x.### & 0x7fffffff
     var p = i
     do {
-      val j = i & mask
+      val j = initialSlot(i)
       val status = stat(j)
       if (status == INUSE && x =~= keys(j).asInstanceOf[K]) {
         stat(j) = REMOVED

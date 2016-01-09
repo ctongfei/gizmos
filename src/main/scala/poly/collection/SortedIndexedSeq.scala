@@ -1,6 +1,6 @@
 package poly.collection
 
-import poly.algebra.ops._
+import poly.algebra.syntax._
 
 /**
  * Trait for an indexed sorted sequence.

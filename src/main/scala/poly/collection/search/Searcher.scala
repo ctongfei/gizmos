@@ -14,7 +14,7 @@ import poly.collection.search.node._
   * @param pruningStrategy A typeclass instance that dictates which nodes should be pruned in the searching process
   * @param fringe A fringe for storing the search nodes
   * @param start Starting state
-  * @author Yuhuan Jiang (jyuhuan@gmail.com).
+  * @author Yuhuan Jiang
   * @author Tongfei Chen
   * @since 0.1.0
   */

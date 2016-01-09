@@ -18,11 +18,10 @@ import scala.reflect._
 
 /**
  * Represents a collection whose elements can be traversed through.
- *
  * @author Tongfei Chen
  * @since 0.1.0
- * @define LAZY The resulting collection is lazily executed.
- * @define EAGER The resulting collection is eagerly executed.
+ * @define LAZY The resulting collection is '''lazily''' executed.
+ * @define EAGER The resulting collection is '''eagerly''' executed.
  * @define Onlogn Time complexity: O(n log n).
  * @define On Time complexity: O(n).
  * @define Ologn Time complexity: O(log n).
@@ -33,7 +32,6 @@ trait Traversable[+T] { self =>
 
   /**
    * Applies a function ''f'' to each element of this collection.
- *
    * @param f The function to be applied. Return values are discarded.
    */
   def foreach[V](f: T => V): Unit
@@ -42,11 +40,9 @@ trait Traversable[+T] { self =>
 
   //region Monadic operations (map, flatMap, product)
   /**
-   * Returns a new collection by applying a function to all elements in this collection.
-   * `|>` is a symbolic alias of this method. $LAZY
- *
+   * Returns a new collection by applying a function to all elements in this collection. $LAZY
    * @param f Function to apply
-   * @example {{{(1, 2, 3) |> { _ + 1 } == (2, 3, 4)}}}
+   * @example {{{(1, 2, 3) map { _ + 1 } == (2, 3, 4)}}}
    * @return A new collection that each element is the image of the original element applied by ''f''.
    */
   def map[U](f: T => U): Traversable[U] = new AbstractTraversable[U] {
@@ -57,10 +53,9 @@ trait Traversable[+T] { self =>
 
   /**
     * Builds a new collection by applying a function to all elements of this collection
-    * and using the elements of the resulting collections. `||>` is a symbolic alias of this method.
+    * and using the elements of the resulting collections.
     * $LAZY This is the direct equivalent of the Haskell function `bind`/`>>=`.
- *
-    * @example {{{(0, 1, 3).flatMap(i => i.repeat(i)) == (1, 3, 3, 3)}}}
+    * @example {{{(0, 1, 2, 3) flatMap { i => i repeat i } == (1, 2, 2, 3, 3, 3)}}}
     * @param f Function to apply
     */
   def flatMap[U](f: T => Traversable[U]): Traversable[U] = new AbstractTraversable[U] {
@@ -72,10 +67,8 @@ trait Traversable[+T] { self =>
   }
 
   /**
-    * Returns the Cartesian product of two traversable sequences.
-    * `|×|` is a symbolic alias of this method. $LAZY
- *
-    * @example {{{(1, 2) |×| (1, 2) == ((1, 1), (1, 2), (2, 1), (2, 2))}}}
+    * Returns the Cartesian product of two traversable sequences. $LAZY
+    * @example {{{(1, 2) cartesianProduct (1, 2) == ((1, 1), (1, 2), (2, 1), (2, 2))}}}
     * @param that Another traversable sequence
     * @return The Cartesian product
     */
@@ -83,11 +76,11 @@ trait Traversable[+T] { self =>
     self flatMap (x => that map (y => (x, y)))
 
   //endregion
+
   //region Filtering & grouping (count, filter, filterNot, filterMany, partition, groupBy)
 
   /**
    * Counts the number of elements in this collection that satisfy the specified predicate.
- *
    * @param f The specified predicate
    * @return The number of elements that satisfy ''f''
    */
@@ -99,9 +92,7 @@ trait Traversable[+T] { self =>
   }
 
   /**
-   * Selects the elements that satisfy the specified predicate.
-   * `|?` is a symoblic alias of this method. $LAZY
- *
+   * Selects only the elements that satisfy the specified predicate. $LAZY
    * @param f The specified predicate
    * @example {{{(1, 2, 3, 4) filter { _ > 2 } == (3, 4)}}}
    * @return A traversable collection that contains all elements that satisfy ''f''.
@@ -115,15 +106,13 @@ trait Traversable[+T] { self =>
 
   /**
    * Selects the elements that do not satisfy the specified predicate. $LAZY
- *
    * @param f The specified predicate
    * @return A traversable collection that contains all elements that do not satisfy ''f''.
    */
-  def filterNot(f: T => Boolean): Traversable[T] = filter(e => !f(e))
+  def filterNot(f: T => Boolean): Traversable[T] = filter(x => !f(x))
 
   /**
    * Partitions this collection to two collections according to a predicate. $EAGER
- *
    * @param f The specified predicate
    * @return A pair of collections: ( {x|f(x)} , {x|!f(x)} )
    */
@@ -135,8 +124,8 @@ trait Traversable[+T] { self =>
   }
 
   /**
-   * $EAGER $On
- *
+   * Puts each element in this collection into multiple bins, where each bin is specified by a predicate.
+   * $EAGER
    * @param fs
    * @return
    */
@@ -148,7 +137,9 @@ trait Traversable[+T] { self =>
     l
   }
 
-  /** $EAGER $On */
+  /**
+    * Finds the first element in this collection that satisfy the given predicate. If not found, [[None]].
+    */
   def findFirst(f: T => Boolean): Option[T] = {
     for (x ← self)
       if (f(x)) return Some(x)
@@ -156,19 +147,18 @@ trait Traversable[+T] { self =>
   }
 
   /** $EAGER $On */
-  def groupBy[S >: T, K: Equiv](f: S => K): Map[K, Traversable[S]] = ???
+  def groupBy[K: Equiv](f: T => K): Map[K, Traversable[T]] = ???
   //endregion
 
   //region Concatenation (concat, prepend, append)
   /**
-   * Concatenates two traversable collections into one. $LAZY $O1
- *
+   * Concatenates two traversable collections into one. $LAZY
    * @example {{{(1, 2, 3) ++ (4, 5) == (1, 2, 3, 4, 5)}}}
    * @param that Another collection
    * @return A concatenated collection
    */
-  def concat[U >: T](that: Traversable[U]): Traversable[U] = new AbstractTraversable[U] {
-    def foreach[V](f: U => V): Unit = {
+  def concat[T1 >: T](that: Traversable[T1]): Traversable[T1] = new AbstractTraversable[T1] {
+    def foreach[V](f: T1 => V): Unit = {
       for (x ← self)
         f(x)
       for (x ← that)
@@ -176,17 +166,17 @@ trait Traversable[+T] { self =>
     }
   }
 
-  /** $LAZY $O1 */
-  def prepend[U >: T](x: U): Traversable[U] = new AbstractTraversable[U] {
-    def foreach[V](f: U => V) = {
+  /** Prepends an element to the beginning of this collection. $LAZY */
+  def prepend[T1 >: T](x: T1): Traversable[T1] = new AbstractTraversable[T1] {
+    def foreach[V](f: T1 => V) = {
       f(x)
       self foreach f
     }
   }
 
-  /** $LAZY $O1 */
-  def append[U >: T](x: U): Traversable[U] = new AbstractTraversable[U] {
-    def foreach[V](f: U => V) = {
+  /** Appends an element to the end of this collection. $LAZY */
+  def append[T1 >: T](x: T1): Traversable[T1] = new AbstractTraversable[T1] {
+    def foreach[V](f: T1 => V) = {
       self foreach f
       f(x)
     }
@@ -195,7 +185,6 @@ trait Traversable[+T] { self =>
 
   /**
    * Returns the number of elements in this collection. $On
- *
    * @return The size of this collection
    */
   def size: Int = {
@@ -206,7 +195,6 @@ trait Traversable[+T] { self =>
 
   /**
    * Checks if this collection is empty. $O1
- *
    * @return
    */
   def isEmpty = headOption match {
@@ -229,7 +217,7 @@ trait Traversable[+T] { self =>
   }
 
   /** $On */
-  def foldLeft[U](z: U)(f: (U, T) => U): U = {
+  def foldLeft[S](z: S)(f: (S, T) => S): S = {
     var r = z
     for (x ← self)
       r = f(r, x)
@@ -237,7 +225,7 @@ trait Traversable[+T] { self =>
   }
 
   /** $On */
-  def foldRight[U](z: U)(f: (T, U) => U): U = reverse.foldLeft(z)((u, t) => f(t, u))
+  def foldRight[S](z: S)(f: (T, S) => S): S = reverse.foldLeft(z)((s, t) => f(t, s))
 
   /** $On */
   def fold[U >: T](z: U)(f: (U, U) => U): U = foldLeft(z)(f)
@@ -417,25 +405,35 @@ trait Traversable[+T] { self =>
   def slice(i: Int, j: Int) = skip(i).take(j - i)
 
   /** Returns the unique elements in this collection while retaining its original order. */
-  //TODO: should be [U >: T](implicit U: Equiv[U]): Traversable[U], but postponed to later versions
-  def distinct: Traversable[T] =  ???
-    /*new AbstractTraversable[T] {
-    def foreach[U](f: T => U): Unit = {
-      val set = HashSet[T]
+  def distinct[T1 >: T](implicit T1: Equiv[T1]): Traversable[T1] = new AbstractTraversable[T1] {
+    def foreach[V](f: T1 => V) = {
+      val set = HashSet[T1]() //TODO: feed typeclass instance T1 here
       for (x ← self) {
-        if (!set.contains(x)) {
-          set.add(x)
+        if (set notContains x) {
+          set add x
           f(x)
         }
       }
     }
-  }*/
+  }
 
-  //TODO: should be [U >: T](implicit U: Equiv[U]): Traversable[U], but postponed to later versions
-  def union[U >: T](that: Traversable[U]): Traversable[U] = (this concat that).distinct
+  def distinctBy[T1](f: T => T1)(implicit T1: Equiv[T1]): Traversable[T] = new AbstractTraversable[T] {
+    def foreach[V](g: T => V) = {
+      val set = HashSet[T1]() //TODO: feed typeclass instance T1 here
+      for (x ← self) {
+        val fx = f(x)
+        if (set notContains fx) {
+          set add fx
+          g(x)
+        }
+      }
+    }
+  }
 
-  def intersect[U >: T](that: Traversable[U]): Traversable[U] = new AbstractTraversable[U] {
-    def foreach[V](f: U => V): Unit = {
+  def union[T1 >: T](that: Traversable[T1]): Traversable[T1] = (this concat that).distinct
+
+  def intersect[T1 >: T](that: Traversable[T1]): Traversable[T1] = new AbstractTraversable[T1] {
+    def foreach[V](f: T1 => V): Unit = {
       val set = this.to[HashSet]
       for (x ← that)
         if (set contains x) f(x)
@@ -452,10 +450,8 @@ trait Traversable[+T] { self =>
     a
   }
 
-
   /**
     * Rotates this sequence from the index specified.
- *
     * @example {{{(1, 2, 3, 4).rotate(1) == (2, 3, 4, 1)}}}
     * @param n Rotation starts here
     */
@@ -467,7 +463,7 @@ trait Traversable[+T] { self =>
     seq.asIfSorted(U)
   }
 
-  def sortBy[U >: T, X](f: U => X)(implicit X: WeakOrder[X]): SortedIndexedSeq[U] = {
+  def sortBy[T1 >: T, T2](f: T1 => T2)(implicit T2: WeakOrder[T2]): SortedIndexedSeq[T1] = {
     val seq = self.to[ArraySeq]
     val o = WeakOrder by f
     seq.sortInplace()(o)
@@ -502,10 +498,12 @@ trait Traversable[+T] { self =>
    * Returns the sum of the elements in this collection.
  *
    * @example {{{(1, 2, 3).sum == 6}}}
-   * @tparam X Supertype of the type of elements: must be endowed with an additive monoid.
+   * @tparam T1 Supertype of the type of elements: must be endowed with an additive monoid.
    * @return The sum
    */
-  def sum[X >: T : AdditiveCMonoid]: X = fold(zero)(_+_)
+  def sum[T1 >: T : AdditiveCMonoid]: T1 = fold(zero)(_+_)
+
+  def sumBy[T1: AdditiveCMonoid](f: T => T1) = map(f).sum
 
   def sumInplace[X >: T](implicit X: InplaceAdditiveCMonoid[X]) = {
     val sum = zero[X]
@@ -563,14 +561,17 @@ trait Traversable[+T] { self =>
     */
   def argmin[U: WeakOrder](f: T => U): T = argminWithValue(f)._1
 
+  def minBy[U: WeakOrder](f: T => U) = argmin(f)
+
   /**
     * Returns the first element in this collection that makes the specific function greatest.
- *
     * @param f
     * @tparam U
     * @return
     */
   def argmax[U: WeakOrder](f: T => U): T = argmaxWithValue(f)._1
+
+  def maxBy[U: WeakOrder](f: T => U) = argmax(f)
 
   def minAndMax[X >: T : WeakOrder]: (X, X) = {
     var minVal = default[X]
@@ -753,7 +754,6 @@ object Traversable {
 
     /**
       * Converts this traversable sequence to a map if this sequence consists of (key, value) pairs.
- *
       * @param builder Implicit builder of the map
       */
     def toMap[M[_, _]](implicit builder: Builder[(K, V), M[K, V]]) = underlying.build(builder)

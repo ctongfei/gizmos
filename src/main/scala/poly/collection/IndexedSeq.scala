@@ -11,6 +11,7 @@ import scala.language.implicitConversions
  * Represents an indexed sequence.
  *
  * Indexed sequences should support efficient random access (typically O(1), sometimes may be O(log ''n'')).
+ *
  * @author Tongfei Chen
  * @since 0.1.0
  */
@@ -39,8 +40,8 @@ trait IndexedSeq[+T] extends BiSeq[T] with HasKnownSize { self =>
   }
 
   def dummy: BiSeqNode[T] = new BiSeqNode[T] {
-    def next = new IndexedSeqNode[T](self, 0)
-    def prev = new IndexedSeqNode[T](self, length - 1)
+    def next = new NodeProxy[T](self, 0)
+    def prev = new NodeProxy[T](self, length - 1)
     def data = throw new NoSuchElementException
     def isDummy = true
   }
@@ -112,21 +113,28 @@ trait IndexedSeq[+T] extends BiSeq[T] with HasKnownSize { self =>
   override def slice(i: Int, j: Int): IndexedSeq[T] = new AbstractIndexedSeq[T] {
     def fastApply(n: Int) = self(i + n)
     def fastLength = j - i
+    override def slice(ii: Int, jj: Int) = { // optimize for nested slices
+      require(i + jj <= j)
+      self.slice(i + ii, i + jj)
+    }
   }
 
   override def rotate(j: Int): IndexedSeq[T] = new AbstractIndexedSeq[T] {
     def fastApply(i: Int): T = self((j + i) % self.length)
     def fastLength: Int = self.length
+    override def rotate(jj: Int) = self.rotate(j + jj)
   }
 
   override def reverse: IndexedSeq[T] = new AbstractIndexedSeq[T] {
     def fastApply(i: Int) = self(self.length - 1 - i)
     def fastLength = self.length
+    override def reverse = self
   }
 
   override def repeat(n: Int): IndexedSeq[T] = new AbstractIndexedSeq[T] {
     def fastApply(i: Int) = self(i % self.length)
     def fastLength = self.length * n
+    override def repeat(nn: Int) = self.repeat(n * nn)
   }
 
   override def sliding(windowSize: Int, step: Int = 1): IndexedSeq[IndexedSeq[T]] = new AbstractIndexedSeq[IndexedSeq[T]] {
@@ -147,6 +155,7 @@ trait IndexedSeq[+T] extends BiSeq[T] with HasKnownSize { self =>
   /**
    * Pretends that this sequence is sorted under the given order.
    * (WARNING: Actual orderedness is not guaranteed! The user should make sure that it is sorted.)
+ *
    * @param U The implicit order
    * @return A sorted order
    */
@@ -184,6 +193,11 @@ object IndexedSeq {
     def fastApply(i: Int) = a(i)
   }
 
+  implicit def stringAsIndexedSeq(a: String): IndexedSeq[Char] = new AbstractIndexedSeq[Char] {
+    def fastApply(i: Int) = a.charAt(i)
+    def fastLength = a.length
+  }
+
   implicit def Equiv[T: Equiv]: Equiv[IndexedSeq[T]] = new Equiv[IndexedSeq[T]] {
     def eq(x: IndexedSeq[T], y: IndexedSeq[T]) = {
       if (x.length != y.length) false
@@ -191,14 +205,14 @@ object IndexedSeq {
     }
   }
 
-  class IndexedSeqNode[T](val seq: IndexedSeq[T], val i: Int) extends BiSeqNode[T] {
+  class NodeProxy[T](val seq: IndexedSeq[T], val i: Int) extends BiSeqNode[T] {
     def isDummy = (i < 0) || (i >= seq.length)
     def data = seq(i)
-    def next = if (i == seq.length - 1) BiSeqNode.dummy else new IndexedSeqNode(seq, i + 1)
-    def prev = if (i == 0) BiSeqNode.dummy else new IndexedSeqNode(seq, i - 1)
+    def next = if (i == seq.length - 1) BiSeqNode.dummy else new NodeProxy(seq, i + 1)
+    def prev = if (i == 0) BiSeqNode.dummy else new NodeProxy(seq, i - 1)
 
     override def equals(that: Any) = that match {
-      case that: IndexedSeqNode[T] => (this.seq eq that.seq) && (this.i == that.i)
+      case that: NodeProxy[T] => (this.seq eq that.seq) && (this.i == that.i)
     }
   }
 

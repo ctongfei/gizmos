@@ -23,7 +23,7 @@ class ArrayIntMap[T] private(
 
   def pairs: Iterable[(Int, T)] = ???
 
-  def size: Int = ???
+  override def size: Int = ???
 
   def containsKey(x: Int): Boolean = data(x).isDefined
 

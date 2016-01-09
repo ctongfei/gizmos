@@ -16,7 +16,6 @@ trait DataMutableIndexedSeq[T] extends DataMutableSeq[T] with IndexedSeq[T] {
 
   /**
    * Sorts this sequence in-place using the order provided.
- *
    * @param order The order for sorting
    */
   def sortInplace()(implicit order: WeakOrder[T]): Unit = {
@@ -56,7 +55,6 @@ trait DataMutableIndexedSeq[T] extends DataMutableSeq[T] with IndexedSeq[T] {
 
   /**
    *  Transforms this sequence in-place given a function.
- *
    *  @param f The function
    */
   override def mapInplace(f: T => T): Unit = {

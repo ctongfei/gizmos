@@ -17,8 +17,6 @@ trait Set[T] extends Predicate[T] with KeyedStructure[T, Set[T]] { self =>
   /** Returns an iterable sequence of all the elements in this set. */
   def elements: Iterable[T]
 
-  def distinct = self
-
   /** Tests if an element belongs to this set. */
   def contains(x: T): Boolean
 
@@ -31,6 +29,8 @@ trait Set[T] extends Predicate[T] with KeyedStructure[T, Set[T]] { self =>
 
   final override def keys = elements
 
+  final def keySet = this
+
   def size = elements.size
 
   def foreach[U](f: T => U) = elements foreach f
@@ -39,13 +39,13 @@ trait Set[T] extends Predicate[T] with KeyedStructure[T, Set[T]] { self =>
 
   def foldByMonoid[U >: T : Monoid] = elements.foldByMonoid[U]
 
-  def reduce[U >: T](f: (U, U) => U) = elements.reduce(f)
+  def reduce[U >: T](f: (U, U) => U) = elements reduce f
 
   def reduceBySemigroup[U >: T : Semigroup] = elements.reduceBySemigroup[U]
 
-  def forall(f: T => Boolean) = elements.forall(f)
+  def forall(f: T => Boolean) = elements forall f
 
-  def exists(f: T => Boolean) = elements.exists(f)
+  def exists(f: T => Boolean) = elements exists f
 
   def sum[U >: T : AdditiveCMonoid] = elements.sum[U]
 
@@ -62,7 +62,7 @@ trait Set[T] extends Predicate[T] with KeyedStructure[T, Set[T]] { self =>
     */
   def |(that: Set[T]): Set[T] = new AbstractSet[T] {
     def equivOnKey = self.equivOnKey
-    def contains(x: T) = self.contains(x) && that.contains(x)
+    def contains(x: T) = self.contains(x) || that.contains(x)
     def elements = self.elements ++ that.elements.filter(self.notContains)
   }
 
@@ -100,7 +100,6 @@ trait Set[T] extends Predicate[T] with KeyedStructure[T, Set[T]] { self =>
   /** Tests if this set is a superset of another set. */
   def properSupersetOf(that: Set[T]): Boolean = that properSubsetOf this
 
-  def keySet = self
 
   def cartesianProduct[T1](that: Set[T1]): Set[(T, T1)] = new AbstractSet[(T, T1)] {
     def equivOnKey = Equiv.product(self.equivOnKey, that.equivOnKey)
@@ -118,7 +117,7 @@ trait Set[T] extends Predicate[T] with KeyedStructure[T, Set[T]] { self =>
     def containsKey(x: T) = self.contains(x)
   }
 
-  def createMapByPartial[V](f: T => Option[V]): Map[T, V] = new AbstractMap[T, V] {
+  def createMapByOptional[V](f: T => Option[V]): Map[T, V] = new AbstractMap[T, V] {
     def apply(k: T) = f(k).get
     def ?(k: T) = if (self contains k) f(k) else None
     def equivOnKey = self.equivOnKey
@@ -141,8 +140,16 @@ trait Set[T] extends Predicate[T] with KeyedStructure[T, Set[T]] { self =>
     def elements = self.elements.filter(f)
   }
 
-  def map[T1](f: T => T1)(implicit U: Equiv[T1]): Set[T1] = {
-    self.elements.map(f).to(Set.autoBuilder(U))
+  def map[T1: Equiv](f: T => T1): Set[T1] = {
+    self.elements.map(f).to(Set.autoBuilder[T1])
+  }
+
+  def zip(that: Set[T]): Set[T] = this & that
+
+  def wrapKeysBy[T1](f: Bijection[T1, T]): Set[T1] = new AbstractSet[T1] {
+    def equivOnKey = Equiv by f
+    def elements = self.elements.map(f.invert)
+    def contains(x: T1) = self.contains(f(x))
   }
 
   override def equals(that: Any) = that match {
@@ -152,9 +159,9 @@ trait Set[T] extends Predicate[T] with KeyedStructure[T, Set[T]] { self =>
 
   //Symbolic aliases
   def ⊂(that: Set[T]) = this properSubsetOf that
-  def ⊃(that: Set[T]) = this supersetOf that
+  def ⊃(that: Set[T]) = this properSupersetOf that
   def ⊆(that: Set[T]) = this subsetOf that
-  def ⊇(that: Set[T]) = this properSupersetOf that
+  def ⊇(that: Set[T]) = this supersetOf that
   def ∩(that: Set[T]) = this & that
   def ∪(that: Set[T]) = this | that
 }
@@ -188,10 +195,9 @@ object Set {
   }
 
   implicit def ContainmentOrder[T]: PartialOrder[Set[T]] = new PartialOrder[Set[T]] {
-    override def eq(x: Set[T], y: Set[T]) = (x subsetOf y) && (y subsetOf x)
-    def le(x: Set[T], y: Set[T]) = x subsetOf y
+    override def eq(x: Set[T], y: Set[T]) = (x ⊆ y) && (x ⊇ y)
+    def le(x: Set[T], y: Set[T]) = x ⊆ y
   }
-
 
   def autoBuilder[T](implicit e: Equiv[T]): Builder[T, Set[T]] = e match {
     case e: IntHashing[T] => HashSet.newBuilder[T]

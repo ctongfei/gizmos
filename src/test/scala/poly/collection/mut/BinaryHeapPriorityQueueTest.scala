@@ -8,7 +8,7 @@ import poly.algebra.implicits._
  */
 class BinaryHeapPriorityQueueTest extends FunSuite {
 
-  val h = BinaryHeapPriorityQueue(5, 3, 1, 3, 5, 5, 8, 1, 10)
+  val h = BinaryHeap(5, 3, 1, 3, 5, 5, 8, 1, 10)
 
   val r1 = h.pop()
   assert(r1 == 1)

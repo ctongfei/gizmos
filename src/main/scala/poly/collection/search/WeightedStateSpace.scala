@@ -5,7 +5,9 @@ import poly.collection._
 import poly.util.specgroup._
 
 /**
+ * Represents a search state space whose edges are weighted.
  * @author Tongfei Chen
+ * @since 0.1.0
  */
 trait WeightedStateSpace[S, @sp(fdi) C] extends StateSpace[S] {
 

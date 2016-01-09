@@ -8,7 +8,7 @@ import poly.collection.search.node._
 /**
   * Represents a space of search states.
   *
-  * @author Yuhuan Jiang (jyuhuan@gmail.com).
+  * @author Yuhuan Jiang
   * @author Tongfei Chen
   * @since 0.1.0
   */
@@ -40,11 +40,11 @@ trait StateSpace[S] extends Keyed[S] {
 
 object StateSpace {
 
-  private[collection] def searchByIterator[S, N <: WithParent[S]](si: SearchIterator[N, S], goal: S => Boolean): Seq[S] = {
+  private[collection] def searchByIterator[S, N <: WithParent[S]](si: SearchIterator[N, S], goal: S => Boolean): BiSeq[S] = {
     while (si.advance())
       if (goal(si.current))
         return si.currentNode.pathToRoot.map(_.data).reverse
-    Seq.empty
+    BiSeq.empty
   }
 
 }

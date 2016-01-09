@@ -18,7 +18,7 @@ abstract class RedBlackTree[K, V](implicit val order: WeakOrder[K]) extends KeyM
   val bst = new BinarySearchTree[Entry]()(WeakOrder.by((e: Entry) => e.key))
   bst.dummy.data.color = black //TODO: ???
 
-  def size = bst.size
+  override def size = bst.size
 
   def containsKey(x: K) = bst.locate(new Entry(x, default[V])).notDummy
 

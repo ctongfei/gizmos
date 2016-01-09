@@ -53,21 +53,21 @@ class WeightedSearcher[S, N, C](
 class UniformCostIterator[S, C: OrderedAdditiveGroup](ss: WeightedStateSpace[S, C], start: S)
   extends WeightedSearcher[S, WithCost[S, C], C](
     NodePruning.None,
-    DistinctPriorityQueue[BinaryHeapPriorityQueue, WithCost[S, C]]()(Equiv.by(_.state)),
+    DistinctPriorityQueue[BinaryHeap, WithCost[S, C]]()(Equiv.by(_.state)),
     start)(ss, WithCost.WeightedSearchNodeInfo)
 
 class GreedyBestFirstIterator[S, C: OrderedAdditiveGroup](ss: WeightedStateSpace[S, C], start: S, heuristic: S => C)
   extends WeightedSearcher[S, WithHeuristic[S, C], C](
     NodePruning.None,
-    DistinctPriorityQueue[BinaryHeapPriorityQueue, WithHeuristic[S, C]]()(Equiv.by(_.state)),
+    DistinctPriorityQueue[BinaryHeap, WithHeuristic[S, C]]()(Equiv.by(_.state)),
     start)(ss, WithHeuristic.WeightedSearchNodeInfo(heuristic)
   )
 
 class AStarIterator[S, C: OrderedAdditiveGroup](ss: WeightedStateSpace[S, C], start: S, heuristic: S => C)
   extends WeightedSearcher[S, WithCostAndHeuristic[S, C], C](
     NodePruning.None,
-    DistinctPriorityQueue[BinaryHeapPriorityQueue, WithCostAndHeuristic[S, C]]()(Equiv.by(_.state))(
-      BinaryHeapPriorityQueue.newBuilder(WithCostAndHeuristic.order)
+    DistinctPriorityQueue[BinaryHeap, WithCostAndHeuristic[S, C]]()(Equiv.by(_.state))(
+      BinaryHeap.newBuilder(WithCostAndHeuristic.order)
       // potential Scala compiler bug here. scalac only finds those two low priority implicits here
     ),
     start)(ss, WithCostAndHeuristic.WeightedSearchNodeInfo(heuristic))
