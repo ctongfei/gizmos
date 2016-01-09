@@ -11,7 +11,7 @@ scalaVersion := "2.11.7"
 resolvers += Resolver.sonatypeRepo("snapshots")
 
 libraryDependencies += "me.tongfei"        %% "poly-util"       % "0.2.4"
-libraryDependencies += "me.tongfei"        %% "poly-algebra"    % "0.2.16-SNAPSHOT"
+libraryDependencies += "me.tongfei"        %% "poly-algebra"    % "0.2.17-SNAPSHOT"
 libraryDependencies += "org.scalatest"     %% "scalatest"       % "2.2.2"           % Test
 libraryDependencies += "com.storm-enroute" %% "scalameter-core" % "0.7"             % Test
 

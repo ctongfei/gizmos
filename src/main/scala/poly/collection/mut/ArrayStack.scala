@@ -15,7 +15,7 @@ import scala.reflect._
  */
 class ArrayStack[T] private(private var data: ResizableSeq[T] = null) extends Queue[T] {
 
-  def newIterator = data.newIterator
+  def elements = data
 
   override def size = data.fastLength
 

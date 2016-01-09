@@ -7,10 +7,13 @@ import poly.collection._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait Queue[T] extends Iterable[T] {
+trait Queue[T] {
+
+  /** Returns an iterable list of all the elements in this queue. */
+  def elements: Iterable[T]
 
   /** Checks if this queue is empty. $O1 */
-  override def isEmpty: Boolean = size == 0
+  def isEmpty: Boolean = size == 0
 
   /** Checks if this queue is not empty. $O1 */
   def notEmpty: Boolean = size != 0
@@ -25,7 +28,7 @@ trait Queue[T] extends Iterable[T] {
   def pop(): T
 
   /** Returns the number of elements in this queue. */
-  def size: Int
+  def size: Int = elements.size
 
   /** Pushes the specified element into this queue. $O1 */
   def +=(x: T): Unit = push(x)

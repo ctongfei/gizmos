@@ -31,7 +31,7 @@ class DistinctQueue[Q[A] <: Queue[A], T: IntHashing] private(private val inner: 
 
   def pop() = inner.pop()
 
-  def newIterator = inner.newIterator
+  def elements = inner.elements
 
 }
 

@@ -26,7 +26,7 @@ class Beam[T] private[poly](val capacity: Int, val pq: PriorityQueue[T]) extends
     else { /* discard this element */ }
   }
 
-  def newIterator = pq.newIterator
+  def elements = pq.elements
 
   /**
     * @note This is the '''LARGEST''', not the smallest element in the beam.

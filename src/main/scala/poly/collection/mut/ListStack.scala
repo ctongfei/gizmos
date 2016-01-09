@@ -26,7 +26,7 @@ class ListStack[T] private(private var data: SinglyLinkedList[T]) extends Queue[
     t
   }
 
-  def newIterator = data.newIterator
+  def elements = data
 
 }
 

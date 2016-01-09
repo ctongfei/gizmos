@@ -17,7 +17,7 @@ class ArrayQueue[T] private(private val data: CircularArray[T]) extends Queue[T]
 
   def fastSize = data.length
 
-  def newIterator = ???
+  def elements = ???
 
   def top = {
     if (data.isEmpty) throw new QueueEmptyException

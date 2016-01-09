@@ -26,7 +26,7 @@ class DistinctPriorityQueue[Q[A] <: PriorityQueue[A], T] private(stateEquiv: Equ
 
   def pop() = inner.pop()
 
-  def newIterator = inner.newIterator
+  def elements = inner.elements
 }
 
 object DistinctPriorityQueue {

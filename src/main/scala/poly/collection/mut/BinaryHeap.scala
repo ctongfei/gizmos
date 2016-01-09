@@ -60,7 +60,7 @@ class BinaryHeap[T] private[poly](val data: ResizableSeq[T])(implicit val order:
 
   def top = if (data.length <= 0) throw new QueueEmptyException else data(0)
 
-  def newIterator = data.newIterator
+  def elements: Iterable[T] = data
 
   override def size: Int = data.length
 

@@ -54,7 +54,7 @@ object Java {
     def push(x: T) = xs.add(x)
     def top = xs.peek()
     def pop() = xs.remove()
-    def newIterator = xs.iterator()
+    def elements = xs
   }
 
   implicit def javaDequeAsPoly[T](xs: ju.Deque[T]): Deque[T] = new Deque[T] {
@@ -63,7 +63,7 @@ object Java {
     def popBottom() = xs.removeLast()
     def push(x: T) = xs.add(x)
     def top = xs.peekFirst()
-    def newIterator = xs.iterator()
+    def elements = xs
   }
 
   implicit def javaMapAsPoly[K, V](jm: ju.Map[K, V]): Map[K, V] = new KeyMutableMap[K, V] {
