@@ -65,14 +65,13 @@ object Permutation {
   /**
     * Returns the permutation group of size ''n''.
     * This structure is a [[poly.algebra.Group]] as well as a [[poly.collection.Set]].
-    *
     * @return
     */
   def Group(n: Int): Group[Permutation] with Set[Permutation] = new Group[Permutation] with Set[Permutation] {
     def inv(x: Permutation) = x.inverse
     def id = identity(n)
     def op(x: Permutation, y: Permutation) = x compose y
-    def equivOnKey = LexicographicalOrder
+    def equivOnKey = LexicographicOrder
     def contains(x: Permutation) = x.size == n
 
     def elements: Iterable[Permutation] = Iterable.ofIterator {
@@ -80,14 +79,18 @@ object Permutation {
         var p: Array[Int] = null
 
         def current = new Permutation(p)
+
+        // Generate permutations under lexicographic order.
         def advance(): Boolean = {
           if (p == null) {
             p = Array.tabulate(n)(i => i)
             true
           } else {
-            val k = Range(n - 1).lastIndexWhere(k => p(k) < p(k + 1))
+            var k = -1
+            for (i ← Range(n - 1)) if (p(i) < p(i + 1)) k = i
             if (k == -1) return false
-            val l = Range(k + 1, n).lastIndexWhere(l => p(k) < p(l)) + k + 1
+            var l = k + 1
+            for (i ← Range(k + 1, n)) if (p(k) < p(i)) l = i
             val t = p(k)
             p(k) = p(l)
             p(l) = t
@@ -107,7 +110,7 @@ object Permutation {
     }
   }
 
-  implicit object LexicographicalOrder extends TotalOrder[Permutation] {
+  implicit object LexicographicOrder extends TotalOrder[Permutation] {
     def cmp(x: Permutation, y: Permutation): Int = {
       for (i ← Range(x.size)) {
         if (x(i) < y(i)) return -1

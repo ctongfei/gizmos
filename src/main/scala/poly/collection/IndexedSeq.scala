@@ -152,6 +152,12 @@ trait IndexedSeq[+T] extends BiSeq[T] with HasKnownSize { self =>
     def fastApply(i: Int) = if (i % 2 == 0) self(i / 2) else that(i / 2)
   }
 
+  def permuteBy(p: Permutation): IndexedSeq[T] = new AbstractIndexedSeq[T] {
+    val pInv = p.inverse
+    def fastApply(i: Int) = self(pInv(i))
+    def fastLength = self.fastLength
+  }
+
   /**
    * Pretends that this sequence is sorted under the given order.
    * (WARNING: Actual orderedness is not guaranteed! The user should make sure that it is sorted.)

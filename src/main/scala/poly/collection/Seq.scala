@@ -285,6 +285,7 @@ trait Seq[+T] extends SortedMap[Int, T] with Iterable[T] { self =>
   def zip[U](that: Seq[U]): Seq[(T, U)] = ofDummyNode(self.dummy zip that.dummy)
 
   // INDEXING OPERATIONS
+
   def firstIndexOf[U >: T](x: U): Int = {
     var i = 0
     for (y ← this) {
