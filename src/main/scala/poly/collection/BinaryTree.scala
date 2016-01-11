@@ -12,13 +12,13 @@ import poly.util.typeclass.ops._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait BinaryTree[+T] extends Tree[T] with PartialFunction[Int, T] { self =>
+trait BinaryTree[+T] { self =>
 
   import BinaryTree._
 
   def rootNode: BinaryTreeNode[T]
 
-  override def root: T = rootNode.data
+  def root: T = rootNode.data
 
   /** Returns the maximal depth of this tree. */ //TODO: a recursive-free version?
   def depth: Int = foldBottomUp(0)((l, r, _) => math.max(l, r) + 1)
@@ -85,14 +85,14 @@ trait BinaryTree[+T] extends Tree[T] with PartialFunction[Int, T] { self =>
 
   def zip[U](that: BinaryTree[U]): BinaryTree[(T, U)] = ofNode(self.rootNode zip that.rootNode)
 
-  override def preOrder = rootNode.preOrder
+  def preOrder = rootNode.preOrder
   def inOrder = rootNode.inOrder
   def postOrder = rootNode.postOrder
 
   /**
    * Performs inverse Knuth transform on this binary tree, i.e., recover the multi-way tree
    * compactly represented by this binary tree through Knuth transform (left-child-right-sibling
-   * representation). $LAZY $CX_1
+   * representation). $LAZY
    */
   def inverseKnuthTransform: Tree[T] = new Tree[T] {
     class InverseKnuthTransformedTreeNode(val node: BinaryTreeNode[T]) extends TreeNode[T] {
@@ -104,7 +104,7 @@ trait BinaryTree[+T] extends Tree[T] with PartialFunction[Int, T] { self =>
     override def knuthTransform = self
   }
 
-  override def subtrees: BinaryTree[BinaryTree[T]] = ???
+  def subtrees: BinaryTree[BinaryTree[T]] = ???
 
   override def toString() = self.str
 

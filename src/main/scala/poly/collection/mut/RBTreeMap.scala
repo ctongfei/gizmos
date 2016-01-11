@@ -5,7 +5,7 @@ import poly.algebra.conversion.Java._
 import poly.algebra.hkt.ops._
 import poly.collection._
 import poly.collection.builder._
-import poly.collection.conversion.Java._
+import poly.collection.conversion.FromJava._
 import poly.collection.factory._
 
 /**

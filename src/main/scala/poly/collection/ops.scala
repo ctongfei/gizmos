@@ -1,10 +1,22 @@
 package poly.collection
 
+import scala.language.implicitConversions
+
 /**
  * @author Tongfei Chen
  * @since 0.1.0
  */
 object ops {
+
+  implicit def arrayAsIndexedSeq[T](a: Array[T]): IndexedSeq[T] = new AbstractIndexedSeq[T] {
+    def fastLength = a.length
+    def fastApply(i: Int) = a(i)
+  }
+
+  implicit def stringAsIndexedSeq(a: String): IndexedSeq[Char] = new AbstractIndexedSeq[Char] {
+    def fastApply(i: Int) = a.charAt(i)
+    def fastLength = a.length
+  }
 
   implicit class withCollectionOps[T](val x: T) extends AnyVal {
 

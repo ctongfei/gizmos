@@ -2,7 +2,7 @@ package poly.collection.factory
 
 import poly.collection._
 import poly.collection.builder._
-import poly.collection.conversion.Scala._
+import poly.collection.conversion.FromScala._
 import scala.language.higherKinds
 
 /**

@@ -188,16 +188,6 @@ object IndexedSeq {
     def fastApply(i: Int): T = f(i)
   }
 
-  implicit def arrayAsIndexedSeq[T](a: Array[T]): IndexedSeq[T] = new AbstractIndexedSeq[T] {
-    def fastLength = a.length
-    def fastApply(i: Int) = a(i)
-  }
-
-  implicit def stringAsIndexedSeq(a: String): IndexedSeq[Char] = new AbstractIndexedSeq[Char] {
-    def fastApply(i: Int) = a.charAt(i)
-    def fastLength = a.length
-  }
-
   implicit def Equiv[T: Equiv]: Equiv[IndexedSeq[T]] = new Equiv[IndexedSeq[T]] {
     def eq(x: IndexedSeq[T], y: IndexedSeq[T]) = {
       if (x.length != y.length) false

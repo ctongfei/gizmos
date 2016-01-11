@@ -10,7 +10,7 @@ import scala.language.implicitConversions
 /**
  * @author Tongfei Chen
  */
-object Java {
+object FromJava {
 
   implicit def javaIterableAsPoly[T](xs: jl.Iterable[T]): Iterable[T] = new AbstractIterable[T] {
     def newIterator = javaIteratorAsPoly[T](xs.iterator())
