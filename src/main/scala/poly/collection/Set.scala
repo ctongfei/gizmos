@@ -10,50 +10,28 @@ import poly.collection.mut._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait Set[T] extends Predicate[T] with KeyedStructure[T, Set[T]] { self =>
+trait Set[T] extends Predicate[T] with Multiset[T] with KeyedStructure[T, Set[T]] { self =>
 
   def equivOnKey: Equiv[T]
 
-  /** Returns an iterable sequence of all the elements in this set. */
-  def elements: Iterable[T]
+  /**
+    * Returns an iterable sequence of all the elements in this set.
+    * The elements returned should be distinct under the equivalence relation of this set.
+    */
+  def keys: Iterable[T]
 
   /** Tests if an element belongs to this set. */
   def contains(x: T): Boolean
 
   def apply(x: T) = contains(x)
 
-  /** Tests if an element does not belong to this set. */
-  def notContains(x: T) = !contains(x)
+  override def elements = keys
 
-  def containsKey(x: T) = contains(x)
+  final override def multiplicity(x: T) = if (contains(x)) 1 else 0
 
-  final override def keys = elements
-
-  final def keySet = this
+  final override def keySet = this
 
   def size = elements.size
-
-  def foreach[U](f: T => U) = elements foreach f
-
-  def fold[U >: T](z: U)(f: (U, U) => U) = elements.fold(z)(f)
-
-  def foldByMonoid[U >: T : Monoid] = elements.foldByMonoid[U]
-
-  def reduce[U >: T](f: (U, U) => U) = elements reduce f
-
-  def reduceBySemigroup[U >: T : Semigroup] = elements.reduceBySemigroup[U]
-
-  def forall(f: T => Boolean) = elements forall f
-
-  def exists(f: T => Boolean) = elements exists f
-
-  def sum[U >: T : AdditiveCMonoid] = elements.sum[U]
-
-  def max[U >: T : WeakOrder] = elements.max
-
-  def min[U >: T : WeakOrder] = elements.min
-
-  def minAndMax[U >: T : WeakOrder] = elements.minAndMax
 
   /**
     * Returns the union of two sets.
@@ -62,7 +40,7 @@ trait Set[T] extends Predicate[T] with KeyedStructure[T, Set[T]] { self =>
   def |(that: Set[T]): Set[T] = new AbstractSet[T] {
     def equivOnKey = self.equivOnKey
     def contains(x: T) = self.contains(x) || that.contains(x)
-    def elements = self.elements ++ that.elements.filter(self.notContains)
+    def keys = self.keys ++ that.keys.filter(self.notContains)
   }
 
   /**
@@ -72,7 +50,7 @@ trait Set[T] extends Predicate[T] with KeyedStructure[T, Set[T]] { self =>
   def &(that: Set[T]): Set[T] = new AbstractSet[T] {
     def equivOnKey = self.equivOnKey
     def contains(x: T) = self.contains(x) && that.contains(x)
-    def elements = self.elements.filter(that.contains)
+    def keys = self.keys.filter(that.contains)
   }
 
   /**
@@ -82,7 +60,7 @@ trait Set[T] extends Predicate[T] with KeyedStructure[T, Set[T]] { self =>
   def \(that: Set[T]): Set[T] = new AbstractSet[T] {
     def equivOnKey: Equiv[T] = self.equivOnKey
     def contains(x: T): Boolean = self.contains(x) && that.notContains(x)
-    def elements = self.elements.filter(that.notContains)
+    def keys = self.keys.filter(that.notContains)
   }
 
   /** Tests if this set is a subset of another set. */
@@ -100,7 +78,7 @@ trait Set[T] extends Predicate[T] with KeyedStructure[T, Set[T]] { self =>
 
   def cartesianProduct[T1](that: Set[T1]): Set[(T, T1)] = new AbstractSet[(T, T1)] {
     def equivOnKey = Equiv.product(self.equivOnKey, that.equivOnKey)
-    def elements = self.elements cartesianProduct that.elements
+    def keys = self.keys cartesianProduct that.keys
     override def size = self.size * that.size
     def contains(k: (T, T1)) = self.containsKey(k._1) && that.containsKey(k._2)
   }
@@ -134,7 +112,7 @@ trait Set[T] extends Predicate[T] with KeyedStructure[T, Set[T]] { self =>
   override def filterKeys(f: T => Boolean): Set[T] = new AbstractSet[T] {
     def equivOnKey = self.equivOnKey
     def contains(x: T) = self.contains(x) && f(x)
-    def elements = self.elements.filter(f)
+    def keys = self.keys.filter(f)
   }
 
   def map[T1: Equiv](f: T => T1): Set[T1] = {
@@ -145,7 +123,7 @@ trait Set[T] extends Predicate[T] with KeyedStructure[T, Set[T]] { self =>
 
   def wrapKeysBy[T1](f: Bijection[T1, T]): Set[T1] = new AbstractSet[T1] {
     def equivOnKey = Equiv by f
-    def elements = self.elements.map(f.invert)
+    def keys = self.elements.map(f.invert)
     def contains(x: T1) = self.contains(f(x))
   }
 
@@ -173,7 +151,7 @@ object Set {
   def empty[T: Equiv]: Set[T] = new Set[T] {
     def equivOnKey = implicitly[Equiv[T]]
     override def size = 0
-    def elements = Iterable.empty
+    def keys = Iterable.empty
     def contains(x: T) = false
     override def |(that: Set[T]) = that
     override def \(that: Set[T]) = this

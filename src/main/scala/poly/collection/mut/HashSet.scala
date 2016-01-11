@@ -18,7 +18,7 @@ class HashSet[T: IntHashing] private(val data: ClosedHashingSet[T]) extends Muta
 
   def contains(x: T) = data.locate(x) != -1
 
-  def elements = Iterable.ofIterator {
+  def keys = Iterable.ofIterator {
     new Iterator[T] {
       private[this] var i = -1
       def current = data.keys(i).asInstanceOf[T]

@@ -17,6 +17,5 @@ class BitSet extends MutableSet[Int] {
   /** Tests if an element belongs to this set. */
   def contains(x: Int) = ???
 
-
-  def elements = ???
+  def keys = ???
 }

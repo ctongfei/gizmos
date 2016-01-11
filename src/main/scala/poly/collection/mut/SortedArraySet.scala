@@ -12,7 +12,7 @@ class SortedArraySet[T] private(private val data: SortedArray[T]) extends Sorted
 
   def contains(x: T) = data.tryBinarySearch(x) >= 0
 
-  def elements = data
+  def keys = data
 
   def add(x: T) = data.add(x)
 

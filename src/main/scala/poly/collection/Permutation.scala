@@ -39,6 +39,8 @@ class Permutation private(private val data: Array[Int])
     new Permutation(Array.tabulate(size)(i => that(this(i))))
   }
 
+  def andThen(that: Permutation) = that compose this
+
   def cmp(x: Int, y: Int) = invert(x) >?< invert(y)
 
   override def inverse: Permutation = {
@@ -74,7 +76,7 @@ object Permutation {
     def equivOnKey = LexicographicOrder
     def contains(x: Permutation) = x.size == n
 
-    def elements: Iterable[Permutation] = Iterable.ofIterator {
+    def keys: Iterable[Permutation] = Iterable.ofIterator {
       new Iterator[Permutation] {
         var p: Array[Int] = null
 

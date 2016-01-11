@@ -16,7 +16,7 @@ trait Multiset[T] extends KeyedStructure[T, Multiset[T]] { self =>
 
   def keySet: Set[T] = new AbstractSet[T] {
     def equivOnKey = self.equivOnKey
-    def elements = self.keys
+    def keys = self.keys
     def contains(x: T) = self.contains(x)
   }
 
@@ -30,6 +30,8 @@ trait Multiset[T] extends KeyedStructure[T, Multiset[T]] { self =>
 
   def elements: Iterable[T] = keys.flatMap(k => k.repeat(multiplicity(k)))
 
+  def filterKeys(p: T => Boolean): Multiset[T] = ???
+
   def keyFreqMap: Map[T, Int] = new AbstractMap[T, Int] {
     def pairs = self.keys.map(k => k → self.multiplicity(k))
     def containsKey(x: T) = self.contains(x)
@@ -37,7 +39,6 @@ trait Multiset[T] extends KeyedStructure[T, Multiset[T]] { self =>
     def ?(k: T) = if (self.contains(k)) Some(self.multiplicity(k)) else None
     def equivOnKey = self.equivOnKey
 }
-
 
   // HELPER FUNCTIONS
 
@@ -63,6 +64,13 @@ trait Multiset[T] extends KeyedStructure[T, Multiset[T]] { self =>
 
   def minAndMax[U >: T : WeakOrder] = elements.minAndMax
 
-
+  def |(that: Multiset[T]): Multiset[T] = new AbstractMultiset[T] {
+    def equivOnKey = self.equivOnKey
+    def multiplicity(x: T) = math.max(self.multiplicity(x), that.multiplicity(x))
+    def keys = ???
+    def contains(x: T) = ???
+  }
 
 }
+
+abstract class AbstractMultiset[T] extends Multiset[T]

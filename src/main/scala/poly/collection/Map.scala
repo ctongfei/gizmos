@@ -70,14 +70,14 @@ trait Map[@sp(i) K, +V] extends KeyedStructure[K, Map[K, V]] with PartialFunctio
     def equivOnKey = self.equivOnKey
     def contains(x: K): Boolean = self.containsKey(x)
     override def size: Int = self.size
-    def elements: Iterable[K] = self.pairs.map(_._1)
+    def keys: Iterable[K] = self.pairs.map(first)
   }
 
   /** Returns an iterable collection of the keys in this map. $LAZY $O1 */
-  def keys = self.pairs.map(_._1)
+  def keys = self.pairs.map(first)
 
   /** Returns an iterable collection of the values in this map. $LAZY $O1 */
-  def values = self.pairs.map(_._2)
+  def values = self.pairs.map(second)
 
   // HELPER FUNCTIONS
 

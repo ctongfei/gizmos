@@ -9,9 +9,7 @@ import scala.language.implicitConversions
 
 /**
  * Represents an indexed sequence.
- *
  * Indexed sequences should support efficient random access (typically O(1), sometimes may be O(log ''n'')).
- *
  * @author Tongfei Chen
  * @since 0.1.0
  */
@@ -122,7 +120,7 @@ trait IndexedSeq[+T] extends BiSeq[T] with HasKnownSize { self =>
   override def rotate(j: Int): IndexedSeq[T] = new AbstractIndexedSeq[T] {
     def fastApply(i: Int): T = self((j + i) % self.length)
     def fastLength: Int = self.length
-    override def rotate(jj: Int) = self.rotate(j + jj)
+    override def rotate(jj: Int) = self.rotate(j + jj) // optimize for nested rotates
   }
 
   override def reverse: IndexedSeq[T] = new AbstractIndexedSeq[T] {
@@ -152,10 +150,17 @@ trait IndexedSeq[+T] extends BiSeq[T] with HasKnownSize { self =>
     def fastApply(i: Int) = if (i % 2 == 0) self(i / 2) else that(i / 2)
   }
 
+  /**
+    * Rearranges the elements in this indexed sequence according to a permutation.
+    * @param p A permutation which is of the same length as this sequence
+    * @return A permuted sequence
+    * @example {{{('a', 'b', 'c').permuteBy(Permutation(0, 2, 1)) == ('a', 'c', 'b')}}}
+    */ //TODO: unify this with wrapKeysBy or whatever the name is
   def permuteBy(p: Permutation): IndexedSeq[T] = new AbstractIndexedSeq[T] {
     val pInv = p.inverse
     def fastApply(i: Int) = self(pInv(i))
     def fastLength = self.fastLength
+    override def permuteBy(q: Permutation) = permuteBy(q compose p)
   }
 
   /**

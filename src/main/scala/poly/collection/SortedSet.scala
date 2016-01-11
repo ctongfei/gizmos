@@ -6,10 +6,11 @@ package poly.collection
   */
 trait SortedSet[T] extends Set[T] {
 
-  def orderOnKey = elements.orderOnValue
+  def orderOnKey = keys.orderOnValue
 
   def equivOnKey = orderOnKey
 
-  def elements: SortedIterable[T]
+  def keys: SortedIterable[T]
 
+  override def elements = keys
 }

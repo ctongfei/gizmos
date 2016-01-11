@@ -38,7 +38,7 @@ class ListSet[T] private(private val data: SinglyLinkedList[T])(implicit val equ
     }
   }
 
-  def elements = data
+  def keys = data
 }
 
 //TODO:!!! change to SetFactory

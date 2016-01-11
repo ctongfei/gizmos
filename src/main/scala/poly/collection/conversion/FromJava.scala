@@ -39,11 +39,11 @@ object FromJava {
     def equivOnKey = Equiv.default[T]
     def contains(x: T) = xs.contains(x)
     override def size = xs.size()
-    def elements = Iterable.ofIterator(xs.iterator())
+    def keys = Iterable.ofIterator(xs.iterator())
   }
 
   implicit def javaSortedSetAsPoly[T](xs: ju.SortedSet[T]): SortedSet[T] = new SortedSet[T] { //TODO:// sorted!
-    def elements = new SortedIterable[T] {
+    def keys = new SortedIterable[T] {
       implicit def orderOnValue = xs.comparator()
       def newIterator = xs.iterator()
     }
