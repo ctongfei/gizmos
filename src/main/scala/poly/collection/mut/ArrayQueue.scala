@@ -10,7 +10,6 @@ import scala.reflect._
 
 /**
  * An array-backed circular queue that supports amortized O(1) time for both insertion and deletion.
- *
  * @author Tongfei Chen
  */
 class ArrayQueue[T] private(private val data: CircularArray[T]) extends Queue[T] with HasKnownSize {

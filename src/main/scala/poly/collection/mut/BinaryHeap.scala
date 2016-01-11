@@ -11,7 +11,6 @@ import poly.collection.impl._
 /**
   * An implementation of a binary min-heap.
   * The least element under the specific order will surface at the top of the heap.
-  *
   * @author Tongfei Chen
   */
 class BinaryHeap[T] private[poly](val data: ResizableSeq[T])(implicit val order: WeakOrder[T]) extends PriorityQueue[T] {

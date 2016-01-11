@@ -7,6 +7,7 @@ import poly.collection.ops._
 
 /**
   * Represents a permutation on a set {0, ..., ''n'' - 1}.
+  *
   * @author Tongfei Chen
   * @since 0.1.0
   */
@@ -72,8 +73,38 @@ object Permutation {
     def id = identity(n)
     def op(x: Permutation, y: Permutation) = x compose y
     def equivOnKey = LexicographicalOrder
-    def elements = ??? // Generate all permutations based on lexicographical order
     def contains(x: Permutation) = x.size == n
+
+    def elements: Iterable[Permutation] = Iterable.ofIterator {
+      new Iterator[Permutation] {
+        var p: Array[Int] = null
+
+        def current = new Permutation(p)
+        def advance(): Boolean = {
+          if (p == null) {
+            p = Array.tabulate(n)(i => i)
+            true
+          } else {
+            val k = Range(n - 1).lastIndexWhere(k => p(k) < p(k + 1))
+            if (k == -1) return false
+            val l = Range(k + 1, n).lastIndexWhere(l => p(k) < p(l)) + k + 1
+            val t = p(k)
+            p(k) = p(l)
+            p(l) = t
+            var left = k + 1
+            var right = n - 1
+            while (left < right) {
+              val t = p(right)
+              p(right) = p(left)
+              p(left) = t
+              left += 1
+              right -= 1
+            }
+            true
+          }
+        }
+      }
+    }
   }
 
   implicit object LexicographicalOrder extends TotalOrder[Permutation] {
