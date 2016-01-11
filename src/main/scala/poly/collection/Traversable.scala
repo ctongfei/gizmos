@@ -463,7 +463,7 @@ trait Traversable[+T] { self =>
     seq.asIfSorted(U)
   }
 
-  def sortBy[T1 >: T, T2](f: T1 => T2)(implicit T2: WeakOrder[T2]): SortedIndexedSeq[T1] = {
+  def sortBy[U](f: T => U)(implicit U: WeakOrder[U]): SortedIndexedSeq[T @uv] = {
     val seq = self.to[ArraySeq]
     val o = WeakOrder by f
     seq.sortInplace()(o)

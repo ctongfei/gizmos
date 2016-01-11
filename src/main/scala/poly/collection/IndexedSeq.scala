@@ -1,10 +1,10 @@
 package poly.collection
 
 import poly.algebra._
-import poly.algebra.ops._
+import poly.algebra.syntax._
 import poly.collection.node._
 import poly.macroutil._
-import scala.annotation.unchecked.{uncheckedVariance => uV}
+import scala.annotation.unchecked.{uncheckedVariance => uv}
 import scala.language.implicitConversions
 
 /**
@@ -48,6 +48,8 @@ trait IndexedSeq[+T] extends BiSeq[T] with HasKnownSize { self =>
   override def foreach[V](f: T => V): Unit = {
     FastLoop.ascending(0, length, 1) { i => f(apply(i)) }
   }
+
+  override def pairs: SortedIndexedSeq[(Int, T@uv)] = Range(length).map(i => i → fastApply(i)).asIfSorted(WeakOrder by first)
 
   override def keys = Range(length)
 

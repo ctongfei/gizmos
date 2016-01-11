@@ -1,6 +1,6 @@
 name := "poly-collection"
 
-version := "0.0.0-SNAPSHOT"
+version := "0.0.1-SNAPSHOT"
 
 isSnapshot := true
 

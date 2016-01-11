@@ -83,14 +83,15 @@ trait Seq[+T] extends SortedMap[Int, T] with Iterable[T] { self =>
     * @return A sequence of index-element pairs.
     */
   def pairs: SortedSeq[(Int, T @uv)] = {
-    var i = -1
-    self.map(x => { i += 1; (i, x) }).asIfSorted(WeakOrder by first)
+    class SeqNodeWithIndex(val outer: SeqNode[T], val i: Int) extends SeqNode[(Int, T)] {
+      def data = (i, outer.data)
+      def next = new SeqNodeWithIndex(outer.next, i + 1)
+      def isDummy = outer.isDummy
+    }
+    ofDummyNode(new SeqNodeWithIndex(dummy, -1)).asIfSorted(WeakOrder by first)
   }
 
-  override def keys = {
-    var i = -1
-    self.map(_ => { i += 1; i })
-  }
+  override def keys = pairs.map(first)
 
   // HELPER FUNCTIONS
 
