@@ -8,7 +8,7 @@ import poly.collection.ops._
   * @author Tongfei Chen
   * @since 0.1.0
   */
-trait Multiset[T] extends KeyedStructure[T, Multiset[T]] { self =>
+trait Multiset[T] extends KeyedLike[T, Multiset[T]] { self =>
 
   def equivOnKey: Equiv[T]
 
@@ -58,19 +58,36 @@ trait Multiset[T] extends KeyedStructure[T, Multiset[T]] { self =>
 
   def sum[U >: T : AdditiveCMonoid] = elements.sum[U]
 
-  def max[U >: T : WeakOrder] = elements.max
+  def max(implicit T: WeakOrder[T]) = elements.max
 
-  def min[U >: T : WeakOrder] = elements.min
+  def min(implicit T: WeakOrder[T]) = elements.min
 
-  def minAndMax[U >: T : WeakOrder] = elements.minAndMax
+  def minAndMax(implicit T: WeakOrder[T]) = elements.minAndMax
 
   def |(that: Multiset[T]): Multiset[T] = new AbstractMultiset[T] {
     def equivOnKey = self.equivOnKey
     def multiplicity(x: T) = math.max(self.multiplicity(x), that.multiplicity(x))
-    def keys = ???
-    def contains(x: T) = ???
+    def keys = self.keys union that.keys
+    def contains(x: T) = self.contains(x) || that.contains(x)
   }
 
+  def &(that: Multiset[T]): Multiset[T] = new AbstractMultiset[T] {
+    def equivOnKey = self.equivOnKey
+    def multiplicity(x: T) = math.min(self.multiplicity(x), that.multiplicity(x))
+    def keys = self.keys intersect that.keys
+    def contains(x: T) = self.contains(x) && that.contains(x)
+  }
+
+}
+
+object Multiset {
+  /** Returns the lattice on sets. */
+  implicit def Lattice[T]: Lattice[Multiset[T]] with BoundedLowerSemilattice[Multiset[T]] =
+    new Lattice[Multiset[T]] with BoundedLowerSemilattice[Multiset[T]] {
+      def bot = Set.empty[T]
+      def inf(x: Multiset[T], y: Multiset[T]) = x & y
+      def sup(x: Multiset[T], y: Multiset[T]) = x | y
+    }
 }
 
 abstract class AbstractMultiset[T] extends Multiset[T]

@@ -21,7 +21,7 @@ import scala.language.reflectiveCalls
   * @define O1amortized Time complexity: Amortized O(1).
   * @define O1 Time complexity: O(1).
  */
-trait Map[@sp(i) K, +V] extends KeyedStructure[K, Map[K, V]] with PartialFunction[K, V] { self =>
+trait Map[@sp(i) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K, V] { self =>
 
   /**
    * Returns all key-value pairs stored in this map.
@@ -107,7 +107,7 @@ trait Map[@sp(i) K, +V] extends KeyedStructure[K, Map[K, V]] with PartialFunctio
   }
 
   def cartesianProduct[K1, V1](that: Map[K1, V1]): Map[(K, K1), (V, V1)] = new AbstractMap[(K, K1), (V, V1)] {
-    def equivOnKey = ??? // TODO: poly-algebra: Equiv.product
+    def equivOnKey = Equiv.product(self.equivOnKey, that.equivOnKey)
     def containsKey(k: (K, K1)) = self.containsKey(k._1) && that.containsKey(k._2)
     def ?(k: (K, K1)) = for (v ← self ? k._1; v1 ← that ? k._2) yield (v, v1)
     def apply(k: (K, K1)) = (self(k._1), that(k._2))
@@ -136,7 +136,17 @@ trait Map[@sp(i) K, +V] extends KeyedStructure[K, Map[K, V]] with PartialFunctio
     def apply(k: K1) = self apply f(k)
     def ?(k: K1) = self ? f(k)
     implicit def equivOnKey = Equiv by f
-}
+  }
+
+  def asMap: Map[K, V] = new AbstractMap[K, V] {
+    def apply(k: K) = self.apply(k)
+    def ?(k: K) = self ? k
+    implicit def equivOnKey = self.equivOnKey
+    def pairs = self.pairs
+    def containsKey(x: K) = self.containsKey(x)
+  }
+
+  override def toString = pairs.toString
 
   def |>[W](f: V => W) = self map f
   def |~|[W](that: Map[K, W]) = self zip that

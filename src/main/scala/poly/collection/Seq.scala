@@ -88,7 +88,7 @@ trait Seq[+T] extends SortedMap[Int, T] with Iterable[T] { self =>
       def next = new SeqNodeWithIndex(outer.next, i + 1)
       def isDummy = outer.isDummy
     }
-    ofDummyNode(new SeqNodeWithIndex(dummy, -1)).asIfSorted(WeakOrder by first)
+    ofDummyNode(new SeqNodeWithIndex(dummy, -1)).asIfSorted[(Int, T)](WeakOrder by first)
   }
 
   override def keys = pairs.map(first)
@@ -278,8 +278,8 @@ trait Seq[+T] extends SortedMap[Int, T] with Iterable[T] { self =>
    * @note Actual orderedness is not guaranteed! The user should make sure that it is sorted.
    * @return A sorted sequence
    */
-  override def asIfSorted[U >: T](implicit U: WeakOrder[U]): SortedSeq[U] = new SortedSeq[U] {
-    val orderOnValue: WeakOrder[U] = U
+  override def asIfSorted[U >: T](implicit U: WeakOrder[U]): SortedSeq[T@uv] = new SortedSeq[T] {
+    def orderOnValue = U
     def dummy: SeqNode[T] = self.dummy
   }
 

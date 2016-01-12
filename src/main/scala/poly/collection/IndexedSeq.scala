@@ -49,7 +49,7 @@ trait IndexedSeq[+T] extends BiSeq[T] with HasKnownSize { self =>
     FastLoop.ascending(0, length, 1) { i => f(apply(i)) }
   }
 
-  override def pairs: SortedIndexedSeq[(Int, T@uv)] = Range(length).map(i => i → fastApply(i)).asIfSorted(WeakOrder by first)
+  override def pairs: SortedIndexedSeq[(Int, T@uv)] = Range(length).map(i => i → fastApply(i)).asIfSorted[(Int, T)](WeakOrder by first)
 
   override def keys = Range(length)
 
@@ -172,8 +172,8 @@ trait IndexedSeq[+T] extends BiSeq[T] with HasKnownSize { self =>
    * @param U The implicit order
    * @return A sorted order
    */
-  override def asIfSorted[U >: T](implicit U: WeakOrder[U]): SortedIndexedSeq[U] = new SortedIndexedSeq[U] {
-    val orderOnValue: WeakOrder[U] = U
+  override def asIfSorted[U >: T](implicit U: WeakOrder[U]): SortedIndexedSeq[T@uv] = new SortedIndexedSeq[T] {
+    def orderOnValue = U
     def fastLength: Int = self.length
     def fastApply(i: Int): T = self.apply(i)
   }

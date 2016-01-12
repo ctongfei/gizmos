@@ -10,7 +10,7 @@ import poly.collection.mut._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait Set[T] extends Predicate[T] with Multiset[T] with KeyedStructure[T, Set[T]] { self =>
+trait Set[T] extends Predicate[T] with Multiset[T] with KeyedLike[T, Set[T]] { self =>
 
   def equivOnKey: Equiv[T]
 

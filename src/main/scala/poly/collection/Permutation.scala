@@ -3,14 +3,10 @@ package poly.collection
 import poly.algebra._
 import poly.algebra.syntax._
 import poly.collection.exception._
-import poly.collection.mut._
 import poly.collection.ops._
-
-import scala.util._
 
 /**
   * Represents a permutation on a set {0, ..., ''n'' - 1}.
-  *
   * @author Tongfei Chen
   * @since 0.1.0
   */
@@ -64,7 +60,7 @@ object Permutation {
 
   def random(n: Int) = {
     val a = Array.tabulate(n)(i => i)
-    val r = new Random()
+    val r = new scala.util.Random()
     for (i ← Range(n - 1, 0, -1)) {
       val j = r.nextInt(i + 1)
       val t = a(i)
@@ -79,10 +75,13 @@ object Permutation {
     new Permutation(a)
   }
 
+  implicit def GroupAction[T]: Action[IndexedSeq[T], Permutation] = new Action[IndexedSeq[T], Permutation] {
+    def act(k: Permutation, x: IndexedSeq[T]) = x permuteBy k
+  }
+
   /**
     * Returns the permutation group of size ''n''.
     * This structure is a [[poly.algebra.Group]] as well as a [[poly.collection.Set]].
- *
     * @return
     */
   def Group(n: Int): Group[Permutation] with Set[Permutation] = new Group[Permutation] with Set[Permutation] {
@@ -103,7 +102,8 @@ object Permutation {
           if (p == null) {
             p = Array.tabulate(n)(i => i)
             true
-          } else {
+          }
+          else {
             var k = -1
             for (i ← Range(n - 1)) if (p(i) < p(i + 1)) k = i
             if (k == -1) return false

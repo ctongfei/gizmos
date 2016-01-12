@@ -19,7 +19,7 @@ import scala.annotation.unchecked.{uncheckedVariance => uv}
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait Graph[@sp(i) K, +V, +E] extends KeyedStructure[K, Graph[K, V, E]] with StateSpace[K] { self =>
+trait Graph[@sp(i) K, +V, +E] extends KeyedLike[K, Graph[K, V, E]] with StateSpace[K] { self =>
 
   import Graph._
 

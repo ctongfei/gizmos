@@ -2,10 +2,10 @@ package poly.collection
 
 import poly.algebra._
 import poly.algebra.hkt._
-import poly.algebra.ops._
-import poly.algebra.function._
+import poly.algebra.syntax._
 import poly.collection.exception._
 import poly.collection.mut._
+import scala.annotation.unchecked.{uncheckedVariance => uv}
 import scala.language.implicitConversions
 
 /**
@@ -242,10 +242,14 @@ trait Iterable[+T] extends Traversable[T] { self =>
 
   override def distinct[T1 >: T](implicit T1: Equiv[T1]): Iterable[T] = ???
 
+  def union[T1 >: T](that: Iterable[T1]): Iterable[T1] = (this concat that).distinct
+
+  def intersect[T1 >: T](that: Iterable[T1]): Iterable[T1] = ???
+
   override def rotate(n: Int): Iterable[T] = self.skip(n) ++ self.take(n)
 
   /** Pretends that this iterable collection is sorted. */
-  def asIfSorted[U >: T : WeakOrder]: SortedIterable[U] = new SortedIterable[U] {
+  def asIfSorted[U >: T : WeakOrder]: SortedIterable[T@uv] = new SortedIterable[T] {
     def orderOnValue = implicitly[WeakOrder[U]]
     def newIterator = self.newIterator
   }
@@ -274,6 +278,21 @@ trait Iterable[+T] extends Traversable[T] { self =>
       def advance(): Boolean = ti.advance() && ui.advance() && vi.advance()
       def current: (T, U, V) = (ti.current, ui.current, vi.current)
     }
+  }
+
+  def indexed: Iterable[(Int, T@uv)] = {
+    val paired = ofIterator {
+      new Iterator[(Int, T)] {
+        var idx = -1
+        val itr = self.newIterator
+        def current = (idx, itr.current)
+        def advance() = {
+          idx += 1
+          itr.advance()
+        }
+      }
+    }
+    paired.asIfSorted[(Int, T)](WeakOrder by first)
   }
 
   /**

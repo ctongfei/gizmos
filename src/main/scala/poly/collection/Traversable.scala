@@ -276,10 +276,7 @@ trait Traversable[+T] { self =>
 
   /**
    * Returns the consecutive differences of the sequences. $LAZY
- *
-   * @example {{{
-   *   (0, 1, 3, 6, 10).consecutive(_ - _) == (1, 2, 3, 4)
-   * }}}
+   * @example {{{ (0, 1, 3, 6, 10).consecutive(_ - _) == (1, 2, 3, 4) }}}
    */
   def consecutive[U](f: (T, T) => U): Traversable[U] = new AbstractTraversable[U] {
     var first = true
@@ -522,7 +519,6 @@ trait Traversable[+T] { self =>
 
   /**
    * Returns the consecutive differences sequence of this collection.
- *
    * @example {{{
    *   (0, 1, 3, 6, 10).differences == (1, 2, 3, 4)
    * }}}
@@ -541,7 +537,7 @@ trait Traversable[+T] { self =>
    * @tparam X Supertype of the type of elements: must be endowed with a multiplicative monoid.
    * @return The product
    */
-  def product[X >: T](implicit X: MultiplicativeMonoid[X]): X = fold(one)(_*_)
+  def product[X >: T](implicit X: MultiplicativeMonoid[X]): X = fold(one)(X.mul)
 
   /**
    * Returns the minimum element in this collection.
@@ -549,9 +545,9 @@ trait Traversable[+T] { self =>
    * @tparam X Supertype of the type of elements: must be endowed with a weak order.
    * @return The minimum element
    */
-  def min[X >: T](implicit X: WeakOrder[X]): X = reduceLeft(X.min[X])
+  def min(implicit T: WeakOrder[T]): T = reduce(T.min[T])
 
-  def max[X >: T](implicit X: WeakOrder[X]): X = reduceLeft(X.max[X])
+  def max(implicit T: WeakOrder[T]): T = reduce(T.max[T])
 
   /**
     * Returns the first element in this collection that makes the specific function least.
@@ -573,9 +569,9 @@ trait Traversable[+T] { self =>
 
   def maxBy[U: WeakOrder](f: T => U) = argmax(f)
 
-  def minAndMax[X >: T : WeakOrder]: (X, X) = {
-    var minVal = default[X]
-    var maxVal = default[X]
+  def minAndMax(implicit T: WeakOrder[T]): (T, T) = {
+    var minVal = default[T]
+    var maxVal = default[T]
     var first = true
 
     for (x ← self) {

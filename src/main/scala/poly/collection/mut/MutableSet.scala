@@ -11,8 +11,8 @@ trait MutableSet[T] extends Set[T] {
 
   def remove(x: T)
 
-  def unionInplace(xs: Traversable[T]) = xs foreach add
+  def unionInplace(xs: Set[T]) = xs.elements foreach add
 
-  def diffInplace(xs: Traversable[T]) = xs foreach remove
+  def diffInplace(xs: Set[T]) = xs.elements foreach remove
 
 }
