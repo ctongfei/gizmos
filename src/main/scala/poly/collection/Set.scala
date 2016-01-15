@@ -174,7 +174,7 @@ object Set {
   }
 
   def autoBuilder[T](implicit e: Equiv[T]): Builder[T, Set[T]] = e match {
-    case e: IntHashing[T] => HashSet.newBuilder[T]
+    case e: IntHashing[T] => HashSet.newBuilder[T] // HashSet.newBuilder(e)
     case e: WeakOrder[T] => ???
     case _ => ???
   }

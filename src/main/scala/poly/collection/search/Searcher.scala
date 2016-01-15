@@ -6,7 +6,6 @@ import poly.collection.search.node._
 
 /**
   * An extremely generic iterator that executes a search algorithm.
- *
   * @tparam S Type of state
   * @tparam N Type of search node
   * @param S The searching state space

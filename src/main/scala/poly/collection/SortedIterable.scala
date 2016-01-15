@@ -14,7 +14,7 @@ import poly.collection.mut._
 trait SortedIterable[T] extends Iterable[T] { self =>
 
   /** The order under which the elements of this sequence is sorted. */
-  implicit def orderOnValue: WeakOrder[T]
+  implicit def order: WeakOrder[T]
 
   /**
    * Merges two sorted sequences into one sorted sequence. $LAZY
@@ -22,7 +22,7 @@ trait SortedIterable[T] extends Iterable[T] { self =>
    * @return A merged sorted sequence
    */
   def merge(that: SortedIterable[T]): SortedIterable[T] = new SortedIterable[T] {
-    implicit def orderOnValue: WeakOrder[T] = self.orderOnValue
+    implicit def order: WeakOrder[T] = self.order
     def newIterator: Iterator[T] = new Iterator[T] {
       private[this] val ai = self.newIterator
       private[this] val bi = that.newIterator
@@ -76,7 +76,7 @@ trait SortedIterable[T] extends Iterable[T] { self =>
     // Appends remaining elements
     if (aNotComplete) do c.appendInplace(ai.current) while (ai.advance())
     if (bNotComplete) do c.appendInplace(bi.current) while (bi.advance())
-    c.asIfSorted(this.orderOnValue)
+    c.asIfSorted(this.order)
   }
 
 }

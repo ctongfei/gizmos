@@ -250,7 +250,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
 
   /** Pretends that this iterable collection is sorted. */
   def asIfSorted[U >: T : WeakOrder]: SortedIterable[T@uv] = new SortedIterable[T] {
-    def orderOnValue = implicitly[WeakOrder[U]]
+    def order = implicitly[WeakOrder[U]]
     def newIterator = self.newIterator
   }
 
@@ -455,8 +455,6 @@ object Iterable {
       def advance() = is.forall(_.advance())
     }
   }
-
-  def interleaveN[T](xss: Iterable[T]*) = ???
 
   /** Returns the natural monad on Iterables. */
   implicit object Monad extends ConcatenativeMonad[Iterable] {

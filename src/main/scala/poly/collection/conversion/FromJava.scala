@@ -2,7 +2,7 @@ package poly.collection.conversion
 
 import java.{lang => jl, util => ju}
 import poly.algebra._
-import poly.algebra.conversion.Java._
+import poly.algebra.conversion.FromJava._
 import poly.collection._
 import poly.collection.mut._
 import scala.language.implicitConversions
@@ -44,7 +44,7 @@ object FromJava {
 
   implicit def javaSortedSetAsPoly[T](xs: ju.SortedSet[T]): SortedSet[T] = new SortedSet[T] { //TODO:// sorted!
     def keys = new SortedIterable[T] {
-      implicit def orderOnValue = xs.comparator()
+      implicit def order = xs.comparator()
       def newIterator = xs.iterator()
     }
     def contains(x: T) = xs.contains(x)

@@ -13,7 +13,6 @@ trait GraphBuilder[-K, -V, -E, +G] {
 
   /**
    * Provides a hint to this builder about how many vertices are expected to be added.
- *
    * @param n The hint how many vertices is to be added
    */
   def numNodesHint(n: Int): Unit

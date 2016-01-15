@@ -13,7 +13,7 @@ import scala.reflect._
  */
 class SortedArraySeq[T] private(private val data: SortedArray[T]) extends MutableSortedIndexedSeq[T] {
 
-  val orderOnValue = data.orderOnValue
+  val order = data.order
 
   def fastLength = data.fastLength
 

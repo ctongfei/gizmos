@@ -159,8 +159,7 @@ trait IndexedSeq[+T] extends BiSeq[T] with HasKnownSize { self =>
     * @example {{{('a', 'b', 'c').permuteBy(Permutation(0, 2, 1)) == ('a', 'c', 'b')}}}
     */ //TODO: unify this with wrapKeysBy or whatever the name is
   def permuteBy(p: Permutation): IndexedSeq[T] = new AbstractIndexedSeq[T] {
-    val pInv = p.inverse
-    def fastApply(i: Int) = self(pInv(i))
+    def fastApply(i: Int) = self(p.invert(i))
     def fastLength = self.fastLength
     override def permuteBy(q: Permutation) = permuteBy(q compose p)
   }
@@ -168,12 +167,11 @@ trait IndexedSeq[+T] extends BiSeq[T] with HasKnownSize { self =>
   /**
    * Pretends that this sequence is sorted under the given order.
    * (WARNING: Actual orderedness is not guaranteed! The user should make sure that it is sorted.)
- *
    * @param U The implicit order
    * @return A sorted order
    */
   override def asIfSorted[U >: T](implicit U: WeakOrder[U]): SortedIndexedSeq[T@uv] = new SortedIndexedSeq[T] {
-    def orderOnValue = U
+    def order = U
     def fastLength: Int = self.length
     def fastApply(i: Int): T = self.apply(i)
   }

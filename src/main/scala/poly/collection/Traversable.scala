@@ -454,8 +454,8 @@ trait Traversable[+T] { self =>
     */
   def rotate(n: Int) = (self skip n) ++ (self take n)
 
-  def sort[U >: T](implicit U: WeakOrder[U]): SortedIndexedSeq[U] = {
-    val seq = self.map(_.asInstanceOf[U]).to[ArraySeq]
+  def sort[U >: T](implicit U: WeakOrder[U]): SortedIndexedSeq[T @uv] = {
+    val seq = self.to[ArraySeq]
     seq.sortInplace()(U)
     seq.asIfSorted(U)
   }
@@ -463,7 +463,7 @@ trait Traversable[+T] { self =>
   def sortBy[U](f: T => U)(implicit U: WeakOrder[U]): SortedIndexedSeq[T @uv] = {
     val seq = self.to[ArraySeq]
     val o = WeakOrder by f
-    seq.sortInplace()(o)
+    seq.sortInplace()(o) // TODO: cache Us and sort to avoid recalculation of Us?
     seq.asIfSorted(o)
   }
 

@@ -9,7 +9,7 @@ import poly.util.specgroup._
 /**
  * Represents a node in the fringe / open set of a searching algorithm.
  *
- * @author Yuhuan Jiang (jyuhuan@gmail.com).
+ * @author Yuhuan Jiang
  * @author Tongfei Chen
  */
 trait WithCost[S, C] extends WithParent[S] {
@@ -18,7 +18,6 @@ trait WithCost[S, C] extends WithParent[S] {
   /** The known cost from the initial node to this node. */
   def g: C
 }
-
 
 object WithCost extends WithCostLowPriorityImplicit {
 

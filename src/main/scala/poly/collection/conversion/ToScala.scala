@@ -8,7 +8,6 @@ import scala.{collection => sc}
   */
 object ToScala {
 
-
   implicit class PolyIteratorAsScala[T](val e: Iterator[T]) extends AnyVal {
 
     /**
@@ -66,7 +65,7 @@ object ToScala {
   }
 
   implicit class PolyIndexedSeqAsScala[T](val xs: IndexedSeq[T]) extends AnyVal {
-    def asScalaIndexedSeq: sc.IndexedSeq[T] = new sc.IndexedSeq[T] {
+    def asScalaIndexedSeq: sc.IndexedSeq[T] = new sc.AbstractSeq[T] with sc.IndexedSeq[T] {
       def length: Int = xs.fastLength
       def apply(i: Int): T = xs(i)
     }
@@ -78,6 +77,5 @@ object ToScala {
       def iterator: sc.Iterator[(K, V)] = xs.pairs.newIterator.asScalaIterator
     }
   }
-
 
 }

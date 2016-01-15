@@ -279,7 +279,7 @@ trait Seq[+T] extends SortedMap[Int, T] with Iterable[T] { self =>
    * @return A sorted sequence
    */
   override def asIfSorted[U >: T](implicit U: WeakOrder[U]): SortedSeq[T@uv] = new SortedSeq[T] {
-    def orderOnValue = U
+    def order = U
     def dummy: SeqNode[T] = self.dummy
   }
 
@@ -397,7 +397,7 @@ object Seq {
 
   implicit object Monad extends Monad[Seq] {
     def id[X](u: X) = ListSeq(u)
-    def flatMap[X, Y](mx: Seq[X])(f: X => Seq[Y]) = ???
+    def flatMap[X, Y](mx: Seq[X])(f: X => Seq[Y]) = mx flatMap f
   }
 
   implicit object Comonad extends Comonad[Seq] {

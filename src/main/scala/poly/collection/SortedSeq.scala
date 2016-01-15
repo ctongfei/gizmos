@@ -15,10 +15,12 @@ trait SortedSeq[T] extends Seq[T] with SortedIterable[T] { self =>
 
   def distinct: SortedSeq[T] = self
 
+  def orderOnValue = order
+
   def asSortedSet = ???
 
   def thenSortBy[X](f: T => X)(implicit subOrder: WeakOrder[T]): SortedIndexedSeq[T] = {
-    ???
+    self.sort(order thenOrderBy subOrder) //TODO:! naive implementation
   }
 
 }

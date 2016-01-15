@@ -28,7 +28,7 @@ class Range private(
     if (len < 0) 0 else len
   }
 
-  implicit def orderOnValue: TotalOrder[Int] = if (step > 0) TotalOrder[Int] else TotalOrder[Int].reverse
+  implicit def order: TotalOrder[Int] = if (step > 0) TotalOrder[Int] else TotalOrder[Int].reverse
 
   def fastApply(i: Int): Int = left + i * step
 

@@ -10,52 +10,49 @@ import poly.collection.ops._
   * @author Tongfei Chen
   * @since 0.1.0
   */
-class Permutation private(private val data: Array[Int])
-  extends BijectiveMap[Int, Int] with SortedMap[Int, Int] with HasKnownSize with TotalOrder[Int]
+class Permutation private(private val a1: Array[Int], private val a2: Array[Int])
+  extends BijectiveMap[Int, Int] with IndexedSeq[Int] with HasKnownSize with SequentialOrder[Int] with Bounded[Int]
 {
-  override def size = data.length
-  def apply(x: Int) = data(x)
-  def invert(y: Int): Int = {
-    for (k ← Range(size)) {
-      if (data(k) == y) return k
-    }
-    throw new KeyNotFoundException(y)
-  }
+  def fastLength = a1.length
+  def fastApply(x: Int) = a1(x)
+  def invert(y: Int) = a2(y)
 
-  def orderOnKey = TotalOrder[Int]
   def equivOnValue = Equiv[Int]
 
-  def containsKey(x: Int) = x >= 0 && x < size
   def containsValue(y: Int) = containsKey(y)
 
-  def ?(x: Int) = if (x < 0 || x >= size) None else Some(data(x))
-  def invertOption(y: Int) = if (y < 0 || y >= size) None else Some(invert(y))
-
-  def pairs = arrayAsIndexedSeq(data).pairs
+  def invertOption(y: Int) = if (y < 0 || y >= size) None else Some(a2(y))
 
   def compose(that: Permutation) = {
     require(this.size == that.size)
-    new Permutation(Array.tabulate(size)(i => that(this(i))))
+    Permutation(Array.tabulate(size)(i => that(this(i))))
   }
 
   def andThen(that: Permutation) = that compose this
 
-  def cmp(x: Int, y: Int) = invert(x) >?< invert(y)
+  def cmp(x: Int, y: Int) = a2(x) >?< a1(y)
+  def pred(x: Int) = a1((a2(x) - 1) % size)
+  def succ(x: Int) = a1((a2(x) + 1) % size)
+  def top = a1(size - 1)
+  def bot = a1(0)
 
-  override def inverse: Permutation = {
-    val inv = Array.ofDim[Int](size)
-    for (k ← Range(size))
-      inv(data(k)) = k
-    new Permutation(inv)
-  }
+  override def inverse: Permutation = new Permutation(a2, a1)
 
-  override def toString = arrayAsIndexedSeq(data).toString
+  override def reverse: Permutation = Permutation(arrayAsIndexedSeq(a1).reverse.toArray)
+
+  override def toString = arrayAsIndexedSeq(a1).toString
 }
 
 object Permutation {
 
-  def apply(ys: Int*): Permutation = {
-    new Permutation(ys.toArray)
+  def apply(xs: Int*): Permutation = apply(xs.toArray)
+
+  def apply(xs: Array[Int]): Permutation = {
+    val ys = Array.ofDim[Int](xs.length)
+    for (i ← Range(xs.length)) {
+      ys(xs(i)) = i
+    }
+    new Permutation(xs, ys)
   }
 
   def random(n: Int) = {
@@ -67,12 +64,12 @@ object Permutation {
       a(i) = a(j)
       a(j) = t
     }
-    new Permutation(a)
+    Permutation(a)
   }
 
   def identity(n: Int) = {
     val a = Array.tabulate(n)(i => i)
-    new Permutation(a)
+    new Permutation(a, a)
   }
 
   implicit def GroupAction[T]: Action[IndexedSeq[T], Permutation] = new Action[IndexedSeq[T], Permutation] {
@@ -95,7 +92,7 @@ object Permutation {
       new Iterator[Permutation] {
         var p: Array[Int] = null
 
-        def current = new Permutation(p)
+        def current = Permutation(p)
 
         // Generate permutations under lexicographic order.
         def advance(): Boolean = {
@@ -128,7 +125,7 @@ object Permutation {
     }
   }
 
-  implicit object LexicographicOrder extends TotalOrder[Permutation] {
+  implicit object LexicographicOrder extends SequentialOrder[Permutation] {
     def cmp(x: Permutation, y: Permutation): Int = {
       for (i ← Range(x.size)) {
         if (x(i) < y(i)) return -1
@@ -136,6 +133,10 @@ object Permutation {
       }
       0
     }
+
+    def pred(x: Permutation) = ???
+
+    def succ(x: Permutation) = ???
   }
 
 }
