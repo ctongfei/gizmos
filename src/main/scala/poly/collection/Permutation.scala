@@ -11,11 +11,13 @@ import poly.collection.ops._
   * @since 0.1.0
   */
 class Permutation private(private val a1: Array[Int], private val a2: Array[Int])
-  extends BijectiveMap[Int, Int] with IndexedSeq[Int] with HasKnownSize with SequentialOrder[Int] with Bounded[Int]
+  extends BijectiveMap[Int, Int] with IndexedSeq[Int] with SequentialOrder[Int] with Bounded[Int] with HasKnownSize
 {
   def fastLength = a1.length
   def fastApply(x: Int) = a1(x)
   def invert(y: Int) = a2(y)
+
+  override def size = a1.length
 
   def equivOnValue = Equiv[Int]
 

@@ -46,6 +46,14 @@ class Range private(
   override def tail = Range(left + step, right, step)
 
   override def reverse = Range(left + step * (length - 1), left - math.signum(step), -step)
+
+  def asSet: Set[Int] = new AbstractSet[Int] {
+    def equivOnKey = Equiv[Int]
+    def keys = self
+    def contains(x: Int) =
+      if (step > 0) x >= left && x < right && (x - left) % step == 0
+      else x <= left && x > right && (left - x) % (-step) == 0
+  }
 }
 
 object Range {

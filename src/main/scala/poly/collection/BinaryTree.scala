@@ -30,7 +30,7 @@ trait BinaryTree[+T] { self =>
 
   /**
    * Returns the ''i''th node of this binary tree.
-   * The ''i''th is defined as follows:
+   * The ordinal is defined as follows:
    *  <ul>
    *    <li> The index of the root node is 0; </li>
    *    <li> The left child of node ''i'' is 2''i'' + 1; </li>

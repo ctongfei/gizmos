@@ -124,8 +124,7 @@ trait Traversable[+T] { self =>
   }
 
   /**
-   * Puts each element in this collection into multiple bins, where each bin is specified by a predicate.
-   * $EAGER
+   * Puts each element in this collection into multiple bins, where each bin is specified by a predicate. $EAGER
    * @param fs
    * @return
    */
@@ -193,10 +192,7 @@ trait Traversable[+T] { self =>
     s
   }
 
-  /**
-   * Checks if this collection is empty. $O1
-   * @return
-   */
+  /** Checks if this collection is empty. $O1 */
   def isEmpty = headOption match {
     case Some(e) => false
     case None => true
@@ -232,7 +228,7 @@ trait Traversable[+T] { self =>
 
   /** $On */
   def foldByMonoid[U >: T : Monoid]: U = foldLeft(id)(_ op _)
-  
+
   /** $On */
   def reduceLeft[U >: T](f: (U, T) => U): U = {
     var first = true
@@ -541,8 +537,6 @@ trait Traversable[+T] { self =>
 
   /**
    * Returns the minimum element in this collection.
- *
-   * @tparam X Supertype of the type of elements: must be endowed with a weak order.
    * @return The minimum element
    */
   def min(implicit T: WeakOrder[T]): T = reduce(T.min[T])
@@ -684,6 +678,8 @@ trait Traversable[+T] { self =>
   //endregion
 
   //region Symbolic aliases
+  def /:[U](z: U)(f: (U, T) => U) = foldLeft(z)(f)
+  def :\[U](z: U)(f: (T, U) => U) = foldRight(z)(f)
   def :+[U >: T](x: U) = this append x
   def +:[U >: T](x: U) = this prepend x
   def ++[U >: T](that: Traversable[U]) = this concat that

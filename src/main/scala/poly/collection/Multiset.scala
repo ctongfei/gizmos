@@ -32,7 +32,11 @@ trait Multiset[T] extends KeyedLike[T, Multiset[T]] { self =>
 
   def filterKeys(p: T => Boolean): Multiset[T] = ???
 
-  def keyFreqMap: Map[T, Int] = new AbstractMap[T, Int] {
+  /**
+    * Casts this multiset as a map that maps the unique elements to its multiplicity in this multiset. $LAZY
+    * @example {{{ {1, 1, 1, 2}.asKeyFreqMap == {1 -> 3, 2 -> 1} }}}
+    */
+  def asKeyFreqMap: Map[T, Int] = new AbstractMap[T, Int] {
     def pairs = self.keys.map(k => k → self.multiplicity(k))
     def containsKey(x: T) = self.contains(x)
     def apply(k: T) = self.multiplicity(k)
@@ -52,17 +56,17 @@ trait Multiset[T] extends KeyedLike[T, Multiset[T]] { self =>
 
   def reduceBySemigroup[U >: T : Semigroup] = elements.reduceBySemigroup[U]
 
-  def forall(f: T => Boolean) = elements forall f
+  def forall(f: T => Boolean) = keys forall f
 
-  def exists(f: T => Boolean) = elements exists f
+  def exists(f: T => Boolean) = keys exists f
 
-  def sum[U >: T : AdditiveCMonoid] = elements.sum[U]
+  def sum[U >: T : AdditiveCMonoid] = keys.sum[U]
 
-  def max(implicit T: WeakOrder[T]) = elements.max
+  def max(implicit T: WeakOrder[T]) = keys.max
 
-  def min(implicit T: WeakOrder[T]) = elements.min
+  def min(implicit T: WeakOrder[T]) = keys.min
 
-  def minAndMax(implicit T: WeakOrder[T]) = elements.minAndMax
+  def minAndMax(implicit T: WeakOrder[T]) = keys.minAndMax
 
   def |(that: Multiset[T]): Multiset[T] = new AbstractMultiset[T] {
     def equivOnKey = self.equivOnKey
@@ -78,6 +82,8 @@ trait Multiset[T] extends KeyedLike[T, Multiset[T]] { self =>
     def contains(x: T) = self.contains(x) && that.contains(x)
   }
 
+  override def toString = "{" + elements.buildString(",") + "}"
+
 }
 
 object Multiset {
@@ -88,6 +94,10 @@ object Multiset {
       def inf(x: Multiset[T], y: Multiset[T]) = x & y
       def sup(x: Multiset[T], y: Multiset[T]) = x | y
     }
+
+  implicit def ContainmentOrder[T]: PartialOrder[Multiset[T]] = new PartialOrder[Multiset[T]] {
+    def le(x: Multiset[T], y: Multiset[T]) = ???
+  }
 }
 
 abstract class AbstractMultiset[T] extends Multiset[T]

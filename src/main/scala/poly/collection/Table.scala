@@ -3,10 +3,12 @@ package poly.collection
 import poly.algebra._
 
 /**
- * Represents a table, which is an indexed 2-D array.
- * @author Tongfei Chen
- */
-trait Table[+T] extends Map[(Int, Int), T] { self =>
+  * Represents a table, which is an indexed 2-D array.
+  *
+  * @author Tongfei Chen
+  * @since 0.1.0
+  */
+trait Table[+T] extends Map[(Int, Int), T] with HasKnownSize { self =>
 
   def apply(i: Int, j: Int): T
   def numRows: Int
@@ -19,22 +21,24 @@ trait Table[+T] extends Map[(Int, Int), T] { self =>
 
   def pairs = for { (i: Int) ← Range(numRows); j ← Range(numCols) } yield (i → j) → self(i, j)
 
-  def newIterator: Iterator[T] = new Iterator[T] {
-    private[this] var i = 0
-    private[this] var j = 0
-    def advance() = {
-      if (i < numRows) {
-        if (j < numCols)
-          j += 1
-        else {
-          i += 1
-          j = 0
+  def elements = Iterable.ofIterator {
+    new Iterator[T] {
+      private[this] var i = 0
+      private[this] var j = 0
+      def advance() = {
+        if (i < numRows) {
+          if (j < numCols)
+            j += 1
+          else {
+            i += 1
+            j = 0
+          }
+          true
         }
-        true
+        else false
       }
-      else false
+      def current = apply(i, j)
     }
-    def current = apply(i, j)
   }
 
   override def size = numRows * numCols

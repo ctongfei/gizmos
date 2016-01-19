@@ -3,6 +3,7 @@ package poly.collection
 import poly.algebra._
 import poly.algebra.syntax._
 import poly.collection.node._
+import poly.collection.ops._
 import poly.macroutil._
 import scala.annotation.unchecked.{uncheckedVariance => uv}
 import scala.language.implicitConversions
@@ -49,7 +50,8 @@ trait IndexedSeq[+T] extends BiSeq[T] with HasKnownSize { self =>
     FastLoop.ascending(0, length, 1) { i => f(apply(i)) }
   }
 
-  override def pairs: SortedIndexedSeq[(Int, T@uv)] = Range(length).map(i => i → fastApply(i)).asIfSorted[(Int, T)](WeakOrder by first)
+  override def pairs: SortedIndexedSeq[(Int, T@uv)] =
+    IndexedSeq.tabulate(length)(i => i → self(i)).asIfSorted[(Int, T)](WeakOrder by first)
 
   override def keys = Range(length)
 
@@ -61,7 +63,7 @@ trait IndexedSeq[+T] extends BiSeq[T] with HasKnownSize { self =>
   }
 
   def cartesianProduct[U](that: IndexedSeq[U]): IndexedSeq[(T, U)] = new AbstractIndexedSeq[(T, U)] {
-    val stride = that.length
+    private[this] val stride = that.length
     def fastLength = self.length * that.length
     def fastApply(i: Int) = (self(i / stride), that(i % stride))
   }
@@ -102,9 +104,9 @@ trait IndexedSeq[+T] extends BiSeq[T] with HasKnownSize { self =>
 
   override def init = self.take(length - 1)
 
-  override def suffixes = Range(0, length) map skip
+  override def suffixes = (0 ~~< length) map skip
 
-  override def prefixes = Range(length, 0, -1) map take
+  override def prefixes = (length ~~> 0) map take
 
   override def take(n: Int) = slice(0, n)
 
@@ -156,7 +158,7 @@ trait IndexedSeq[+T] extends BiSeq[T] with HasKnownSize { self =>
     * Rearranges the elements in this indexed sequence according to a permutation.
     * @param p A permutation which is of the same length as this sequence
     * @return A permuted sequence
-    * @example {{{('a', 'b', 'c').permuteBy(Permutation(0, 2, 1)) == ('a', 'c', 'b')}}}
+    * @example {{{('a', 'b', 'c').permuteBy(Permutation(1, 2, 0)) == ('b', 'c', 'a')}}}
     */ //TODO: unify this with wrapKeysBy or whatever the name is
   def permuteBy(p: Permutation): IndexedSeq[T] = new AbstractIndexedSeq[T] {
     def fastApply(i: Int) = self(p.invert(i))
@@ -214,9 +216,9 @@ object IndexedSeq {
 
     override def equals(that: Any) = that match {
       case that: NodeProxy[T] => (this.seq eq that.seq) && (this.i == that.i)
+      case _ => false
     }
   }
-
 
 }
 

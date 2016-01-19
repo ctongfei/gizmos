@@ -6,18 +6,17 @@ import poly.collection.exception._
 import poly.collection.mut._
 
 /**
- * Represents an iterable collection that is sorted according to a specific weak order
- * every time it is iterated.
+ * Represents an iterable collection that is sorted according to a specific order every time it is iterated.
  * @author Tongfei Chen
  * @since 0.1.0
  */
 trait SortedIterable[T] extends Iterable[T] { self =>
 
-  /** The order under which the elements of this sequence is sorted. */
+  /** The order under which the elements of this collection is sorted. */
   implicit def order: WeakOrder[T]
 
   /**
-   * Merges two sorted sequences into one sorted sequence. $LAZY
+   * Merges two sorted iterable collection into one sorted iterable collection. $LAZY
    * @param that Another sorted sequence. These two sequences must be sorted under the same order.
    * @return A merged sorted sequence
    */

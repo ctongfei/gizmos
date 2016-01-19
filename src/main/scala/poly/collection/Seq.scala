@@ -91,7 +91,7 @@ trait Seq[+T] extends SortedMap[Int, T] with Iterable[T] { self =>
     ofDummyNode(new SeqNodeWithIndex(dummy, -1)).asIfSorted[(Int, T)](WeakOrder by first)
   }
 
-  override def keys = pairs.map(first)
+  override def keys = pairs map first
 
   // HELPER FUNCTIONS
 

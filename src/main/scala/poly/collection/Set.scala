@@ -6,7 +6,6 @@ import poly.collection.mut._
 
 /**
  * Basic trait for sets whose elements can be iterated.
- *
  * @author Tongfei Chen
  * @since 0.1.0
  */
