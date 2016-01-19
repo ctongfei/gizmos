@@ -67,7 +67,7 @@ class BinaryHeap[T] private[poly](val data: ResizableSeq[T])(implicit val order:
 
 
 
-object BinaryHeap extends CollectionFactoryWithOrder[BinaryHeap] {
+object BinaryHeap extends FactoryWithOrder[BinaryHeap] {
 
   implicit def newBuilder[T:WeakOrder]: Builder[T, BinaryHeap[T]] = new Builder[T, BinaryHeap[T]] {
     private[this] val data = new ResizableSeq[T]()

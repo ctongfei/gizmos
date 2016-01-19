@@ -406,8 +406,8 @@ object Iterable {
 
   def single[T](x: T) = ofIterator {
     new Iterator[T] {
-      var curr: T = _
-      var first = false
+      private[this] var curr: T = _
+      private[this] var first = false
       def advance() = {
         if (first) {
           curr = x

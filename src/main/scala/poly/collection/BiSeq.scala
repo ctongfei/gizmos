@@ -6,7 +6,6 @@ import poly.collection.node._
 /**
  * Represents a bidirectional sequence, i.e. a sequence that supports
  * fast access to the last element as well as fast reversed traversal.
- *
  * @author Tongfei Chen
  * @since 0.1.0
  */
@@ -31,10 +30,6 @@ trait BiSeq[+T] extends Seq[T] { self =>
       node = node.prev
     }
     accum
-  }
-
-  def concat[U >: T](that: BiSeq[U]): BiSeq[U] = {
-    ???
   }
 
   override def consecutive[U](f: (T, T) => U): BiSeq[U] = {

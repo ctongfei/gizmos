@@ -631,12 +631,12 @@ trait Traversable[+T] { self =>
    * @param factory A collection factory
    * @tparam C Higher-order type of the collection to be built
    */
-  def to[C[_]](factory: CollectionFactory[C]): C[T @uv] = to(factory.newBuilder[T])
+  def to[C[_]](factory: Factory[C]): C[T @uv] = to(factory.newBuilder[T])
 
   /**
    * Converts this traversable sequence to an array.
    */
-  def toArray[U >: T](implicit ct: ClassTag[U]): Array[U] = {
+  def toArray[U >: T : ClassTag]: Array[U] = {
     val n = self.size
     val a = Array.ofDim[U](n)
     var i = 0
@@ -649,7 +649,6 @@ trait Traversable[+T] { self =>
 
   /**
    * Builds a structure based on this traversable sequence given an implicit builder.
- *
    * @param builder An implicit builder
    * @tparam S Type of the structure to be built
    * @return A new structure of type `S`
@@ -726,7 +725,6 @@ object Traversable {
 
     /**
       * Lazily unzips a traversable sequence of pairs.
- *
       * @example {{{((1, 'a'), (2, 'b'), (3, 'c')).unzip == ((1, 2, 3), ('a', 'b', 'c'))}}}
       */
     def unzip: (Traversable[K], Traversable[V]) = (underlying map first, underlying map second)

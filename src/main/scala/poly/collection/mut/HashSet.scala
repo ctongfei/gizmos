@@ -11,7 +11,6 @@ import poly.collection.impl._
 class HashSet[T: IntHashing] private(val data: ClosedHashingSet[T]) extends MutableSet[T] with HasKnownSize {
 
   def equivOnKey = implicitly[IntHashing[T]]
-
   def add(x: T) = data.insert(x)
 
   def remove(x: T) = data.remove(x)

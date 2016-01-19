@@ -7,7 +7,6 @@ import poly.collection.search.node._
 
 /**
   * Represents a space of search states.
-  *
   * @author Yuhuan Jiang
   * @author Tongfei Chen
   * @since 0.1.0

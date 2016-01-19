@@ -5,28 +5,21 @@ import poly.collection.node._
 
 /**
  * A union-find disjoint sets structure.
- * This structure keeps track of a set of elements partitioned
- * into a number of disjoint subsets.
+ * This structure keeps track of a set of elements partitioned into a number of disjoint subsets.
  * @author Tongfei Chen
  * @since 0.1.0
- */
-class DisjointSets[T] private() extends Equiv[T] {
+ */ //TODO: [T: Equiv]
+class DisjointSets[T] private(private val data: HashMap[T, DisjointSets.Node]) extends Equiv[T] {
 
-  private class Node extends NodeWithParent[Nothing] {
-    var rank: Int = 0
-    var parent: Node = this
-    def data = throw new NoSuchElementException
-    def isDummy = false
-  }
+  import DisjointSets._
 
-  private var sets = 0
-  private var data = HashMap[T, Node]()
+  private var numSets = data.size
 
   /** Returns the number of element this disjoint-sets structure is managing. */
   def size = data.size
 
   /** Returns the number of distinct disjoint sets in this structure. */
-  def numPartitions = sets
+  def numPartitions = numSets
 
   /** Links two node to form one set using union by rank. */
   private[this] def link(x: Node, y: Node): Unit = {
@@ -47,13 +40,13 @@ class DisjointSets[T] private() extends Equiv[T] {
   def join(x: T, y: T): Unit = {
     if (x == y) return
     link(find(data(x)), find(data(y)))
-    sets -= 1
+    numSets -= 1
   }
 
   /** Tests if the two specified elements belong to the same set. */
   def eq(x: T, y: T) = {
     if (x == y) true
-    else find(data(x)) eq find(data(y))
+    else find(data(x)) == find(data(y))
   }
 
 }
@@ -61,11 +54,14 @@ class DisjointSets[T] private() extends Equiv[T] {
 
 object DisjointSets {
 
-  def apply[T](xs: T*): DisjointSets[T] = {
-    val ds = new DisjointSets[T]
-    ds.data = HashMap(xs.map(t => t → new ds.Node()): _*)
-    ds.sets = ds.data.size
-    ds
+  private class Node extends NodeWithParent[Nothing] {
+    var rank: Int = 0
+    var parent: Node = this
+    def data = throw new NoSuchElementException
+    def isDummy = false
   }
+
+  def apply[T](xs: T*): DisjointSets[T] =
+    new DisjointSets[T](HashMap(xs.map(t => t → new Node()): _*))
 
 }

@@ -5,8 +5,9 @@ import poly.collection._
 import poly.collection.search._
 
 /**
-  * @author Tongfei Chen
-  */
+ * Contains searching algorithms for all forward nodes.
+ * @author Tongfei Chen
+ */
 trait ForwardNodeLike[+T, +N <: ForwardNodeLike[T, N]] extends NodeLike[T, N] { self: N =>
 
   import ForwardNodeLike._

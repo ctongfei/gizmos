@@ -9,7 +9,7 @@ import scala.language.higherKinds
 /**
  * @author Tongfei Chen
  */
-trait CollectionFactoryWithOrder[+C[_]] {
+trait FactoryWithOrder[+C[_]] {
 
   /** Returns a new builder of this collection type. */
   implicit def newBuilder[T: WeakOrder]: Builder[T, C[T]]

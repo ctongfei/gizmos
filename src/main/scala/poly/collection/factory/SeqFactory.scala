@@ -1,14 +1,32 @@
 package poly.collection.factory
 
+import poly.collection._
+import poly.collection.builder._
+import poly.collection.conversion.FromScala._
 import scala.language.higherKinds
-import scala.reflect.ClassTag
 
 /**
- * Contains common constructors for sequences.
- * This trait should be inherited by companion objects of sequence implementation classes.
- * @author Tongfei Chen
+  * Contains common constructors for sequences.
+  * This trait should be inherited by companion objects of sequence implementation classes.
+  * @author Tongfei Chen
  */
-trait SeqFactory[+C[_]] extends CollectionFactory[C] {
+trait SeqFactory[+C[_]] extends Factory[C] {
+
+  /** Returns a new builder of this collection type. */
+  implicit def newBuilder[T]: Builder[T, C[T]]
+
+  def withSizeHint[T](n: Int): C[T] = {
+    val b = newBuilder[T]
+    b.sizeHint(n)
+    b.result
+  }
+
+  /** Creates a collection by adding the non-null arguments into it. */
+  def applyNotNull[T](xs: T*): C[T] = {
+    val b = newBuilder[T]
+    for (x ← xs if x != null) b add x
+    b.result
+  }
 
   def fill[T](n: Int)(x: => T): C[T] = {
     var i = n

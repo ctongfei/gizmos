@@ -1,14 +1,15 @@
 package poly.collection.factory
 
+import poly.algebra._
 import poly.collection._
 import poly.collection.builder._
 import poly.collection.conversion.FromScala._
 import scala.language.higherKinds
 
 /**
- * @author Tongfei Chen
- */
-trait CollectionFactory[+C[_]] {
+  * @author Tongfei Chen
+  */
+trait Factory[+C[_]] {
 
   /** Returns a new builder of this collection type. */
   implicit def newBuilder[T]: Builder[T, C[T]]
@@ -16,23 +17,10 @@ trait CollectionFactory[+C[_]] {
   /** Creates an empty collection. */
   def empty[T]: C[T] = newBuilder[T].result
 
-  def withSizeHint[T](n: Int): C[T] = {
-    val b = newBuilder[T]
-    b.sizeHint(n)
-    b.result
-  }
-
   /** Creates a collection by adding the arguments into it. */
   def apply[T](xs: T*): C[T] = {
     val b = newBuilder[T]
     b addAll xs
-    b.result
-  }
-
-  /** Creates a collection by adding the non-null arguments into it. */
-  def applyNotNull[T](xs: T*): C[T] = {
-    val b = newBuilder[T]
-    for (x ← xs if x != null) b add x
     b.result
   }
 
@@ -43,6 +31,6 @@ trait CollectionFactory[+C[_]] {
     b.result
   }
 
-  //implicit def factory: CollectionFactory[C] = this
+  //implicit def factory: CollectionFactoryWithOrder[C] = this
 
 }

@@ -9,10 +9,11 @@ import scala.util.control.Breaks._
  */
 object ListProduct extends App {
 
+
   def listProduct[T](ls: Seq[Seq[T]]): Iterable[Seq[T]] = Iterable.ofIterator {
     new Iterator[Seq[T]] {
       val n = ls.length
-      var is = ls.map(_.newIterator).to(ArraySeq)
+      var is = ls.map(_.newIterator).to[ArraySeq]
       var first = true
       def current = is.map(_.current)
       def advance() = {

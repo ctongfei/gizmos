@@ -27,4 +27,8 @@ package object collection {
     c + 1
   }
 
+  implicit def arrayAsIndexedSeq[T](a: Array[T]): IndexedSeq[T] = new ArrayAsIndexedSeq[T](a)
+
+  implicit def stringAsIndexedSeq(s: String): IndexedSeq[Char] = new StringAsIndexedSeq(s)
+
 }

@@ -14,7 +14,7 @@ import poly.collection.impl._
  * @since 0.1.0
  */
 class FenwickTree[T] private(private val data: ResizableSeq[T])
-  (implicit val additiveGroup: AdditiveGroup[T]) extends IndexedSeq[T]
+  (implicit val group: AdditiveGroup[T]) extends IndexedSeq[T]
 {
 
   import FenwickTree._
@@ -70,7 +70,7 @@ class FenwickTree[T] private(private val data: ResizableSeq[T])
 
 }
 
-object FenwickTree extends CollectionFactoryWithAdditiveGroup[FenwickTree] {
+object FenwickTree extends FactoryWithAdditiveGroup[FenwickTree] {
 
   @inline private def lowBit(x: Int) = x & -x
 

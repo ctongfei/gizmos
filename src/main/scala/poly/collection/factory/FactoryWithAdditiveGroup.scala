@@ -9,7 +9,7 @@ import scala.language.higherKinds
 /**
  * @author Tongfei Chen
  */
-trait CollectionFactoryWithAdditiveGroup[+C[_]] {
+trait FactoryWithAdditiveGroup[+C[_]] {
 
   /** Returns a new builder of this collection type. */
   implicit def newBuilder[T: AdditiveGroup]: Builder[T, C[T]]
