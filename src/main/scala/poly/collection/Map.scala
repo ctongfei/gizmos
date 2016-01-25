@@ -1,6 +1,7 @@
 package poly.collection
 
 import poly.algebra._
+import poly.algebra.Bijection._
 import poly.algebra.hkt._
 import poly.collection.exception._
 import poly.util.specgroup._
@@ -12,14 +13,14 @@ import scala.language.reflectiveCalls
  * It can also be viewed as a collection of (key, value) pairs, in which each key is unique.
  * @author Tongfei Chen
  * @since 0.1.0
-  *
-  * @define LAZY The resulting collection will be lazily evaluated.
-  * @define EAGER The resulting collection will be eagerly evaluated.
-  * @define Onlogn Time complexity: O(n log n).
-  * @define On Time complexity: O(n).
-  * @define Ologn Time complexity: O(log n).
-  * @define O1amortized Time complexity: Amortized O(1).
-  * @define O1 Time complexity: O(1).
+ *
+ * @define LAZY The resulting collection will be lazily evaluated.
+ * @define EAGER The resulting collection will be eagerly evaluated.
+ * @define Onlogn Time complexity: O(n log n).
+ * @define On Time complexity: O(n).
+ * @define Ologn Time complexity: O(log n).
+ * @define O1amortized Time complexity: Amortized O(1).
+ * @define O1 Time complexity: O(1).
  */
 trait Map[@sp(i) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K, V] { self =>
 
@@ -130,11 +131,11 @@ trait Map[@sp(i) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K, 
     def containsKey(x: K): Boolean = self.containsKey(x) && that.containsKey(x)
   }
 
-  def wrapKeysBy[K1](f: Bijection[K1, K]) = new AbstractMap[K1, V] {
+  def contramap[J](f: Bijection[J, K]): Map[J, V] = new AbstractMap[J, V] {
     def pairs = self.pairs.map { case (k, v) => (f.invert(k), v) }
-    def containsKey(x: K1) = self containsKey f(x)
-    def apply(k: K1) = self apply f(k)
-    def ?(k: K1) = self ? f(k)
+    def containsKey(x: J) = self containsKey f(x)
+    def apply(k: J) = self apply f(k)
+    def ?(k: J) = self ? f(k)
     implicit def equivOnKey = Equiv by f
   }
 

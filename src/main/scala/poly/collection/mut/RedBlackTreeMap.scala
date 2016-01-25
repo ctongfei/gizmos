@@ -8,11 +8,10 @@ import poly.collection.conversion.FromJava._
 import poly.collection.factory._
 
 /**
-  * Represents a map backed by a red-black tree. This class is currently a wrapper of `java.util.TreeMap`.
- *
+  * Represents a map backed by a red-black tree. This class is a wrapper of `java.util.TreeMap`.
   * @author Tongfei Chen
   */
-class RBTreeMap[K, V] private(val data: java.util.TreeMap[K, V]) extends KeyMutableMap[K, V] with SortedMap[K, V] {
+class RedBlackTreeMap[K, V] private(val data: java.util.TreeMap[K, V]) extends KeyMutableMap[K, V] with SortedMap[K, V] {
 
   def apply(k: K) = data get k
 
@@ -25,7 +24,7 @@ class RBTreeMap[K, V] private(val data: java.util.TreeMap[K, V]) extends KeyMuta
   def remove(x: K) = data.remove(x)
 
   def pairs = new SortedIterable[(K, V)] {
-    implicit def order = orderOnKey contramap first
+    def order = orderOnKey contramap first
     def newIterator = data.entrySet().elements.map(e => (e.getKey, e.getValue)).newIterator
   }
 
@@ -38,15 +37,15 @@ class RBTreeMap[K, V] private(val data: java.util.TreeMap[K, V]) extends KeyMuta
   def containsKey(x: K) = data.containsKey(x)
 }
 
-object RBTreeMap extends SortedMapFactory[RBTreeMap] {
+object RedBlackTreeMap extends SortedMapFactory[RedBlackTreeMap] {
 
-  implicit def newBuilder[K, V](implicit K: WeakOrder[K]): Builder[(K, V), RBTreeMap[K, V]] =
-    new Builder[(K, V), RBTreeMap[K, V]] {
+  implicit def newBuilder[K, V](implicit K: WeakOrder[K]): Builder[(K, V), RedBlackTreeMap[K, V]] =
+    new Builder[(K, V), RedBlackTreeMap[K, V]] {
       private[this] val data = new java.util.TreeMap[K, V](new java.util.Comparator[K] {
         def compare(a: K, b: K) = K.cmp(a, b)
       })
       def sizeHint(n: Int) = {}
-      def result = new RBTreeMap(data)
+      def result = new RedBlackTreeMap(data)
       def add(x: (K, V)) = data.put(x._1, x._2)
     }
 }

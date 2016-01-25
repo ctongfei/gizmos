@@ -1,17 +1,18 @@
 package poly.collection.search
 
 import poly.algebra._
+import poly.algebra.specgroup._
 import poly.collection._
 import poly.collection.node._
 import poly.collection.search.node._
 
 /**
-  * Represents a space of search states.
+  * Represents a space of search states, which can be considered as an implicit graph.
   * @author Yuhuan Jiang
   * @author Tongfei Chen
   * @since 0.1.0
   */
-trait StateSpace[S] extends Keyed[S] {
+trait StateSpace[@sp(i) S] extends Keyed[S] {
 
   import StateSpace._
 

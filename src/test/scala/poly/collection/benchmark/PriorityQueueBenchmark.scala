@@ -14,7 +14,7 @@ import scala.util._
 object PriorityQueueBenchmark extends App {
 
   val conf = config(Key.exec.benchRuns → 50)
-      .withWarmer(new Warmer.Default).withMeasurer(new Measurer.IgnoringGC)
+      .withWarmer(new Warmer.Default).withMeasurer(new Measurer.Default)
 
   val r = new Random()
 
@@ -32,13 +32,13 @@ object PriorityQueueBenchmark extends App {
       val pq = new ju.PriorityQueue[Int]()
       nums foreach pq.add
     }
-    print(s"Java PriorityQueue: $tJava")
+    print(s"\t\tJava PriorityQueue: $tJava")
 
     val tPoly = conf measure {
       val pq = pcm.BinaryHeap[Int]()
       nums foreach pq.push
     }
-    print(s"Poly BinaryHeapPriorityQueue: $tPoly")
+    print(s"\t\tPoly BinaryHeap: $tPoly")
     println()
   }
 

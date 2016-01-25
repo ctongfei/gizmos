@@ -1,6 +1,7 @@
 package poly.collection
 
 import poly.algebra._
+import poly.algebra.Bijection._
 import poly.algebra.syntax._
 import poly.algebra.specgroup._
 import poly.collection.builder._
@@ -126,13 +127,13 @@ trait Graph[@sp(i) K, +V, +E] extends KeyedLike[K, Graph[K, V, E]] with StateSpa
     def keySet = self.keySet & that.keySet
   }
 
-  def wrapKeysBy[K1](f: Bijection[K1, K]): Graph[K1, V, E] = new AbstractGraph[K1, V, E] {
+  def contramap[K1](f: K1 <=> K): Graph[K1, V, E] = new AbstractGraph[K1, V, E] {
     def apply(i: K1) = self.apply(f(i))
     def containsNode(i: K1) = self.containsNode(f(i))
     def containsEdge(i: K1, j: K1) = self.containsEdge(f(i), f(j))
     def apply(i: K1, j: K1) = self.apply(f(i), f(j))
     def outgoingKeysOf(i: K1) = self.outgoingKeysOf(f(i)).map(f.invert)
-    def keySet = self.keySet.wrapKeysBy(f)
+    def keySet = self.keySet.contramap(f)
   }
 
   def generalProduct[K1, V1, E1](that: Graph[K1, V1, E1])(fe: (K, K, K1, K1) => Boolean): Graph[(K, K1), (V, V1), (E, E1)] =
@@ -171,6 +172,7 @@ object Graph {
 
 
   class Edge[K, +E](val graph: Graph[K, _, E], val key1: K, val key2: K) {
+
     def data = graph.apply(key1, key2)
 
     implicit def equivOnKey = graph.equivOnKey

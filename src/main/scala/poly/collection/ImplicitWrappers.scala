@@ -14,3 +14,8 @@ class StringAsIndexedSeq(val underlying: String) extends IndexedSeq[Char] {
   def fastLength = underlying.length
   def fastApply(i: Int) = underlying.charAt(i)
 }
+
+private[collection]
+class BooleanFunctionAsPredicate[T](val underlying: T => Boolean) extends Predicate[T] {
+  def apply(x: T) = underlying(x)
+}

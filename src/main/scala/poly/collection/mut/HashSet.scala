@@ -6,9 +6,12 @@ import poly.collection.builder._
 import poly.collection.impl._
 
 /**
+ * A hash set.
  * @author Tongfei Chen
  */
 class HashSet[T: IntHashing] private(val data: ClosedHashingSet[T]) extends MutableSet[T] with HasKnownSize {
+
+  scala.collection.mutable.HashSet
 
   def equivOnKey = implicitly[IntHashing[T]]
   def add(x: T) = data.insert(x)

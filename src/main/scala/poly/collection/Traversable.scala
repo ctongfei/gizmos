@@ -7,7 +7,6 @@ import poly.algebra.function._
 import poly.collection.builder._
 import poly.collection.exception._
 import poly.collection.factory._
-import poly.collection.ops._
 import poly.collection.mut._
 import poly.util.typeclass._
 import poly.util.typeclass.ops._
@@ -31,7 +30,7 @@ import scala.reflect._
 trait Traversable[+T] { self =>
 
   /**
-   * Applies a function ''f'' to each element of this collection.
+   * Applies a specific function to each element in this collection.
    * @param f The function to be applied. Return values are discarded.
    */
   def foreach[V](f: T => V): Unit
@@ -43,7 +42,6 @@ trait Traversable[+T] { self =>
    * Returns a new collection by applying a function to all elements in this collection. $LAZY
    * @param f Function to apply
    * @example {{{(1, 2, 3) map { _ + 1 } == (2, 3, 4)}}}
-   * @return A new collection that each element is the image of the original element applied by ''f''.
    */
   def map[U](f: T => U): Traversable[U] = new AbstractTraversable[U] {
     def foreach[V](g: U => V) = {
@@ -70,7 +68,6 @@ trait Traversable[+T] { self =>
     * Returns the Cartesian product of two traversable sequences. $LAZY
     * @example {{{(1, 2) cartesianProduct (1, 2) == ((1, 1), (1, 2), (2, 1), (2, 2))}}}
     * @param that Another traversable sequence
-    * @return The Cartesian product
     */
   def cartesianProduct[U](that: Traversable[U]): Traversable[(T, U)] =
     self flatMap (x => that map (y => (x, y)))
@@ -433,10 +430,10 @@ trait Traversable[+T] { self =>
     }
   }
 
-  /** Returns the reverse of this sequence. $EAGER */
+  /** Returns the reverse of this collection. $EAGER */
   def reverse: BiSeq[T] = self.to[ArraySeq].reverse
 
-  /** Returns a randomly shuffled version of this sequence. $EAGER */
+  /** Returns a randomly shuffled version of this collection. $EAGER */
   def shuffle: IndexedSeq[T] = {
     val a = self.to[ArraySeq]
     a.shuffleInplace()
@@ -444,12 +441,19 @@ trait Traversable[+T] { self =>
   }
 
   /**
-    * Rotates this sequence from the index specified.
+    * Rotates this collection from the index specified. $LAZY
     * @example {{{(1, 2, 3, 4).rotate(1) == (2, 3, 4, 1)}}}
     * @param n Rotation starts here
     */
   def rotate(n: Int) = (self skip n) ++ (self take n)
 
+  /**
+   * Sorts this collection ascendingly using the implicitly provided order. $EAGER
+   * @example {{{
+   *   (3, 2, 4, 1).sort == (1, 2, 3, 4)
+   *   (3, 2, 4, 1).sort(WeakOrder[Int].reverse) == (4, 3, 2, 1)
+   * }}}
+   */
   def sort[U >: T](implicit U: WeakOrder[U]): SortedIndexedSeq[T @uv] = {
     val seq = self.to[ArraySeq]
     seq.sortInplace()(U)
@@ -464,8 +468,7 @@ trait Traversable[+T] { self =>
   }
 
   /**
-   * Repeats this collection for a specific number of times.
- *
+   * Repeats this collection for a specific number of times. $LAZY
    * @example {{{(1, 2, 3).repeat(2) == (1, 2, 3, 1, 2, 3)}}}
    * @param n Number of times to repeat
    */
@@ -477,8 +480,7 @@ trait Traversable[+T] { self =>
   }
 
   /**
-    * Infinitely cycles through this collection.
- *
+    * Infinitely cycles through this collection. $LAZY
     * @example {{{(1, 2, 3).cycle == (1, 2, 3, 1, 2, 3, 1, 2...)}}}
     */
   def cycle: Traversable[T] = new AbstractTraversable[T] {
@@ -489,18 +491,17 @@ trait Traversable[+T] { self =>
 
   /**
    * Returns the sum of the elements in this collection.
- *
    * @example {{{(1, 2, 3).sum == 6}}}
-   * @tparam T1 Supertype of the type of elements: must be endowed with an additive monoid.
+   * @tparam U Supertype of the type of elements: must be endowed with an additive monoid.
    * @return The sum
    */
-  def sum[T1 >: T : AdditiveCMonoid]: T1 = fold(zero)(_+_)
+  def sum[U >: T : AdditiveCMonoid]: U = fold(zero)(_+_)
 
-  def sumBy[T1: AdditiveCMonoid](f: T => T1) = map(f).sum
+  def sumBy[U: AdditiveCMonoid](f: T => U) = map(f).sum
 
-  def sumInplace[X >: T](implicit X: InplaceAdditiveCMonoid[X]) = {
-    val sum = zero[X]
-    for (x ← self) X.addInplace(sum, x)
+  def sumInplace[U >: T](implicit U: InplaceAdditiveCMonoid[U]) = {
+    val sum = zero[U]
+    for (x ← self) U.addInplace(sum, x)
     sum
   }
 

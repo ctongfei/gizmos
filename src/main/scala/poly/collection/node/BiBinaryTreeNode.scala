@@ -9,7 +9,7 @@ import poly.collection.mut._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait BiBinaryTreeNode[+T] extends BiNode[T] with BinaryTreeNode[T] with NodeWithParent[T] { self =>
+trait BiBinaryTreeNode[+T] extends BiNode[T] with BinaryTreeNode[T] with BinaryTreeNodeLike[T, BiBinaryTreeNode[T]] with NodeWithParent[T] { self =>
 
   def data: T
   def left: BiBinaryTreeNode[T]

@@ -56,17 +56,17 @@ trait Multiset[T] extends KeyedLike[T, Multiset[T]] { self =>
 
   def reduceBySemigroup[U >: T : Semigroup] = elements.reduceBySemigroup[U]
 
-  def forall(f: T => Boolean) = keys forall f
+  def forall(f: T => Boolean) = elements forall f
 
-  def exists(f: T => Boolean) = keys exists f
+  def exists(f: T => Boolean) = elements exists f
 
-  def sum[U >: T : AdditiveCMonoid] = keys.sum[U]
+  def sum[U >: T : AdditiveCMonoid] = elements.sum[U]
 
-  def max(implicit T: WeakOrder[T]) = keys.max
+  def max(implicit T: WeakOrder[T]) = elements.max
 
-  def min(implicit T: WeakOrder[T]) = keys.min
+  def min(implicit T: WeakOrder[T]) = elements.min
 
-  def minAndMax(implicit T: WeakOrder[T]) = keys.minAndMax
+  def minAndMax(implicit T: WeakOrder[T]) = elements.minAndMax
 
   def |(that: Multiset[T]): Multiset[T] = new AbstractMultiset[T] {
     def equivOnKey = self.equivOnKey
@@ -79,6 +79,13 @@ trait Multiset[T] extends KeyedLike[T, Multiset[T]] { self =>
     def equivOnKey = self.equivOnKey
     def multiplicity(x: T) = math.min(self.multiplicity(x), that.multiplicity(x))
     def keys = self.keys intersect that.keys
+    def contains(x: T) = self.contains(x) && that.contains(x)
+  }
+
+  def +(that: Multiset[T]): Multiset[T] = new AbstractMultiset[T] {
+    def equivOnKey = self.equivOnKey
+    def multiplicity(x: T) = self.multiplicity(x) + that.multiplicity(x)
+    def keys = self.keys union that.keys
     def contains(x: T) = self.contains(x) && that.contains(x)
   }
 

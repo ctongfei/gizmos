@@ -32,7 +32,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
 
   override def map[U](f: T => U) = ofIterator {
     new Iterator[U] {
-      val i = self.newIterator
+      private[this] val i = self.newIterator
       def current = f(i.current)
       def advance() = i.advance()
     }
@@ -40,8 +40,8 @@ trait Iterable[+T] extends Traversable[T] { self =>
 
   def flatMap[U](f: T => Iterable[U]) = ofIterator {
     new Iterator[U] {
-      val outer: Iterator[T] = self.newIterator
-      var inner: Iterator[U] = Iterator.empty
+      private[this] val outer: Iterator[T] = self.newIterator
+      private[this] var inner: Iterator[U] = Iterator.empty
       def current = inner.current
       def advance(): Boolean = {
         if (inner.advance()) true
@@ -60,7 +60,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
 
   override def filter(f: T => Boolean) = ofIterator {
     new Iterator[T] {
-      val i = self.newIterator
+      private[this] val i = self.newIterator
       def current: T = i.current
       def advance(): Boolean = {
         do {
@@ -93,7 +93,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
 
   override def prepend[U >: T](u: U): Iterable[U] = ofIterator {
     new Iterator[U] {
-      val i = self.newIterator
+      private[this] val i = self.newIterator
       private[this] var first = true
       private[this] var curr: U = _
       def advance() = if (first) {
@@ -111,7 +111,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
 
   override def append[U >: T](u: U): Iterable[U] = ofIterator {
     new Iterator[U] {
-      val i = self.newIterator
+      private[this] val i = self.newIterator
       private[this] var last = false
       def advance() = {
         if (last) false
@@ -270,21 +270,11 @@ trait Iterable[+T] extends Traversable[T] { self =>
     }
   }
 
-  def zip3[U, V](us: Iterable[U], vs: Iterable[V]): Iterable[(T, U, V)] = ofIterator {
-    new Iterator[(T, U, V)] {
-      val ti = self.newIterator
-      val ui = us.newIterator
-      val vi = vs.newIterator
-      def advance(): Boolean = ti.advance() && ui.advance() && vi.advance()
-      def current: (T, U, V) = (ti.current, ui.current, vi.current)
-    }
-  }
-
   def indexed: Iterable[(Int, T@uv)] = {
     val paired = ofIterator {
       new Iterator[(Int, T)] {
-        var idx = -1
-        val itr = self.newIterator
+        private[this] var idx = -1
+        private[this] val itr = self.newIterator
         def current = (idx, itr.current)
         def advance() = {
           idx += 1

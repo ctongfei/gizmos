@@ -12,6 +12,7 @@ resolvers += Resolver.sonatypeRepo("snapshots")
 
 libraryDependencies += "me.tongfei"        %% "poly-util"       % "0.2.4"
 libraryDependencies += "me.tongfei"        %% "poly-algebra"    % "0.2.19-SNAPSHOT"
+
 libraryDependencies += "org.scalatest"     %% "scalatest"       % "2.2.2"           % Test
 libraryDependencies += "com.storm-enroute" %% "scalameter-core" % "0.7"             % Test
 

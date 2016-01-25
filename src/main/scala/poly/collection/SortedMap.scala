@@ -1,6 +1,7 @@
 package poly.collection
 
 import poly.algebra._
+import poly.algebra.specgroup._
 import scala.annotation.unchecked.{uncheckedVariance => uv}
 
 /**
@@ -8,7 +9,7 @@ import scala.annotation.unchecked.{uncheckedVariance => uv}
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait SortedMap[K, +V] extends Map[K, V] { self =>
+trait SortedMap[@sp(i) K, +V] extends Map[K, V] { self =>
 
   /** Returns the weak order on keys. */
   def orderOnKey: WeakOrder[K]

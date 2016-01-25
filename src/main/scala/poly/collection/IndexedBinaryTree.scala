@@ -2,7 +2,7 @@ package poly.collection
 
 /**
  * Represents an indexed binary tree (e.g. an array binary tree)
- * where fast random access is possible for its canonical index.
+ * where fast random access using its canonical index is possible.
  * @author Tongfei Chen
  * @since 0.1.0
  */

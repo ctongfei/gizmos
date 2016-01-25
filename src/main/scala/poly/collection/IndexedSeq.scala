@@ -155,11 +155,11 @@ trait IndexedSeq[+T] extends BiSeq[T] with HasKnownSize { self =>
   }
 
   /**
-    * Rearranges the elements in this indexed sequence according to a permutation.
+    * Rearranges the elements in this indexed sequence according to a permutation. $LAZY
     * @param p A permutation which is of the same length as this sequence
     * @return A permuted sequence
     * @example {{{('a', 'b', 'c').permuteBy(Permutation(1, 2, 0)) == ('b', 'c', 'a')}}}
-    */ //TODO: unify this with wrapKeysBy or whatever the name is
+    */
   def permuteBy(p: Permutation): IndexedSeq[T] = new AbstractIndexedSeq[T] {
     def fastApply(i: Int) = self(p.invert(i))
     def fastLength = self.fastLength

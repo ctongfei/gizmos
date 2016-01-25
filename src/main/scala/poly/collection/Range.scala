@@ -1,10 +1,9 @@
 package poly.collection
 
 import poly.algebra._
-import poly.algebra.implicits._
-import poly.collection.exception._
-import poly.util.fastloop._
-import poly.util.specgroup._
+import poly.algebra.syntax._
+import poly.algebra.specgroup._
+import poly.macroutil._
 
 /**
  * Represents an immutable integer range.

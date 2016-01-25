@@ -8,7 +8,7 @@ import scala.language.higherKinds
 /**
   * @author Tongfei Chen
   */
-class DistinctPriorityQueue[Q[A] <: PriorityQueue[A], T] private(stateEquiv: Equiv[T], private val inner: Q[T]) extends PriorityQueue[T] {
+class DistinctPriorityQueue[Q[α] <: PriorityQueue[α], T] private(stateEquiv: Equiv[T], private val inner: Q[T]) extends PriorityQueue[T] {
 
   private[this] val seen = HashMap[T, T]() // !!(stateEquiv)
 
@@ -30,7 +30,7 @@ class DistinctPriorityQueue[Q[A] <: PriorityQueue[A], T] private(stateEquiv: Equ
 }
 
 object DistinctPriorityQueue {
-  def apply[Q[A] <: PriorityQueue[A], T](xs: T*)(stateEquiv: Equiv[T])(implicit b: Builder[T, Q[T]]): DistinctPriorityQueue[Q, T] = {
+  def apply[Q[α] <: PriorityQueue[α], T](xs: T*)(stateEquiv: Equiv[T])(implicit b: Builder[T, Q[T]]): DistinctPriorityQueue[Q, T] = {
     xs foreach b.add
     new DistinctPriorityQueue[Q, T](stateEquiv, b.result)
   }

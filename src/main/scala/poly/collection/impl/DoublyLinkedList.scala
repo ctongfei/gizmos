@@ -81,10 +81,6 @@ class DoublyLinkedList[T] extends BiSeq[T] with KeyMutableSeq[T] {
     len -= 1
   }
 
-  def headNode: BiSeqNode[T] = dummy.next
-
-  def lastNode: BiSeqNode[T] = dummy.prev
-
   def inplaceReverse(): Unit = {
     ???
   }

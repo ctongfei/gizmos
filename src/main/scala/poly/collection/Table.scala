@@ -19,7 +19,10 @@ trait Table[+T] extends Map[(Int, Int), T] with HasKnownSize { self =>
 
   def equivOnKey = Equiv.default[(Int, Int)]
 
-  def pairs = for { (i: Int) ← Range(numRows); j ← Range(numCols) } yield (i → j) → self(i, j)
+  def pairs = for {
+    i: Int ← Range(numRows)
+    j: Int ← Range(numCols)
+  } yield (i → j) → self(i, j)
 
   def elements = Iterable.ofIterator {
     new Iterator[T] {

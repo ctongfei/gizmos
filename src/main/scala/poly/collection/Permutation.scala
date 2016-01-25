@@ -54,12 +54,12 @@ object Permutation {
     for (i ← Range(xs.length)) {
       ys(xs(i)) = i
     }
-    new Permutation(xs, ys)
+    new Permutation(xs.clone, ys)
   }
 
   def random(n: Int) = {
     val a = Array.tabulate(n)(i => i)
-    val r = new scala.util.Random()
+    val r = new java.util.Random()
     for (i ← Range(n - 1, 0, -1)) {
       val j = r.nextInt(i + 1)
       val t = a(i)
@@ -75,7 +75,7 @@ object Permutation {
   }
 
   implicit def GroupAction[T]: Action[IndexedSeq[T], Permutation] = new Action[IndexedSeq[T], Permutation] {
-    def act(k: Permutation, x: IndexedSeq[T]) = x permuteBy k
+    def act(p: Permutation, x: IndexedSeq[T]) = x permuteBy p
   }
 
   /**

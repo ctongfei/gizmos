@@ -11,6 +11,7 @@ import poly.collection.node._
  * Represents a multi-way tree.
  * @author Tongfei Chen
  * @since 0.1.0
+ * @define LAZY The resulting tree is '''lazily''' executed.
  */
 trait Tree[+T] { self =>
 
@@ -26,7 +27,7 @@ trait Tree[+T] { self =>
 
   /**
    * Performs the Knuth transform on this tree, i.e. representing this multi-way tree
-   * into its equivalent left-child-right-sibling binary tree. $LAZY $CX_1
+   * into its equivalent left-child-right-sibling (LC-RS) binary tree. $LAZY
    *
    * {{{
    *         a               a
@@ -41,16 +42,17 @@ trait Tree[+T] { self =>
    * @return Its corresponding binary tree
    */
   def knuthTransform: BinaryTree[T] = new AbstractBinaryTree[T] {
-    class LeftChildRightSiblingBinaryTreeNode(val node: SeqNode[TreeNode[T]]) extends BinaryTreeNode[T] {
+    class LcRsNode(val node: SeqNode[TreeNode[T]]) extends BinaryTreeNode[T] {
       override def isDummy = node.isDummy || node.data.isDummy
       def data = node.data.data
-      def left = new LeftChildRightSiblingBinaryTreeNode(node.data.children.dummy.next)
-      def right = new LeftChildRightSiblingBinaryTreeNode(node.next)
+      def left = new LcRsNode(node.data.children.headNode)
+      def right = new LcRsNode(node.next)
     }
-    def rootNode = new LeftChildRightSiblingBinaryTreeNode(ListSeq(self.rootNode).dummy.next)
+    def rootNode = new LcRsNode(ListSeq(self.rootNode).headNode)
     override def inverseKnuthTransform = self
   }
 
+  // Comonadic operation
   def subtrees: Tree[Tree[T]] = ???
 
   def preOrder = rootNode.depthFirstTreeTraversal.map(_.data)

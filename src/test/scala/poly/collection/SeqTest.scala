@@ -11,7 +11,7 @@ object SeqTest extends App {
   val b = ArraySeq(5, 6, 7).asSeq
 
   val t0 = a map { i => i * 2 }
-  val t1 = a flatMap { (i: Int) => ArraySeq.fill(i)(i) }
+  val t1 = a flatMap { i: Int => ArraySeq.fill(i)(i) }
   val t2 = a cartesianProduct b
 
   val t3 = a filter { _ % 2 == 0 }

@@ -1,5 +1,7 @@
 package poly.collection
 
+import poly.collection.node._
+
 import scala.language.implicitConversions
 
 /**
@@ -75,6 +77,8 @@ object ops {
      * @return
      */
     def iterate(f: T => T) = Seq.iterate(x)(f)
+
+    def unfold[U](f: T => Option[(U, T)]): Seq[U] = ??? //TODO
 
   }
 

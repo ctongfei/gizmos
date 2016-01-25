@@ -36,7 +36,7 @@ trait Set[T] extends Predicate[T] with Multiset[T] with KeyedLike[T, Set[T]] { s
     * Returns the union of two sets.
     * @example {{{ {1, 2, 3} | {2, 4} == {1, 2, 3, 4} }}}
     */
-  def |(that: Set[T]): Set[T] = new AbstractSet[T] {
+  def union(that: Set[T]): Set[T] = new AbstractSet[T] {
     def equivOnKey = self.equivOnKey
     def contains(x: T) = self.contains(x) || that.contains(x)
     def keys = self.keys ++ that.keys.filter(self.notContains)
@@ -46,17 +46,17 @@ trait Set[T] extends Predicate[T] with Multiset[T] with KeyedLike[T, Set[T]] { s
     * Returns the intersection of two sets.
     * @example {{{ {1, 2, 3} & {3, 1} == {1, 3} }}}
     */
-  def &(that: Set[T]): Set[T] = new AbstractSet[T] {
+  def intersect(that: Set[T]): Set[T] = new AbstractSet[T] {
     def equivOnKey = self.equivOnKey
     def contains(x: T) = self.contains(x) && that.contains(x)
     def keys = self.keys.filter(that.contains)
   }
 
   /**
-    * Returns the difference of two sets.
+    * Returns the set difference of two sets.
     * @example {{{ {1, 2, 3} \ {2, 3} == {1} }}}
     */
-  def \(that: Set[T]): Set[T] = new AbstractSet[T] {
+  def setDiff(that: Set[T]): Set[T] = new AbstractSet[T] {
     def equivOnKey: Equiv[T] = self.equivOnKey
     def contains(x: T): Boolean = self.contains(x) && that.notContains(x)
     def keys = self.keys.filter(that.notContains)
@@ -73,7 +73,6 @@ trait Set[T] extends Predicate[T] with Multiset[T] with KeyedLike[T, Set[T]] { s
 
   /** Tests if this set is a superset of another set. */
   def properSupersetOf(that: Set[T]): Boolean = that properSubsetOf this
-
 
   def cartesianProduct[T1](that: Set[T1]): Set[(T, T1)] = new AbstractSet[(T, T1)] {
     def equivOnKey = Equiv.product(self.equivOnKey, that.equivOnKey)
@@ -114,16 +113,26 @@ trait Set[T] extends Predicate[T] with Multiset[T] with KeyedLike[T, Set[T]] { s
     def keys = self.keys.filter(f)
   }
 
-  def map[T1: Equiv](f: T => T1): Set[T1] = {
-    self.elements.map(f).to(Set.autoBuilder[T1])
+  def map[U: Equiv](f: T => U): Set[U] = {
+    self.elements.map(f).to(Set.autoBuilder[U])
+  }
+
+  def map[U](f: Bijection[T, U]): Set[U] = new AbstractSet[U] {
+    def equivOnKey = Equiv by f.invert
+    def keys = self.elements.map(f)
+    def contains(x: U) = self.contains(f.invert(x))
+  }
+
+  def flatMap[U: Equiv](f: T => Set[U]): Set[U] = {
+    self.elements.flatMap { x: T => f(x).elements }.to(Set.autoBuilder[U])
   }
 
   def zip(that: Set[T]): Set[T] = this & that
 
-  def wrapKeysBy[T1](f: Bijection[T1, T]): Set[T1] = new AbstractSet[T1] {
+  def contramap[S](f: Bijection[S, T]): Set[S] = new AbstractSet[S] {
     def equivOnKey = Equiv by f
     def keys = self.elements.map(f.invert)
-    def contains(x: T1) = self.contains(f(x))
+    def contains(x: S) = self.contains(f(x))
   }
 
   override def equals(that: Any) = that match {
@@ -132,6 +141,9 @@ trait Set[T] extends Predicate[T] with Multiset[T] with KeyedLike[T, Set[T]] { s
   }
 
   //Symbolic aliases
+  def &(that: Set[T]) = this intersect that
+  def |(that: Set[T]) = this union that
+  def &~(that: Set[T]) = this setDiff that
   def ⊂(that: Set[T]) = this properSubsetOf that
   def ⊃(that: Set[T]) = this properSupersetOf that
   def ⊆(that: Set[T]) = this subsetOf that
@@ -152,9 +164,9 @@ object Set {
     override def size = 0
     def keys = Iterable.empty
     def contains(x: T) = false
-    override def |(that: Set[T]) = that
-    override def \(that: Set[T]) = this
-    override def &(that: Set[T]) = this
+    override def union(that: Set[T]) = that
+    override def setDiff(that: Set[T]) = this
+    override def intersect(that: Set[T]) = this
     override def subsetOf(that: Set[T]) = true
     override def properSubsetOf(that: Set[T]) = that.size != 0
   }
@@ -165,6 +177,10 @@ object Set {
       def bot = empty[T]
       def inf(x: Set[T], y: Set[T]) = x & y
       def sup(x: Set[T], y: Set[T]) = x | y
+  }
+
+  implicit def Equiv[T]: Equiv[Set[T]] = new Equiv[Set[T]] {
+    def eq(x: Set[T], y: Set[T]) = (x ⊆ y) && (x ⊇ y)
   }
 
   implicit def ContainmentOrder[T]: PartialOrder[Set[T]] = new PartialOrder[Set[T]] {

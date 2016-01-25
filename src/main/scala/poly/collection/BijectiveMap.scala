@@ -20,7 +20,7 @@ trait BijectiveMap[K, V] extends Map[K, V] with Bijection[K, V] { self =>
 
   // HELPER FUNCTIONS
 
-  /** Returns a map that maps values to keys. */
+  /** Returns the inverse map that maps values to keys. */
   override def inverse: BijectiveMap[V, K] = new AbstractBijectiveMap[V, K] {
     def equivOnKey = self.equivOnValue
     def equivOnValue = self.equivOnKey
@@ -47,12 +47,13 @@ trait BijectiveMap[K, V] extends Map[K, V] with Bijection[K, V] { self =>
     def containsValue(w: V1) = this.invertOption(w).isDefined
   }
 
-
+  def contramap[K1](that: BijectiveMap[K1, K]) = that map this
 
   def andThen[V1](that: BijectiveMap[V, V1]) = this map that
-  def compose[K1](that: BijectiveMap[K1, K]) = that map this
+  def compose[K1](that: BijectiveMap[K1, K]) = this contramap that
 
   def |>[V1](that: BijectiveMap[V, V1]) = this andThen that
+  def |<[K1](that: BijectiveMap[K1, K]) = this compose that
 }
 
 abstract class AbstractBijectiveMap[K, V] extends AbstractMap[K, V] with BijectiveMap[K, V]

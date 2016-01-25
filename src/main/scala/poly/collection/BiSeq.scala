@@ -18,6 +18,8 @@ trait BiSeq[+T] extends Seq[T] { self =>
     */
   def dummy: BiSeqNode[T]
 
+  def lastNode = dummy.prev
+
   //region HELPER FUNCTIONS
 
   override def map[U](f: T => U): BiSeq[U] = ofNode(dummy map f)

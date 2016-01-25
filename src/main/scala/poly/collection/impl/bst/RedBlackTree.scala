@@ -93,7 +93,7 @@ abstract class RedBlackTree[K, V](implicit val order: WeakOrder[K]) extends KeyM
 
   def ?(x: K) = ???
 
-  def pairs: Iterable[(K, V)] = bst.inOrder.map(_.toTuple)
+  def pairs: Iterable[(K, V)] = bst.inOrder.map(_.data.toTuple)
 }
 
 

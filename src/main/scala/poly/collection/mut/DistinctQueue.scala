@@ -8,7 +8,7 @@ import scala.language.higherKinds
 /**
   * @author Tongfei Chen
   */
-class DistinctQueue[Q[A] <: Queue[A], T: IntHashing] private(private val inner: Q[T]) extends Queue[T] {
+class DistinctQueue[Q[α] <: Queue[α], T: IntHashing] private(private val inner: Q[T]) extends Queue[T] {
 
   private[this] val seen = HashSet[T]()
 
@@ -36,7 +36,7 @@ class DistinctQueue[Q[A] <: Queue[A], T: IntHashing] private(private val inner: 
 }
 
 object DistinctQueue {
-  def apply[Q[A] <: Queue[A], T](xs: T*)(implicit b: Builder[T, Q[T]]): DistinctQueue[Q, T] = {
+  def apply[Q[α] <: Queue[α], T](xs: T*)(implicit b: Builder[T, Q[T]]): DistinctQueue[Q, T] = {
     xs foreach b.add
     new DistinctQueue[Q, T](b.result)
   }

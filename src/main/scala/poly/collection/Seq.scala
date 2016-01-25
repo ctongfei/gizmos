@@ -15,7 +15,7 @@ import scala.annotation.unchecked.{uncheckedVariance => uv}
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait Seq[+T] extends SortedMap[Int, T] with Iterable[T] { self =>
+trait Seq[+T] extends Iterable[T] with SortedMap[Int, T] { self =>
 
   import Seq._
 
@@ -97,7 +97,7 @@ trait Seq[+T] extends SortedMap[Int, T] with Iterable[T] { self =>
 
   override def isEmpty = dummy.next.isDummy
 
-  override def map[U](f: T => U): Seq[U] = ofDummyNode(self.dummy.map(f))
+  override def map[U](f: T => U): Seq[U] = ofDummyNode(self.dummy map f)
 
   def flatMap[U](f: T => Seq[U]): Seq[U] = {
     class FlatMappedSeqNode(val outer: SeqNode[T], val inner: SeqNode[U]) extends SeqNode[U] {
@@ -197,6 +197,8 @@ trait Seq[+T] extends SortedMap[Int, T] with Iterable[T] { self =>
   override def diffByGroup[U >: T](implicit U: Group[U]) = consecutive((x, y) => U.op(y, U.inv(x)))
 
   override def head = dummy.next.data
+
+  def headNode = dummy.next
 
   override def tail: Seq[T] = ofHeadNode(dummy.next.next)
 
@@ -325,7 +327,6 @@ trait Seq[+T] extends SortedMap[Int, T] with Iterable[T] { self =>
     k
   }
 
-
   def asSeq: Seq[T] = ofDummyNode(dummy)
 
   override def equals(that: Any) = that match {
@@ -385,12 +386,15 @@ object Seq {
 
   implicit def Equiv[T: Equiv]: Equiv[Seq[T]] = new Equiv[Seq[T]] {
     def eq(x: Seq[T], y: Seq[T]): Boolean = {
-      val xi = x.newIterator
-      val yi = y.newIterator
-      while (xi.advance() && yi.advance())
-        if (xi.current =!= yi.current) return false
-      if (xi.advance()) return false
-      if (yi.advance()) return false
+      var xn = x.headNode
+      var yn = y.headNode
+      while (xn.notDummy && yn.notDummy) {
+        if (xn.data =!= yn.data) return false
+        xn = xn.next
+        yn = yn.next
+      }
+      if (xn.notDummy) return false
+      if (yn.notDummy) return false
       true
     }
   }

@@ -6,7 +6,7 @@ import poly.collection._
 import scala.language.higherKinds
 
 /**
-  * Represents a beam, which is a priority queue that only keeps the k-smallest elements.
+  * Represents a beam, which is a queue that only keeps the k-smallest elements.
   * @author Tongfei Chen
   * @since 0.1.0
  */

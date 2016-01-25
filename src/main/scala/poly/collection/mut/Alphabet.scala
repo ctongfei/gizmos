@@ -2,12 +2,15 @@ package poly.collection.mut
 
 import poly.algebra._
 import poly.collection._
-import poly.collection.factory._
+import scala.language.higherKinds
 
 /**
  * @author Tongfei Chen
  */
-class Alphabet[T] private(private val w2i: HashMap[T, Int], private val i2w: ArraySeq[T])(implicit val equivOnKey: Equiv[T])
+class Alphabet[T, M[α, β] <: KeyMutableMap[α, β]] private(
+  private val w2i: M[T, Int],
+  private val i2w: ArraySeq[T]
+)(implicit val equivOnKey: Equiv[T])
   extends BijectiveMap[T, Int]
 {
 
