@@ -1,11 +1,7 @@
 name := "poly-collection"
-
 version := "0.0.3-SNAPSHOT"
-
 isSnapshot := true
-
 organization := "me.tongfei"
-
 scalaVersion := "2.11.7"
 
 resolvers += Resolver.sonatypeRepo("snapshots")
@@ -19,7 +15,7 @@ libraryDependencies += "com.storm-enroute" %% "scalameter-core" % "0.7"         
 scalacOptions in (Compile, doc) += "-diagrams"
 
 publishMavenStyle := true
-
+publishArtifact in Test := false
 publishTo := {
   val nexus = "https://oss.sonatype.org/"
   if (isSnapshot.value)
@@ -27,8 +23,6 @@ publishTo := {
   else
     Some("releases"  at nexus + "service/local/staging/deploy/maven2")
 }
-
-publishArtifact in Test := false
 
 pomExtra :=
   <url>http://github.com/ctongfei/poly-collection</url>

@@ -157,9 +157,9 @@ trait Graph[@sp(i) K, +V, +E] extends KeyedLike[K, Graph[K, V, E]] with StateSpa
 }
 
 object Graph {
-  class Node[K, +V](val graph: Graph[K, V, _], val key: K) extends ForwardNode[V] with ForwardNodeLike[V, Node[K, V]] {
+  class Node[K, +V](val graph: Graph[K, V, _], val key: K) extends ForwardNodeLike[V, Node[K, V]] {
     def isDummy = false
-    def data = graph.apply(key)
+    def data = graph(key)
     def succ = graph.outgoingNodesOf(key)
 
     implicit def equivOnKey = graph.equivOnKey

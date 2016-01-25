@@ -8,13 +8,18 @@ import poly.collection.ops._
  * Represents a node that has only one predecessor node.
  * @since 0.1.0
  */
-trait NodeWithParent[+T] extends BackwardNode[T] { self =>
-  def data: T
-
+trait NodeWithParentLike[+T, +N <: NodeWithParentLike[T, N]] extends BackwardNodeLike[T, N] { self: N =>
   /** Gets the unique parent node of this node. */
-  def parent: NodeWithParent[T]
+  def parent: N
 
-  def pred: Iterable[NodeWithParent[T]] = ListSeq(parent).filter(_.notDummy)
+  def pred: Iterable[N] = ListSeq(parent).filter(_.notDummy)
+
+  /** Backtracks from this node to the initial node. */
+  def pathToRoot: Seq[N] = self.iterate(_.parent).takeUntil(_.isDummy)
+
+}
+
+trait NodeWithParent[+T] extends BackwardNode[T] with NodeWithParentLike[T, NodeWithParent[T]] { self =>
 
   override def map[U](f: T => U): NodeWithParent[U] = new NodeWithParent[U] {
     def parent = self.parent.map(f)
@@ -22,6 +27,4 @@ trait NodeWithParent[+T] extends BackwardNode[T] { self =>
     override def isDummy = self.isDummy
   }
 
-  /** Backtracks from this node to the initial node. */
-  def pathToRoot: Seq[NodeWithParent[T]] = this.iterate(_.parent).takeUntil(_.isDummy)
 }

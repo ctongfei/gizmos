@@ -7,11 +7,13 @@ import poly.collection._
  * @since 0.1.0
  * @author Tongfei Chen
  */
-trait BackwardNode[+T] extends Node[T] { self =>
-  def data: T
+trait BackwardNodeLike[+T, +N <: BackwardNodeLike[T, N]] extends NodeLike[T, N] { self: N =>
 
   /** Returns the list of predecessor nodes of this node. */
-  def pred: Iterable[BackwardNode[T]]
+  def pred: Iterable[N]
+}
+
+trait BackwardNode[+T] extends Node[T] with BackwardNodeLike[T, BackwardNode[T]] { self =>
 
   def reverse: ForwardNode[T] = new ForwardNode[T] {
     def data = self.data

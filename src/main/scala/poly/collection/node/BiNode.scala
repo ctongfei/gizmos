@@ -6,10 +6,14 @@ import poly.collection._
  * Represents a node that has a list of successor nodes as well as a list of predecessor nodes.
  * @since 0.1.0
  */
-trait BiNode[+T] extends ForwardNode[T] with BackwardNode[T] { self =>
-  def data: T
-  def succ: Iterable[BiNode[T]]
-  def pred: Iterable[BiNode[T]]
+trait BiNodeLike[+T, +N <: BiNodeLike[T, N]] extends ForwardNodeLike[T, N] with BackwardNodeLike[T, N] { self: N =>
+
+  def pred: Iterable[N]
+  def succ: Iterable[N]
+
+}
+
+trait BiNode[+T] extends ForwardNode[T] with BackwardNode[T] with BiNodeLike[T, BiNode[T]] { self =>
 
   override def reverse: BiNode[T] = new BiNode[T] {
     def data = self.data

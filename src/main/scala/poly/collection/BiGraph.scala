@@ -42,7 +42,7 @@ trait BiGraph[@sp(i) K, +V, +E] extends Graph[K, V, E] { self =>
 }
 
 object BiGraph {
-  class Node[K, +V](override val graph: BiGraph[K, V, _], override val key: K) extends Graph.Node(graph, key) with BiNode[V] {
+  class Node[K, +V](override val graph: BiGraph[K, V, _], override val key: K) extends Graph.Node[K, V](graph, key) with BiNodeLike[V, Node[K, V]] {
     def pred = graph.incomingNodesOf(key)
     override def succ = graph.outgoingNodesOf(key)
   }
