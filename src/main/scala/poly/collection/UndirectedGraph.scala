@@ -1,12 +1,13 @@
 package poly.collection
 
+import poly.algebra.specgroup._
 import poly.collection.mut._
 
 /**
  * Represents an undirected graph.
  * @author Tongfei Chen
  */
-trait UndirectedGraph[K, +V, +E] extends BiGraph[K, V, E] { self =>
+trait UndirectedGraph[@sp(i) K, +V, +E] extends BiGraph[K, V, E] { self =>
 
   import UndirectedGraph._
 

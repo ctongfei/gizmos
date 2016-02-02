@@ -51,30 +51,30 @@ trait BiSeq[+T] extends Seq[T] { self =>
     }
   }
 
-  override def tail = ofHeadNode(dummy.next.next, dummy.prev)
+  override def tail = ofHeadLastNode(dummy.next.next, dummy.prev)
 
-  override def init = ofHeadNode(dummy.next, dummy.prev.prev)
+  override def init = ofHeadLastNode(dummy.next, dummy.prev.prev)
 
   override def last = dummy.prev.data
 
   override def suffixes = {
     class From(val n: BiSeqNode[T]) extends BiSeqNode[BiSeq[T]] {
-      def data = ofHeadNode(n, self.dummy.prev)
+      def data = ofHeadLastNode(n, self.dummy.prev)
       def next = new From(n.next)
       def prev = new From(n.prev)
       def isDummy = n.isDummy
     }
-    ofHeadNode(new From(self.dummy.next), new From(self.dummy.prev))
+    ofHeadLastNode(new From(self.dummy.next), new From(self.dummy.prev))
   }
 
   override def prefixes = {
     class Until(val n: BiSeqNode[T]) extends BiSeqNode[BiSeq[T]] {
-      def data = ofHeadNode(n.reverse, self.dummy.next.reverse)
+      def data = ofHeadLastNode(n.reverse, self.dummy.next.reverse)
       def next = new Until(n.prev)
       def prev = new Until(n.next)
       def isDummy = n.isDummy
     }
-    ofHeadNode(new Until(self.dummy.prev), new Until(self.dummy.next))
+    ofHeadLastNode(new Until(self.dummy.prev), new Until(self.dummy.next))
   }
 
   override def reverse: BiSeq[T] = new AbstractBiSeq[T] {
@@ -96,7 +96,7 @@ object BiSeq {
     def dummy = d
   }
 
-  def ofHeadNode[T](hn: BiSeqNode[T], ln: BiSeqNode[T]): BiSeq[T] = new AbstractBiSeq[T] {
+  def ofHeadLastNode[T](hn: BiSeqNode[T], ln: BiSeqNode[T]): BiSeq[T] = new AbstractBiSeq[T] {
     def dummy =
       new BiSeqNode[T] {
         def next = hn

@@ -11,7 +11,7 @@ import poly.collection.factory._
   * Represents a map backed by a red-black tree. This class is a wrapper of `java.util.TreeMap`.
   * @author Tongfei Chen
   */
-class RedBlackTreeMap[K, V] private(val data: java.util.TreeMap[K, V]) extends KeyMutableMap[K, V] with SortedMap[K, V] {
+class RedBlackTreeMap[K, V] private(private val data: java.util.TreeMap[K, V]) extends KeyMutableMap[K, V] with SortedMap[K, V] {
 
   def apply(k: K) = data get k
 
@@ -24,7 +24,7 @@ class RedBlackTreeMap[K, V] private(val data: java.util.TreeMap[K, V]) extends K
   def remove(x: K) = data.remove(x)
 
   def pairs = new SortedIterable[(K, V)] {
-    def order = orderOnKey contramap first
+    def order = orderOnKey contramap firstOfPair
     def newIterator = data.entrySet().elements.map(e => (e.getKey, e.getValue)).newIterator
   }
 

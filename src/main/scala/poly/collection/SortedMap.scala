@@ -19,3 +19,7 @@ trait SortedMap[@sp(i) K, +V] extends Map[K, V] { self =>
   def pairs: SortedIterable[(K, V @uv)]
 
 }
+
+// Force specialization of the key (@sp(Int)) for Seq[T].
+// Does not know why specialization under `Seq[T] extends SortedMap[Int, T]` does not work.
+private[poly] trait IntKeyedSortedMap[+V] extends SortedMap[Int, V]

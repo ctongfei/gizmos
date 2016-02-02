@@ -1,6 +1,5 @@
 package poly.collection
 
-import poly.algebra._
 import poly.algebra.specgroup._
 
 /**
@@ -25,3 +24,5 @@ trait KeyedLike[@sp(i) K, +Coll <: KeyedLike[K, Coll]] extends Keyed[K] {
   def filterKeys(f: K => Boolean): Coll
 
 }
+
+private[poly] trait IntKeyedLike[+Coll <: IntKeyedLike[Coll]] extends IntKeyed with KeyedLike[Int, Coll]

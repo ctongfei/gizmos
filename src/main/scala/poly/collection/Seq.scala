@@ -15,7 +15,7 @@ import scala.annotation.unchecked.{uncheckedVariance => uv}
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait Seq[+T] extends Iterable[T] with SortedMap[Int, T] { self =>
+trait Seq[+T] extends Iterable[T] with IntKeyedSortedMap[T] { self =>
 
   import Seq._
 
@@ -88,10 +88,10 @@ trait Seq[+T] extends Iterable[T] with SortedMap[Int, T] { self =>
       def next = new SeqNodeWithIndex(outer.next, i + 1)
       def isDummy = outer.isDummy
     }
-    ofDummyNode(new SeqNodeWithIndex(dummy, -1)).asIfSorted[(Int, T)](WeakOrder by first)
+    ofDummyNode(new SeqNodeWithIndex(dummy, -1)).asIfSorted[(Int, T)](WeakOrder by firstOfPair)
   }
 
-  override def keys = pairs map first
+  override def keys = pairs map firstOfPair
 
   // HELPER FUNCTIONS
 
@@ -122,7 +122,7 @@ trait Seq[+T] extends Iterable[T] with SortedMap[Int, T] { self =>
     ofDummyNode(new FlatMappedSeqNode(dummy, SeqNode.dummy))
   }
 
-  def cartesianProduct[U](that: Seq[U]): Seq[(T, U)] = this.flatMap(t => that.map(u => (t, u)))
+  def listProduct[U](that: Seq[U]): Seq[(T, U)] = this.flatMap(t => that.map(u => (t, u)))
 
   override def filter(f: T => Boolean): Seq[T] = {
     class FilteredSeqNode(val node: SeqNode[T]) extends SeqNode[T] {
@@ -389,7 +389,7 @@ object Seq {
       var xn = x.headNode
       var yn = y.headNode
       while (xn.notDummy && yn.notDummy) {
-        if (xn.data =!= yn.data) return false
+        if (xn.data !== yn.data) return false
         xn = xn.next
         yn = yn.next
       }

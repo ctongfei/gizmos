@@ -19,8 +19,6 @@ trait SortedSeq[T] extends Seq[T] with SortedIterable[T] { self =>
 
   def asSortedSet = ???
 
-  def thenSortBy[X](f: T => X)(implicit subOrder: WeakOrder[T]): SortedIndexedSeq[T] = {
-    self.sort(order thenOrderBy subOrder) //TODO:! naive implementation
-  }
+  def thenSortBy[X](f: T => X)(implicit subOrder: WeakOrder[X]) = ???
 
 }

@@ -76,7 +76,7 @@ trait Set[T] extends Predicate[T] with Multiset[T] with KeyedLike[T, Set[T]] { s
 
   def cartesianProduct[T1](that: Set[T1]): Set[(T, T1)] = new AbstractSet[(T, T1)] {
     def equivOnKey = Equiv.product(self.equivOnKey, that.equivOnKey)
-    def keys = self.keys cartesianProduct that.keys
+    def keys = self.keys listProduct that.keys
     override def size = self.size * that.size
     def contains(k: (T, T1)) = self.containsKey(k._1) && that.containsKey(k._2)
   }
@@ -100,7 +100,6 @@ trait Set[T] extends Predicate[T] with Multiset[T] with KeyedLike[T, Set[T]] { s
 
   def createGraphBy[V, E](fv: T => V)(fe: (T, T) => Option[E]): Graph[T, V, E] = new AbstractGraph[T, V, E] {
     def apply(i: T) = fv(i)
-    def containsNode(i: T) = self.contains(i)
     def containsEdge(i: T, j: T) = self.contains(i) && self.contains(j) && fe(i, j).isDefined
     def apply(i: T, j: T) = fe(i, j).get
     def outgoingKeysOf(i: T) = self.elements.filter(j => fe(i, j).isDefined)

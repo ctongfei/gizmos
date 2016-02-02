@@ -5,12 +5,17 @@ import poly.algebra.specgroup._
 import scala.language.implicitConversions
 
 package object collection {
+  /** Returns the first element of two elements. */
+  @inline def first[α, β](a: α, b: β) = a
+
+  /** Returns the second element of two elements. */
+  @inline def second[α, β](a: α, b: β) = b
 
   /** Returns the first element of a pair. */
-  @inline def first[α](pair: (α, _)) = pair._1
+  @inline def firstOfPair[α](pair: (α, _)) = pair._1
 
   /** Returns the second element of a pair. */
-  @inline def second[β](pair: (_, β)) = pair._2
+  @inline def secondOfPair[β](pair: (_, β)) = pair._2
 
 
   @inline private[poly] def default[T]: T = {

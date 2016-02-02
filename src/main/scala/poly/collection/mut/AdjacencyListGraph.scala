@@ -27,8 +27,6 @@ class AdjacencyListGraph[@sp(i) K, V, E]() extends Graph[K, V, E] {
 
   def containsEdge(i: K, j: K): Boolean = (for (v ← r ? i; e ← v.succ ? j) yield e).isDefined
 
-  def containsNode(i: K): Boolean = (r ? i).isDefined
-
   def keySet = r.keySet
 
   def outgoingKeysOf(i: K): Iterable[K] = r(i).succ.keys

@@ -13,7 +13,7 @@ trait WeightedStateSpace[S, @sp(fdi) C] extends StateSpace[S] {
 
   implicit def groupOnCost: OrderedAdditiveGroup[C]
   def succWithCost(x: S): Traversable[(S, C)]
-  def succ(x: S) = succWithCost(x) map first
+  def succ(x: S) = succWithCost(x) map firstOfPair
 
   def uniformCostTraversal(start: S) =
     Iterable.ofIterator(new UniformCostIterator[S, C](this, start))

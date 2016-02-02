@@ -31,7 +31,6 @@ trait BiGraph[@sp(i) K, +V, +E] extends Graph[K, V, E] { self =>
   def reverse: BiGraph[K, V, E] = new AbstractBiGraph[K, V, E] {
     override def reverse = self
     def keySet: Set[K] = self.keySet
-    def containsNode(i: K): Boolean = self.containsNode(i)
     def containsEdge(i: K, j: K) = self.containsEdge(j, i)
     def incomingKeysOf(i: K) = self.outgoingKeysOf(i)
     def outgoingKeysOf(i: K) = self.incomingKeysOf(i)

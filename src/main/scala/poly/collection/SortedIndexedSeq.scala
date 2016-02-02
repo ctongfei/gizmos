@@ -10,7 +10,7 @@ import poly.algebra.syntax._
 trait SortedIndexedSeq[T] extends SortedSeq[T] with IndexedSeq[T] { self =>
 
   /**
-   * Finds the key in a sorted array using binary search. The complexity of this operation is O(log n).
+   * Finds the key in a sorted sequence using binary search. The complexity of this operation is O(log n).
    * @param x The key to be found
    * @return Index of key. If not found, None.
    */
@@ -20,7 +20,7 @@ trait SortedIndexedSeq[T] extends SortedSeq[T] with IndexedSeq[T] { self =>
     while (l <= r) {
       val m = l + (r - l) / 2
       val value = this(m)
-      if (x =~= value) return Some(m)
+      if (x === value) return Some(m)
       else {
         if (value < x)
           l = m + 1
@@ -32,7 +32,8 @@ trait SortedIndexedSeq[T] extends SortedSeq[T] with IndexedSeq[T] { self =>
   }
 
   /**
-   * Finds the key in a sorted array using binary search. If not found, returns the complement (~x) of its lower bound.
+   * Finds the key in a sorted sequence using binary search.
+   * If not found, returns the complement (~x) of its lower bound.
    * @param x The key to be found
    * @return Index of key. If not found, complement of the index at which it should be inserted
    */
@@ -42,7 +43,7 @@ trait SortedIndexedSeq[T] extends SortedSeq[T] with IndexedSeq[T] { self =>
     while (l <= r) {
       val m = l + (r - l) / 2
       val value = this(m)
-      if (x =~= value) return m
+      if (x === value) return m
       else {
         if (value < x)
           l = m + 1

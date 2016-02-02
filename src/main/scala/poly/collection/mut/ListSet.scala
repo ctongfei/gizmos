@@ -17,7 +17,7 @@ class ListSet[T] private(private val data: SinglyLinkedList[T])(implicit val equ
     var found = false
     var c = data.dummy.next
     while (c ne data.dummy) {
-      if (c.data =~= x)
+      if (c.data === x)
         return true
       c = c.next
     }
@@ -32,7 +32,7 @@ class ListSet[T] private(private val data: SinglyLinkedList[T])(implicit val equ
     var p = data.dummy
     var c = data.dummy.next
     while (c ne data.dummy) {
-      if (c.data =~= x) p.next = c.next
+      if (c.data === x) p.next = c.next
       p = c
       c = c.next
     }

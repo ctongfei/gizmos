@@ -45,13 +45,17 @@ trait IndexedSeq[+T] extends BiSeq[T] with HasKnownSize { self =>
     def isDummy = true
   }
 
-  // Overridden foreach method for performance.
+  /**
+   * Applies a specific function to each element in this collection.
+   * This call will be rewritten as a `while` loop.
+   * @param f The function to be applied. Return values are discarded.
+   */ // Overridden foreach method for performance.
   override def foreach[V](f: T => V): Unit = {
     FastLoop.ascending(0, length, 1) { i => f(apply(i)) }
   }
 
   override def pairs: SortedIndexedSeq[(Int, T@uv)] =
-    IndexedSeq.tabulate(length)(i => i → self(i)).asIfSorted[(Int, T)](WeakOrder by first)
+    IndexedSeq.tabulate(length)(i => i → self(i)).asIfSorted[(Int, T)](WeakOrder by firstOfPair)
 
   override def keys = Range(length)
 
@@ -62,7 +66,7 @@ trait IndexedSeq[+T] extends BiSeq[T] with HasKnownSize { self =>
     def fastApply(i: Int) = f(self(i))
   }
 
-  def cartesianProduct[U](that: IndexedSeq[U]): IndexedSeq[(T, U)] = new AbstractIndexedSeq[(T, U)] {
+  def listProduct[U](that: IndexedSeq[U]): IndexedSeq[(T, U)] = new AbstractIndexedSeq[(T, U)] {
     private[this] val stride = that.length
     def fastLength = self.length * that.length
     def fastApply(i: Int) = (self(i / stride), that(i % stride))
@@ -71,7 +75,7 @@ trait IndexedSeq[+T] extends BiSeq[T] with HasKnownSize { self =>
   /**
    * Returns the Cartesian product of two indexed sequences. The returning value is a table.
    */
-  def cartesianProductToTable[U](that: IndexedSeq[U]): Table[(T, U)] = new AbstractTable[(T, U)] {
+  def cartesianProduct[U](that: IndexedSeq[U]): Table[(T, U)] = new AbstractTable[(T, U)] {
     def apply(i: Int, j: Int) = (self(i), that(j))
     def numRows = self.length
     def numCols = that.length
@@ -204,7 +208,7 @@ object IndexedSeq {
   implicit def Equiv[T: Equiv]: Equiv[IndexedSeq[T]] = new Equiv[IndexedSeq[T]] {
     def eq(x: IndexedSeq[T], y: IndexedSeq[T]) = {
       if (x.length != y.length) false
-      else x.keys.forall(i => x(i) =~= y(i))
+      else x.keys.forall(i => x(i) === y(i))
     }
   }
 

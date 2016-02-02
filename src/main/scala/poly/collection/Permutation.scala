@@ -2,14 +2,17 @@ package poly.collection
 
 import poly.algebra._
 import poly.algebra.syntax._
-import poly.collection.exception._
-import poly.collection.ops._
 
 /**
-  * Represents a permutation on a set {0, ..., ''n'' - 1}.
-  * @author Tongfei Chen
-  * @since 0.1.0
-  */
+ * Represents a permutation on a set N,,''n'',, = {0, ..., ''n'' - 1}.
+ * <p>
+ *   A permutation is a bijective endofunction on the set N,,''n'',, and defines
+ *   a total order on the set N,,''n'',,. Its inverse (inverse of the bijective function)
+ *   and its reverse (reverse of the total order) are also permutations on N,,''n'',,.
+ * </p>
+ * @author Tongfei Chen
+ * @since 0.1.0
+ */
 class Permutation private(private val a1: Array[Int], private val a2: Array[Int])
   extends BijectiveMap[Int, Int] with IndexedSeq[Int] with SequentialOrder[Int] with Bounded[Int] with HasKnownSize
 {
@@ -40,7 +43,16 @@ class Permutation private(private val a1: Array[Int], private val a2: Array[Int]
 
   override def inverse: Permutation = new Permutation(a2, a1)
 
-  override def reverse: Permutation = Permutation(arrayAsIndexedSeq(a1).reverse.toArray)
+  override def reverse: Permutation = {
+    val n = length
+    val b1 = Array.ofDim[Int](n)
+    val b2 = Array.ofDim[Int](n)
+    for (i ← Range(n)) {
+      b1(n - i) = a1(i)
+      b2(n - i) = a2(i)
+    }
+    new Permutation(b1, b2)
+  }
 
   override def toString = arrayAsIndexedSeq(a1).toString
 }
@@ -57,6 +69,7 @@ object Permutation {
     new Permutation(xs.clone, ys)
   }
 
+  /** Generates a random permutation of the given length. */
   def random(n: Int) = {
     val a = Array.tabulate(n)(i => i)
     val r = new java.util.Random()
@@ -69,6 +82,7 @@ object Permutation {
     Permutation(a)
   }
 
+  /** Generates an identity permutation of the given length. */
   def identity(n: Int) = {
     val a = Array.tabulate(n)(i => i)
     new Permutation(a, a)
@@ -81,7 +95,6 @@ object Permutation {
   /**
     * Returns the permutation group of size ''n''.
     * This structure is a [[poly.algebra.Group]] as well as a [[poly.collection.Set]].
-    * @return
     */
   def Group(n: Int): Group[Permutation] with Set[Permutation] = new Group[Permutation] with Set[Permutation] {
     def inv(x: Permutation) = x.inverse

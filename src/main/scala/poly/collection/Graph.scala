@@ -58,8 +58,8 @@ trait Graph[@sp(i) K, +V, +E] extends KeyedLike[K, Graph[K, V, E]] with StateSpa
   def edgeMap: Map[(K, K), E] = ???
   def edges: Iterable[Edge[K, E]] = for (i ← keys; j ← outgoingKeysOf(i)) yield edge(i, j)
 
-  final def containsKey(i: K) = containsNode(i)
-  def containsNode(i: K): Boolean
+  final def containsKey(i: K) = keySet.contains(i)
+  def containsNode(i: K) = keySet.contains(i)
   def containsEdge(i: K, j: K): Boolean
 
   def outgoingKeysOf(i: K): Iterable[K]
@@ -73,21 +73,19 @@ trait Graph[@sp(i) K, +V, +E] extends KeyedLike[K, Graph[K, V, E]] with StateSpa
 
   // HELPER FUNCTIONS
 
-  def mapNodes[V1](f: V => V1): Graph[K, V1, E] = new AbstractGraph[K, V1, E] {
-    def apply(i: K): V1 = f(self(i))
+  def mapNodes[W](f: V => W): Graph[K, W, E] = new AbstractGraph[K, W, E] {
+    def apply(i: K): W = f(self(i))
     def containsEdge(i: K, j: K): Boolean = self.containsEdge(i, j)
-    def containsNode(i: K): Boolean = self.containsNode(i)
     def keySet: Set[K] = self.keySet
     def apply(i: K, j: K): E = self.apply(i, j)
     def outgoingKeysOf(i: K): Iterable[K] = self.outgoingKeysOf(i)
   }
 
-  def mapEdges[E1](f: E => E1): Graph[K, V, E1] = new AbstractGraph[K, V, E1] {
+  def mapEdges[F](f: E => F): Graph[K, V, F] = new AbstractGraph[K, V, F] {
     def apply(i: K): V = self(i)
     def containsEdge(i: K, j: K): Boolean = self.containsEdge(i, j)
-    def containsNode(i: K): Boolean = self.containsNode(i)
     def keySet: Set[K] = self.keySet
-    def apply(i: K, j: K): E1 = f(self.apply(i, j))
+    def apply(i: K, j: K): F = f(self.apply(i, j))
     def outgoingKeysOf(i: K): Iterable[K] = self.outgoingKeysOf(i)
   }
 
@@ -99,7 +97,6 @@ trait Graph[@sp(i) K, +V, +E] extends KeyedLike[K, Graph[K, V, E]] with StateSpa
     */
   def filterKeys(f: K => Boolean): Graph[K, V, E] = new AbstractGraph[K, V, E] {
     def apply(i: K) = self(i)
-    def containsNode(i: K) = self.containsNode(i) && f(i)
     def containsEdge(i: K, j: K) = self.containsEdge(i, j) && f(i) && f(j)
     def apply(i: K, j: K) = self(i, j)
     def outgoingKeysOf(i: K) = if (f(i)) self.outgoingKeysOf(i).filter(f) else Iterable.empty
@@ -112,38 +109,34 @@ trait Graph[@sp(i) K, +V, +E] extends KeyedLike[K, Graph[K, V, E]] with StateSpa
       else throw new KeyNotFoundException(i)
     }
     def containsEdge(i: K, j: K): Boolean = f(self(i)) && f(self(j)) && self.containsEdge(i, j)
-    def containsNode(i: K): Boolean = self.containsNode(i) && f(self(i))
     def apply(i: K, j: K): E = if (containsEdge(i, j)) self(i, j) else throw new KeyNotFoundException(i, j)
     def outgoingKeysOf(i: K): Iterable[K] = ???
     def keySet: Set[K] = ???
   }
 
-  def zip[V1, E1](that: Graph[K, V1, E1]): Graph[K, (V, V1), (E, E1)] = new AbstractGraph[K, (V, V1), (E, E1)] {
+  def zip[W, F](that: Graph[K, W, F]): Graph[K, (V, W), (E, F)] = new AbstractGraph[K, (V, W), (E, F)] {
     def apply(i: K) = (self(i), that(i))
-    def containsNode(i: K) = self.containsNode(i) && that.containsNode(i)
     def containsEdge(i: K, j: K) = self.containsEdge(i, j) && that.containsEdge(i, j)
     def apply(i: K, j: K) = (self(i, j), that(i, j))
     def outgoingKeysOf(i: K) = ??? //self.outgoingKeysOf(i) intersect that.outgoingKeysOf(i)
     def keySet = self.keySet & that.keySet
   }
 
-  def contramap[K1](f: K1 <=> K): Graph[K1, V, E] = new AbstractGraph[K1, V, E] {
-    def apply(i: K1) = self.apply(f(i))
-    def containsNode(i: K1) = self.containsNode(f(i))
-    def containsEdge(i: K1, j: K1) = self.containsEdge(f(i), f(j))
-    def apply(i: K1, j: K1) = self.apply(f(i), f(j))
-    def outgoingKeysOf(i: K1) = self.outgoingKeysOf(f(i)).map(f.invert)
+  def contramap[J](f: J <=> K): Graph[J, V, E] = new AbstractGraph[J, V, E] {
+    def apply(i: J) = self.apply(f(i))
+    def containsEdge(i: J, j: J) = self.containsEdge(f(i), f(j))
+    def apply(i: J, j: J) = self.apply(f(i), f(j))
+    def outgoingKeysOf(i: J) = self.outgoingKeysOf(f(i)).map(f.invert)
     def keySet = self.keySet.contramap(f)
   }
 
-  def generalProduct[K1, V1, E1](that: Graph[K1, V1, E1])(fe: (K, K, K1, K1) => Boolean): Graph[(K, K1), (V, V1), (E, E1)] =
-    new AbstractGraph[(K, K1), (V, V1), (E, E1)] {
-      def apply(k: (K, K1)) = (self(k._1), that(k._2))
-      def containsNode(k: (K, K1)) = self.containsNode(k._1) && that.containsNode(k._2)
-      def containsEdge(i: (K, K1), j: (K, K1)) = fe(i._1, j._1, i._2, j._2)
-      def apply(i: (K, K1), j: (K, K1)) = (self(i._1, j._1), that(i._2, j._2))
+  def generalProduct[L, W, F](that: Graph[L, W, F])(fe: (K, K, L, L) => Boolean): Graph[(K, L), (V, W), (E, F)] =
+    new AbstractGraph[(K, L), (V, W), (E, F)] {
+      def apply(k: (K, L)) = (self(k._1), that(k._2))
+      def containsEdge(i: (K, L), j: (K, L)) = fe(i._1, j._1, i._2, j._2)
+      def apply(i: (K, L), j: (K, L)) = (self(i._1, j._1), that(i._2, j._2))
       def keySet = self.keySet cartesianProduct that.keySet
-      def outgoingKeysOf(i: (K, K1)) = ???
+      def outgoingKeysOf(i: (K, L)) = ???
     }
 
   def to[G[_, _, _]](implicit builder: GraphBuilder[K, V@uv, E@uv, G[K, V@uv, E@uv]]): G[K, V@uv, E@uv] = {
@@ -165,7 +158,7 @@ object Graph {
     implicit def equivOnKey = graph.equivOnKey
 
     override def equals(that: Any) = that match {
-      case that: Node[K, V] => (this.graph eq that.graph) && (this.key =~= that.key)
+      case that: Node[K, V] => (this.graph eq that.graph) && (this.key === that.key)
     }
     //TODO: hashing
   }
@@ -178,7 +171,7 @@ object Graph {
     implicit def equivOnKey = graph.equivOnKey
 
     override def equals(that: Any) = that match {
-      case that: Edge[K, E] => (this.graph eq that.graph) && (this.key1 =~= that.key1) && (this.key2 =~= that.key2)
+      case that: Edge[K, E] => (this.graph eq that.graph) && (this.key1 === that.key1) && (this.key2 === that.key2)
     }
     //TODO: hashing
   }

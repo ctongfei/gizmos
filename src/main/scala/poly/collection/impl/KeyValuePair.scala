@@ -37,7 +37,7 @@ object KeyValuePair {
   implicit def hashByKey[@sp(i) K, V](implicit K: IntHashing[K]): IntHashing[KeyValuePair[K, V]] =
     new IntHashing[KeyValuePair[K, V]] {
       def hash(x: KeyValuePair[K, V]) = K.hash(x.key)
-      def eq(x: KeyValuePair[K, V], y: KeyValuePair[K, V]) = x.key =~= y.key
+      def eq(x: KeyValuePair[K, V], y: KeyValuePair[K, V]) = x.key === y.key
     }
 
   /** Returns a weak order on key-value pairs that is based on the weak order on the key. */
@@ -49,6 +49,6 @@ object KeyValuePair {
   /** Returns an equivalence relation on key-value pairs that is based on the equivalence relation on the key. */
   implicit def equivByKey[@sp(i) K: Equiv, V]: Equiv[KeyValuePair[K, V]] =
     new Equiv[KeyValuePair[K, V]] {
-      def eq(x: KeyValuePair[K, V], y: KeyValuePair[K, V]) = x.key =~= y.key
+      def eq(x: KeyValuePair[K, V], y: KeyValuePair[K, V]) = x.key === y.key
     }
 }

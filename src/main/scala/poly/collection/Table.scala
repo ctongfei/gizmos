@@ -19,10 +19,30 @@ trait Table[+T] extends Map[(Int, Int), T] with HasKnownSize { self =>
 
   def equivOnKey = Equiv.default[(Int, Int)]
 
-  def pairs = for {
-    i: Int ← Range(numRows)
-    j: Int ← Range(numCols)
-  } yield (i → j) → self(i, j)
+  def pairs: IndexedSeq[((Int, Int), T)] = new AbstractIndexedSeq[((Int, Int), T)] {
+    def fastApply(idx: Int) = {
+      val i = idx / numRows
+      val j = idx / numCols
+      ((i, j), self(i, j))
+    }
+    def fastLength = self.size
+  }
+
+  /**
+   * Returns all the (row, col, elem) triples in this table.
+   * @example {{{
+   *    Table((1, 2), (3, 4)).triples
+   *    == ((0,0,1), (0,1,2), (1,0,3), (1,1,4))
+   * }}}
+   */
+  def triples: IndexedSeq[(Int, Int, T)] = new AbstractIndexedSeq[(Int, Int, T)] {
+    def fastApply(idx: Int) = {
+      val i = idx / numRows
+      val j = idx / numCols
+      (i, j, self(i, j))
+    }
+    def fastLength = self.size
+  }
 
   def elements = Iterable.ofIterator {
     new Iterator[T] {
@@ -65,6 +85,7 @@ trait Table[+T] extends Map[(Int, Int), T] with HasKnownSize { self =>
     def apply(i: Int, j: Int) = f(self(i, j))
   }
 
+  /** Transposes this table. */
   def transpose: Table[T] = new Table[T] {
     def numCols = self.numRows
     def numRows = self.numCols
@@ -90,6 +111,12 @@ trait Table[+T] extends Map[(Int, Int), T] with HasKnownSize { self =>
 }
 
 object Table {
+
+  def tabulate[T](nr: Int, nc: Int)(f: (Int, Int) => T): Table[T] = new AbstractTable[T] {
+    def apply(i: Int, j: Int) = f(i, j)
+    def numRows = nr
+    def numCols = nc
+  }
 
 }
 

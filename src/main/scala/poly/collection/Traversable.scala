@@ -65,11 +65,11 @@ trait Traversable[+T] { self =>
   }
 
   /**
-    * Returns the Cartesian product of two traversable sequences. $LAZY
-    * @example {{{(1, 2) cartesianProduct (1, 2) == ((1, 1), (1, 2), (2, 1), (2, 2))}}}
+    * Returns the list product of two traversable sequences. $LAZY
+    * @example {{{(1, 2) listProduct (1, 2) == ((1, 1), (1, 2), (2, 1), (2, 2))}}}
     * @param that Another traversable sequence
     */
-  def cartesianProduct[U](that: Traversable[U]): Traversable[(T, U)] =
+  def listProduct[U](that: Traversable[U]): Traversable[(T, U)] =
     self flatMap (x => that map (y => (x, y)))
 
   //endregion
@@ -395,9 +395,9 @@ trait Traversable[+T] { self =>
   def slice(i: Int, j: Int) = skip(i).take(j - i)
 
   /** Returns the unique elements in this collection while retaining its original order. */
-  def distinct[T1 >: T](implicit T1: Equiv[T1]): Traversable[T1] = new AbstractTraversable[T1] {
-    def foreach[V](f: T1 => V) = {
-      val set = HashSet[T1]() //TODO: feed typeclass instance T1 here
+  def distinct[U >: T](implicit U: Equiv[U]): Traversable[U] = new AbstractTraversable[U] {
+    def foreach[V](f: U => V) = {
+      val set = HashSet[U]() //TODO: feed typeclass instance T1 here
       for (x ← self) {
         if (set notContains x) {
           set add x
@@ -407,9 +407,9 @@ trait Traversable[+T] { self =>
     }
   }
 
-  def distinctBy[T1](f: T => T1)(implicit T1: Equiv[T1]): Traversable[T] = new AbstractTraversable[T] {
+  def distinctBy[U](f: T => U)(implicit U: Equiv[U]): Traversable[T] = new AbstractTraversable[T] {
     def foreach[V](g: T => V) = {
-      val set = HashSet[T1]() //TODO: feed typeclass instance T1 here
+      val set = HashSet[U]() //TODO: feed typeclass instance T1 here
       for (x ← self) {
         val fx = f(x)
         if (set notContains fx) {
@@ -420,10 +420,10 @@ trait Traversable[+T] { self =>
     }
   }
 
-  def union[T1 >: T](that: Traversable[T1]): Traversable[T1] = (this concat that).distinct
+  def union[U >: T](that: Traversable[U]): Traversable[U] = (this concat that).distinct
 
-  def intersect[T1 >: T](that: Traversable[T1]): Traversable[T1] = new AbstractTraversable[T1] {
-    def foreach[V](f: T1 => V): Unit = {
+  def intersect[U >: T](that: Traversable[U]): Traversable[U] = new AbstractTraversable[U] {
+    def foreach[V](f: U => V): Unit = {
       val set = this.to[HashSet]
       for (x ← that)
         if (set contains x) f(x)
@@ -507,7 +507,6 @@ trait Traversable[+T] { self =>
 
   /**
    * Returns the prefix sums of this collection.
- *
    * @example {{{(1, 2, 3, 4).prefixSums == (0, 1, 3, 6, 10)}}}
    * @tparam X Supertype of the type of elements: must be endowed with an additive monoid
    * @return The prefix sums sequence
@@ -530,7 +529,6 @@ trait Traversable[+T] { self =>
 
   /**
    * Returns the product of the elements in this collection. For example, `(1, 2, 3, 4, 5).product` returns `120`.
- *
    * @tparam X Supertype of the type of elements: must be endowed with a multiplicative monoid.
    * @return The product
    */
@@ -546,7 +544,6 @@ trait Traversable[+T] { self =>
 
   /**
     * Returns the first element in this collection that makes the specific function least.
- *
     * @param f The function
     * @tparam U The implicit weak order on the output of the specific function.
     */
@@ -620,7 +617,6 @@ trait Traversable[+T] { self =>
   //region Building (to, buildString)
   /**
    * Converts this traversable sequence to any collection type.
- *
    * @param builder An implicit builder
    * @tparam C Higher-order type of the collection to be built
    */
@@ -628,7 +624,6 @@ trait Traversable[+T] { self =>
 
   /**
    * Converts this traversable sequence to any collection type given a factory.
- *
    * @param factory A collection factory
    * @tparam C Higher-order type of the collection to be built
    */
@@ -683,11 +678,11 @@ trait Traversable[+T] { self =>
   def :+[U >: T](x: U) = this append x
   def +:[U >: T](x: U) = this prepend x
   def ++[U >: T](that: Traversable[U]) = this concat that
-  def |×|[U](that: Traversable[U]) = this cartesianProduct that
+  def |×|[U](that: Traversable[U]) = this listProduct that
+
   def |>[U](f: T => U) = this map f
   def |?(f: T => Boolean) = this filter f
   def ||>[U](f: T => Traversable[U]) = this flatMap f
-  def |+[U >: T](f: (U, U) => U) = this reduce f
   //endregion
   //endregion
 
@@ -728,7 +723,7 @@ object Traversable {
       * Lazily unzips a traversable sequence of pairs.
       * @example {{{((1, 'a'), (2, 'b'), (3, 'c')).unzip == ((1, 2, 3), ('a', 'b', 'c'))}}}
       */
-    def unzip: (Traversable[K], Traversable[V]) = (underlying map first, underlying map second)
+    def unzip: (Traversable[K], Traversable[V]) = (underlying map firstOfPair, underlying map secondOfPair)
 
     /**
       * Eagerly unzips a traversable sequence of pairs. This method only traverses through the collection once.

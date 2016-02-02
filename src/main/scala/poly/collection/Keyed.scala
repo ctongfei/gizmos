@@ -4,7 +4,7 @@ import poly.algebra._
 import poly.algebra.specgroup._
 
 /**
-  * Marker trait for any structure that contains keys (unique identifiers).
+  * Marker trait for any data structure that contains keys (unique identifiers).
   * @author Tongfei Chen
   * @since 0.1.0
   * @define LAZY The resulting collection is '''lazily''' executed.
@@ -13,6 +13,10 @@ import poly.algebra.specgroup._
 trait Keyed[@sp(i) K] {
 
   /** Returns the equivalence relation on keys. */
-  implicit def equivOnKey: Equiv[K]
+  def equivOnKey: Equiv[K]
 
+}
+
+private[poly] trait IntKeyed extends Keyed[Int] {
+  def equivOnKey: Equiv[Int]
 }

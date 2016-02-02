@@ -55,7 +55,7 @@ class ClosedHashingSet[K: IntHashing] (
       val status = stat(j)
       if (status == VACANT)
         return -1
-      else if (status == INUSE && x =~= keys(j).asInstanceOf[K])
+      else if (status == INUSE && x === keys(j).asInstanceOf[K])
         return j
       i = i * 5 + p + 1
       p >>= 5
@@ -70,7 +70,7 @@ class ClosedHashingSet[K: IntHashing] (
       val j = initialSlot(i)
       val status = stat(j)
       if (status == INUSE) {
-        if (x =~= keys(j).asInstanceOf[K]) return false
+        if (x === keys(j).asInstanceOf[K]) return false
         else {
           i = i * 5 + p + 1
           p >>= 5
@@ -98,7 +98,7 @@ class ClosedHashingSet[K: IntHashing] (
     do {
       val j = initialSlot(i)
       val status = stat(j)
-      if (status == INUSE && x =~= keys(j).asInstanceOf[K]) {
+      if (status == INUSE && x === keys(j).asInstanceOf[K]) {
         stat(j) = REMOVED
         size -= 1
         return true

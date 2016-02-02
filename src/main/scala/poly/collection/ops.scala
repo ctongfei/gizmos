@@ -1,7 +1,5 @@
 package poly.collection
 
-import poly.collection.node._
-
 import scala.language.implicitConversions
 
 /**

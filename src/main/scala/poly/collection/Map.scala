@@ -1,7 +1,6 @@
 package poly.collection
 
 import poly.algebra._
-import poly.algebra.Bijection._
 import poly.algebra.hkt._
 import poly.collection.exception._
 import poly.util.specgroup._
@@ -13,14 +12,6 @@ import scala.language.reflectiveCalls
  * It can also be viewed as a collection of (key, value) pairs, in which each key is unique.
  * @author Tongfei Chen
  * @since 0.1.0
- *
- * @define LAZY The resulting collection will be lazily evaluated.
- * @define EAGER The resulting collection will be eagerly evaluated.
- * @define Onlogn Time complexity: O(n log n).
- * @define On Time complexity: O(n).
- * @define Ologn Time complexity: O(log n).
- * @define O1amortized Time complexity: Amortized O(1).
- * @define O1 Time complexity: O(1).
  */
 trait Map[@sp(i) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K, V] { self =>
 
@@ -52,33 +43,36 @@ trait Map[@sp(i) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K, 
 
   /**
    * Checks if the specified key is present in this map.
-   * @param x The given key
    * @return Whether the key exists in this map
    */
   def containsKey(x: K): Boolean
 
+  /**
+   * Checks if the specific key is absent in this map.
+   * @return Whether the key does not exist in this map
+   */
   def notContainsKey(x: K) = !containsKey(x)
 
-  def getOrElse[V1 >: V](x: K, default: => V1) = ?(x) match {
+  def getOrElse[W >: V](x: K, default: => W) = ?(x) match {
     case Some(y) => y
     case None => default
   }
 
   def isDefinedAt(x: K) = containsKey(x)
 
-  /** Returns the set of the keys of this map. $LAZY $O1 */
+  /** Returns the set of the keys of this map. $LAZY */
   def keySet: Set[K] = new AbstractSet[K] {
     def equivOnKey = self.equivOnKey
     def contains(x: K): Boolean = self.containsKey(x)
     override def size: Int = self.size
-    def keys: Iterable[K] = self.pairs.map(first)
+    def keys: Iterable[K] = self.pairs.map(firstOfPair)
   }
 
-  /** Returns an iterable collection of the keys in this map. $LAZY $O1 */
-  def keys = self.pairs.map(first)
+  /** Returns an iterable collection of the keys in this map. $LAZY */
+  def keys = self.pairs.map(firstOfPair)
 
-  /** Returns an iterable collection of the values in this map. $LAZY $O1 */
-  def values = self.pairs.map(second)
+  /** Returns an iterable collection of the values in this map. $LAZY */
+  def values = self.pairs.map(secondOfPair)
 
   // HELPER FUNCTIONS
 
@@ -92,13 +86,17 @@ trait Map[@sp(i) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K, 
 
   /**
    * Transforms the values of this map according to the specified function. $LAZY
+   * {{{
+   *   K => V        V => W          K => W
+   *    self  . map ( that )    ==   result
+   * }}}
    * @note This function is equivalent to the Scala library's `mapValues`.
    *       To transform all pairs in this map, use `this.pairs.map`.
    * @example {{{Map(1 -> 2, 2 -> 3) map {_ * 2} == Map(1 -> 4, 2 -> 6)}}}
    * @param f The specific function
    * @return A map view that maps every key of this map to `f(this(key))`.
    */
-  def map[V1](f: V => V1): Map[K, V1] = new AbstractMap[K, V1] {
+  def map[W](f: V => W): Map[K, W] = new AbstractMap[K, W] {
     def equivOnKey = self.equivOnKey
     def containsKey(x: K) = self.containsKey(x)
     def ?(x: K) = (self ? x).map(f)
@@ -107,11 +105,11 @@ trait Map[@sp(i) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K, 
     override def size = self.size
   }
 
-  def cartesianProduct[K1, V1](that: Map[K1, V1]): Map[(K, K1), (V, V1)] = new AbstractMap[(K, K1), (V, V1)] {
+  def cartesianProduct[L, W](that: Map[L, W]): Map[(K, L), (V, W)] = new AbstractMap[(K, L), (V, W)] {
     def equivOnKey = Equiv.product(self.equivOnKey, that.equivOnKey)
-    def containsKey(k: (K, K1)) = self.containsKey(k._1) && that.containsKey(k._2)
-    def ?(k: (K, K1)) = for (v ← self ? k._1; v1 ← that ? k._2) yield (v, v1)
-    def apply(k: (K, K1)) = (self(k._1), that(k._2))
+    def containsKey(k: (K, L)) = self.containsKey(k._1) && that.containsKey(k._2)
+    def ?(k: (K, L)) = for (v ← self ? k._1; v1 ← that ? k._2) yield (v, v1)
+    def apply(k: (K, L)) = (self(k._1), that(k._2))
     def pairs = for (k ← self.keys; k1 ← that.keys) yield ((k, k1), (self(k), that(k1)))
     override def size = self.size * that.size
 }
@@ -131,6 +129,17 @@ trait Map[@sp(i) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K, 
     def containsKey(x: K): Boolean = self.containsKey(x) && that.containsKey(x)
   }
 
+  /**
+   * Wraps the keys of this map with a bijection. $LAZY
+   * {{{
+   *   K => V              J <=> K         J => V
+   *    self  . contramap ( that )    ==   result
+   * }}}
+   * @example {{{
+   *   Map(1 -> 'A', 2 -> 'B') contramap
+   *   BijectiveMap('a' <-> 1, 'b' <-> 2) == Map('a' -> 'A', 'b' -> 'B')
+   * }}}
+   */
   def contramap[J](f: Bijection[J, K]): Map[J, V] = new AbstractMap[J, V] {
     def pairs = self.pairs.map { case (k, v) => (f.invert(k), v) }
     def containsKey(x: J) = self containsKey f(x)
@@ -150,6 +159,7 @@ trait Map[@sp(i) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K, 
   override def toString = pairs.toString
 
   def |>[W](f: V => W) = self map f
+  def |<[J](f: Bijection[J, K]) = self contramap f
   def |~|[W](that: Map[K, W]) = self zip that
 }
 
@@ -162,3 +172,6 @@ object Map {
 }
 
 abstract class AbstractMap[@sp(i) K, +V] extends Map[K, V]
+
+private[poly] trait IntKeyedMap[+V] extends IntKeyed with Map[Int, V]
+
