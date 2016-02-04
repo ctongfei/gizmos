@@ -42,7 +42,7 @@ class HashMap[K: IntHashing, V] private(private val data: OpenHashTable[K, HashM
 
 object HashMap extends MapFactoryWithIntHashing[HashMap] {
 
-  private[poly] class Entry[K, V](val key: K, var value: V) extends HashEntryLike[K, Entry[K, V]]
+  private[poly] class Entry[K, V](val key: K, var value: V) extends OpenHashEntryLike[K, Entry[K, V]]
 
   implicit def newBuilder[K: IntHashing, V]: Builder[(K, V), HashMap[K, V]] = new Builder[(K, V), HashMap[K, V]] {
     private val data = new OpenHashTable[K, Entry[K, V]]()

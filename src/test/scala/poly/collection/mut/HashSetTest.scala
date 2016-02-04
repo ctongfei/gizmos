@@ -15,6 +15,9 @@ object HashSetTest extends App {
 
   val pm = HashMap[Int, String](1 → "a", 2 → "b", 3 → "c")
 
+  val pls = LinkedHashSet[Int](1, 2, 3, 4, 5, 6, 7)
+
+  val plm = LinkedHashMap[Int, String](1 → "a", 3 → "4", 4 → "b")
 
   val p = HashSet[Double]()
   val s = scala.collection.mutable.HashSet[Double]()

@@ -32,7 +32,7 @@ class HashSet[T: IntHashing] private(val data: OpenHashTable[T, HashSet.Entry[T]
 
 object HashSet extends FactoryWithIntHashing[HashSet] {
 
-  private[poly] class Entry[K](val key: K) extends HashEntryLike[K, Entry[K]]
+  private[poly] class Entry[K](val key: K) extends OpenHashEntryLike[K, Entry[K]]
 
   implicit def newBuilder[T: IntHashing]: Builder[T, HashSet[T]] = new Builder[T, HashSet[T]] {
     private[this] val s = new OpenHashTable[T, Entry[T]]()

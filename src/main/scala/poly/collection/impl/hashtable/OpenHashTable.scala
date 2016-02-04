@@ -3,13 +3,11 @@ package poly.collection.impl.hashtable
 import poly.algebra._
 import poly.algebra.syntax._
 import poly.collection._
-import poly.macroutil._
-import scala.reflect._
 
 /**
  * @author Tongfei Chen
  */
-class OpenHashTable[K: IntHashing, E >: Null <: HashEntryLike[K, E]](initialSize: Int = Settings.ArrayInitialSize) {
+class OpenHashTable[K: IntHashing, E >: Null <: OpenHashEntryLike[K, E]](initialSize: Int = Settings.ArrayInitialSize) {
 
   var table: Array[AnyRef] = Array.ofDim[AnyRef](initialSize)
   var size: Int = 0
@@ -110,8 +108,8 @@ class OpenHashTable[K: IntHashing, E >: Null <: HashEntryLike[K, E]](initialSize
   def grow(newSize: Int) = {
     val old = table
     table = new Array[AnyRef](nextPowerOfTwo(newSize))
-    FastLoop.ascending(0, old.length, 1) { i =>
-      var e = old(i).asInstanceOf[E]
+    for (i ← Range(old.length)) {
+    var e = old(i).asInstanceOf[E]
       while (e != null) {
         val h = index(e.key.###)
         val ee = e.nextEntry
@@ -122,11 +120,4 @@ class OpenHashTable[K: IntHashing, E >: Null <: HashEntryLike[K, E]](initialSize
     }
     threshold = (table.length * Settings.HashTableLoadFactor).toInt
   }
-}
-
-object OpenHashTable {
-
-  class Entry[K, V](val key: K, var value: V) extends HashEntryLike[K, Entry[K, V]]
-
-
 }
