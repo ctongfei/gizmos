@@ -13,9 +13,11 @@ import poly.algebra.specgroup._
 trait Keyed[@sp(i) K] {
 
   /** Returns the equivalence relation on keys. */
+  //TODO: Case K=Int should be specialized to boost performance on maps/graphs
   def equivOnKey: Equiv[K]
 
 }
+
 
 private[poly] trait IntKeyed extends Keyed[Int] {
   def equivOnKey: Equiv[Int]

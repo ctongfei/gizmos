@@ -56,7 +56,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
     }
   }
 
-  def listProduct[U](that: Iterable[U]): Iterable[(T, U)] = self.flatMap(t => that.map(u => (t, u)))
+  def cartesianProduct[U](that: Iterable[U]): Iterable[(T, U)] = self.flatMap(t => that.map(u => (t, u)))
 
   override def filter(f: T => Boolean) = ofIterator {
     new Iterator[T] {
@@ -72,7 +72,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
     }
   }
 
-  override def filterNot(f: T => Boolean) = filter(x => !f(x))
+  override def filterNot(f: T => Boolean) = filter(!f)
 
   def concat[U >: T](that: Iterable[U]): Iterable[U] = ofIterator {
     new Iterator[U] {
@@ -369,7 +369,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
   override def |>[U](f: T => U) = this map f
   def ||>[U](f: T => Iterable[U]) = this flatMap f
   override def |?(f: T => Boolean) = this filter f
-  def |×|[U](that: Iterable[U]) = this listProduct that
+  def |×|[U](that: Iterable[U]) = this cartesianProduct that
   def |~|[U](that: Iterable[U]) = this zip that
   //endregion
 

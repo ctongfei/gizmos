@@ -25,8 +25,12 @@ trait Predicate[-T] extends (T => Boolean) { self =>
     def apply(x: U) = self(x) || that(x)
   }
 
-  def contramap[U](f: U => T): Predicate[U] = new Predicate[U] {
-    def apply(x: U) = self(f(x))
+  def &~[U <: T](that: Predicate[U]): Predicate[U] = new Predicate[U] {
+    def apply(x: U) = self(x) && !that(x)
+  }
+
+  def contramap[S](f: S => T): Predicate[S] = new Predicate[S] {
+    def apply(x: S) = self(f(x))
   }
 }
 

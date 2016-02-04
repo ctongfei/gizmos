@@ -105,7 +105,7 @@ trait Map[@sp(i) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K, 
     override def size = self.size
   }
 
-  def cartesianProduct[L, W](that: Map[L, W]): Map[(K, L), (V, W)] = new AbstractMap[(K, L), (V, W)] {
+  def product[L, W](that: Map[L, W]): Map[(K, L), (V, W)] = new AbstractMap[(K, L), (V, W)] {
     def equivOnKey = Equiv.product(self.equivOnKey, that.equivOnKey)
     def containsKey(k: (K, L)) = self.containsKey(k._1) && that.containsKey(k._2)
     def ?(k: (K, L)) = for (v ← self ? k._1; v1 ← that ? k._2) yield (v, v1)
@@ -172,6 +172,3 @@ object Map {
 }
 
 abstract class AbstractMap[@sp(i) K, +V] extends Map[K, V]
-
-private[poly] trait IntKeyedMap[+V] extends IntKeyed with Map[Int, V]
-

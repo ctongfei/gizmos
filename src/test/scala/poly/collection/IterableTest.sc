@@ -58,7 +58,7 @@ g.filter(_ < 4)
 g.map(_ * 3)
 gg.map(_ * 3)
 gg.sort(WeakOrder[Int].reverse)
-g cartesianProduct gg
+g product gg
 
 e.sliding(2)
 

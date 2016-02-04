@@ -69,7 +69,7 @@ trait Traversable[+T] { self =>
     * @example {{{(1, 2) listProduct (1, 2) == ((1, 1), (1, 2), (2, 1), (2, 2))}}}
     * @param that Another traversable sequence
     */
-  def listProduct[U](that: Traversable[U]): Traversable[(T, U)] =
+  def cartesianProduct[U](that: Traversable[U]): Traversable[(T, U)] =
     self flatMap (x => that map (y => (x, y)))
 
   //endregion
@@ -228,16 +228,16 @@ trait Traversable[+T] { self =>
 
   /** $On */
   def reduceLeft[U >: T](f: (U, T) => U): U = {
-    var first = true
+    var empty = true
     var res = default[U]
     for (x ← self) {
-      if (first) {
+      if (empty) {
         res = x
-        first = false
+        empty = false
       }
       else res = f(res, x)
     }
-    if (first) throw new EmptyCollectionReductionException
+    if (empty) throw new EmptyCollectionReductionException
     res
   }
 
@@ -528,13 +528,6 @@ trait Traversable[+T] { self =>
   def differences[X >: T](implicit X: AdditiveGroup[X]) = consecutive(X.sub)
 
   /**
-   * Returns the product of the elements in this collection. For example, `(1, 2, 3, 4, 5).product` returns `120`.
-   * @tparam X Supertype of the type of elements: must be endowed with a multiplicative monoid.
-   * @return The product
-   */
-  def product[X >: T](implicit X: MultiplicativeMonoid[X]): X = fold(one)(X.mul)
-
-  /**
    * Returns the minimum element in this collection.
    * @return The minimum element
    */
@@ -678,7 +671,7 @@ trait Traversable[+T] { self =>
   def :+[U >: T](x: U) = this append x
   def +:[U >: T](x: U) = this prepend x
   def ++[U >: T](that: Traversable[U]) = this concat that
-  def |×|[U](that: Traversable[U]) = this listProduct that
+  def |×|[U](that: Traversable[U]) = this cartesianProduct that
 
   def |>[U](f: T => U) = this map f
   def |?(f: T => Boolean) = this filter f
@@ -711,26 +704,25 @@ object Traversable {
   implicit class TraversableOfTraversablesOps[T](val underlying: Traversable[Traversable[T]]) extends AnyVal {
     /**
       * "Flattens" this collection of collection into one collection.
- *
       * @example {{{((1, 2, 3), (), (7)).flatten == (1, 2, 3, 7)}}}
       */
     def flatten: Traversable[T] = underlying.flatMap(identity)
   }
 
-  implicit class TraversableOfPairsOps[K, V](val underlying: Traversable[(K, V)]) extends AnyVal {
+  implicit class TraversableOfPairsOps[A, B](val underlying: Traversable[(A, B)]) extends AnyVal {
 
     /**
       * Lazily unzips a traversable sequence of pairs.
       * @example {{{((1, 'a'), (2, 'b'), (3, 'c')).unzip == ((1, 2, 3), ('a', 'b', 'c'))}}}
       */
-    def unzip: (Traversable[K], Traversable[V]) = (underlying map firstOfPair, underlying map secondOfPair)
+    def unzip: (Traversable[A], Traversable[B]) = (underlying map firstOfPair, underlying map secondOfPair)
 
     /**
       * Eagerly unzips a traversable sequence of pairs. This method only traverses through the collection once.
       */
-    def unzipEagerly: (ArraySeq[K], ArraySeq[V]) = {
-      val ak = ArraySeq.newBuilder[K]
-      val av = ArraySeq.newBuilder[V]
+    def unzipEagerly: (IndexedSeq[A], IndexedSeq[B]) = {
+      val ak = ArraySeq.newBuilder[A]
+      val av = ArraySeq.newBuilder[B]
       for ((k, v) ← underlying) {
         ak add k
         av add v
@@ -742,7 +734,7 @@ object Traversable {
       * Converts this traversable sequence to a map if this sequence consists of (key, value) pairs.
       * @param builder Implicit builder of the map
       */
-    def toMap[M[_, _]](implicit builder: Builder[(K, V), M[K, V]]) = underlying.build(builder)
+    def toMap[M[_, _]](implicit builder: Builder[(A, B), M[A, B]]) = underlying.build(builder)
 
   }
 

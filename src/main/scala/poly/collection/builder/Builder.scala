@@ -1,7 +1,7 @@
 package poly.collection.builder
 
 import poly.collection._
-
+import scala.annotation._
 import scala.language.higherKinds
 
 /**
@@ -11,7 +11,7 @@ import scala.language.higherKinds
   * @author Tongfei Chen
   * @since 0.1.0
   */
-@scala.annotation.implicitNotFound("Cannot find the builder to build ${C} from ${T}.")
+@implicitNotFound("Cannot find a builder to build ${C} from ${T}.")
 trait Builder[-T, +C] {
 
   /**
@@ -40,8 +40,4 @@ trait Builder[-T, +C] {
 
   def +=(x: T) = add(x)
   def ++=(xs: Traversable[T]) = xs foreach add
-}
-
-object Builder {
-  //implicit def inplaceAdditiveAction?
 }

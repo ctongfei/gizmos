@@ -1,5 +1,7 @@
 package poly.collection
 
+import poly.collection.node._
+
 import scala.language.implicitConversions
 
 /**
@@ -47,7 +49,7 @@ object ops {
   }
 
 
-  implicit class withCollectionOps[T](val x: T) extends AnyVal {
+  implicit class withCollectionOps[T](val x: T) {
 
     /**
      * Constructs a sequence of length 1 with this specific element.
@@ -76,7 +78,14 @@ object ops {
      */
     def iterate(f: T => T) = Seq.iterate(x)(f)
 
-    def unfold[U](f: T => Option[(U, T)]): Seq[U] = ??? //TODO
+    def unfold[U](f: T => (U, T)): Seq[U] = {
+      class UnfoldedNode(val state: T) extends SeqNode[U] {
+        val (data, nextState) = f(state)
+        def next = new UnfoldedNode(nextState)
+        def isDummy = false
+      }
+      Seq.ofHeadNode(new UnfoldedNode(x))
+    }
 
   }
 

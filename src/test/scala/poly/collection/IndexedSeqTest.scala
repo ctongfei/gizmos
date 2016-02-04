@@ -15,7 +15,7 @@ object IndexedSeqTest extends App {
 
   a.permuteBy(Permutation(0, 2, 1))
 
-  val c = a cartesianProduct b
+  val c = a product b
 
   c.elements foreach println
 

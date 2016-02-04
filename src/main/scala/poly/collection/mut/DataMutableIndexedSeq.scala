@@ -9,7 +9,7 @@ import scala.util._
 /**
  * Basic trait for mutable indexed sequences.
  * Fast random access and update should be guaranteed.
- *
+ * @since 0.1.0
  * @author Tongfei Chen
  */
 trait DataMutableIndexedSeq[T] extends DataMutableSeq[T] with IndexedSeq[T] {
@@ -60,7 +60,7 @@ trait DataMutableIndexedSeq[T] extends DataMutableSeq[T] with IndexedSeq[T] {
   override def mapInplace(f: T => T): Unit = {
     var i = 0
     while (i < length) {
-      update(i, f(apply(i)))
+      this(i) = f(this(i))
       i += 1
     }
   }

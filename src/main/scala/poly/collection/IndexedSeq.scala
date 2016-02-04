@@ -66,7 +66,7 @@ trait IndexedSeq[+T] extends BiSeq[T] with HasKnownSize { self =>
     def fastApply(i: Int) = f(self(i))
   }
 
-  def listProduct[U](that: IndexedSeq[U]): IndexedSeq[(T, U)] = new AbstractIndexedSeq[(T, U)] {
+  def cartesianProduct[U](that: IndexedSeq[U]): IndexedSeq[(T, U)] = new AbstractIndexedSeq[(T, U)] {
     private[this] val stride = that.length
     def fastLength = self.length * that.length
     def fastApply(i: Int) = (self(i / stride), that(i % stride))
@@ -75,7 +75,7 @@ trait IndexedSeq[+T] extends BiSeq[T] with HasKnownSize { self =>
   /**
    * Returns the Cartesian product of two indexed sequences. The returning value is a table.
    */
-  def cartesianProduct[U](that: IndexedSeq[U]): Table[(T, U)] = new AbstractTable[(T, U)] {
+  def product[U](that: IndexedSeq[U]): Table[(T, U)] = new AbstractTable[(T, U)] {
     def apply(i: Int, j: Int) = (self(i), that(j))
     def numRows = self.length
     def numCols = that.length
@@ -120,8 +120,7 @@ trait IndexedSeq[+T] extends BiSeq[T] with HasKnownSize { self =>
     def fastApply(n: Int) = self(i + n)
     def fastLength = j - i
     override def slice(ii: Int, jj: Int) = { // optimize for nested slices
-      require(i + jj <= j)
-      self.slice(i + ii, i + jj)
+      self.slice(i + ii, math.min(i + jj, j))
     }
   }
 

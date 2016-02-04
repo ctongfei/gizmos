@@ -3,7 +3,7 @@ package poly.collection.builder
 import poly.collection._
 
 /**
-  * The base trait for graph builders, which are objects that allow
+ * The base trait for graph builders, which are objects that allow
  * incremental construction of graphs.
  *
  * @author Tongfei Chen

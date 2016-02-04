@@ -135,7 +135,7 @@ trait Graph[@sp(i) K, +V, +E] extends KeyedLike[K, Graph[K, V, E]] with StateSpa
       def apply(k: (K, L)) = (self(k._1), that(k._2))
       def containsEdge(i: (K, L), j: (K, L)) = fe(i._1, j._1, i._2, j._2)
       def apply(i: (K, L), j: (K, L)) = (self(i._1, j._1), that(i._2, j._2))
-      def keySet = self.keySet cartesianProduct that.keySet
+      def keySet = self.keySet product that.keySet
       def outgoingKeysOf(i: (K, L)) = ???
     }
 

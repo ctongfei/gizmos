@@ -19,7 +19,7 @@ a.skip(10)
 a.skipWhile(_ > 100)
 
 a.flatMap((i: Int) => i repeat i)
-a cartesianProduct b
+a product b
 a.isEmpty
 
 a.size

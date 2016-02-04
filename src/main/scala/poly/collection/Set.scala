@@ -74,11 +74,11 @@ trait Set[T] extends Predicate[T] with Multiset[T] with KeyedLike[T, Set[T]] { s
   /** Tests if this set is a superset of another set. */
   def properSupersetOf(that: Set[T]): Boolean = that properSubsetOf this
 
-  def cartesianProduct[T1](that: Set[T1]): Set[(T, T1)] = new AbstractSet[(T, T1)] {
+  def product[U](that: Set[U]): Set[(T, U)] = new AbstractSet[(T, U)] {
     def equivOnKey = Equiv.product(self.equivOnKey, that.equivOnKey)
-    def keys = self.keys listProduct that.keys
+    def keys = self.keys cartesianProduct that.keys
     override def size = self.size * that.size
-    def contains(k: (T, T1)) = self.containsKey(k._1) && that.containsKey(k._2)
+    def contains(k: (T, U)) = self.containsKey(k._1) && that.containsKey(k._2)
   }
 
   def createMapBy[V](f: T => V): Map[T, V] = new AbstractMap[T, V] {

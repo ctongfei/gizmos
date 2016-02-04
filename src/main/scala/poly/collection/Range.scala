@@ -32,7 +32,7 @@ class Range private(
   def fastApply(i: Int): Int = left + i * step
 
   // Overridden for performance (rewrite to a while loop and then attempt to inline the loop body)
-  override final def foreach[@sp(Unit) U](f: Int => U) = {
+  override def foreach[@sp(Unit) U](f: Int => U) = {
     if (step > 0)
       FastLoop.ascending(left, right, step)(f)
     else
@@ -74,6 +74,7 @@ object Range {
 
   /** Creates a closed range with the specific step size (can be negative). */
   def inclusive(l: Int, r: Int, step: Int) = new Range(l, r + math.signum(step), step)
+
 
 
 }

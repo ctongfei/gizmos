@@ -13,6 +13,9 @@ import scala.util._
  */
 object HashSetTest extends App {
 
+  val pm = HashMap[Int, String](1 → "a", 2 → "b", 3 → "c")
+
+
   val p = HashSet[Double]()
   val s = scala.collection.mutable.HashSet[Double]()
 
@@ -25,6 +28,8 @@ object HashSetTest extends App {
     if (TestUtil.checkSet(s, p)) println(s"CHECKED $i")
     else throw new RuntimeException()
   }
+
+  p.elements foreach println
 
   val ss = s.clone()
 

@@ -73,9 +73,9 @@ trait Seq[+T] extends Iterable[T] with IntKeyedSortedMap[T] { self =>
 
   override def isDefinedAt(i: Int) = containsKey(i)
 
-  def ?(i: Int) = if (containsKey(i)) Some(this(i)) else None
+  def ?(i: Int) = if (i >= 0 && i < length) Some(this(i)) else None
 
-  def containsKey(i: Int) = i >= 0 && i < size
+  def containsKey(i: Int) = i >= 0 && i < length
 
   /**
     * Pairs each element with its index. $LAZY
@@ -122,7 +122,7 @@ trait Seq[+T] extends Iterable[T] with IntKeyedSortedMap[T] { self =>
     ofDummyNode(new FlatMappedSeqNode(dummy, SeqNode.dummy))
   }
 
-  def listProduct[U](that: Seq[U]): Seq[(T, U)] = this.flatMap(t => that.map(u => (t, u)))
+  def cartesianProduct[U](that: Seq[U]): Seq[(T, U)] = this.flatMap(t => that.map(u => (t, u)))
 
   override def filter(f: T => Boolean): Seq[T] = {
     class FilteredSeqNode(val node: SeqNode[T]) extends SeqNode[T] {
@@ -385,7 +385,7 @@ object Seq {
   }
 
   implicit def Equiv[T: Equiv]: Equiv[Seq[T]] = new Equiv[Seq[T]] {
-    def eq(x: Seq[T], y: Seq[T]): Boolean = {
+    def eq(x: Seq[T], y: Seq[T]): Boolean = { //TODO: faster implementation using iterators
       var xn = x.headNode
       var yn = y.headNode
       while (xn.notDummy && yn.notDummy) {
@@ -396,6 +396,24 @@ object Seq {
       if (xn.notDummy) return false
       if (yn.notDummy) return false
       true
+    }
+  }
+
+  /**
+   * Returns the lexicographic order on sequences if an order on the elements is given.
+   */
+  implicit def LexicographicOrder[T: WeakOrder]: WeakOrder[Seq[T]] = new WeakOrder[Seq[T]] {
+    def cmp(x: Seq[T], y: Seq[T]): Int = { //TODO: faster implementation using iterators
+      var xn = x.headNode
+      var yn = y.headNode
+      while (xn.notDummy && yn.notDummy) {
+        val cmp = xn.data >?< yn.data
+        if (cmp != 0) return cmp
+        xn = xn.next
+        yn = yn.next
+      }
+      if (xn.isDummy && yn.isDummy) 0
+      else if (xn.isDummy) -1 else 1
     }
   }
 

@@ -8,7 +8,7 @@ import poly.collection.node._
  * This structure keeps track of a set of elements partitioned into a number of disjoint subsets.
  * @author Tongfei Chen
  * @since 0.1.0
- */ //TODO: [T: Equiv]
+ */
 class DisjointSets[T] private(private val data: HashMap[T, DisjointSets.Node]) extends Equiv[T] {
 
   import DisjointSets._
