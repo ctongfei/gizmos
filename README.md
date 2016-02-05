@@ -7,22 +7,31 @@ Poly-collection is a Scala collection framework that aims to provide an alternat
   - Full support for trees and graphs, with all kinds of functional operators defined on them.
   
   - Lazy by default: Higher-order transformational functions are nearly always executed in a non-strict manner:
-   functions like `map`, `filter`, `flatMap` are always evaluated lazily. This allows chain application like 
+   functions like `map`, `filter`, `flatMap` are nearly always evaluated lazily. This allows chain application like 
    `xs.map(f).filter(g).reduce(h)` to be much faster than the standard library.
+  
+  - Returning-same-trait principle: Instead of the uniform-return-type principle of the Scala standard collection
+   library, Poly-collection returns the most fined-grained trait possible without much performance loss. This eliminates
+   a lot of unnecessary intermediate structure building. For example, a `map` on an `ArraySeq` would return a read-only
+   lazy `IndexedSeq` instead of a full-fledged `ArraySeq`.
   
   - Various algorithms provided out of the box: binary search; disjoint sets; A* search; ...
 
   - Concretely based on basic algebraic concepts through [poly-algebra](https://github.com/ctongfei/poly-algebra) by extensive use
-   of typeclass patterns (Equiv / Order / Hashing / ...).
+   of typeclass patterns (Equiv / WeakOrder / IntHashing / ...).
   
   - Macros sparingly used to boost performance on Int-indexed structures.
+  
+  - For other design principles, please see the wiki of this library.
 
-Implicit conversions from Scala & Java collections to Poly collections are provided by importing the
-objects `poly.collection.conversion.{Java, Scala}`.
+Implicit conversions from/to Scala & from Java collections to Poly collections are provided by importing the
+objects `poly.collection.conversion.{FromJava, FromScala, ToScala}`.
 
 ## Installation
 
 ```scala
-libraryDependencies += "me.tongfei" %% "poly-collection" % "0.1.0"
+resolvers += Resolver.sonatypeRepo("snapshots")
+
+libraryDependencies += "me.tongfei" %% "poly-collection" % "0.0.3-SNAPSHOT"
 ```
 

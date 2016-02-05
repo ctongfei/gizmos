@@ -1,11 +1,13 @@
 package poly.collection
 
 import poly.collection.mut._
-
+import poly.collection.ops._
 /**
   * @author Tongfei Chen (ctongfei@gmail.com).
   */
 object SeqTest extends App {
+
+  for (i ← 0 ~~< 4) println(i)
 
   val a = ListSeq(0, 2, 3, 4).asSeq
   val b = ArraySeq(5, 6, 7).asSeq

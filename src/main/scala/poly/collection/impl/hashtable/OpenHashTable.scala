@@ -3,6 +3,7 @@ package poly.collection.impl.hashtable
 import poly.algebra._
 import poly.algebra.syntax._
 import poly.collection._
+import poly.macroutil._
 
 /**
  * @author Tongfei Chen
@@ -90,7 +91,7 @@ class OpenHashTable[K: IntHashing, E >: Null <: OpenHashEntryLike[K, E]](initial
   def foreachEntry[U](f: E => U) = {
     var i = 0
     var e: E = null
-    for (i ← Range(table.length)) {
+    FastLoop.ascending(0, table.length, 1) { i =>
       e = table(i).asInstanceOf[E]
       while (e != null) {
         f(e)
@@ -100,16 +101,20 @@ class OpenHashTable[K: IntHashing, E >: Null <: OpenHashEntryLike[K, E]](initial
   }
 
   def clear() = {
-    for (i ← Range(table.length))
+    FastLoop.ascending(0, table.length, 1) { i =>
       table(i) = null
+    }
     size = 0
   }
 
-  def grow(newSize: Int) = {
+  def grow(newSize: Int): Unit = {
+    if (newSize < Settings.ArrayInitialSize) return
     val old = table
     table = new Array[AnyRef](nextPowerOfTwo(newSize))
-    for (i ← Range(old.length)) {
-    var e = old(i).asInstanceOf[E]
+
+    var i = 0
+    while (i < old.length) {
+      var e = old(i).asInstanceOf[E]
       while (e != null) {
         val h = index(e.key.###)
         val ee = e.nextEntry
@@ -117,6 +122,7 @@ class OpenHashTable[K: IntHashing, E >: Null <: OpenHashEntryLike[K, E]](initial
         table(h) = e
         e = ee
       }
+      i += 1
     }
     threshold = (table.length * Settings.HashTableLoadFactor).toInt
   }

@@ -35,25 +35,25 @@ trait BijectiveMap[K, V] extends Map[K, V] with Bijection[K, V] { self =>
     override def inverse = self
   }
 
-  def map[V1](that: BijectiveMap[V, V1]): BijectiveMap[K, V1] = new AbstractBijectiveMap[K, V1] {
+  def map[W](that: BijectiveMap[V, W]): BijectiveMap[K, W] = new AbstractBijectiveMap[K, W] {
     def equivOnKey = self.equivOnKey
     def equivOnValue = that.equivOnValue
     def apply(k: K) = that(self(k))
     def ?(k: K) = for (v ← self ? k; w ← that ? v) yield w
-    def invert(w: V1) = self.invert(that.invert(w))
-    def invertOption(w: V1) = for (v ← that.invertOption(w); k ← self.invertOption(v)) yield k
-    def pairs: Iterable[(K, V1)] = for (k ← keys; v ← self ? k; w ← that ? v) yield (k, w)
+    def invert(w: W) = self.invert(that.invert(w))
+    def invertOption(w: W) = for (v ← that.invertOption(w); k ← self.invertOption(v)) yield k
+    def pairs: Iterable[(K, W)] = for (k ← keys; v ← self ? k; w ← that ? v) yield (k, w)
     def containsKey(k: K) = (this ? k).isDefined
-    def containsValue(w: V1) = this.invertOption(w).isDefined
+    def containsValue(w: W) = this.invertOption(w).isDefined
   }
 
-  def contramap[K1](that: BijectiveMap[K1, K]) = that map this
+  def contramap[J](that: BijectiveMap[J, K]) = that map this
 
-  def andThen[V1](that: BijectiveMap[V, V1]) = this map that
-  def compose[K1](that: BijectiveMap[K1, K]) = this contramap that
+  def andThen[W](that: BijectiveMap[V, W]) = this map that
+  def compose[J](that: BijectiveMap[J, K]) = this contramap that
 
-  def |>[V1](that: BijectiveMap[V, V1]) = this andThen that
-  def |<[K1](that: BijectiveMap[K1, K]) = this compose that
+  def |>[W](that: BijectiveMap[V, W]) = this andThen that
+  def |<[J](that: BijectiveMap[J, K]) = this compose that
 }
 
 abstract class AbstractBijectiveMap[K, V] extends AbstractMap[K, V] with BijectiveMap[K, V]

@@ -8,6 +8,7 @@ import poly.collection.builder._
 import poly.collection.exception._
 import poly.collection.factory._
 import poly.collection.mut._
+import poly.macroutil._
 import poly.util.typeclass._
 import poly.util.typeclass.ops._
 
@@ -128,8 +129,9 @@ trait Traversable[+T] { self =>
   def filterMany(fs: (T => Boolean)*): IndexedSeq[Seq[T]] = {
     val l = ArraySeq.fill(fs.length)(ArraySeq[T]())
     for (x ← self)
-      for (i ← Range(fs.length))
+      FastLoop.ascending(0, fs.length, 1) { i =>
         if (fs(i)(x)) l(i) appendInplace x
+      }
     l
   }
 
@@ -474,8 +476,9 @@ trait Traversable[+T] { self =>
    */
   def repeat(n: Int): Traversable[T] = new AbstractTraversable[T] {
     def foreach[V](f: T => V) = {
-      for (i ← Range(n))
+      FastLoop.ascending(0, n, 1) { i =>
         for (x ← self) f(x)
+      }
     }
   }
 

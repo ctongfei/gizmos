@@ -2,57 +2,57 @@ package poly.collection.impl.bst
 
 import poly.algebra._
 import poly.algebra.ops._
-import poly.collection.impl._
+import poly.collection._
 
 /**
  * Serves as a basis for self-balancing binary search trees.
  * @author Tongfei Chen
  */
-class BinarySearchTree[T](implicit val order: WeakOrder[T]) extends LinkedBinaryTree[T] {
+trait BinarySearchTree[K, N >: Null <: BinarySearchTreeNodeLike[K, N]] {
 
-  private[this] var _size = 0
+  implicit def orderOnKey: WeakOrder[K]
 
-  override def size = _size
+  var dummy: N
 
-  def locate(x: T): Node = {
+  def rootNode: N = dummy.right
+  def rootNode_=(n: N) = dummy.right = n
+
+  def locate(x: K): N = {
     var c = rootNode
     while (c.notDummy) {
-      x >?< c.data match {
+      x >?< c.key match {
         case 0 => return c
         case cmp if cmp < 0 => c = c.left
         case cmp if cmp > 0 => c = c.right
       }
     }
-    null
+    dummy
   }
 
-  override def addRoot(x: T) = {
-    super.addRoot(x)
-    _size += 1
-  }
-
-  def add(x: T): Node = {
+  def addNode(x: N): Unit = {
     var c = rootNode // current
-    var p: Node = dummy // keeps track of the parent of c
+    var p: N = dummy // keeps track of the parent of c
     while (c.notDummy) {
       p = c
 
-      x >?< p.data match {
-        case 0 => return c // already in the BST; return
+      x.key >?< c.key match {
+        case 0 => return // already in the BST; return
         case cmp if cmp < 0 => c = c.left
         case cmp if cmp > 0 => c = c.right
       }
     }
-    c = new Node(x, dummy, dummy, p)
-    if (p.isDummy)
+    x.left = dummy
+    x.right = dummy
+    if (p == dummy)
       rootNode = c
-    else if (x < p.data)
+    else if (x.key < p.key)
       p.left = c
     else p.right = c
-
-    _size += 1
-    c
   }
+
+
+
+
 
 
 }

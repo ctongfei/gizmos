@@ -5,12 +5,12 @@ import poly.collection.builder._
 import poly.collection.conversion._
 import poly.collection.factory._
 import poly.collection.impl._
+import poly.macroutil._
 import poly.util.specgroup._
 import scala.reflect._
 
 /**
  * A mutable sequence backed by an array.
- *
  * @author Tongfei Chen
  */
 class ArraySeq[T] private(private var data: ResizableSeq[T] = null) extends AbstractIndexedSeq[T] with DataMutableIndexedSeq[T] with KeyMutableSeq[T] {
@@ -45,11 +45,11 @@ object ArraySeq extends SeqFactory[ArraySeq] {
   override def tabulate[T](n: Int)(f: Int => T): ArraySeq[T] = {
     val cap = nextPowerOfTwo(n)
     val a = Array.ofDim[AnyRef](cap)
-    for (i ← Range(n))
+    FastLoop.ascending(0, n, 1) { i =>
       a(i) = f(i).asInstanceOf[AnyRef]
+    }
     val rs = new ResizableSeq[T](cap); rs.data = a; rs.len = n
     new ArraySeq[T](rs)
   }
-
 
 }

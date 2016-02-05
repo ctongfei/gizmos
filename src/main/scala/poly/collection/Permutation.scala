@@ -2,6 +2,7 @@ package poly.collection
 
 import poly.algebra._
 import poly.algebra.syntax._
+import poly.macroutil._
 
 /**
  * Represents a permutation on a set N,,''n'',, = {0, ..., ''n'' - 1}.
@@ -47,7 +48,7 @@ class Permutation private(private val a1: Array[Int], private val a2: Array[Int]
     val n = length
     val b1 = Array.ofDim[Int](n)
     val b2 = Array.ofDim[Int](n)
-    for (i ← Range(n)) {
+    FastLoop.ascending(0, n, 1) { i =>
       b1(n - i) = a1(i)
       b2(n - i) = a2(i)
     }
@@ -63,7 +64,7 @@ object Permutation {
 
   def apply(xs: Array[Int]): Permutation = {
     val ys = Array.ofDim[Int](xs.length)
-    for (i ← Range(xs.length)) {
+    FastLoop.ascending(0, xs.length, 1) { i =>
       ys(xs(i)) = i
     }
     new Permutation(xs.clone, ys)
@@ -73,7 +74,7 @@ object Permutation {
   def random(n: Int) = {
     val a = Array.tabulate(n)(i => i)
     val r = new java.util.Random()
-    for (i ← Range(n - 1, 0, -1)) {
+    FastLoop.descending(n - 1, 0, -1) { i =>
       val j = r.nextInt(i + 1)
       val t = a(i)
       a(i) = a(j)
@@ -117,10 +118,10 @@ object Permutation {
           }
           else {
             var k = -1
-            for (i ← Range(n - 1)) if (p(i) < p(i + 1)) k = i
+            FastLoop.ascending(0, n - 1, 1) { i => if (p(i) < p(i + 1)) k = i }
             if (k == -1) return false
             var l = k + 1
-            for (i ← Range(k + 1, n)) if (p(k) < p(i)) l = i
+            FastLoop.ascending(k + 1, n, 1) { i => if (p(k) < p(i)) l = i }
             val t = p(k)
             p(k) = p(l)
             p(l) = t
@@ -142,7 +143,7 @@ object Permutation {
 
   implicit object LexicographicOrder extends SequentialOrder[Permutation] {
     def cmp(x: Permutation, y: Permutation): Int = {
-      for (i ← Range(x.size)) {
+      FastLoop.ascending(0, x.size, 1) { i =>
         if (x(i) < y(i)) return -1
         if (x(i) > y(i)) return 1
       }

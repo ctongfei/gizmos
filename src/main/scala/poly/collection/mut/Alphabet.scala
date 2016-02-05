@@ -7,10 +7,9 @@ import scala.language.higherKinds
 /**
  * @author Tongfei Chen
  */
-class Alphabet[T, M[α, β] <: KeyMutableMap[α, β]] private(
-  private val w2i: M[T, Int],
-  private val i2w: ArraySeq[T]
-)(implicit val equivOnKey: Equiv[T])
+class Alphabet[T: IntHashing] private(
+  private val w2i: HashMap[T, Int],
+  private val i2w: ArraySeq[T])
   extends BijectiveMap[T, Int]
 {
 
@@ -27,6 +26,8 @@ class Alphabet[T, M[α, β] <: KeyMutableMap[α, β]] private(
 
   def ?(x: T): Option[Int] = w2i ? x
 
+  def equivOnKey = implicitly[IntHashing[T]]
+
   override def size = w2i.size
 
   def invert(i: Int): T = i2w(i)
@@ -42,8 +43,10 @@ class Alphabet[T, M[α, β] <: KeyMutableMap[α, β]] private(
     i2w.clear()
   }
 
+
 }
 
 object Alphabet {
+
 
 }

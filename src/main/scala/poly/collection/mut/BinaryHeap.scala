@@ -7,6 +7,7 @@ import poly.collection.builder._
 import poly.collection.exception._
 import poly.collection.factory._
 import poly.collection.impl._
+import poly.macroutil._
 
 /**
   * An implementation of a binary min-heap.
@@ -77,8 +78,9 @@ object BinaryHeap extends FactoryWithOrder[BinaryHeap] {
     // heap building algorithm
     def result = {
       val h = new BinaryHeap[T](data)
-      for (i ← Range(0, data.fastLength / 2).reverse)
+      FastLoop.descending(data.fastLength / 2, -1, -1) { i =>
         h.siftDown(i)
+      }
       h
     }
   }

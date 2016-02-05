@@ -9,7 +9,11 @@ import poly.collection.impl.hashtable._
 import poly.collection.node._
 
 /**
+ * Represents a linked hash map.
+ * When traversing through this hash map, the order of the key-value pairs
+ * will retain the order under which they were inserted.
  * @author Tongfei Chen
+ * @since 0.1.0
  */
 class LinkedHashMap[K: IntHashing, V] private(val data: OpenHashTable[K, LinkedHashMap.Entry[K, V]]) extends KeyMutableMap[K, V] {
 

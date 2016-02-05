@@ -9,7 +9,10 @@ import poly.collection.impl.hashtable._
 import poly.collection.node._
 
 /**
+ * Represents a linked hash set.
+ * When traversing through this hash set, the order of the elements will retain the order under which they were inserted.
  * @author Tongfei Chen
+ * @since 0.1.0
  */
 class LinkedHashSet[T: IntHashing] private(val data: OpenHashTable[T, LinkedHashSet.Entry[T]]) extends MutableSet[T] {
 

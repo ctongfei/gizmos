@@ -15,37 +15,37 @@ object ops {
       * Creates a left-inclusive-right-inclusive ascending range.
       * @example {{{ (1 ~<~ 4) == (1, 2, 3, 4) }}}
       */
-    @inline def ~<~(right: Int) = Range.inclusive(left, right)
+    @inline def ~<~(right: Int) = new Range.Ascending(left, right + 1)
 
     /**
       * Creates a left-inclusive-right-inclusive descending range.
       * @example {{{ (4 ~>~ 1) == (4, 3, 2, 1) }}}
       */
-    @inline def ~>~(right: Int) = Range.inclusive(left, right, -1)
+    @inline def ~>~(right: Int) = new Range.Descending(left, right - 1, -1)
 
     /**
       * Creates a left-inclusive-right-exclusive ascending range.
       * @example {{{ (0 ~~< 4) == (0, 1, 2, 3) }}}
       */
-    @inline def ~~<(right: Int) = Range(left, right)
+    @inline def ~~<(right: Int) = new Range.Ascending(left, right)
 
     /**
       * Creates a left-inclusive-right-exclusive descending range.
       * @example {{{ (4 ~~> 0) == (4, 3, 2, 1) }}}
       */
-    @inline def ~~>(right: Int) = Range(left, right, -1)
+    @inline def ~~>(right: Int) = new Range.Descending(left, right, -1)
 
     /**
       * Creates a left-exclusive-right-inclusive descending range.
       * @example {{{ (4 >~~ 0) == (3, 2, 1, 0) }}}
       */
-    @inline def >~~(right: Int) = Range(right, left).reverse
+    @inline def >~~(right: Int) = (right ~~< left).reverse
 
     /**
       * Creates a left-exclusive-right-inclusive ascending range.
       * @example {{{ (0 <~~ 4) == (1, 2, 3, 4) }}}
       */
-    @inline def <~~(right: Int) = Range(right, left, -1).reverse
+    @inline def <~~(right: Int) = (left ~~> right).reverse
   }
 
 

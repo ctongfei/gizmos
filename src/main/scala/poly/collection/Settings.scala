@@ -5,10 +5,10 @@ package poly.collection
  */
 private[poly] object Settings {
 
-  final val MaxElemToString = 20
+  final val MaxElementsToString = 30
 
   final val ArrayInitialSize = 8
 
-  final val HashTableLoadFactor = 0.7
+  final val HashTableLoadFactor = 0.70
 
 }
