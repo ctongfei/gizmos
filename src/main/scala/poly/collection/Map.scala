@@ -156,7 +156,7 @@ trait Map[@sp(i) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K, 
     def containsKey(x: K) = self.containsKey(x)
   }
 
-  override def toString = pairs.toString
+  override def toString = "Map{" + pairs.map { case (k, v) => s"$k → $v" }.buildString(", ") + "}"
 
   def |>[W](f: V => W) = self map f
   def |<[J](f: Bijection[J, K]) = self contramap f

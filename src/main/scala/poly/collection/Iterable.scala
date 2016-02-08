@@ -240,11 +240,26 @@ trait Iterable[+T] extends Traversable[T] { self =>
 
   override def slice(i: Int, j: Int): Iterable[T] = self.skip(i).take(j - i)
 
-  override def distinct[T1 >: T](implicit T1: Equiv[T1]): Iterable[T] = ???
+  override def distinct[U >: T : IntHashing]: Iterable[T] = ofIterator {
+    new Iterator[T] {
+      private[this] val set = HashSet[U]()
+      private[this] val i = self.newIterator
+      def current = i.current
+      def advance(): Boolean = {
+        while (i.advance()) {
+          if (set notContains i.current) {
+            set add i.current
+            return true
+          }
+        }
+        false
+      }
+    }
+  }
 
-  def union[T1 >: T](that: Iterable[T1]): Iterable[T1] = (this concat that).distinct
+  def union[U >: T : IntHashing](that: Iterable[U]): Iterable[U] = (this concat that).distinct
 
-  def intersect[T1 >: T](that: Iterable[T1]): Iterable[T1] = ???
+  def intersect[U >: T : IntHashing](that: Iterable[U]): Iterable[U] = (this filter that.to[HashSet]).distinct
 
   override def rotate(n: Int): Iterable[T] = self.skip(n) ++ self.take(n)
 
@@ -270,7 +285,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
     }
   }
 
-  def indexed: Iterable[(Int, T@uv)] = {
+  def indexed: SortedIterable[(Int, T@uv)] = {
     val paired = ofIterator {
       new Iterator[(Int, T)] {
         private[this] var idx = -1
@@ -455,7 +470,7 @@ object Iterable {
     override def filter[X](mx: Iterable[X])(f: X => Boolean) = mx.filter(f)
   }
 
-  object ZipApplicative extends Idiom[Iterable] {
+  object ZipIdiom extends Idiom[Iterable] {
     def id[X](u: X) = Iterable.infinite(u)
     def liftedMap[X, Y](mx: Iterable[X])(mf: Iterable[X => Y]) = (mx zip mf) map { case (x, f) => f(x) }
     override def product[X, Y](mx: Iterable[X])(my: Iterable[Y]) = mx zip my

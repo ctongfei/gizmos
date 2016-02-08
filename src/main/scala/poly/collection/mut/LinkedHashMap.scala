@@ -65,6 +65,12 @@ class LinkedHashMap[K: IntHashing, V] private(val data: OpenHashTable[K, LinkedH
 
   def pairs: BiSeq[(K, V)] = BiSeq.ofNode(dummy)
 
+  override def keys = pairs map firstOfPair
+
+  override def values = pairs map secondOfPair
+
+  this.keySet
+
   def containsKey(x: K) = data.locate(x) != null
 
   def equivOnKey = implicitly[IntHashing[K]]

@@ -23,7 +23,6 @@ class FenwickTree[T] private(private val data: ResizableSeq[T])
 
   /**
    * Returns an element from this Fenwick tree. This operation has O(log n) complexity.
- *
    * @param i Index
    * @return
    */

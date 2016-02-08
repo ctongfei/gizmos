@@ -36,7 +36,7 @@ class Permutation private(private val a1: Array[Int], private val a2: Array[Int]
 
   def andThen(that: Permutation) = that compose this
 
-  def cmp(x: Int, y: Int) = a2(x) >?< a1(y)
+  def cmp(x: Int, y: Int) = a2(x) >?< a2(y)
   def pred(x: Int) = a1((a2(x) - 1) % size)
   def succ(x: Int) = a1((a2(x) + 1) % size)
   def top = a1(size - 1)

@@ -8,6 +8,11 @@ val e = Iterable.iterate(0)(_ + 1).take(5)
 val f = Iterable.iterate(0)(x => 0).take(10)
 val em = Iterable.empty
 
+e.distinct
+f.distinct
+e union f
+e intersect f
+
 e.map(_ + 1)
 e.map(_ + 1).map(_ - 2)
 e.isEmpty
@@ -73,7 +78,6 @@ e.repeat(4)
 e.cycle.take(12)
 
 e zip f
-e zip3 (f, g)
 e interleave e.init
 
 Iterable.zipN(e, e, e, e)

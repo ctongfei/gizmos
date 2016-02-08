@@ -17,8 +17,3 @@ trait Keyed[@sp(i) K] {
   def equivOnKey: Equiv[K]
 
 }
-
-
-private[poly] trait IntKeyed extends Keyed[Int] {
-  def equivOnKey: Equiv[Int]
-}

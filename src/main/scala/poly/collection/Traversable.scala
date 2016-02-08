@@ -20,8 +20,8 @@ import scala.reflect._
  * Represents a collection whose elements can be traversed through.
  * @author Tongfei Chen
  * @since 0.1.0
- * @define LAZY The resulting collection is '''lazily''' executed.
- * @define EAGER The resulting collection is '''eagerly''' executed.
+ * @define LAZY The resulting collection is '''lazily''' computed.
+ * @define EAGER The resulting collection is '''eagerly''' computed.
  * @define Onlogn Time complexity: O(n log n).
  * @define On Time complexity: O(n).
  * @define Ologn Time complexity: O(log n).
@@ -36,12 +36,10 @@ trait Traversable[+T] { self =>
    */
   def foreach[V](f: T => V): Unit
 
-  //region HELPER FUNCTIONS
+  // HELPER FUNCTIONS
 
-  //region Monadic operations (map, flatMap, product)
   /**
    * Returns a new collection by applying a function to all elements in this collection. $LAZY
-   * @param f Function to apply
    * @example {{{(1, 2, 3) map { _ + 1 } == (2, 3, 4)}}}
    */
   def map[U](f: T => U): Traversable[U] = new AbstractTraversable[U] {
@@ -55,7 +53,6 @@ trait Traversable[+T] { self =>
     * and using the elements of the resulting collections.
     * $LAZY This is the direct equivalent of the Haskell function `bind`/`>>=`.
     * @example {{{(0, 1, 2, 3) flatMap { i => i repeat i } == (1, 2, 2, 3, 3, 3)}}}
-    * @param f Function to apply
     */
   def flatMap[U](f: T => Traversable[U]): Traversable[U] = new AbstractTraversable[U] {
     def foreach[V](g: U => V): Unit = {
@@ -66,20 +63,15 @@ trait Traversable[+T] { self =>
   }
 
   /**
-    * Returns the list product of two traversable sequences. $LAZY
-    * @example {{{(1, 2) listProduct (1, 2) == ((1, 1), (1, 2), (2, 1), (2, 2))}}}
+    * Returns the Cartesian product of two traversable sequences. $LAZY
+    * @example {{{(1, 2) cartesianProduct (1, 2) == ((1, 1), (1, 2), (2, 1), (2, 2))}}}
     * @param that Another traversable sequence
     */
   def cartesianProduct[U](that: Traversable[U]): Traversable[(T, U)] =
     self flatMap (x => that map (y => (x, y)))
 
-  //endregion
-
-  //region Filtering & grouping (count, filter, filterNot, filterMany, partition, groupBy)
-
   /**
    * Counts the number of elements in this collection that satisfy the specified predicate.
-   * @param f The specified predicate
    * @return The number of elements that satisfy ''f''
    */
   def count(f: T => Boolean): Int = {
@@ -91,7 +83,6 @@ trait Traversable[+T] { self =>
 
   /**
    * Selects only the elements that satisfy the specified predicate. $LAZY
-   * @param f The specified predicate
    * @example {{{(1, 2, 3, 4) filter { _ > 2 } == (3, 4)}}}
    * @return A traversable collection that contains all elements that satisfy ''f''.
    */
@@ -104,14 +95,12 @@ trait Traversable[+T] { self =>
 
   /**
    * Selects the elements that do not satisfy the specified predicate. $LAZY
-   * @param f The specified predicate
    * @return A traversable collection that contains all elements that do not satisfy ''f''.
    */
   def filterNot(f: T => Boolean): Traversable[T] = filter(x => !f(x))
 
   /**
    * Partitions this collection to two collections according to a predicate. $EAGER
-   * @param f The specified predicate
    * @return A pair of collections: ( {x|f(x)} , {x|!f(x)} )
    */
   def partition(f: T => Boolean): (Seq[T], Seq[T]) = {
@@ -145,7 +134,12 @@ trait Traversable[+T] { self =>
   }
 
   /** $EAGER $On */
-  def groupBy[K: Equiv](f: T => K): Map[K, Traversable[T]] = ???
+  def groupBy[K: IntHashing](f: T => K): Map[K, Traversable[T]] = {
+    val m = HashMap[K, ArraySeq[T]]()
+    for (x ← self)
+      m(f(x)) appendInplace x
+    m
+  }
   //endregion
 
   //region Concatenation (concat, prepend, append)
@@ -155,8 +149,8 @@ trait Traversable[+T] { self =>
    * @param that Another collection
    * @return A concatenated collection
    */
-  def concat[T1 >: T](that: Traversable[T1]): Traversable[T1] = new AbstractTraversable[T1] {
-    def foreach[V](f: T1 => V): Unit = {
+  def concat[U >: T](that: Traversable[U]): Traversable[U] = new AbstractTraversable[U] {
+    def foreach[V](f: U => V): Unit = {
       for (x ← self)
         f(x)
       for (x ← that)
@@ -165,16 +159,16 @@ trait Traversable[+T] { self =>
   }
 
   /** Prepends an element to the beginning of this collection. $LAZY */
-  def prepend[T1 >: T](x: T1): Traversable[T1] = new AbstractTraversable[T1] {
-    def foreach[V](f: T1 => V) = {
+  def prepend[U >: T](x: U): Traversable[U] = new AbstractTraversable[U] {
+    def foreach[V](f: U => V) = {
       f(x)
       self foreach f
     }
   }
 
   /** Appends an element to the end of this collection. $LAZY */
-  def append[T1 >: T](x: T1): Traversable[T1] = new AbstractTraversable[T1] {
-    def foreach[V](f: T1 => V) = {
+  def append[U >: T](x: U): Traversable[U] = new AbstractTraversable[U] {
+    def foreach[V](f: U => V) = {
       self foreach f
       f(x)
     }
@@ -212,7 +206,7 @@ trait Traversable[+T] { self =>
   }
 
   /** $On */
-  def foldLeft[S](z: S)(f: (S, T) => S): S = {
+  def foldLeft[U](z: U)(f: (U, T) => U): U = {
     var r = z
     for (x ← self)
       r = f(r, x)
@@ -220,7 +214,7 @@ trait Traversable[+T] { self =>
   }
 
   /** $On */
-  def foldRight[S](z: S)(f: (T, S) => S): S = reverse.foldLeft(z)((s, t) => f(t, s))
+  def foldRight[U](z: U)(f: (T, U) => U): U = reverse.foldLeft(z)((s, t) => f(t, s))
 
   /** $On */
   def fold[U >: T](z: U)(f: (U, U) => U): U = foldLeft(z)(f)
@@ -350,6 +344,7 @@ trait Traversable[+T] { self =>
         if (i >= n) return
       }
     }
+    override def take(nn: Int) = self.take(math.min(n, nn))
   }
 
   def skip(n: Int): Traversable[T] = new AbstractTraversable[T] {
@@ -360,6 +355,7 @@ trait Traversable[+T] { self =>
         i += 1
       }
     }
+    override def skip(nn: Int) = self.skip(n + nn)
   }
 
   def takeWhile(f: T => Boolean): Traversable[T] = new AbstractTraversable[T] {
@@ -397,9 +393,9 @@ trait Traversable[+T] { self =>
   def slice(i: Int, j: Int) = skip(i).take(j - i)
 
   /** Returns the unique elements in this collection while retaining its original order. */
-  def distinct[U >: T](implicit U: Equiv[U]): Traversable[U] = new AbstractTraversable[U] {
+  def distinct[U >: T : IntHashing]: Traversable[U] = new AbstractTraversable[U] {
+    private[this] val set = HashSet[U]()
     def foreach[V](f: U => V) = {
-      val set = HashSet[U]() //TODO: feed typeclass instance T1 here
       for (x ← self) {
         if (set notContains x) {
           set add x
@@ -409,9 +405,9 @@ trait Traversable[+T] { self =>
     }
   }
 
-  def distinctBy[U](f: T => U)(implicit U: Equiv[U]): Traversable[T] = new AbstractTraversable[T] {
+  def distinctBy[U: IntHashing](f: T => U): Traversable[T] = new AbstractTraversable[T] {
+    private[this] val set = HashSet[U]()
     def foreach[V](g: T => V) = {
-      val set = HashSet[U]() //TODO: feed typeclass instance T1 here
       for (x ← self) {
         val fx = f(x)
         if (set notContains fx) {
@@ -422,15 +418,9 @@ trait Traversable[+T] { self =>
     }
   }
 
-  def union[U >: T](that: Traversable[U]): Traversable[U] = (this concat that).distinct
+  def union[U >: T : IntHashing](that: Traversable[U]): Traversable[U] = (this concat that).distinct
 
-  def intersect[U >: T](that: Traversable[U]): Traversable[U] = new AbstractTraversable[U] {
-    def foreach[V](f: U => V): Unit = {
-      val set = this.to[HashSet]
-      for (x ← that)
-        if (set contains x) f(x)
-    }
-  }
+  def intersect[U >: T : IntHashing](that: Traversable[U]): Traversable[U] = (this filter that.to[HashSet]).distinct
 
   /** Returns the reverse of this collection. $EAGER */
   def reverse: BiSeq[T] = self.to[ArraySeq].reverse
@@ -450,7 +440,7 @@ trait Traversable[+T] { self =>
   def rotate(n: Int) = (self skip n) ++ (self take n)
 
   /**
-   * Sorts this collection ascendingly using the implicitly provided order. $EAGER
+   * Sorts this collection in ascending order using the implicitly provided order. $EAGER
    * @example {{{
    *   (3, 2, 4, 1).sort == (1, 2, 3, 4)
    *   (3, 2, 4, 1).sort(WeakOrder[Int].reverse) == (4, 3, 2, 1)
@@ -686,7 +676,7 @@ trait Traversable[+T] { self =>
     def foreach[V](f: T => V) = self.foreach(f)
   }
 
-  override def toString = "(" + buildString(",") + ")"
+  override def toString = "(" + buildString(", ") + ")"
 }
 
 object Traversable {

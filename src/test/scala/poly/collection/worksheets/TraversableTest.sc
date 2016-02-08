@@ -8,6 +8,9 @@ val b = ArraySeq('a', 'b', 'c').asTraversable
 val c: Traversable[Int] = ArraySeq().asTraversable
 val f = (x: Int) => ArraySeq(x, x).asTraversable
 
+a.cycle.take(20)
+
+
 a |> {_ * 2}
 a ||> {(x: Int) => ArraySeq.fill(x)(x)}
 a |×| b
@@ -86,7 +89,7 @@ val d = ArraySeq(ArraySeq(1, 2, 3).asTraversable,
 val e = ArraySeq((1, 'a'), (2, 'b')).asTraversable
 d.flatten
 e.unzip
-e.unzipForced
+e.unzipEagerly
 
 a.cycle.map(_ - 1).take(10)
 

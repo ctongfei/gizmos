@@ -22,7 +22,7 @@ sealed trait Range extends SortedIndexedSeq[Int] { self =>
   def right: Int
 
   def step: Int
-
+  
   lazy val fastLength = {
     val gap = right - left
     val len = gap / step + (if (gap % step != 0) 1 else 0)
@@ -51,7 +51,7 @@ object Range {
     val step: Int = 1
   ) extends Range { require(step > 0)
 
-    override def foreach[U](f: Int => U) = macro ascendingMacroImpl[U]
+    override def foreach[U](f: Int => U) = macro ascendingForeachMacroImpl[U]
     def order = TotalOrder[Int]
     override def tail = new Range.Ascending(left + step, right, step)
     override def reverse = new Range.Descending(left + step * (length - 1), left - math.signum(step), -step)
@@ -63,7 +63,7 @@ object Range {
     val step: Int = 1
   ) extends Range { require(step < 0)
 
-    override def foreach[U](f: Int => U) = macro descendingMacroImpl[U]
+    override def foreach[U](f: Int => U) = macro descendingForeachMacroImpl[U]
     def order = TotalOrder[Int].reverse
     override def tail = new Range.Descending(left + step, right, step)
     override def reverse = new Range.Ascending(left + step * (length - 1), left - math.signum(step), -step)
@@ -93,12 +93,12 @@ object Range {
     else new Range.Descending(l, r + math.signum(step), step)
   }
 
-  def ascendingMacroImpl[V](c: Context)(f: c.Expr[Int => V]): c.Expr[Unit] = {
+  def ascendingForeachMacroImpl[V](c: Context)(f: c.Expr[Int => V]): c.Expr[Unit] = {
     import c.universe._
-    val i = TermName(c.freshName("poly$i"))
-    val range = TermName(c.freshName("poly$range"))
-    val limit = TermName(c.freshName("poly$limit"))
-    val step = TermName(c.freshName("poly$step"))
+    val i = TermName(c.freshName("i"))
+    val range = TermName(c.freshName("range"))
+    val limit = TermName(c.freshName("limit"))
+    val step = TermName(c.freshName("step"))
     val tree = c.macroApplication match {
       case q"$r.foreach[$ty]($f)" =>
         q"""
@@ -115,12 +115,12 @@ object Range {
     new InlineUtil[c.type](c).inlineAndReset[Unit](tree)
   }
 
-  def descendingMacroImpl[V](c: Context)(f: c.Expr[Int => V]): c.Expr[Unit] = {
+  def descendingForeachMacroImpl[V](c: Context)(f: c.Expr[Int => V]): c.Expr[Unit] = {
     import c.universe._
-    val i = TermName(c.freshName("poly$i"))
-    val range = TermName(c.freshName("poly$range"))
-    val limit = TermName(c.freshName("poly$limit"))
-    val step = TermName(c.freshName("poly$step"))
+    val i = TermName(c.freshName("i"))
+    val range = TermName(c.freshName("range"))
+    val limit = TermName(c.freshName("limit"))
+    val step = TermName(c.freshName("step"))
     val tree = c.macroApplication match {
       case q"$r.foreach[$ty]($f)" =>
         q"""

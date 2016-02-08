@@ -56,6 +56,7 @@ trait SortedIterable[T] extends Iterable[T] { self =>
   }
 
   //TODO: delete?
+  @deprecated
   def merge(that: SortedSeq[T]): SortedSeq[T] = {
     val ai = this.newIterator
     val bi = that.newIterator

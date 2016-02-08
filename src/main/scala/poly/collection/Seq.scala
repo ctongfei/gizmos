@@ -238,7 +238,7 @@ trait Seq[+T] extends Iterable[T] with IntKeyedSortedMap[T] { self =>
     var node = self.dummy.next
     while (node.notDummy && f(node.data))
       node = node.next
-    ofDummyNode(node)
+    ofHeadNode(node)
   }
 
   override def take(n: Int) = {
@@ -334,7 +334,7 @@ trait Seq[+T] extends Iterable[T] with IntKeyedSortedMap[T] { self =>
     case _ => false
   }
 
-  override def toString = "(" + buildString(",") + ")" // overridden the `toString` in Map
+  override def toString = "Seq(" + buildString(",") + ")" // overridden the `toString` in Map
 
   override def hashCode = ???
 

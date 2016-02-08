@@ -22,10 +22,10 @@ class IterableTest extends FunSuite {
     val h = (1, 1).iterate { case (a, b) => (a + 1, b - 1) }.take(10)
 
 
-    assert(checkIterable(s, p))
-    assert(checkIterable(s.map(_ * 2), p.map(_ * 2)))
-    assert(checkIterable(s.drop(4), p.skip(4)))
-    assert(checkIterable(s.take(8), p.take(8)))
+    s ==?== p
+    s.map(_ * 2) ==?== p.map(_ * 2)
+    s.drop(4) ==?== p.skip(4)
+    s.take(8) ==?== p.take(8)
 
   }
 

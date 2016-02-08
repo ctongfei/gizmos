@@ -19,6 +19,8 @@ object HashSetTest extends App {
 
   val plm = LinkedHashMap[Int, String](1 → "a", 3 → "4", 4 → "b")
 
+  import TestUtil._
+
   val p = HashSet[Double]()
   val s = scala.collection.mutable.HashSet[Double]()
 
@@ -28,7 +30,7 @@ object HashSetTest extends App {
     val x = r.nextGaussian()
     s += x
     p add x
-    if (TestUtil.checkSet(s, p)) println(s"CHECKED $i")
+    if ({s ==?== p; true}) println(s"CHECKED $i")
     else throw new RuntimeException()
   }
 
@@ -41,7 +43,7 @@ object HashSetTest extends App {
     s -= x
     p remove x
     i -= 1
-    if (TestUtil.checkSet(s, p)) println(s"CHECKED $i")
+    if ({s ==?== p; true}) println(s"CHECKED $i")
     else throw new RuntimeException
   }
 

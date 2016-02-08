@@ -9,7 +9,7 @@ import poly.collection.mut._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait Set[T] extends Predicate[T] with Multiset[T] with KeyedLike[T, Set[T]] { self =>
+trait Set[T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
 
   def equivOnKey: Equiv[T]
 
@@ -22,11 +22,13 @@ trait Set[T] extends Predicate[T] with Multiset[T] with KeyedLike[T, Set[T]] { s
   /** Tests if an element belongs to this set. */
   def contains(x: T): Boolean
 
+  def containsKey(x: T) = contains(x)
+
+  final def notContains(x: T) = !contains(x)
+
   def apply(x: T) = contains(x)
 
-  override def elements = keys
-
-  final override def multiplicity(x: T) = if (contains(x)) 1 else 0
+  def elements = keys
 
   final override def keySet = this
 
@@ -134,10 +136,34 @@ trait Set[T] extends Predicate[T] with Multiset[T] with KeyedLike[T, Set[T]] { s
     def contains(x: S) = self.contains(f(x))
   }
 
+  def foreach[U](f: T => U) = elements foreach f
+
+  def fold[U >: T](z: U)(f: (U, U) => U) = elements.fold(z)(f)
+
+  def foldByMonoid[U >: T : Monoid] = elements.foldByMonoid[U]
+
+  def reduce[U >: T](f: (U, U) => U) = elements reduce f
+
+  def reduceBySemigroup[U >: T : Semigroup] = elements.reduceBySemigroup[U]
+
+  def forall(f: T => Boolean) = elements forall f
+
+  def exists(f: T => Boolean) = elements exists f
+
+  def sum[U >: T : AdditiveCMonoid] = elements.sum[U]
+
+  def max(implicit T: WeakOrder[T]) = elements.max
+
+  def min(implicit T: WeakOrder[T]) = elements.min
+
+  def minAndMax(implicit T: WeakOrder[T]) = elements.minAndMax
+
   override def equals(that: Any) = that match {
     case that: Set[T] => Set.ContainmentOrder[T].eq(this, that)
     case _ => false
   }
+
+
 
   //Symbolic aliases
   def &(that: Set[T]) = this intersect that

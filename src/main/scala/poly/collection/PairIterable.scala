@@ -1,5 +1,7 @@
 package poly.collection
 
+import poly.algebra.hkt._
+
 
 /**
  * @author Tongfei Chen
@@ -72,10 +74,18 @@ trait PairIterable[+A, +B] extends Iterable[(A, B)] { self =>
 
 object PairIterable {
 
+  
   def ofPairIterator[A, B](i: => PairIterator[A, B]): PairIterable[A, B] = new AbstractPairIterable[A, B] {
     def newIterator = i // call-by-name parameter!
   }
 
+  
+  // TYPECLASS INSTANCES
+  object Bifunctor extends Bifunctor[PairIterable] {
+    def mapFirst[A, B, C](x: PairIterable[A, B])(f: A => C) = ??? // x.map2 { (a, b) => (f(a), b) }
+    def mapSecond[A, B, D](x: PairIterable[A, B])(f: B => D) = ??? // x.map2 { ()}
+  }
+  
 }
 
 abstract class AbstractPairIterable[+A, +B] extends AbstractIterable[(A, B)] with PairIterable[A, B]

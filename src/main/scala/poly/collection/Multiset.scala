@@ -1,14 +1,17 @@
 package poly.collection
 
 import poly.algebra._
-import poly.collection.ops._
+import poly.algebra.syntax._
 
 /**
   * Represents a multiset in which the same element can appear more than once.
   * @author Tongfei Chen
   * @since 0.1.0
   */
-trait Multiset[T] extends KeyedLike[T, Multiset[T]] { self =>
+/**
+trait Multiset[T, Z] extends Map[T, Z] { self =>
+
+  implicit def groupOnValue: OrderedAdditiveCGroup[Z]
 
   def equivOnKey: Equiv[T]
 
@@ -26,17 +29,17 @@ trait Multiset[T] extends KeyedLike[T, Multiset[T]] { self =>
 
   def containsKey(x: T) = contains(x)
 
-  def multiplicity(x: T): Int
+  def multiplicity(x: T): Z
 
-  def elements: Iterable[T] = keys.flatMap(k => k.repeat(multiplicity(k)))
+  //def elements: Iterable[T] = keys.flatMap(k => k.repeat(multiplicity(k)))
 
-  def filterKeys(p: T => Boolean): Multiset[T] = ???
+  def filterKeys(p: T => Boolean): Multiset[T, Z] = ???
 
   /**
     * Casts this multiset as a map that maps the unique elements to its multiplicity in this multiset. $LAZY
     * @example {{{ {1, 1, 1, 2}.asKeyFreqMap == {1 -> 3, 2 -> 1} }}}
     */
-  def asKeyFreqMap: Map[T, Int] = new AbstractMap[T, Int] {
+  def asKeyFreqMap: Map[T, Z] = new AbstractMap[T, Z] {
     def pairs = self.keys.map(k => k → self.multiplicity(k))
     def containsKey(x: T) = self.contains(x)
     def apply(k: T) = self.multiplicity(k)
@@ -46,65 +49,62 @@ trait Multiset[T] extends KeyedLike[T, Multiset[T]] { self =>
 
   // HELPER FUNCTIONS
 
-  def foreach[U](f: T => U) = elements foreach f
 
-  def fold[U >: T](z: U)(f: (U, U) => U) = elements.fold(z)(f)
 
-  def foldByMonoid[U >: T : Monoid] = elements.foldByMonoid[U]
-
-  def reduce[U >: T](f: (U, U) => U) = elements reduce f
-
-  def reduceBySemigroup[U >: T : Semigroup] = elements.reduceBySemigroup[U]
-
-  def forall(f: T => Boolean) = elements forall f
-
-  def exists(f: T => Boolean) = elements exists f
-
-  def sum[U >: T : AdditiveCMonoid] = elements.sum[U]
-
-  def max(implicit T: WeakOrder[T]) = elements.max
-
-  def min(implicit T: WeakOrder[T]) = elements.min
-
-  def minAndMax(implicit T: WeakOrder[T]) = elements.minAndMax
-
-  def |(that: Multiset[T]): Multiset[T] = new AbstractMultiset[T] {
+  def |(that: Multiset[T, Z]): Multiset[T, Z] = new AbstractMultiset[T, Z] {
     def equivOnKey = self.equivOnKey
-    def multiplicity(x: T) = math.max(self.multiplicity(x), that.multiplicity(x))
+    implicit def groupOnValue = self.groupOnValue
+    def multiplicity(x: T) = max(self.multiplicity(x), that.multiplicity(x))
     def keys = self.keys union that.keys
     def contains(x: T) = self.contains(x) || that.contains(x)
   }
 
-  def &(that: Multiset[T]): Multiset[T] = new AbstractMultiset[T] {
+  def &(that: Multiset[T, Z]): Multiset[T, Z] = new AbstractMultiset[T, Z] {
     def equivOnKey = self.equivOnKey
-    def multiplicity(x: T) = math.min(self.multiplicity(x), that.multiplicity(x))
+    implicit def groupOnValue = self.groupOnValue
+    def multiplicity(x: T) = min(self.multiplicity(x), that.multiplicity(x))
     def keys = self.keys intersect that.keys
     def contains(x: T) = self.contains(x) && that.contains(x)
   }
 
-  def +(that: Multiset[T]): Multiset[T] = new AbstractMultiset[T] {
+  def +(that: Multiset[T, Z]): Multiset[T, Z] = new AbstractMultiset[T, Z] {
     def equivOnKey = self.equivOnKey
+    implicit def groupOnValue = self.groupOnValue
     def multiplicity(x: T) = self.multiplicity(x) + that.multiplicity(x)
     def keys = self.keys union that.keys
     def contains(x: T) = self.contains(x) && that.contains(x)
   }
 
-  override def toString = "{" + elements.buildString(",") + "}"
+  def subsetOf(that: Multiset[T, Z]) =
+    this.keys.forall(k => this.multiplicity(k) <= that.multiplicity(k))
+
+
+  override def toString = ???
 
 }
 
 object Multiset {
+
+  def empty[T: Equiv, Z: OrderedAdditiveCGroup]: Multiset[T, Z] = new AbstractMultiset[T, Z] {
+    implicit def groupOnValue = implicitly[OrderedAdditiveCGroup[Z]]
+    def equivOnKey = Equiv[T]
+    def multiplicity(x: T) = zero[Z]
+    def keys = Iterable.empty
+    def contains(x: T) = false
+  }
+
   /** Returns the lattice on sets. */
-  implicit def Lattice[T]: Lattice[Multiset[T]] with BoundedLowerSemilattice[Multiset[T]] =
-    new Lattice[Multiset[T]] with BoundedLowerSemilattice[Multiset[T]] {
-      def bot = Set.empty[T]
-      def inf(x: Multiset[T], y: Multiset[T]) = x & y
-      def sup(x: Multiset[T], y: Multiset[T]) = x | y
+  implicit def Lattice[T: Equiv, Z: OrderedAdditiveCGroup]: Lattice[Multiset[T, Z]] with BoundedLowerSemilattice[Multiset[T, Z]] =
+    new Lattice[Multiset[T, Z]] with BoundedLowerSemilattice[Multiset[T, Z]] {
+      def bot = empty[T, Z]
+      def inf(x: Multiset[T, Z], y: Multiset[T, Z]) = x & y
+      def sup(x: Multiset[T, Z], y: Multiset[T, Z]) = x | y
     }
 
-  implicit def ContainmentOrder[T]: PartialOrder[Multiset[T]] = new PartialOrder[Multiset[T]] {
-    def le(x: Multiset[T], y: Multiset[T]) = ???
+  implicit def ContainmentOrder[T: Equiv, Z: OrderedAdditiveCGroup]: PartialOrder[Multiset[T, Z]] = new PartialOrder[Multiset[T, Z]] {
+    def le(x: Multiset[T, Z], y: Multiset[T, Z]) = x subsetOf y
   }
 }
 
-abstract class AbstractMultiset[T] extends Multiset[T]
+abstract class AbstractMultiset[T, Z] extends Multiset[T, Z]
+*/
