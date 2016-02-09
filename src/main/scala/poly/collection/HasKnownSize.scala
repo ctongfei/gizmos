@@ -7,6 +7,7 @@ package poly.collection
  */
 trait HasKnownSize {
 
+  /** Returns the know size of this collection. */
   def size: Int
 
 }

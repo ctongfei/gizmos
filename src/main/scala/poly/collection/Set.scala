@@ -119,7 +119,7 @@ trait Set[T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
   }
 
   def map[U](f: Bijection[T, U]): Set[U] = new AbstractSet[U] {
-    def equivOnKey = Equiv by f.invert
+    def equivOnKey = self.equivOnKey contramap f.invert
     def keys = self.elements.map(f)
     def contains(x: U) = self.contains(f.invert(x))
   }
@@ -131,7 +131,7 @@ trait Set[T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
   def zip(that: Set[T]): Set[T] = this & that
 
   def contramap[S](f: Bijection[S, T]): Set[S] = new AbstractSet[S] {
-    def equivOnKey = Equiv by f
+    def equivOnKey = self.equivOnKey contramap f
     def keys = self.elements.map(f.invert)
     def contains(x: S) = self.contains(f(x))
   }
@@ -199,7 +199,7 @@ object Set {
   /** Returns the lattice on sets. */
   implicit def Lattice[T]: Lattice[Set[T]] with BoundedLowerSemilattice[Set[T]] =
     new Lattice[Set[T]] with BoundedLowerSemilattice[Set[T]] {
-      def bot = empty[T]
+      def bot = empty[T](poly.algebra.Equiv.default[T])
       def inf(x: Set[T], y: Set[T]) = x & y
       def sup(x: Set[T], y: Set[T]) = x | y
   }

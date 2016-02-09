@@ -45,11 +45,6 @@ trait IndexedSeq[+T] extends BiSeq[T] with HasKnownSize { self =>
     def isDummy = true
   }
 
-  /**
-   * Applies a specific function to each element in this collection.
-   * This call will be rewritten as a `while` loop.
-   * @param f The function to be applied. Return values are discarded.
-   */ // Overridden foreach method for performance.
   override def foreach[V](f: T => V): Unit = {
     FastLoop.ascending(0, length, 1) { i => f(apply(i)) }
   }

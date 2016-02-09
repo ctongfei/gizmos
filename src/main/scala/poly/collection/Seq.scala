@@ -330,7 +330,7 @@ trait Seq[+T] extends Iterable[T] with IntKeyedSortedMap[T] { self =>
   def asSeq: Seq[T] = ofDummyNode(dummy)
 
   override def equals(that: Any) = that match {
-    case (that: Seq[T]) => Equiv[T].eq(this, that)
+    case (that: Seq[T]) => Equiv[T](poly.algebra.Equiv.default[T]).eq(this, that)
     case _ => false
   }
 

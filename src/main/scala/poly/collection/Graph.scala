@@ -1,7 +1,6 @@
 package poly.collection
 
 import poly.algebra._
-import poly.algebra.Bijection._
 import poly.algebra.syntax._
 import poly.algebra.specgroup._
 import poly.collection.builder._
@@ -42,7 +41,7 @@ trait Graph[@sp(i) K, +V, +E] extends KeyedLike[K, Graph[K, V, E]] with StateSpa
   /** Returns the number of edges in this graph. */
   def numEdges: Int = edges.size
 
-  implicit def equivOnState = keySet.equivOnKey
+  implicit def equivOnKey = keySet.equivOnKey
 
   /** Returns the set of the keys of the vertices in this graph. */
   def keySet: Set[K]
@@ -118,11 +117,11 @@ trait Graph[@sp(i) K, +V, +E] extends KeyedLike[K, Graph[K, V, E]] with StateSpa
     def apply(i: K) = (self(i), that(i))
     def containsEdge(i: K, j: K) = self.containsEdge(i, j) && that.containsEdge(i, j)
     def apply(i: K, j: K) = (self(i, j), that(i, j))
-    def outgoingKeysOf(i: K) = ??? //self.outgoingKeysOf(i) intersect that.outgoingKeysOf(i)
+    def outgoingKeysOf(i: K) = self.outgoingKeysOf(i) intersect that.outgoingKeysOf(i)
     def keySet = self.keySet & that.keySet
   }
 
-  def contramap[J](f: J <=> K): Graph[J, V, E] = new AbstractGraph[J, V, E] {
+  def contramap[J](f: Bijection[J, K]): Graph[J, V, E] = new AbstractGraph[J, V, E] {
     def apply(i: J) = self.apply(f(i))
     def containsEdge(i: J, j: J) = self.containsEdge(f(i), f(j))
     def apply(i: J, j: J) = self.apply(f(i), f(j))
@@ -179,7 +178,7 @@ object Graph {
   implicit class asWeightedStateSpace[K, E](g: Graph[K, _, E])(implicit E: OrderedAdditiveGroup[E]) extends WeightedStateSpace[K, E] {
     implicit def groupOnCost = E
     def succWithCost(x: K) = g.outgoingEdgesOf(x).map(e => (e.key2, e.data))
-    def equivOnState = g.equivOnState
+    def equivOnKey = g.equivOnKey
   }
 
 }

@@ -16,7 +16,7 @@ class AdjacencyListGraph[@sp(i) K, V, E]() extends Graph[K, V, E] {
 
   private class VertexInfo {
     var data: V = _
-    val succ = ListMap[K, E]()
+    val succ = HashMap[K, E]() // TODO: ListMap
   }
 
   private val r = HashMap[K, VertexInfo]()

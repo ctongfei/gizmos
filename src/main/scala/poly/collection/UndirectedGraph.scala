@@ -6,6 +6,7 @@ import poly.collection.mut._
 /**
  * Represents an undirected graph.
  * @author Tongfei Chen
+ * @since 0.1.0
  */
 trait UndirectedGraph[@sp(i) K, +V, +E] extends BiGraph[K, V, E] { self =>
 
@@ -13,7 +14,9 @@ trait UndirectedGraph[@sp(i) K, +V, +E] extends BiGraph[K, V, E] { self =>
 
   override def node(i: K) = new Node(self, i)
 
-  override def edge(i: K, j: K) = new Edge(self, i, j)
+  override def edge(i: K, j: K) = new BiGraph.Edge(self, i, j)
+
+  def undirectedEdge(i: K, j: K) = new UndirectedEdge(self, i, j)
 
   def adjacentKeysOf(i: K): Iterable[K]
   def adjacentNodesOf(i: K) = adjacentKeysOf(i).map(j => node(j))
@@ -38,15 +41,16 @@ object UndirectedGraph {
 
   type Node[K, +V] = BiGraph.Node[K, V]
 
-  class Edge[K, +E](override val graph: UndirectedGraph[K, _, E], override val key1: K, override val key2: K) extends Graph.Edge(graph, key1, key2) with Set[K] {
+  class UndirectedEdge[K, +E](val graph: UndirectedGraph[K, _, E], val key1: K, val key2: K) extends Keyed[K] {
     override def equals(that: Any) = that match {
-        case that: UndirectedGraph.Edge[K, E] =>
+        case that: UndirectedGraph.UndirectedEdge[K, E] =>
           (this.key1 == that.key1 && this.key2 == that.key2) ||
             (this.key1 == that.key2 && this.key2 == that.key1)
         case _ => false
       }
 
-    override def size = 2
+    def equivOnKey = graph.equivOnKey
+
     override def hashCode = key1.## ^ key2.##
     def contains(x: K) = x == key1 || x == key2
     def keys = ListSeq(key1, key2)

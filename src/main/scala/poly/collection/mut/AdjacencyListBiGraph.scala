@@ -11,7 +11,7 @@ class AdjacencyListBiGraph[@sp(i) K, V, E] extends BiGraph[K, V, E] {
   private class VertexInfo {
     var data: V = _
     val pred = ListSet[K]()
-    val succ = ListMap[K, E]()
+    val succ = HashMap[K, E]() // TODO: ListMap
   }
 
   private val r = HashMap[K, VertexInfo]()

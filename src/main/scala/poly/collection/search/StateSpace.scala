@@ -20,9 +20,7 @@ trait StateSpace[@sp(i) S] extends Keyed[S] {
   def succ(x: S): Traversable[S]
 
   /** Returns the equivalence relation on search states. */
-  def equivOnState: Equiv[S]
-
-  def equivOnKey = equivOnState
+  def equivOnKey: Equiv[S]
 
   def depthFirstTreeTraversal(start: S) = Iterable.ofIterator(new DepthFirstTreeIterator(this, start))
 

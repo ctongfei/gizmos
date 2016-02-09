@@ -145,7 +145,7 @@ trait Map[@sp(i) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K, 
     def containsKey(x: J) = self containsKey f(x)
     def apply(k: J) = self apply f(k)
     def ?(k: J) = self ? f(k)
-    implicit def equivOnKey = Equiv by f
+    implicit def equivOnKey = self.equivOnKey contramap f
   }
 
   def asMap: Map[K, V] = new AbstractMap[K, V] {

@@ -5,16 +5,6 @@ package poly.collection.mut
  */
 object ListMapTest extends App {
 
-  val m = ListMap[Int, String](1 → "a", 2 → "b", 3 → "c", 4 → "d")
-
-  m.add(5 → "e")
-  println(m.pairs.buildString(" "))
-
-  m.?(6)
-
-  m.remove(3)
-  println(m.pairs.buildString(" "))
-
 
 
 }

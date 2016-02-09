@@ -257,6 +257,23 @@ trait Iterable[+T] extends Traversable[T] { self =>
     }
   }
 
+  override def distinctBy[U: IntHashing](f: T => U): Iterable[T] = ofIterator {
+    new Iterator[T] {
+      private[this] val set = HashSet[U]()
+      private[this] val i = self.newIterator
+      def current = i.current
+      def advance(): Boolean = {
+        while (i.advance()) {
+          if (set notContains f(i.current)) {
+            set add f(i.current)
+            return true
+          }
+        }
+        false
+      }
+    }
+  }
+
   def union[U >: T : IntHashing](that: Iterable[U]): Iterable[U] = (this concat that).distinct
 
   def intersect[U >: T : IntHashing](that: Iterable[U]): Iterable[U] = (this filter that.to[HashSet]).distinct
@@ -264,7 +281,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
   override def rotate(n: Int): Iterable[T] = self.skip(n) ++ self.take(n)
 
   /** Pretends that this iterable collection is sorted. */
-  def asIfSorted[U >: T : WeakOrder]: SortedIterable[T@uv] = new SortedIterable[T] {
+  def asIfSorted[U >: T : WeakOrder]: SortedIterable[T @uv] = new SortedIterable[T] {
     def order = implicitly[WeakOrder[U]]
     def newIterator = self.newIterator
   }

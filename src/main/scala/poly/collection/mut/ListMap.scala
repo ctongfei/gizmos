@@ -70,9 +70,4 @@ class ListMap[K, V] private(private val data: SinglyLinkedList[KeyValuePair[K, V
 
 //TODO:!!! change to MapFactory
 object ListMap {
-  def apply[K, V](xs: (K, V)*): ListMap[K, V] = {
-    val l = new SinglyLinkedList[KeyValuePair[K, V]]
-    for (x ← xs) l.appendInplace(KeyValuePair(x._1, x._2))
-    new ListMap[K, V](l)
-  }
 }

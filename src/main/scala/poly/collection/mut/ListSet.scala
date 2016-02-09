@@ -43,7 +43,7 @@ class ListSet[T] private(private val data: SinglyLinkedList[T])(implicit val equ
 
 //TODO:!!! change to SetFactory
 object ListSet {
-  def apply[T](xs: T*): ListSet[T] = {
+  def apply[T: Equiv](xs: T*): ListSet[T] = {
     val l = new SinglyLinkedList[T]
     xs foreach l.appendInplace
     new ListSet[T](l)
