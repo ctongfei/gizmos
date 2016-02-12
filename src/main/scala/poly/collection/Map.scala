@@ -1,9 +1,10 @@
 package poly.collection
 
 import poly.algebra._
+import poly.algebra.syntax._
 import poly.algebra.hkt._
+import poly.algebra.specgroup._
 import poly.collection.exception._
-import poly.util.specgroup._
 import scala.language.reflectiveCalls
 
 /**
@@ -164,11 +165,31 @@ trait Map[@sp(i) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K, 
 }
 
 object Map {
+
+  def empty[K: Equiv]: Map[K, Nothing] = new AbstractMap[K, Nothing] {
+    def apply(k: K) = throw new KeyNotFoundException[K](k)
+    def ?(k: K) = None
+    def equivOnKey = Equiv[K]
+    def pairs = Iterable.empty
+    def containsKey(x: K) = false
+  }
+
+  // TYPECLASS INSTANCES
+
   /** Returns the functor on maps. */
   implicit def Functor[K]: Functor[({type λ[+V] = Map[K, V]})#λ] = new Functor[({type λ[+V] = Map[K, V]})#λ] {
     def map[X, Y](mx: Map[K, X])(f: X => Y): Map[K, Y] = mx map f
   }
 
+  /** Returns the vector space on maps given the value set of the map forms a field. */
+  implicit def VectorSpace[K: Equiv, F](implicit F: Field[F]): VectorSpace[Map[K, F], F] = new VectorSpace[Map[K, F], F] {
+    def fieldOnScalar = F
+    def scale(k: F, x: Map[K, F]) = x map (_ * k)
+    def add(x: Map[K, F], y: Map[K, F]) = (x.keySet | y.keySet).createMapBy { k =>
+      x.getOrElse(k, F.zero) + y.getOrElse(k, F.zero)
+    }
+    def zero = empty[K]
+  }
 }
 
 abstract class AbstractMap[@sp(i) K, +V] extends Map[K, V]

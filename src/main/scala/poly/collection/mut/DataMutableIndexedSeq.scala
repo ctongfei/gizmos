@@ -1,7 +1,7 @@
 package poly.collection.mut
 
 import poly.algebra._
-import poly.algebra.ops._
+import poly.algebra.syntax._
 import poly.collection._
 
 import scala.util._
@@ -16,11 +16,9 @@ trait DataMutableIndexedSeq[T] extends DataMutableSeq[T] with IndexedSeq[T] {
 
   /**
    * Sorts this sequence in-place using the order provided.
-   * @param order The order for sorting
+   * @param T The order for sorting
    */
-  def sortInplace()(implicit order: WeakOrder[T]): Unit = {
-    //TODO: This is a naive implementation of quicksort.
-    //TODO: May possibly be changed to introsort or timsort in the future.
+  def sortInplace()(implicit T: WeakOrder[T]): Unit = {
     def quicksort(i: Int, j: Int): Unit = {
       var l = i
       var r = j

@@ -2,6 +2,7 @@ package poly.collection
 
 import poly.algebra.hkt._
 import poly.collection.exception._
+import poly.collection.impl._
 import poly.collection.node._
 import poly.collection.ops._
 import poly.util.typeclass._
@@ -20,8 +21,8 @@ trait BinaryTree[+T] { self =>
 
   def root: T = rootNode.data
 
-  /** Returns the maximal depth of this tree. */ //TODO: a recursive-free version?
-  def depth: Int = foldBottomUp(0)((l, r, _) => math.max(l, r) + 1)
+  /** Returns the maximal height of this tree. */ //TODO: a recursive-free version?
+  def height: Int = foldBottomUp(0)((l, r, _) => math.max(l, r) + 1)
 
   /** Returns the number of nodes in this tree. */
   def size: Int = rootNode.preOrder.size
@@ -63,15 +64,15 @@ trait BinaryTree[+T] { self =>
    * Returns the left subtree of this binary tree. $LAZY $CX_1
    * @return The left subtree
    */
-  def left: BinaryTree[T] = ofNode(rootNode.left)
+  def left: BinaryTree[T] = ofRootNode(rootNode.left)
 
   /**
    * Returns the right subtree of this binary tree. $LAZY $CX_1
    * @return The right subtree
    */
-  def right: BinaryTree[T] = ofNode(rootNode.right)
+  def right: BinaryTree[T] = ofRootNode(rootNode.right)
 
-  def map[U](f: T => U): BinaryTree[U] = ofNode(rootNode.map(f))
+  def map[U](f: T => U): BinaryTree[U] = ofRootNode(rootNode.map(f))
 
   /** Folds a binary tree bottom-up. This is analogous to the sequence `foldRight` in that both
     * are catamorphisms on recursive structures.
@@ -83,11 +84,11 @@ trait BinaryTree[+T] { self =>
 
   def fold[U >: T](z: U)(f: (U, U, U) => U) = foldBottomUp(z)(f)
 
-  def zip[U](that: BinaryTree[U]): BinaryTree[(T, U)] = ofNode(self.rootNode zip that.rootNode)
+  def zip[U](that: BinaryTree[U]): BinaryTree[(T, U)] = ofRootNode(self.rootNode zip that.rootNode)
 
-  def preOrder = rootNode.preOrder
-  def inOrder = rootNode.inOrder
-  def postOrder = rootNode.postOrder
+  def preOrder = rootNode.preOrder.map(_.data)
+  def inOrder = rootNode.inOrder.map(_.data)
+  def postOrder = rootNode.postOrder.map(_.data)
 
   /**
    * Performs inverse Knuth transform on this binary tree, i.e., recover the multi-way tree
@@ -104,7 +105,15 @@ trait BinaryTree[+T] { self =>
     override def knuthTransform = self
   }
 
-  def subtrees: BinaryTree[BinaryTree[T]] = ???
+  def subtrees: BinaryTree[BinaryTree[T]] = {
+    class SubtreeNode(n: BinaryTreeNode[T]) extends BinaryTreeNode[BinaryTree[T]] {
+      def data = ofRootNode(n)
+      def left = new SubtreeNode(n.left)
+      def right = new SubtreeNode(n.right)
+      def isDummy = n.isDummy
+    }
+    ofRootNode(new SubtreeNode(self.rootNode))
+  }
 
   override def toString() = self.str
 
@@ -125,12 +134,17 @@ object BinaryTree {
     def rootNode: BinaryTreeNode[Nothing] = BinaryTreeNode.Dummy
   }
 
-  def ofNode[T](n: BinaryTreeNode[T]): BinaryTree[T] = new BinaryTree[T] {
+  def ofRootNode[T](n: BinaryTreeNode[T]): BinaryTree[T] = new BinaryTree[T] {
     def rootNode = n
   }
 
   implicit object Functor extends Functor[BinaryTree] {
     def map[T, U](t: BinaryTree[T])(f: T => U): BinaryTree[U] = t map f
+  }
+
+  implicit object Comonad extends Comonad[BinaryTree] {
+    def id[X](u: BinaryTree[X]) = ???
+    def extend[X, Y](wx: BinaryTree[X])(f: BinaryTree[X] => Y) = wx.subtrees map f
   }
 
   implicit def Formatter[T: Formatter]: Formatter[BinaryTree[T]] = new Formatter[BinaryTree[T]] {
