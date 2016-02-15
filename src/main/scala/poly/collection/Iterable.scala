@@ -264,8 +264,9 @@ trait Iterable[+T] extends Traversable[T] { self =>
       def current = i.current
       def advance(): Boolean = {
         while (i.advance()) {
-          if (set notContains f(i.current)) {
-            set add f(i.current)
+          val u = f(i.current)
+          if (set notContains u) {
+            set add u
             return true
           }
         }
@@ -302,7 +303,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
     }
   }
 
-  def indexed: SortedIterable[(Int, T@uv)] = {
+  override def indexed: SortedIterable[(Int, T@uv)] = {
     val paired = ofIterator {
       new Iterator[(Int, T)] {
         private[this] var idx = -1

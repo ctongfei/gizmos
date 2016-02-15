@@ -164,7 +164,7 @@ trait Map[@sp(i) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K, 
   def |~|[W](that: Map[K, W]) = self zip that
 }
 
-object Map {
+object Map extends MapLowPriorityImplicits {
 
   def empty[K: Equiv]: Map[K, Nothing] = new AbstractMap[K, Nothing] {
     def apply(k: K) = throw new KeyNotFoundException[K](k)
@@ -190,6 +190,20 @@ object Map {
     }
     def zero = empty[K]
   }
+
+}
+
+trait MapLowPriorityImplicits {
+  /** Returns the module on maps given the value set of the map forms a ring. */
+  implicit def Module[K: Equiv, R](implicit R: Ring[R]): Module[Map[K, R], R] = new Module[Map[K, R], R] {
+    def ringOnScalar = R
+    def scale(k: R, x: Map[K, R]) = x map (_ * k)
+    def add(x: Map[K, R], y: Map[K, R]) = (x.keySet | y.keySet).createMapBy { k =>
+      x.getOrElse(k, R.zero) + y.getOrElse(k, R.zero)
+    }
+    def zero = Map.empty[K]
+  }
 }
 
 abstract class AbstractMap[@sp(i) K, +V] extends Map[K, V]
+

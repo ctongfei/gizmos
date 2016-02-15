@@ -272,7 +272,83 @@ trait Seq[+T] extends Iterable[T] with IntKeyedSortedMap[T] { self =>
 
   override def slice(i: Int, j: Int) = self.skip(i).take(j - i)
 
+  override def distinct[U >: T : IntHashing]: Seq[T] = {
+    val set = HashSet[U]()
+    class DistinctNode(outer: SeqNode[T]) extends SeqNode[T] {
+      def next: DistinctNode = {
+        var n = outer.next
+        while (n.notDummy) {
+          if (set notContains n.data) {
+            set add n.data
+            return new DistinctNode(n)
+          }
+          n = n.next
+        }
+        new DistinctNode(n)
+      }
+      def data = outer.data
+      def isDummy = outer.isDummy
+    }
+    ofDummyNode(new DistinctNode(self.dummy))
+  }
+
+  override def distinctBy[U: IntHashing](f: T => U): Seq[T] = {
+    val set = HashSet[U]()
+    class DistinctByNode(outer: SeqNode[T]) extends SeqNode[T] {
+      def next: DistinctByNode = {
+        var n = outer.next
+        while (n.notDummy) {
+          val u = f(n.data)
+          if (set notContains u) {
+            set add u
+            return new DistinctByNode(n)
+          }
+          n = n.next
+        }
+        new DistinctByNode(n)
+      }
+      def data = outer.data
+      def isDummy = outer.isDummy
+    }
+    ofDummyNode(new DistinctByNode(self.dummy))
+  }
+
+
+
+  def union[U >: T : IntHashing](that: Seq[U]): Seq[U] = (this concat that).distinct
+
+  def intersect[U >: T : IntHashing](that: Seq[U]): Seq[U] = (this filter that.to[HashSet]).distinct
+
   override def rotate(i: Int) = self.skip(i) ++ self.take(i)
+
+  override def repeat(n: Int): Seq[T] = {
+    if (n <= 0) return Seq.empty
+    class RepeatedNode(i: Int, outer: SeqNode[T]) extends SeqNode[T] {
+      def next = {
+        val tempNext = outer.next
+        if (tempNext.isDummy) {
+          if (i >= n - 1) SeqNode.dummy
+          else new RepeatedNode(i + 1, self.headNode)
+        }
+        else new RepeatedNode(i, tempNext)
+      }
+      def data = outer.data
+      def isDummy = false
+    }
+    ofHeadNode(new RepeatedNode(0, self.headNode))
+  }
+
+  override def cycle = {
+    class CycleNode(outer: SeqNode[T]) extends SeqNode[T] {
+      def next = {
+        val tempNext = outer.next
+        if (tempNext.isDummy) new CycleNode(self.headNode) else new CycleNode(tempNext)
+      }
+      def data = outer.data
+      def isDummy = false
+    }
+    ofHeadNode(new CycleNode(self.headNode))
+  }
 
   /**
    * Pretends that this sequence is sorted under the given implicit order.
@@ -286,6 +362,7 @@ trait Seq[+T] extends Iterable[T] with IntKeyedSortedMap[T] { self =>
   }
 
   def zip[U](that: Seq[U]): Seq[(T, U)] = ofDummyNode(self.dummy zip that.dummy)
+
 
   // INDEXING OPERATIONS
 
@@ -385,7 +462,7 @@ object Seq {
   }
 
   implicit def Equiv[T: Equiv]: Equiv[Seq[T]] = new Equiv[Seq[T]] {
-    def eq(x: Seq[T], y: Seq[T]): Boolean = { //TODO: faster implementation using iterators
+    def eq(x: Seq[T], y: Seq[T]): Boolean = { //TODO: faster implementation using iterators?
       var xn = x.headNode
       var yn = y.headNode
       while (xn.notDummy && yn.notDummy) {
@@ -403,7 +480,7 @@ object Seq {
    * Returns the lexicographic order on sequences if an order on the elements is given.
    */
   implicit def LexicographicOrder[T: WeakOrder]: WeakOrder[Seq[T]] = new WeakOrder[Seq[T]] {
-    def cmp(x: Seq[T], y: Seq[T]): Int = { //TODO: faster implementation using iterators
+    def cmp(x: Seq[T], y: Seq[T]): Int = { //TODO: faster implementation using iterators?
       var xn = x.headNode
       var yn = y.headNode
       while (xn.notDummy && yn.notDummy) {
@@ -417,9 +494,11 @@ object Seq {
     }
   }
 
-  implicit object Monad extends Monad[Seq] {
+  implicit object Monad extends ConcatenativeMonad[Seq] {
     def id[X](u: X) = ListSeq(u)
     def flatMap[X, Y](mx: Seq[X])(f: X => Seq[Y]) = mx flatMap f
+    def empty[X] = Seq.empty
+    def concat[X](sx: Seq[X], sy: Seq[X]) = sx concat sy
   }
 
   implicit object Comonad extends Comonad[Seq] {

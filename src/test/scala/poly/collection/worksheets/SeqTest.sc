@@ -2,7 +2,7 @@
 import poly.collection.ops._
 import poly.collection.mut._
 
-val a = ListSeq(0, 1, 2, 3, 4).asSeq
+val a = ListSeq(0, 1, 2, 3, 4, 3, 2).asSeq
 val b = ArraySeq(5, 6, 7, 8).asSeq
 b.asMap
 
@@ -15,7 +15,7 @@ a.skip(2)
 a.skip(10)
 a.skipWhile(_ > 100)
 a.flatMap((i: Int) => i repeat i)
-a product   b
+a product b
 a.isEmpty
 a.size
 

@@ -409,9 +409,9 @@ trait Traversable[+T] { self =>
     private[this] val set = HashSet[U]()
     def foreach[V](g: T => V) = {
       for (x ← self) {
-        val fx = f(x)
-        if (set notContains fx) {
-          set add fx
+        val u = f(x)
+        if (set notContains u) {
+          set add u
           g(x)
         }
       }
@@ -457,6 +457,16 @@ trait Traversable[+T] { self =>
     val o = WeakOrder by f
     seq.sortInplace()(o) // TODO: cache Us and sort to avoid recalculation of Us?
     seq.asIfSorted(o)
+  }
+
+  def indexed: Traversable[(Int, T)] = new AbstractTraversable[(Int, T)] {
+    def foreach[V](f: ((Int, T)) => V) = {
+      var i = 0
+      for (x ← self) {
+        f(i, x)
+        i += 1
+      }
+    }
   }
 
   /**

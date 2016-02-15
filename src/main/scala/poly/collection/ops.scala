@@ -51,6 +51,9 @@ object ops {
 
   implicit class withCollectionOps[T](val x: T) {
 
+    /** Checks if this element belongs to the specific set. */
+    def in(set: Set[T]) = set contains x
+
     /**
      * Constructs a sequence of length 1 with this specific element.
      * @return A sequence with only `this` element
