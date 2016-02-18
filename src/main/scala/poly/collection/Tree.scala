@@ -21,7 +21,7 @@ trait Tree[+T] { self =>
 
   def root = rootNode.data
 
-  def children = rootNode.children.map(t => ofNode(t))
+  def children = rootNode.children.map(t => ofRootNode(t))
 
   //region HELPER FUNCTIONS
 
@@ -53,7 +53,14 @@ trait Tree[+T] { self =>
   }
 
   // Comonadic operation
-  def subtrees: Tree[Tree[T]] = ???
+  def subtrees: Tree[Tree[T]] = {
+    class TreeOfTreeNode(n: TreeNode[T]) extends TreeNode[Tree[T]] {
+      def children: Seq[TreeNode[Tree[T]]] = n.children.map(tn => new TreeOfTreeNode(tn))
+      def data: Tree[T] = ofRootNode(n)
+      def isDummy: Boolean = n.isDummy
+    }
+    ofRootNode(new TreeOfTreeNode(self.rootNode))
+  }
 
   def preOrder = rootNode.depthFirstTreeTraversal.map(_.data)
 
@@ -64,7 +71,7 @@ trait Tree[+T] { self =>
 
 object Tree {
 
-  def ofNode[T](n: TreeNode[T]): Tree[T] = new Tree[T] {
+  def ofRootNode[T](n: TreeNode[T]): Tree[T] = new Tree[T] {
     def rootNode = n
   }
 
@@ -90,3 +97,5 @@ object Tree {
       ")"
   }
 }
+
+abstract class AbstractTree[T] extends Tree[T]

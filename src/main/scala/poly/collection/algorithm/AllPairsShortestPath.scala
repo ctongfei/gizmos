@@ -21,7 +21,7 @@ class AllPairsShortestPath[K, E : OrderedAdditiveGroup : HasTop]
 
   for (i ← graph.keys; j ← graph.keys) {
     if (i == j) d(i → j) = zero[E]
-    else if (graph containsEdge (i, j)) d(i → j) = graph(i, j)
+    else if (graph containsArc (i, j)) d(i → j) = graph(i, j)
   }
 
   // Floyd-Warshall algorithm

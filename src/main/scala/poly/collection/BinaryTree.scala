@@ -3,6 +3,7 @@ package poly.collection
 import poly.algebra.hkt._
 import poly.collection.exception._
 import poly.collection.impl._
+import poly.collection.mut._
 import poly.collection.node._
 import poly.collection.ops._
 import poly.util.typeclass._
@@ -113,6 +114,15 @@ trait BinaryTree[+T] { self =>
       def isDummy = n.isDummy
     }
     ofRootNode(new SubtreeNode(self.rootNode))
+  }
+
+  def asTree: Tree[T] = {
+    class BinaryTreeAsTreeNode(n: BinaryTreeNode[T]) extends TreeNode[T] {
+      def children = ListSeq(n.left, n.right).filter(_.notDummy).map(n => new BinaryTreeAsTreeNode(n))
+      def data = n.data
+      def isDummy = n.isDummy
+    }
+    Tree.ofRootNode(new BinaryTreeAsTreeNode(self.rootNode))
   }
 
   override def toString() = self.str

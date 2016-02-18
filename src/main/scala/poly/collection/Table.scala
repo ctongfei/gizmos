@@ -3,7 +3,7 @@ package poly.collection
 import poly.algebra._
 
 /**
-  * Represents a table, which is an indexed 2-D array.
+  * Represents a table, which is a rectangular (not jagged) indexed 2-D array.
   *
   * @author Tongfei Chen
   * @since 0.1.0

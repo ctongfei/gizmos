@@ -1,5 +1,8 @@
 package poly.collection.exception
 
+class InvalidIteratorPositionException
+  extends Exception("Attempted to access an iterator at an invalid position.")
+
 class DummyNodeException
   extends Exception("Attempted to access a dummy node.")
 

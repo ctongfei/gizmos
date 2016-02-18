@@ -102,7 +102,7 @@ trait Set[T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
 
   def createGraphBy[V, E](fv: T => V)(fe: (T, T) => Option[E]): Graph[T, V, E] = new AbstractGraph[T, V, E] {
     def apply(i: T) = fv(i)
-    def containsEdge(i: T, j: T) = self.contains(i) && self.contains(j) && fe(i, j).isDefined
+    def containsArc(i: T, j: T) = self.contains(i) && self.contains(j) && fe(i, j).isDefined
     def apply(i: T, j: T) = fe(i, j).get
     def outgoingKeysOf(i: T) = self.elements.filter(j => fe(i, j).isDefined)
     def keySet = self

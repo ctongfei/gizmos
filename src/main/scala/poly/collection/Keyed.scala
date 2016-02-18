@@ -14,6 +14,7 @@ trait Keyed[@sp(i) K] {
 
   /** Returns the equivalence relation on keys. */
   //TODO: Case K=Int should be specialized to boost performance on maps/graphs
+  //TODO: However, Scala compiler does not seem to do this
   def equivOnKey: Equiv[K]
 
 }

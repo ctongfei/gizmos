@@ -10,8 +10,10 @@ import poly.algebra._
  */
 trait BijectiveMap[K, V] extends Map[K, V] with Bijection[K, V] { self =>
 
+  /** Returns the equivalence relation on the value set of this bijective map. */
   def equivOnValue: Equiv[V]
 
+  /** Gets the corresponding key of a given value. */
   def invert(v: V): K
 
   def invertOption(v: V): Option[K]
@@ -20,7 +22,7 @@ trait BijectiveMap[K, V] extends Map[K, V] with Bijection[K, V] { self =>
 
   // HELPER FUNCTIONS
 
-  /** Returns the inverse map that maps values to keys. */
+  /** Returns the inverse map that maps values to keys. $LAZY */
   override def inverse: BijectiveMap[V, K] = new AbstractBijectiveMap[V, K] {
     def equivOnKey = self.equivOnValue
     def equivOnValue = self.equivOnKey

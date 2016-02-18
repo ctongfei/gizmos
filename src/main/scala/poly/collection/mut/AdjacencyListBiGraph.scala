@@ -20,7 +20,7 @@ class AdjacencyListBiGraph[@sp(i) K, V, E] extends BiGraph[K, V, E] {
 
   def apply(i: K, j: K): E = r(i).succ(j)
 
-  def containsEdge(i: K, j: K): Boolean = (for (v ← r ? i; e ← v.succ ? j) yield e).isDefined
+  def containsArc(i: K, j: K): Boolean = (for (v ← r ? i; e ← v.succ ? j) yield e).isDefined
 
   def keySet = r.keySet
 

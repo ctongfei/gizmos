@@ -8,6 +8,6 @@ package poly.collection
  */
 trait IndexedBinaryTree[+T] extends BinaryTree[T] {
   def fastApply(i: Int): T
-  override def apply(i: Int) = fastApply(i)
+  final override def apply(i: Int) = fastApply(i)
 }
 

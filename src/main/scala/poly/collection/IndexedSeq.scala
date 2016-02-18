@@ -22,11 +22,11 @@ trait IndexedSeq[+T] extends BiSeq[T] with HasKnownSize { self =>
 
   def fastApply(i: Int): T
 
-  @inline override def size = fastLength
+  @inline final override def size = fastLength
 
-  @inline override def length = fastLength
+  @inline final override def length = fastLength
 
-  @inline override def apply(i: Int) = fastApply(i)
+  @inline final override def apply(i: Int) = fastApply(i)
 
   // Overridden newIterator method for performance.
   override def newIterator: Iterator[T] = new Iterator[T] {

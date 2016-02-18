@@ -16,7 +16,7 @@ abstract class AdjacencyMatrixGraph[V, E] private(
 
   def incomingKeysOf(j: Int) = Range(n).filter(i => edgeExists(i)(j))
 
-  def containsEdge(i: Int, j: Int) = edgeExists(i)(j)
+  def containsArc(i: Int, j: Int) = edgeExists(i)(j)
 
   /** Gets the data on the node indexed by the specific key. */
   def apply(i: Int) = nodeData(i)

@@ -1,7 +1,6 @@
 package poly.collection
 
 import poly.collection.exception._
-import poly.collection.mut._
 
 /**
  * Basic trait for iterators that supports an iteration over a collection that can be
@@ -23,7 +22,7 @@ import poly.collection.mut._
  */
 trait Iterator[+T] { self =>
 
-  /** Returns the current element of this iterator. */
+  /** Returns the current element of this iterator. This method should be side-effect free. */
   def current: T
 
   /**
@@ -34,7 +33,7 @@ trait Iterator[+T] { self =>
 
   /**
    * Alternative abstraction: Optionally reads the iterator by one step.
-   * @return If the next element exists, returns it and advances itself; otherwise Null.
+   * @return If the next element exists, returns it and advances itself; otherwise [[None]].
    */
   def read(): Option[T] = {
     if (self.advance()) Some(self.current)
@@ -52,6 +51,6 @@ trait Iterator[+T] { self =>
 object Iterator {
   object empty extends Iterator[Nothing] {
     def advance() = false
-    def current = throw new DummyNodeException
+    def current = throw new InvalidIteratorPositionException
   }
 }

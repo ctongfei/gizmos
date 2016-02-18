@@ -86,7 +86,8 @@ trait Map[@sp(i) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K, 
   }
 
   /**
-   * Transforms the values of this map according to the specified function. $LAZY
+   * Transforms the values of this map according to the specified function.
+   * This is the functor operation on maps. $LAZY
    * {{{
    *   K => V        V => W          K => W
    *    self  . map ( that )    ==   result

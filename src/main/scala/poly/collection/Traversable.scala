@@ -691,6 +691,8 @@ trait Traversable[+T] { self =>
 
 object Traversable {
 
+  // CONSTRUCTORS
+
   object empty extends Traversable[Nothing] {
     def foreach[U](f: Nothing => U): Unit = {}
   }
@@ -699,10 +701,16 @@ object Traversable {
     def foreach[U](f: T => U) = f(e)
   }
 
-  implicit object Monad extends Monad[Traversable] {
+  // TYPECLASS INSTANCES
+
+  implicit object Monad extends ConcatenativeMonad[Traversable] {
     def flatMap[X, Y](mx: Traversable[X])(f: X => Traversable[Y]) = mx.flatMap(f)
     def id[X](u: X) = Traversable.single(u)
+    def empty[X]: Traversable[X] = Traversable.empty
+    def concat[X](sx: Traversable[X], sy: Traversable[X]): Traversable[X] = sx ++ sy
   }
+
+  // IMPLICIT CONVERSIONS
 
   implicit class TraversableOfTraversablesOps[T](val underlying: Traversable[Traversable[T]]) extends AnyVal {
     /**

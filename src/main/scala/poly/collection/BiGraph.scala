@@ -14,11 +14,11 @@ trait BiGraph[@sp(i) K, +V, +E] extends Graph[K, V, E] { self =>
   import BiGraph._
 
   override def node(i: K) = new Node(self, i)
-  override def edge(i: K, j: K) = new Edge(self, i, j)
+  override def arc(i: K, j: K) = new Arc(self, i, j)
 
   def incomingKeysOf(i: K): Iterable[K]
   def incomingNodesOf(i: K) = incomingKeysOf(i).map(j => node(j))
-  def incomingEdgesOf(i: K) = incomingKeysOf(i).map(j => edge(j, i))
+  def incomingArcsOf(i: K) = incomingKeysOf(i).map(j => arc(j, i))
   def inDegree(i: K) = incomingKeysOf(i).size
 
   override def outgoingNodesOf(i: K) = outgoingKeysOf(i).map(j => node(j))
@@ -31,7 +31,7 @@ trait BiGraph[@sp(i) K, +V, +E] extends Graph[K, V, E] { self =>
   def reverse: BiGraph[K, V, E] = new AbstractBiGraph[K, V, E] {
     override def reverse = self
     def keySet: Set[K] = self.keySet
-    def containsEdge(i: K, j: K) = self.containsEdge(j, i)
+    def containsArc(i: K, j: K) = self.containsArc(j, i)
     def incomingKeysOf(i: K) = self.outgoingKeysOf(i)
     def outgoingKeysOf(i: K) = self.incomingKeysOf(i)
     def apply(i: K): V = self.apply(i)
@@ -46,7 +46,7 @@ object BiGraph {
     override def succ = graph.outgoingNodesOf(key)
   }
 
-  type Edge[K, +E] = Graph.Edge[K, E]
+  type Arc[K, +E] = Graph.Arc[K, E]
 }
 
 abstract class AbstractBiGraph[K, +V, +E] extends AbstractGraph[K, V, E] with BiGraph[K, V, E]
