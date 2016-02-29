@@ -15,6 +15,22 @@ trait SortedIterable[T] extends Iterable[T] { self =>
   /** The order under which the elements of this collection is sorted. */
   implicit def order: WeakOrder[T]
 
+  override def filter(f: T => Boolean): SortedIterable[T] = Iterable.ofIterator {
+    new Iterator[T] {
+      private[this] val i = self.newIterator
+      def current: T = i.current
+      def advance(): Boolean = {
+        do {
+          val hasNext = i.advance()
+          if (!hasNext) return false
+        } while (!f(i.current))
+        true
+      }
+    }
+  }.asIfSorted(order)
+
+  override def filterNot(f: T => Boolean) = filter(x => !f(x))
+
   /**
    * Merges two sorted iterable collection into one sorted iterable collection. $LAZY
    * @param that Another sorted sequence. These two sequences must be sorted under the same order.

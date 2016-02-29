@@ -22,8 +22,7 @@ class ArrayStack[T] private(private var data: ResizableSeq[T] = null) extends Qu
   def push(x: T): Unit = data.appendInplace(x)
 
   override def pushAll(xs: Traversable[T]) = {
-    val reversed = xs.reverse
-    reversed foreach push
+    xs.reverse foreach push
   }
 
   def top: T = {

@@ -10,7 +10,7 @@ import poly.util.fastloop._
 /**
  * @author Tongfei Chen
  */
-class ArrayIntMap[T] private(
+class SparseArrayIntMap[T] private(
   private val data: ResizableArray[T],
   private val state: SpResizableArray[Boolean],
   private var n: Int = 0

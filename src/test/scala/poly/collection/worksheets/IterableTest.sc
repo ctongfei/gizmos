@@ -8,6 +8,8 @@ val e = Iterable.iterate(0)(_ + 1).take(5)
 val f = Iterable.iterate(0)(x => 0).take(10)
 val em = Iterable.empty
 
+e.splitBy(_ == 2)
+
 e.distinct
 f.distinct
 e union f

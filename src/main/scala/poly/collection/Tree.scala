@@ -11,7 +11,7 @@ import poly.collection.node._
  * Represents a multi-way tree.
  * @author Tongfei Chen
  * @since 0.1.0
- * @define LAZY The resulting tree is '''lazily''' executed.
+ * @define LAZY
  */
 trait Tree[+T] { self =>
 
@@ -21,22 +21,30 @@ trait Tree[+T] { self =>
 
   def root = rootNode.data
 
-  def children = rootNode.children.map(t => ofRootNode(t))
+  def children = rootNode.children map ofRootNode
 
   //region HELPER FUNCTIONS
 
   /**
+   * Folds a tree bottom-up using the specific function.
+   */
+  def foldBottomUp[U](z: U)(f: (T, Seq[U]) => U): U = {
+    ???
+
+  }
+
+  /**
    * Performs the Knuth transform on this tree, i.e. representing this multi-way tree
-   * into its equivalent left-child-right-sibling (LC-RS) binary tree. $LAZY
-   *
-   * {{{
-   *         a               a
-   *        /|\             /
-   *       b c d   ->      b
-   *      / \             / \
-   *     e   f           e   c
-   *                      \   \
-   *                       f   d
+   * into its equivalent left-child-right-sibling (LC-RS) binary tree.
+   * The resulting binary tree is '''lazily''' executed.
+   * @example {{{
+   *  ┌     a   ┐                   ┌     a   ┐
+   *  │    /|\  │                   │    /    │
+   *  │   b c d │                   │   b     │
+   *  │  / \    │.knuthTransform == │  / \    │
+   *  └ e   f   ┘                   │ e   c   │
+   *                                │  \   \  │
+   *                                └   f   d ┘
    *
    * }}}
    * @return Its corresponding binary tree
@@ -62,10 +70,41 @@ trait Tree[+T] { self =>
     ofRootNode(new TreeOfTreeNode(self.rootNode))
   }
 
-  def preOrder = rootNode.depthFirstTreeTraversal.map(_.data)
+  /**
+    * '''Lazily''' traverses this tree in pre-order (depth-first order).
+    * @example {{{
+    *    ┌      a    ┐
+    *    │     /|\   │
+    *    │    b c d  │
+    *    │   / \     │.preOrder == (a, b, e, f, c, d)
+    *    └  e   f    ┘
+    * }}}
+    */
+  def preOrder = rootNode.depthFirstTreeTraversal map { _.data }
 
-  def levelOrder = rootNode.breadthFirstTreeTraversal.map(_.data)
+  /**
+    * '''Lazily''' traverses this tree in level order (breadth-first order).
+    * @example {{{
+    *    ┌      a    ┐
+    *    │     /|\   │
+    *    │    b c d  │
+    *    │   / \     │.levelOrder == (a, b, c, d, e, f)
+    *    └  e   f    ┘
+    * }}}
+    */
+  def levelOrder = rootNode.breadthFirstTreeTraversal map { _.data }
 
+  /**
+   * '''Lazily''' traverses this tree in post-order.
+   * @example {{{
+   *    ┌      a    ┐
+   *    │     /|\   │
+   *    │    b c d  │
+   *    │   / \     │.postOrder == (e, f, b, c, d, a)
+   *    └  e   f    ┘
+   * }}}
+   */
+  def postOrder = ???
   //endregion
 }
 

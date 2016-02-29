@@ -48,12 +48,6 @@ trait Map[@sp(i) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K, 
    */
   def containsKey(x: K): Boolean
 
-  /**
-   * Checks if the specific key is absent in this map.
-   * @return Whether the key does not exist in this map
-   */
-  def notContainsKey(x: K) = !containsKey(x)
-
   def getOrElse[W >: V](x: K, default: => W) = ?(x) match {
     case Some(y) => y
     case None => default
@@ -70,10 +64,10 @@ trait Map[@sp(i) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K, 
   }
 
   /** Returns an iterable collection of the keys in this map. $LAZY */
-  def keys = self.pairs.map(firstOfPair)
+  def keys = pairs map firstOfPair
 
   /** Returns an iterable collection of the values in this map. $LAZY */
-  def values = self.pairs.map(secondOfPair)
+  def values = pairs map secondOfPair
 
   // HELPER FUNCTIONS
 
@@ -163,6 +157,7 @@ trait Map[@sp(i) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K, 
   def |>[W](f: V => W) = self map f
   def |<[J](f: Bijection[J, K]) = self contramap f
   def |~|[W](that: Map[K, W]) = self zip that
+
 }
 
 object Map extends MapLowPriorityImplicits {
@@ -183,7 +178,8 @@ object Map extends MapLowPriorityImplicits {
   }
 
   /** Returns the vector space on maps given the value set of the map forms a field. */
-  implicit def VectorSpace[K: Equiv, F](implicit F: Field[F]): VectorSpace[Map[K, F], F] = new VectorSpace[Map[K, F], F] {
+  implicit def VectorSpace[K: Equiv, F: Field]: VectorSpace[Map[K, F], F] = new VectorSpace[Map[K, F], F] {
+    private[this] val F = Field[F]
     def fieldOnScalar = F
     def scale(k: F, x: Map[K, F]) = x map (_ * k)
     def add(x: Map[K, F], y: Map[K, F]) = (x.keySet | y.keySet).createMapBy { k =>
@@ -196,7 +192,8 @@ object Map extends MapLowPriorityImplicits {
 
 trait MapLowPriorityImplicits {
   /** Returns the module on maps given the value set of the map forms a ring. */
-  implicit def Module[K: Equiv, R](implicit R: Ring[R]): Module[Map[K, R], R] = new Module[Map[K, R], R] {
+  implicit def Module[K: Equiv, R: Ring]: Module[Map[K, R], R] = new Module[Map[K, R], R] {
+    private[this] val R = Ring[R]
     def ringOnScalar = R
     def scale(k: R, x: Map[K, R]) = x map (_ * k)
     def add(x: Map[K, R], y: Map[K, R]) = (x.keySet | y.keySet).createMapBy { k =>

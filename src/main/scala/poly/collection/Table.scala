@@ -1,11 +1,12 @@
 package poly.collection
 
 import poly.algebra._
+import poly.algebra.syntax._
+import poly.macroutil._
 
 /**
   * Represents a table, which is a rectangular (not jagged) indexed 2-D array.
-  *
-  * @author Tongfei Chen
+ * @author Tongfei Chen
   * @since 0.1.0
   */
 trait Table[+T] extends Map[(Int, Int), T] with HasKnownSize { self =>
@@ -102,7 +103,7 @@ trait Table[+T] extends Map[(Int, Int), T] with HasKnownSize { self =>
   def sliding(i: Int, j: Int, rowStep: Int = 1, colStep: Int = 1): Table[Table[T]] = ???
 
   override def equals(that: Any) = that match {
-    case other: Table[T] => ???
+    case other: Table[T] => Table.Equiv[T].eq(self, other)
     case _ => false
   }
 
@@ -112,10 +113,30 @@ trait Table[+T] extends Map[(Int, Int), T] with HasKnownSize { self =>
 
 object Table {
 
+  def fill[T](nr: Int, nc: Int)(x: => T): Table[T] = new AbstractTable[T] {
+    def numRows: Int = nr
+    def numCols: Int = nc
+    def apply(i: Int, j: Int): T = x
+
+  }
+
   def tabulate[T](nr: Int, nc: Int)(f: (Int, Int) => T): Table[T] = new AbstractTable[T] {
     def apply(i: Int, j: Int) = f(i, j)
     def numRows = nr
     def numCols = nc
+  }
+
+  implicit def Equiv[T: Equiv]: Equiv[Table[T]] = new Equiv[Table[T]] {
+    def eq(x: Table[T], y: Table[T]): Boolean = {
+      if (x.numRows != y.numRows) return false
+      if (x.numCols != y.numCols) return false
+      FastLoop.ascending(0, x.numRows, 1) { i =>
+        FastLoop.descending(0, x.numCols, 1) { j =>
+          if (x(i, j) != y(i, j)) return false
+        }
+      }
+      true
+    }
   }
 
 }

@@ -28,7 +28,7 @@ final class SpResizableArray[@sp(fdib) T: ClassTag]
   def capacity = cap
 
   def update(i: Int, x: T) = {
-    if (i >= capacity) ensureCapacity(i + 1)
+    if (i >= cap) ensureCapacity(i + 1)
     data(i) = x
   }
 

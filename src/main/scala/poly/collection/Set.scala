@@ -121,7 +121,7 @@ trait Set[T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
   def map[U](f: Bijection[T, U]): Set[U] = new AbstractSet[U] {
     def equivOnKey = self.equivOnKey contramap f.invert
     def keys = self.elements.map(f)
-    def contains(x: U) = self.contains(f.invert(x))
+    def contains(x: U) = self contains f.invert(x)
   }
 
   def flatMap[U: Equiv](f: T => Set[U]): Set[U] = {

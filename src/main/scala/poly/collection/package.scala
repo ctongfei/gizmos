@@ -6,16 +6,16 @@ import scala.language.implicitConversions
 
 package object collection {
   /** Returns the first element of two elements. */
-  @inline def first[α, β](a: α, b: β) = a
+  @inline def first[@sp(fdi) α, @sp(fdi) β](a: α, b: β) = a
 
   /** Returns the second element of two elements. */
-  @inline def second[α, β](a: α, b: β) = b
+  @inline def second[@sp(fdi) α, @sp(fdi) β](a: α, b: β) = b
 
   /** Returns the first element of a pair. */
-  @inline def firstOfPair[α](pair: (α, _)) = pair._1
+  @inline def firstOfPair[@sp(fdi) α, @sp(fdi) β](pair: (α, β)) = pair._1
 
   /** Returns the second element of a pair. */
-  @inline def secondOfPair[β](pair: (_, β)) = pair._2
+  @inline def secondOfPair[@sp(fdi) α, @sp(fdi) β](pair: (α, β)) = pair._2
 
 
   @inline private[poly] def default[T]: T = {
@@ -35,10 +35,10 @@ package object collection {
     c + 1
   }
 
-  implicit def arrayAsIndexedSeq[T](a: Array[T]): IndexedSeq[T] = new ArrayAsIndexedSeq[T](a)
+  implicit def arrayAsPoly[T](a: Array[T]): IndexedSeq[T] = new ArrayAsIndexedSeq[T](a)
 
-  implicit def stringAsIndexedSeq(s: String): IndexedSeq[Char] = new StringAsIndexedSeq(s)
+  implicit def stringAsPoly(s: String): IndexedSeq[Char] = new StringAsIndexedSeq(s)
 
-  implicit def booleanFunctionAsPredicate[T](f: T => Boolean): Predicate[T] = new BooleanFunctionAsPredicate[T](f)
+  implicit def booleanFunctionAsPoly[T](f: T => Boolean): Predicate[T] = new BooleanFunctionAsPredicate[T](f)
 
 }

@@ -281,6 +281,29 @@ trait Iterable[+T] extends Traversable[T] { self =>
 
   override def rotate(n: Int): Iterable[T] = self.skip(n) ++ self.take(n)
 
+  /**
+   * Splits this collection into multiple subsequences using the given delimiter.
+   * @param delimiter Predicate that determines whether an element is a delimiter.
+   */
+  def splitBy(delimiter: T => Boolean): Iterable[Seq[T]] = ofIterator {
+    new Iterator[Seq[T]] {
+      private[this] val i = self.newIterator
+      private[this] var buf = ArraySeq[T]()
+      private[this] var complete = false
+      def current = buf
+      def advance(): Boolean = {
+        if (complete) return false
+        buf = ArraySeq[T]()
+        while (i.advance()) {
+          if (delimiter(i.current)) return true
+          else buf appendInplace i.current
+        }
+        complete = true
+        true
+      }
+    }
+  }
+
   /** Pretends that this iterable collection is sorted. */
   def asIfSorted[U >: T : WeakOrder]: SortedIterable[T @uv] = new SortedIterable[T] {
     def order = implicitly[WeakOrder[U]]

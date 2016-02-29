@@ -12,7 +12,7 @@ libraryDependencies += "me.tongfei"        %% "poly-algebra"    % "0.3.0-M0-SNAP
 libraryDependencies += "org.scalatest"     %% "scalatest"       % "2.2.2"           % Test
 libraryDependencies += "com.storm-enroute" %% "scalameter-core" % "0.7"             % Test
 
-scalacOptions in (Compile, doc) += "-diagrams; -deprecation"
+scalacOptions in doc += "-diagrams; -deprecation"
 
 publishMavenStyle := true
 publishArtifact in Test := false

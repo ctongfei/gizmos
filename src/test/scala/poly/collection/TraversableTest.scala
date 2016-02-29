@@ -22,7 +22,7 @@ class TraversableTest extends FunSuite {
   def genVal = {
     val x = sampleArray
     val s = scala.Traversable(x: _*)
-    val p = arrayAsIndexedSeq(x).asTraversable
+    val p = arrayAsPoly(x).asTraversable
     (s, p)
   }
 

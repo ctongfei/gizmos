@@ -5,7 +5,7 @@ import poly.algebra.syntax._
 import poly.macroutil._
 
 /**
- * Represents a permutation on a set N,,''n'',, = {0, ..., ''n'' - 1}.
+ * Represents a permutation on the set N,,''n'',, = {0, ..., ''n'' - 1}.
  * <p>
  *   A permutation is a bijective endofunction on the set N,,''n'',, and defines
  *   a total order on the set N,,''n'',,. Its inverse (inverse of the bijective function)
@@ -20,8 +20,6 @@ class Permutation private(private val a1: Array[Int], private val a2: Array[Int]
   def fastLength = a1.length
   def fastApply(x: Int) = a1(x)
   def invert(y: Int) = a2(y)
-
-  override def size = a1.length
 
   def equivOnValue = Equiv[Int]
 
@@ -42,6 +40,7 @@ class Permutation private(private val a1: Array[Int], private val a2: Array[Int]
   def top = a1(size - 1)
   def bot = a1(0)
 
+  /** Returns the inverse of this permutation. */
   override def inverse: Permutation = new Permutation(a2, a1)
 
   override def reverse: Permutation = {
@@ -55,7 +54,7 @@ class Permutation private(private val a1: Array[Int], private val a2: Array[Int]
     new Permutation(b1, b2)
   }
 
-  override def toString = arrayAsIndexedSeq(a1).toString
+  override def toString = arrayAsPoly(a1).toString
 }
 
 object Permutation {
@@ -106,7 +105,7 @@ object Permutation {
 
     def keys: Iterable[Permutation] = Iterable.ofIterator {
       new Iterator[Permutation] {
-        var p: Array[Int] = null
+        private[this] var p: Array[Int] = null
 
         def current = Permutation(p)
 

@@ -404,6 +404,14 @@ trait Seq[+T] extends Iterable[T] with IntKeyedSortedMap[T] { self =>
     k
   }
 
+  def startsWith[U >: T : Equiv](pattern: Seq[U]) = {
+    ???
+  }
+
+  def endsWith[U >: T : Equiv](pattern: Seq[U]) = {
+    ???
+  }
+
   def asSeq: Seq[T] = ofDummyNode(dummy)
 
   override def equals(that: Any) = that match {
