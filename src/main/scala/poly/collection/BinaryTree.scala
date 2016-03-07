@@ -18,7 +18,9 @@ trait BinaryTree[+T] { self =>
 
   import BinaryTree._
 
-  def rootNode: BinaryTreeNode[T]
+  def dummy: BinaryTreeNode[T]
+
+  def rootNode: BinaryTreeNode[T] = dummy.right
 
   def root: T = rootNode.data
 
@@ -140,16 +142,33 @@ object BinaryTree {
     else Some((bt.root, bt.left, bt.right))
   }
 
+  def infinite[T](x: => T): BinaryTree[T] = ofRootNode {
+    new BinaryTreeNode[T] {
+      def data = x
+      def left = this
+      def right = this
+      def isDummy = false
+    }
+  }
+
   object empty extends BinaryTree[Nothing] {
-    def rootNode: BinaryTreeNode[Nothing] = BinaryTreeNode.Dummy
+    def dummy = BinaryTreeNode.Dummy
   }
 
   def ofRootNode[T](n: BinaryTreeNode[T]): BinaryTree[T] = new BinaryTree[T] {
-    def rootNode = n
+    def dummy = new BinaryTreeNode[T] {
+      def data: T = throw new DummyNodeException
+      def left: BinaryTreeNode[T] = n
+      def right: BinaryTreeNode[T] = n
+      def isDummy: Boolean = true
+    }
+    override def rootNode = n
   }
 
-  implicit object Functor extends Functor[BinaryTree] {
-    def map[T, U](t: BinaryTree[T])(f: T => U): BinaryTree[U] = t map f
+  implicit object ZipIdiom extends Idiom[BinaryTree] {
+    def id[X](u: X): BinaryTree[X] = infinite(u)
+    def liftedMap[X, Y](mx: BinaryTree[X])(mf: BinaryTree[(X) => Y]): BinaryTree[Y] = (mx zip mf).map { case (x, f) => f(x) }
+    override def map[T, U](t: BinaryTree[T])(f: T => U): BinaryTree[U] = t map f
   }
 
   implicit object Comonad extends Comonad[BinaryTree] {

@@ -11,7 +11,6 @@ import poly.collection.node._
  * Represents a multi-way tree.
  * @author Tongfei Chen
  * @since 0.1.0
- * @define LAZY
  */
 trait Tree[+T] { self =>
 
@@ -34,9 +33,8 @@ trait Tree[+T] { self =>
   }
 
   /**
-   * Performs the Knuth transform on this tree, i.e. representing this multi-way tree
+   * '''Lazily''' performs the Knuth transform on this tree, i.e. representing this multi-way tree
    * into its equivalent left-child-right-sibling (LC-RS) binary tree.
-   * The resulting binary tree is '''lazily''' executed.
    * @example {{{
    *  ┌     a   ┐                   ┌     a   ┐
    *  │    /|\  │                   │    /    │
@@ -80,7 +78,7 @@ trait Tree[+T] { self =>
     *    └  e   f    ┘
     * }}}
     */
-  def preOrder = rootNode.depthFirstTreeTraversal map { _.data }
+  def preOrder = rootNode.preOrder map { _.data }
 
   /**
     * '''Lazily''' traverses this tree in level order (breadth-first order).
@@ -92,7 +90,7 @@ trait Tree[+T] { self =>
     *    └  e   f    ┘
     * }}}
     */
-  def levelOrder = rootNode.breadthFirstTreeTraversal map { _.data }
+  def levelOrder = rootNode.levelOrder map { _.data }
 
   /**
    * '''Lazily''' traverses this tree in post-order.
@@ -104,7 +102,7 @@ trait Tree[+T] { self =>
    *    └  e   f    ┘
    * }}}
    */
-  def postOrder = ???
+  def postOrder: Iterable[T] = knuthTransform.inOrder
   //endregion
 }
 

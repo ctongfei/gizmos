@@ -2,6 +2,7 @@ package poly.collection
 
 import poly.algebra._
 import poly.collection.builder._
+import poly.collection.exception._
 import poly.collection.mut._
 
 /**
@@ -157,6 +158,26 @@ trait Set[T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
   def min(implicit T: WeakOrder[T]) = elements.min
 
   def minAndMax(implicit T: WeakOrder[T]) = elements.minAndMax
+
+  def argmin[U: WeakOrder](f: T => U): T = elements.argmin(f)
+
+  def minBy[U: WeakOrder](f: T => U) = argmin(f)
+
+  def argmax[U: WeakOrder](f: T => U): T = elements.argmax(f)
+
+  def maxBy[U: WeakOrder](f: T => U) = argmax(f)
+
+  def argminWithValue[U](f: T => U)(implicit O: WeakOrder[U]) = elements.argminWithValue(f)(O)
+
+  def argmaxWithValue[U](f: T => U)(implicit O: WeakOrder[U]) = elements.argmaxWithValue(f)(O)
+
+  def asMultiset[R](implicit R: OrderedRing[R]): Multiset[T, R] = new AbstractMultiset[T, R] {
+    def equivOnKey = self.equivOnKey
+    implicit def ringOnCount = R
+    def multiplicity(k: T) = if (self.contains(k)) R.one else R.zero
+    def keys = self.keys
+    def containsKey(k: T) = self.contains(k)
+  }
 
   override def equals(that: Any) = that match {
     case that: Set[T] => Set.ContainmentOrder[T].eq(this, that)

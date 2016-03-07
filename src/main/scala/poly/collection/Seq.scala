@@ -431,10 +431,15 @@ trait Seq[+T] extends Iterable[T] with IntKeyedSortedMap[T] { self =>
 
 object Seq {
 
+  // EXTRACTORS
+
+  /** Decomposes a sequence into its head and its tail. */
   def unapply[T](xs: Seq[T]) = {
     if (xs.isEmpty) None
     else Some((xs.head, xs.tail))
   }
+
+  // CONSTRUCTORS
 
   object empty extends Seq[Nothing] {
     def dummy = SeqNode.dummy

@@ -16,6 +16,10 @@ trait BinaryTreeNodeLike[+T, +N <: BinaryTreeNodeLike[T, N]] extends ForwardNode
 
   override def succ: Iterable[N] = children
 
+  def isLeaf = left.isDummy && right.isDummy
+
+  def notLeaf = !isLeaf
+
   /**
    * Performs pre-order traversal from this node.
    * @return A non-strict sequence of the pre-order traversal.
