@@ -24,7 +24,7 @@ import scala.reflect._
  * @author Tongfei Chen
  */
 final class ResizableSeq[T]
-  (private[this] var cap: Int = Settings.ArrayInitialSize) extends KeyMutableSeq[T] with DataMutableIndexedSeq[T]
+  (private[this] var cap: Int = Settings.ArrayInitialSize) extends KeyMutableSeq[T] with ValueMutableIndexedSeq[T]
 { self =>
 
   private[poly] var data: Array[AnyRef] = Array.ofDim[AnyRef](math.max(nextPowerOfTwo(cap), Settings.ArrayInitialSize))

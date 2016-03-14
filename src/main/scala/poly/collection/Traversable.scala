@@ -67,7 +67,7 @@ trait Traversable[+T] { self =>
     * @example {{{(1, 2) cartesianProduct (1, 2) == ((1, 1), (1, 2), (2, 1), (2, 2))}}}
     * @param that Another traversable sequence
     */
-  def cartesianProduct[U](that: Traversable[U]): Traversable[(T, U)] =
+  def product[U](that: Traversable[U]): Traversable[(T, U)] =
     self flatMap (x => that map (y => (x, y)))
 
   /**
@@ -132,6 +132,8 @@ trait Traversable[+T] { self =>
       if (f(x)) return Some(x)
     None
   }
+
+  def group[U >: T : IntHashing]: Map[U, Traversable[T]] = groupBy(x => x) // TODO!
 
   /** $EAGER $On */
   def groupBy[K: IntHashing](f: T => K): Map[K, Traversable[T]] = {
@@ -539,6 +541,21 @@ trait Traversable[+T] { self =>
   def max(implicit T: WeakOrder[T]): T = reduce(T.max[T])
 
   /**
+   * Returns the top-''k'' elements in this collection.
+   */
+  def top(k: Int)(implicit T: WeakOrder[T]) = {
+    val beam = Beam.ofWidth[T](k)(T.reverse)
+    self foreach beam.push
+    beam.elements
+  }
+
+  def topBy[U: WeakOrder](f: T => U)(k: Int) = {
+    val beam = Beam.ofWidth(k)((WeakOrder by secondOfPair[T, U]).reverse)
+    for (x ← self) beam.push(x → f(x))
+    beam.elements map firstOfPair
+  }
+
+  /**
     * Returns the first element in this collection that makes the specific function least.
     * @param f The function
     * @tparam U The implicit weak order on the output of the specific function.
@@ -674,7 +691,7 @@ trait Traversable[+T] { self =>
   def :+[U >: T](x: U) = this append x
   def +:[U >: T](x: U) = this prepend x
   def ++[U >: T](that: Traversable[U]) = this concat that
-  def |×|[U](that: Traversable[U]) = this cartesianProduct that
+  def |×|[U](that: Traversable[U]) = this product that
 
   def |>[U](f: T => U) = this map f
   def |?(f: T => Boolean) = this filter f

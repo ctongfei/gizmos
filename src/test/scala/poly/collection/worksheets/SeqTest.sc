@@ -1,4 +1,4 @@
-
+import poly.algebra.syntax._
 import poly.collection.ops._
 import poly.collection.mut._
 
@@ -41,3 +41,4 @@ a zip b
 a.sliding(2)
 a.firstIndexOf(2)
 a.firstIndexWhere(_ == 2)
+

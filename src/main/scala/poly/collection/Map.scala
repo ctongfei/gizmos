@@ -25,16 +25,17 @@ trait Map[@sp(i) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K, 
   /**
    * Optionally retrieves the value associated with the specified key.
    * @param k The given key
-   * @return The associated value. If the key is not found, return [[None]].
+   * @return The associated value. If the key is not found, [[None]] will be returned.
    */
   def ?(k: K): Option[V]
 
   /**
    * Retrieves the value associated with the specified key.
-   * If the key is not found, its behavior is undefined (this is a deliberate design for efficiency).
+   * If the key is not found, its behavior is undefined
+   * (may or may not throw an exception. This is a deliberate design for efficiency).
    * For maximum safety, use `?` to optionally access an element.
    * @param k The given key
-   * @return The associated value
+   * @return The associated value of ''k''
    * @throws KeyNotFoundException if key not found (may or may not throw)
    */
   def apply(k: K): V
@@ -101,7 +102,17 @@ trait Map[@sp(i) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K, 
     override def size = self.size
   }
 
-  def product[L, W](that: Map[L, W]): Map[(K, L), (V, W)] = new AbstractMap[(K, L), (V, W)] {
+  /**
+   * Returns the product map of two maps. $LAZY
+   * @example {{{
+   *   Map(1 -> 'A', 2 -> 'B') product Map(true -> 1, false -> 0) ==
+   *   Map((1, true)  -> ('A', 1),
+   *       (1, false) -> ('A', 0),
+   *       (2, true)  -> ('B', 1),
+   *       (2, false) -> ('B', 0))
+   * }}}
+   */
+  def cartesianProduct[L, W](that: Map[L, W]): Map[(K, L), (V, W)] = new AbstractMap[(K, L), (V, W)] {
     def equivOnKey = Equiv.product(self.equivOnKey, that.equivOnKey)
     def containsKey(k: (K, L)) = self.containsKey(k._1) && that.containsKey(k._2)
     def ?(k: (K, L)) = for (v ← self ? k._1; v1 ← that ? k._2) yield (v, v1)
@@ -129,7 +140,7 @@ trait Map[@sp(i) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K, 
    * Wraps the keys of this map with a bijection. $LAZY
    * {{{
    *   K => V              J <=> K         J => V
-   *    self  . contramap ( that )    ==   result
+   *    self  . contramap  ( that )    ==   result
    * }}}
    * @example {{{
    *   Map(1 -> 'A', 2 -> 'B') contramap
@@ -181,7 +192,7 @@ object Map extends MapLowPriorityImplicits {
   implicit def VectorSpace[K: Equiv, F: Field]: VectorSpace[Map[K, F], F] = new VectorSpace[Map[K, F], F] {
     private[this] val F = Field[F]
     def fieldOnScalar = F
-    def scale(k: F, x: Map[K, F]) = x map (_ * k)
+    def scale(x: Map[K, F], k: F) = x map (_ * k)
     def add(x: Map[K, F], y: Map[K, F]) = (x.keySet | y.keySet).createMapBy { k =>
       x.getOrElse(k, F.zero) + y.getOrElse(k, F.zero)
     }
@@ -195,7 +206,7 @@ trait MapLowPriorityImplicits {
   implicit def Module[K: Equiv, R: Ring]: Module[Map[K, R], R] = new Module[Map[K, R], R] {
     private[this] val R = Ring[R]
     def ringOnScalar = R
-    def scale(k: R, x: Map[K, R]) = x map (_ * k)
+    def scale(x: Map[K, R], k: R) = x map (_ * k)
     def add(x: Map[K, R], y: Map[K, R]) = (x.keySet | y.keySet).createMapBy { k =>
       x.getOrElse(k, R.zero) + y.getOrElse(k, R.zero)
     }

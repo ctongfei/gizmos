@@ -8,15 +8,19 @@ import poly.collection.impl.specialized._
 import poly.util.fastloop._
 
 /**
+ * A special implementation of maps keyed by integers backed by an array.
+ * This is efficient when the keys are contiguous from 0 to a not-too-large integer ''n''
+ * and most of the key space is actually used.
+ * @since 0.1.0
  * @author Tongfei Chen
  */
-class SparseArrayIntMap[T] private(
+class DenseIntKeyedMap[T] private(
   private val data: ResizableArray[T],
   private val state: SpResizableArray[Boolean],
   private var n: Int = 0
 ) extends KeyMutableMap[Int, T] {
 
-  def equivOnKey = Equiv.default[Int]
+  def equivOnKey = poly.algebra.std.IntStructure
 
   def apply(x: Int): T = data(x)
 

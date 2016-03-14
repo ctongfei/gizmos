@@ -7,12 +7,12 @@ import poly.collection._
 import scala.util._
 
 /**
- * Basic trait for mutable indexed sequences.
+ * Represents a mutable indexed sequence.
  * Fast random access and update should be guaranteed.
  * @since 0.1.0
  * @author Tongfei Chen
  */
-trait DataMutableIndexedSeq[T] extends DataMutableSeq[T] with IndexedSeq[T] {
+trait ValueMutableIndexedSeq[T] extends ValueMutableSeq[T] with IndexedSeq[T] {
 
   /**
    * Sorts this sequence in-place using the order provided.

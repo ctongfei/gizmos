@@ -17,7 +17,7 @@ object IndexedSeqTest extends App {
 
   val c = a product b
 
-  c.elements foreach println
+  c foreach println
 
   val bp = 0
 }

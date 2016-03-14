@@ -6,7 +6,7 @@ import poly.collection._
 /**
  * @author Tongfei Chen
  */
-class BitSet private(private final var data: Array[Long]) extends MutableSet[Int] {
+class BitSet private(private final var data: Array[Long]) extends KeyMutableSet[Int] {
 
   def equivOnKey = Equiv.default[Int]
 
@@ -18,4 +18,6 @@ class BitSet private(private final var data: Array[Long]) extends MutableSet[Int
   def contains(x: Int) = ???
 
   def keys = ???
+
+  def clear() = ???
 }

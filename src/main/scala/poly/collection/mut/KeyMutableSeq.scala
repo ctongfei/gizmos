@@ -5,7 +5,7 @@ package poly.collection.mut
  *
  * @tparam T
  */
-trait KeyMutableSeq[T] extends DataMutableSeq[T] {
+trait KeyMutableSeq[T] extends ValueMutableSeq[T] {
   /**
    * Prepends the specific element to the start of the sequence.
    * @param x The element to be prepended

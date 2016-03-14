@@ -38,14 +38,14 @@ class DisjointSets[T] private(private val data: HashMap[T, DisjointSets.Node]) e
 
   /** Joins the two sets in which the two specified elements resides. */
   def join(x: T, y: T): Unit = {
-    if (x == y) return
+    if (data.equivOnKey.eq(x, y)) return
     link(find(data(x)), find(data(y)))
     numSets -= 1
   }
 
   /** Tests if the two specified elements belong to the same set. */
   def eq(x: T, y: T) = {
-    if (x == y) true
+    if (data.equivOnKey.eq(x, y)) true
     else find(data(x)) == find(data(y))
   }
 
@@ -61,7 +61,7 @@ object DisjointSets {
     def isDummy = false
   }
 
-  def apply[T](xs: T*): DisjointSets[T] =
+  def apply[T: IntHashing](xs: T*): DisjointSets[T] =
     new DisjointSets[T](HashMap(xs.map(t => t → new Node()): _*))
 
 }

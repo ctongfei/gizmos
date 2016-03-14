@@ -27,22 +27,23 @@ object FromJava {
     }
   }
 
-  implicit def javaListAsPoly[T](xs: ju.List[T]): IndexedSeq[T] = new DataMutableIndexedSeq[T] {
+  implicit def javaListAsPoly[T](xs: ju.List[T]): IndexedSeq[T] = new ValueMutableIndexedSeq[T] {
     def fastLength = xs.size
     def fastApply(i: Int) = xs.get(i)
     def update(i: Int, x: T) = xs.set(i, x)
   }
 
-  implicit def javaSetAsPoly[T](xs: ju.Set[T]): Set[T] = new MutableSet[T] {
+  implicit def javaSetAsPoly[T](xs: ju.Set[T]): Set[T] = new KeyMutableSet[T] {
     def remove(x: T) = xs.remove(x)
     def add(x: T) = xs.add(x)
     def equivOnKey = Equiv.default[T]
     def contains(x: T) = xs.contains(x)
     override def size = xs.size()
     def keys = Iterable.ofIterator(xs.iterator())
+    def clear() = xs.clear()
   }
 
-  implicit def javaSortedSetAsPoly[T](xs: ju.SortedSet[T]): SortedSet[T] = new SortedSet[T] { //TODO:// sorted!
+  implicit def javaSortedSetAsPoly[T](xs: ju.SortedSet[T]): SortedSet[T] = new SortedSet[T] {
     def keys = new SortedIterable[T] {
       implicit def order = xs.comparator()
       def newIterator = xs.iterator()

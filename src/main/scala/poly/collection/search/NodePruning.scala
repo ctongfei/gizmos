@@ -5,18 +5,18 @@ import poly.collection.search.node._
 /**
   * @author Tongfei Chen
   */
-trait NodePruning[-N] {
+trait NodePruning[-N] extends (N => Boolean) {
   /** Dictates whether a node should be expanded in a searching process. */
-  def shouldBePruned(n: N): Boolean
+  def apply(n: N): Boolean
 }
 
 object NodePruning {
   object None extends NodePruning[Any] {
-    def shouldBePruned(n: Any) = false
+    def apply(n: Any) = true
   }
 
   def DepthLimited[S](maxDepth: Int): NodePruning[WithParent[S]] = new NodePruning[WithParent[S]] {
-    def shouldBePruned(n: WithParent[S]) = n.depth >= maxDepth
+    def apply(n: WithParent[S]) = n.depth <= maxDepth
   }
 
 }

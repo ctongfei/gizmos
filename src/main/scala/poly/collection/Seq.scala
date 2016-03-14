@@ -24,7 +24,7 @@ trait Seq[+T] extends Iterable[T] with IntKeyedSortedMap[T] { self =>
 
   /** Returns the length of this sequence. $On */
   def length: Int = {
-    var node = dummy.next
+    var node = headNode
     var n = 0
     while (node.notDummy) {
       node = node.next
@@ -39,7 +39,7 @@ trait Seq[+T] extends Iterable[T] with IntKeyedSortedMap[T] { self =>
    * @return The ''i''-th element of this sequence
    */
   override def apply(i: Int): T = {
-    var node = dummy.next
+    var node = headNode
     var j = 0
     while (j < i) {
       node = node.next
@@ -48,14 +48,13 @@ trait Seq[+T] extends Iterable[T] with IntKeyedSortedMap[T] { self =>
     node.data
   }
 
-
   /** Returns the weak order on keys. In this case (`Seq`), it returns the total order on integers. */
   def orderOnKey = TotalOrder[Int]
 
   override def size = length
 
   override def foreach[V](f: T => V): Unit = {
-    var node = dummy.next
+    var node = headNode
     while (node.notDummy) {
       f(node.data)
       node = node.next
@@ -88,16 +87,16 @@ trait Seq[+T] extends Iterable[T] with IntKeyedSortedMap[T] { self =>
       def next = new SeqNodeWithIndex(outer.next, i + 1)
       def isDummy = outer.isDummy
     }
-    ofDummyNode(new SeqNodeWithIndex(dummy, -1)).asIfSorted[(Int, T)](WeakOrder by firstOfPair)
+    ofHeadNode(new SeqNodeWithIndex(headNode, 0)).asIfSorted[(Int, T)](WeakOrder by firstOfPair)
   }
 
   override def keys = pairs map firstOfPair
 
   // HELPER FUNCTIONS
 
-  override def isEmpty = dummy.next.isDummy
+  override def isEmpty = headNode.isDummy
 
-  override def map[U](f: T => U): Seq[U] = ofDummyNode(self.dummy map f)
+  override def map[U](f: T => U): Seq[U] = ofHeadNode(self.headNode map f)
 
   def flatMap[U](f: T => Seq[U]): Seq[U] = {
     class FlatMappedSeqNode(val outer: SeqNode[T], val inner: SeqNode[U]) extends SeqNode[U] {
@@ -109,11 +108,11 @@ trait Seq[+T] extends Iterable[T] with IntKeyedSortedMap[T] { self =>
           new FlatMappedSeqNode(outer, innerNext) // advances the inner node
         else {
           var newOuter = outer.next
-          var newInner = f(newOuter.data).dummy.next
+          var newInner = f(newOuter.data).headNode
           while (newOuter.notDummy) {
             if (newInner.notDummy) return new FlatMappedSeqNode(newOuter, newInner)
             newOuter = newOuter.next
-            newInner = f(newOuter.data).dummy.next
+            newInner = f(newOuter.data).headNode
           }
           new FlatMappedSeqNode(newOuter, newInner) // iteration complete, no more elements
         }
@@ -122,7 +121,7 @@ trait Seq[+T] extends Iterable[T] with IntKeyedSortedMap[T] { self =>
     ofDummyNode(new FlatMappedSeqNode(dummy, SeqNode.dummy))
   }
 
-  def cartesianProduct[U](that: Seq[U]): Seq[(T, U)] = this.flatMap(t => that.map(u => (t, u)))
+  def product[U](that: Seq[U]): Seq[(T, U)] = this.flatMap(t => that.map(u => (t, u)))
 
   override def filter(f: T => Boolean): Seq[T] = {
     class FilteredSeqNode(val node: SeqNode[T]) extends SeqNode[T] {
@@ -145,18 +144,18 @@ trait Seq[+T] extends Iterable[T] with IntKeyedSortedMap[T] { self =>
       def data = node.data
       def next = {
         if (!first) new ConcatenatedSeqNode(false, node.next)
-        else if (node.next.isDummy) new ConcatenatedSeqNode(false, that.dummy.next)
+        else if (node.next.isDummy) new ConcatenatedSeqNode(false, that.headNode)
         else new ConcatenatedSeqNode(true, node.next)
       }
     }
-    ofHeadNode(new ConcatenatedSeqNode(true, self.dummy.next))
+    ofHeadNode(new ConcatenatedSeqNode(true, self.headNode))
   }
 
   override def prepend[U >: T](x: U): Seq[U] = {
     val prependedNode: SeqNode[U] = new SeqNode[U] {
       def isDummy = false
       def data = x
-      def next = self.dummy.next
+      def next = self.headNode
     }
     ofHeadNode(prependedNode)
   }
@@ -167,7 +166,7 @@ trait Seq[+T] extends Iterable[T] with IntKeyedSortedMap[T] { self =>
       def data = if (outer.notDummy) outer.data else x
       def next = if (outer.isDummy) new AppendedSeqNode(outer, true) else new AppendedSeqNode(outer.next, false)
     }
-    ofHeadNode(new AppendedSeqNode(self.dummy.next, false))
+    ofHeadNode(new AppendedSeqNode(self.headNode, false))
   }
 
   override def scanLeft[U](z: U)(f: (U, T) => U): Seq[U] = {
@@ -191,16 +190,16 @@ trait Seq[+T] extends Iterable[T] with IntKeyedSortedMap[T] { self =>
       def next = new DiffNode(b, b.next)
       def isDummy = a.isDummy || b.isDummy
     }
-    ofDummyNode(new DiffNode(self.dummy, self.dummy.next))
+    ofDummyNode(new DiffNode(self.dummy, self.headNode))
   }
 
   override def diffByGroup[U >: T](implicit U: Group[U]) = consecutive((x, y) => U.op(y, U.inv(x)))
 
-  override def head = dummy.next.data
+  override def head = headNode.data
 
   def headNode = dummy.next
 
-  override def tail: Seq[T] = ofHeadNode(dummy.next.next)
+  override def tail: Seq[T] = ofHeadNode(headNode.next)
 
   /**
     * Returns the list of tails of this sequence. $LAZY
@@ -221,11 +220,11 @@ trait Seq[+T] extends Iterable[T] with IntKeyedSortedMap[T] { self =>
       def next = new InitNode(n1, n1.next)
       def isDummy = n0.isDummy || n1.isDummy
     }
-    ofDummyNode(new InitNode(self.dummy, self.dummy.next))
+    ofDummyNode(new InitNode(self.dummy, self.headNode))
   }
 
   override def skip(n: Int) = {
-    var node = self.dummy.next
+    var node = self.headNode
     var i = 0
     while (node.notDummy && i < n) {
       node = node.next
@@ -235,7 +234,7 @@ trait Seq[+T] extends Iterable[T] with IntKeyedSortedMap[T] { self =>
   }
 
   override def skipWhile(f: T => Boolean) = {
-    var node = self.dummy.next
+    var node = self.headNode
     while (node.notDummy && f(node.data))
       node = node.next
     ofHeadNode(node)
@@ -312,8 +311,6 @@ trait Seq[+T] extends Iterable[T] with IntKeyedSortedMap[T] { self =>
     }
     ofDummyNode(new DistinctByNode(self.dummy))
   }
-
-
 
   def union[U >: T : IntHashing](that: Seq[U]): Seq[U] = (this concat that).distinct
 

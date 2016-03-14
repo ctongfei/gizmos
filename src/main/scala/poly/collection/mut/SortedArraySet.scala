@@ -6,7 +6,7 @@ import poly.collection.impl._
 /**
  * @author Tongfei Chen
  */
-class SortedArraySet[T] private(private val data: SortedArray[T]) extends SortedSet[T] with MutableSet[T] {
+class SortedArraySet[T] private(private val data: SortedArray[T]) extends SortedSet[T] with KeyMutableSet[T] {
 
   override def orderOnKey = data.order
 
@@ -20,4 +20,5 @@ class SortedArraySet[T] private(private val data: SortedArray[T]) extends Sorted
 
   override def size: Int = data.size
 
+  def clear() = ???
 }

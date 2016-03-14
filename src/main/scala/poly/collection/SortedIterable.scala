@@ -73,7 +73,7 @@ trait SortedIterable[T] extends Iterable[T] { self =>
 
   //TODO: delete?
   @deprecated
-  def merge(that: SortedSeq[T]): SortedSeq[T] = {
+  def mergeEagerly(that: SortedIterable[T]): SortedSeq[T] = {
     val ai = this.newIterator
     val bi = that.newIterator
     val c = ArraySeq[T]()

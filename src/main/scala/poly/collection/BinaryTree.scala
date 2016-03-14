@@ -18,9 +18,7 @@ trait BinaryTree[+T] { self =>
 
   import BinaryTree._
 
-  def dummy: BinaryTreeNode[T]
-
-  def rootNode: BinaryTreeNode[T] = dummy.right
+  def rootNode: BinaryTreeNode[T]
 
   def root: T = rootNode.data
 
@@ -152,7 +150,7 @@ object BinaryTree {
   }
 
   object empty extends BinaryTree[Nothing] {
-    def dummy = BinaryTreeNode.Dummy
+    def rootNode = BinaryTreeNode.Dummy
   }
 
   def ofRootNode[T](n: BinaryTreeNode[T]): BinaryTree[T] = new BinaryTree[T] {

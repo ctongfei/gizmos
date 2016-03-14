@@ -5,11 +5,13 @@ import poly.collection._
 /**
  * @author Tongfei Chen
  */
-trait MutableSet[T] extends Set[T] {
+trait KeyMutableSet[T] extends Set[T] {
 
   def add(x: T)
 
   def remove(x: T)
+
+  def clear()
 
   def unionInplace(xs: Set[T]) = xs.elements foreach add
 

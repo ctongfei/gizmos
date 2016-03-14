@@ -52,7 +52,7 @@ trait BijectiveMap[K, V] extends Map[K, V] with Bijection[K, V] { self =>
   def contramap[J](that: BijectiveMap[J, K]) = that map this
 
   def andThen[W](that: BijectiveMap[V, W]) = this map that
-  def compose[J](that: BijectiveMap[J, K]) = this contramap that
+  def compose[J](that: BijectiveMap[J, K]) = that map this
 
   def |>[W](that: BijectiveMap[V, W]) = this andThen that
   def |<[J](that: BijectiveMap[J, K]) = this compose that

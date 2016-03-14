@@ -14,7 +14,7 @@ import poly.collection.node._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-class LinkedHashSet[T: IntHashing] private(val data: OpenHashTable[T, LinkedHashSet.Entry[T]]) extends MutableSet[T] {
+class LinkedHashSet[T: IntHashing] private(val data: OpenHashTable[T, LinkedHashSet.Entry[T]]) extends KeyMutableSet[T] {
 
   import LinkedHashSet._
 
@@ -24,6 +24,8 @@ class LinkedHashSet[T: IntHashing] private(val data: OpenHashTable[T, LinkedHash
   }
   dummy.prev = dummy
   dummy.next = dummy
+
+  def clear() = data.clear()
 
   def add(x: T) = {
     val e = new Entry(x, dummy.prev, dummy)

@@ -16,8 +16,8 @@ a intersect c
 
 a flatMap { i => i.repeat(i) }
 b flatMap { s => s.split(' ') }
-a cartesianProduct b
-a cartesianProduct e
+a product b
+a product e
 a.isEmpty
 b.isEmpty
 e.isEmpty

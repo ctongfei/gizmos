@@ -13,7 +13,7 @@ import poly.collection.search.node._
   * @tparam C Type of cost on edges
   * @param S The searching state space
   * @param N A typeclass instance that witnesses the additional information stored on search nodes
-  * @param pruningStrategy A typeclass instance that dictates which nodes should be pruned in the searching process
+  * @param shouldNotBePruned A predicate that dictates which nodes should be not pruned in the searching process
   * @param fringe A fringe for storing the search nodes
   * @param start Starting state
   * @author Yuhuan Jiang
@@ -21,7 +21,7 @@ import poly.collection.search.node._
   * @since 0.1.0
   */
 class WeightedSearcher[S, N, C](
-  pruningStrategy: NodePruning[N],
+  shouldNotBePruned: N => Boolean,
   fringe: Queue[N],
   start: S
 )(implicit
@@ -40,7 +40,7 @@ class WeightedSearcher[S, N, C](
   def advance() = {
     if (fringe.notEmpty) {
       curr = fringe.pop()
-      if (!pruningStrategy.shouldBePruned(curr))
+      if (shouldNotBePruned(curr))
         fringe ++= S.succWithCost(N.state(curr)).map { case (next, cost) =>
           N.nextNode(curr)(next, cost)
         }
@@ -52,21 +52,21 @@ class WeightedSearcher[S, N, C](
 
 class UniformCostIterator[S, C: OrderedAdditiveGroup](ss: WeightedStateSpace[S, C], start: S)
   extends WeightedSearcher[S, WithCost[S, C], C](
-    NodePruning.None,
-    DistinctPriorityQueue[BinaryHeap, WithCost[S, C]]()(Equiv.by(_.state)),
+    x => false,
+    DistinctPriorityQueue[BinaryHeap, WithCost[S, C]]()(IntHashing.by(_.state)),
     start)(ss, WithCost.WeightedSearchNodeInfo)
 
 class GreedyBestFirstIterator[S, C: OrderedAdditiveGroup](ss: WeightedStateSpace[S, C], start: S, heuristic: S => C)
   extends WeightedSearcher[S, WithHeuristic[S, C], C](
-    NodePruning.None,
-    DistinctPriorityQueue[BinaryHeap, WithHeuristic[S, C]]()(Equiv.by(_.state)),
+    x => false,
+    DistinctPriorityQueue[BinaryHeap, WithHeuristic[S, C]]()(IntHashing.by(_.state)),
     start)(ss, WithHeuristic.WeightedSearchNodeInfo(heuristic)
   )
 
 class AStarIterator[S, C: OrderedAdditiveGroup](ss: WeightedStateSpace[S, C], start: S, heuristic: S => C)
   extends WeightedSearcher[S, WithCostAndHeuristic[S, C], C](
-    NodePruning.None,
-    DistinctPriorityQueue[BinaryHeap, WithCostAndHeuristic[S, C]]()(Equiv.by(_.state))(
+    x => false,
+    DistinctPriorityQueue[BinaryHeap, WithCostAndHeuristic[S, C]]()(IntHashing.by(_.state))(
       BinaryHeap.newBuilder(WithCostAndHeuristic.order)
       // potential Scala compiler bug here. scalac only finds those two low priority implicits here
     ),

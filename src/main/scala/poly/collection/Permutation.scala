@@ -89,7 +89,7 @@ object Permutation {
   }
 
   implicit def GroupAction[T]: Action[IndexedSeq[T], Permutation] = new Action[IndexedSeq[T], Permutation] {
-    def act(p: Permutation, x: IndexedSeq[T]) = x permuteBy p
+    def act(x: IndexedSeq[T], p: Permutation) = x permuteBy p
   }
 
   /**

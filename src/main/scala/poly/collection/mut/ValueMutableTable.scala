@@ -5,6 +5,6 @@ import poly.collection._
 /**
  * @author Tongfei Chen
  */
-trait DataMutableTable[T] extends Table[T] {
+trait ValueMutableTable[T] extends Table[T] {
   def update(i: Int, j: Int, x: T): Unit
 }

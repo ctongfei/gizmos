@@ -5,7 +5,7 @@ import poly.collection._
 /**
  * @author Tongfei Chen
  */
-trait KeyMutableTable[T] extends DataMutableTable[T] {
+trait KeyMutableTable[T] extends ValueMutableTable[T] {
   def clear(): Unit
   def appendRowInplace(row: Seq[T]): Unit
   def appendColInplace(col: Seq[T]): Unit

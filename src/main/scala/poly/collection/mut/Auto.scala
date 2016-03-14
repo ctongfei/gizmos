@@ -1,5 +1,6 @@
 package poly.collection.mut
 
+import com.sun.corba.se.impl.orbutil._
 import poly.collection._
 import scala.reflect._
 
@@ -10,7 +11,7 @@ import scala.reflect._
 object Auto {
 
   def Map[K: ClassTag, V]: Map[K, V] = implicitly[ClassTag[K]].runtimeClass match {
-    case Integer.TYPE => ???
+    case Integer.TYPE => ??? // DenseIntKeyedMap
     case _ => ???
   }
 

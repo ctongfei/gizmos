@@ -77,13 +77,19 @@ trait Set[T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
   /** Tests if this set is a superset of another set. */
   def properSupersetOf(that: Set[T]): Boolean = that properSubsetOf this
 
+  /** Returns the cartesian product of two sets. */
   def product[U](that: Set[U]): Set[(T, U)] = new AbstractSet[(T, U)] {
     def equivOnKey = Equiv.product(self.equivOnKey, that.equivOnKey)
-    def keys = self.keys cartesianProduct that.keys
+    def keys = self.keys product that.keys
     override def size = self.size * that.size
     def contains(k: (T, U)) = self.containsKey(k._1) && that.containsKey(k._2)
   }
 
+  def cartesianProduct[U](that: Set[U]): Set[(T, U)] = this product that
+
+  /**
+   * Using this set as the key set, construct a map by the given function.
+   */
   def createMapBy[V](f: T => V): Map[T, V] = new AbstractMap[T, V] {
     def apply(k: T) = f(k)
     def ?(k: T) = if (self contains k) Some(f(k)) else None
@@ -171,6 +177,10 @@ trait Set[T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
 
   def argmaxWithValue[U](f: T => U)(implicit O: WeakOrder[U]) = elements.argmaxWithValue(f)(O)
 
+  /**
+   * Casts this set as a multiset in which each element appears once.
+   * @tparam R Type of the number of occurrences of elements in the multiset, can be `Int`, `Double`, etc.
+   */
   def asMultiset[R](implicit R: OrderedRing[R]): Multiset[T, R] = new AbstractMultiset[T, R] {
     def equivOnKey = self.equivOnKey
     implicit def ringOnCount = R

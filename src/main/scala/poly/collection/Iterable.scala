@@ -56,7 +56,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
     }
   }
 
-  def cartesianProduct[U](that: Iterable[U]): Iterable[(T, U)] = self.flatMap(t => that.map(u => (t, u)))
+  def product[U](that: Iterable[U]): Iterable[(T, U)] = self.flatMap(t => that.map(u => (t, u)))
 
   override def filter(f: T => Boolean) = ofIterator {
     new Iterator[T] {
@@ -326,6 +326,15 @@ trait Iterable[+T] extends Traversable[T] { self =>
     }
   }
 
+  def zipWith[U, V](that: Iterable[U])(f: (T, U) => V): Iterable[V] = ofIterator {
+    new Iterator[V] {
+      val ti = self.newIterator
+      val ui = that.newIterator
+      def current = f(ti.current, ui.current)
+      def advance() = ti.advance() && ui.advance()
+    }
+  }
+
   override def indexed: SortedIterable[(Int, T@uv)] = {
     val paired = ofIterator {
       new Iterator[(Int, T)] {
@@ -425,7 +434,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
   override def |>[U](f: T => U) = this map f
   def ||>[U](f: T => Iterable[U]) = this flatMap f
   override def |?(f: T => Boolean) = this filter f
-  def |×|[U](that: Iterable[U]) = this cartesianProduct that
+  def |×|[U](that: Iterable[U]) = this product that
   def |~|[U](that: Iterable[U]) = this zip that
   //endregion
 

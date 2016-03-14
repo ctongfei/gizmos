@@ -5,7 +5,7 @@ import poly.collection._
 /**
  * @author Tongfei Chen
  */
-trait KeyMutableMap[K, V] extends DataMutableMap[K, V] {
+trait KeyMutableMap[K, V] extends ValueMutableMap[K, V] {
 
   def add(x: K, y: V): Unit
 

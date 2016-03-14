@@ -9,7 +9,6 @@ import poly.collection.node._
 
 /**
  * A sequence backed by a linked list.
- *
  * @author Tongfei Chen
  */
 class ListSeq[T] private() extends AbstractSeq[T] with KeyMutableSeq[T] with HasKnownSize {
@@ -139,7 +138,6 @@ class ListSeq[T] private() extends AbstractSeq[T] with KeyMutableSeq[T] with Has
 }
 
 object ListSeq extends SeqFactory[ListSeq] {
-
 
   private[poly] class Node[T](var data: T, var next: Node[T]) extends SeqNode[T] {
     def isDummy = false

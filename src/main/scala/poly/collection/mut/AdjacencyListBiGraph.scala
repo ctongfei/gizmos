@@ -1,17 +1,19 @@
 package poly.collection.mut
 
+import poly.algebra._
 import poly.collection._
+import poly.collection.node._
 import poly.util.specgroup._
 
 /**
  * @author Tongfei Chen
  */
-class AdjacencyListBiGraph[@sp(i) K, V, E] extends BiGraph[K, V, E] {
+class AdjacencyListBiGraph[@sp(i) K: IntHashing, V, E] extends BiGraph[K, V, E] {
 
   private class VertexInfo {
     var data: V = _
     val pred = ListSet[K]()
-    val succ = HashMap[K, E]() // TODO: ListMap
+    val succ = HashMap[K, E]()
   }
 
   private val r = HashMap[K, VertexInfo]()

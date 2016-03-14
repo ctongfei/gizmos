@@ -102,7 +102,7 @@ trait Tree[+T] { self =>
    *    └  e   f    ┘
    * }}}
    */
-  def postOrder: Iterable[T] = knuthTransform.inOrder
+  def postOrder: Iterable[T] = knuthTransform.inOrder //TODO: maybe a more efficient implementation?
   //endregion
 }
 

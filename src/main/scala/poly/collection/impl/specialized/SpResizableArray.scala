@@ -6,6 +6,7 @@ import poly.collection._
 import scala.reflect._
 
 /**
+ * A specialized version for resizable arrays ([[poly.collection.impl.ResizableArray]]).
  * @author Tongfei Chen
  */
 final class SpResizableArray[@sp(fdib) T: ClassTag]

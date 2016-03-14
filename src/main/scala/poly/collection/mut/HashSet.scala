@@ -11,7 +11,7 @@ import poly.collection.impl.hashtable._
  * A hash set.
  * @author Tongfei Chen
  */
-class HashSet[T: IntHashing] private(val data: OpenHashTable[T, HashSet.Entry[T]]) extends MutableSet[T] with HasKnownSize {
+class HashSet[T: IntHashing] private(val data: OpenHashTable[T, HashSet.Entry[T]]) extends KeyMutableSet[T] with HasKnownSize {
 
   import HashSet._
 
@@ -22,6 +22,8 @@ class HashSet[T: IntHashing] private(val data: OpenHashTable[T, HashSet.Entry[T]
   def remove(x: T) = data.removeEntry(x)
 
   def contains(x: T) = data.locate(x) != null
+
+  def clear() = data.clear()
 
   def keys = Iterable.ofIterator(data.entryIterator).map(_.key)
 

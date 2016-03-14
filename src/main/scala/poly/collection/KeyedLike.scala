@@ -8,7 +8,7 @@ import poly.algebra.specgroup._
   * @author Tongfei Chen
   * @since 0.1.0
   */
-trait KeyedLike[@sp(i) K, +Coll <: KeyedLike[K, Coll]] extends Keyed[K] {
+trait KeyedLike[@sp(i) K, +Coll <: KeyedLike[K, Coll]] extends Keyed[K] { self =>
 
   /** Tests if this structure contains an item with the specified key. */
   def containsKey(k: K): Boolean

@@ -9,7 +9,7 @@ import poly.collection.impl._
  * A set backed by a linked list.
  * @author Tongfei Chen
  */
-class ListSet[T] private(private val data: SinglyLinkedList[T])(implicit val equivOnKey: Equiv[T]) extends MutableSet[T] {
+class ListSet[T] private(private val data: SinglyLinkedList[T])(implicit val equivOnKey: Equiv[T]) extends KeyMutableSet[T] {
 
   override def size = data.len
 
@@ -23,6 +23,9 @@ class ListSet[T] private(private val data: SinglyLinkedList[T])(implicit val equ
     }
     false
   }
+
+
+  def clear() = data.clear()
 
   def add(x: T) = {
     if (!contains(x)) data.prependInplace(x)
