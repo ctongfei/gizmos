@@ -130,10 +130,39 @@ trait Map[@sp(i) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K, 
    */
   def zip[W](that: Map[K, W]): Map[K, (V, W)] = new AbstractMap[K, (V, W)] {
     def equivOnKey = self.equivOnKey
-    def apply(x: K): (V, W) = (self(x), that(x))
-    def ?(x: K): Option[(V, W)] = for {v ← self ? x; w ← that ? x} yield (v, w)
+    def apply(x: K) = (self(x), that(x))
+    def ?(x: K) = for (v ← self ? x; w ← that ? x) yield (v, w)
     def pairs = self.pairs filter { case (k, v) => that containsKey k } map { case (k, v) => (k, (v, that(k))) }
-    def containsKey(x: K): Boolean = self.containsKey(x) && that.containsKey(x)
+    def containsKey(x: K) = self.containsKey(x) && that.containsKey(x)
+  }
+
+  def innerJoin[W](that: Map[K, W]) = self zip that
+
+  def leftOuterJoin[W](that: Map[K, W]): Map[K, (V, Option[W])] = new AbstractMap[K, (V, Option[W])] {
+    def apply(k: K) = (self(k), that ? k)
+    def ?(k: K) = for (v ← self ? k) yield (v, that ? k)
+    def equivOnKey = self.equivOnKey
+    def pairs = self.pairs map { case (k, v) => (k, (v, that ? k)) }
+    def containsKey(x: K) = self containsKey x
+  }
+
+  def rightOuterJoin[W](that: Map[K, W]): Map[K, (Option[V], W)] = new AbstractMap[K, (Option[V], W)] {
+    def apply(k: K) = (self ? k, that(k))
+    def ?(k: K) = for (w ← that ? k) yield (self ? k, w)
+    def equivOnKey = that.equivOnKey
+    def pairs = that.pairs map { case (k, w) => (k, (self ? k, w)) }
+    def containsKey(x: K) = that containsKey x
+  }
+
+  def fullOuterJoin[W](that: Map[K, W]): Map[K, (Option[V], Option[W])] = new AbstractMap[K, (Option[V], Option[W])] {
+    def apply(k: K) = (self ? k, that ? k)
+    def ?(k: K) = (self ? k, that ? k) match {
+      case (None, None) => None
+      case res => Some(res)
+    }
+    def equivOnKey = self.equivOnKey
+    def pairs = (self.keySet union that.keySet).elements.map(k => k → (self ? k, that ? k))
+    def containsKey(x: K) = self.containsKey(x) || that.containsKey(x)
   }
 
   /**
@@ -168,6 +197,11 @@ trait Map[@sp(i) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K, 
   def |>[W](f: V => W) = self map f
   def |<[J](f: Bijection[J, K]) = self contramap f
   def |~|[W](that: Map[K, W]) = self zip that
+
+  def ⋈[W](that: Map[K, W]) = self innerJoin that
+  def ⟕[W](that: Map[K, W]) = self leftOuterJoin that
+  def ⟖[W](that: Map[K, W]) = self rightOuterJoin that
+  def ⟗[W](that: Map[K, W]) = self fullOuterJoin that
 
 }
 
