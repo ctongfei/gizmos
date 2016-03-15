@@ -43,7 +43,7 @@ class LinkedHashSet[T: IntHashing] private(val data: OpenHashTable[T, LinkedHash
 
   def equivOnKey = implicitly[IntHashing[T]]
 
-  def keys: BiSeq[T] = BiSeq.ofNode(dummy)
+  def keys: BiSeq[T] = BiSeq.ofDummyNode(dummy)
 
   override def elements = keys
 

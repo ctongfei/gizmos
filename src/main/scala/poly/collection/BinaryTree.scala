@@ -77,10 +77,10 @@ trait BinaryTree[+T] { self =>
 
   /** Folds a binary tree bottom-up. This is analogous to the sequence `foldRight` in that both
     * are catamorphisms on recursive structures.
-    */
-  def foldBottomUp[U](z: U)(f: (U, U, T) => U): U = { //TODO: change to non-recursive version
-    if (self.rootNode.isDummy) z
-    else f(self.left.foldBottomUp(z)(f), self.right.foldBottomUp(z)(f), self.root)
+    */ //TODO: non-recursive version?
+  def foldBottomUp[U](z: U)(f: (U, U, T) => U): U = self match {
+    case BinaryTree.empty() => z
+    case (l :/ n \: r) => f(l.foldBottomUp(z)(f), r.foldBottomUp(z)(f), n)
   }
 
   def fold[U >: T](z: U)(f: (U, U, U) => U) = foldBottomUp(z)(f)
@@ -151,6 +151,7 @@ object BinaryTree {
 
   object empty extends BinaryTree[Nothing] {
     def rootNode = BinaryTreeNode.Dummy
+    def unapply[T](bt: BinaryTree[T]) = bt.isEmpty
   }
 
   def ofRootNode[T](n: BinaryTreeNode[T]): BinaryTree[T] = new BinaryTree[T] {

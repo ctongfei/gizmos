@@ -25,9 +25,7 @@ a concat b
 a prepend -1
 a append -1
 a reduce (_+_)
-
 a.scan(0)(_+_)
-
 a.scanRight(0)(_+_)
 a.consecutive(_-_)
 a.head

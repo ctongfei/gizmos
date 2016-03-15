@@ -13,7 +13,7 @@ class ListBiSeq[T] private() extends AbstractBiSeq[T] with KeyMutableSeq[T] with
 
   type Node = ListBiSeq.Node[T]
 
-  val dummy: Node = new Node(default[T], dummy, dummy) { override def isDummy = true }
+  override val dummy: Node = new Node(default[T], dummy, dummy) { override def isDummy = true }
 
   private[poly] var len: Int = 0
   dummy.prev = dummy
@@ -21,6 +21,11 @@ class ListBiSeq[T] private() extends AbstractBiSeq[T] with KeyMutableSeq[T] with
 
   override def length = len
   override def size = len
+
+
+  def headNode = dummy.next
+
+  def lastNode = dummy.prev
 
   /**
    * Locates the ''i''th element in a doubly linked list.

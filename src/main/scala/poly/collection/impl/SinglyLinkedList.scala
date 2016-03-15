@@ -20,13 +20,15 @@ class SinglyLinkedList[T] extends Seq[T] with KeyMutableSeq[T] {
 
   type Node = SinglyLinkedList.Node[T]
 
-  val dummy: Node = new Node(default[T], dummy) { override def isDummy = true }
+  override val dummy: Node = new Node(default[T], dummy) { override def isDummy = true }
   dummy.next = dummy
 
   private[poly] var len: Int = 0
   private[poly] var lastNode: Node = dummy
 
   override def length = len
+
+  def headNode = dummy.next
 
   /**
    * Locates the ''i''th element in a singly linked list.

@@ -16,13 +16,20 @@ trait BiSeq[+T] extends Seq[T] { self =>
   /** Returns a dummy node whose next node is the head of this sequence,
     * and whose previous node is the last of this sequence.
     */
-  def dummy: BiSeqNode[T]
+  override def dummy: BiSeqNode[T] = new BiSeqNode[T] {
+    def prev = lastNode
+    def next = headNode
+    def data = throw new DummyNodeException
+    def isDummy = true
+  }
 
-  def lastNode = dummy.prev
+  def headNode: BiSeqNode[T]
+
+  def lastNode: BiSeqNode[T]
 
   //region HELPER FUNCTIONS
 
-  override def map[U](f: T => U): BiSeq[U] = ofNode(dummy map f)
+  override def map[U](f: T => U): BiSeq[U] = ofDummyNode(dummy map f)
 
   override def foldRight[U](z: U)(f: (T, U) => U): U = {
     var accum = z
@@ -41,7 +48,7 @@ trait BiSeq[+T] extends Seq[T] { self =>
       def prev = new ConsecutiveNode(n0.prev, n0)
       def isDummy = n0.isDummy || n1.isDummy
     }
-    ofNode {
+    ofDummyNode {
       new BiSeqNode[U] {
         def data = throw new DummyNodeException
         def next = new ConsecutiveNode(self.dummy.next, self.dummy.next.next)
@@ -78,37 +85,37 @@ trait BiSeq[+T] extends Seq[T] { self =>
   }
 
   override def reverse: BiSeq[T] = new AbstractBiSeq[T] {
-    def dummy = self.dummy.reverse
+    def headNode = self.lastNode.reverse
+    def lastNode = self.headNode.reverse
     override def reverse = self
   }
 
   override def rotate(n: Int): BiSeq[T] = ???
 
   def asBiSeq: BiSeq[T] = new AbstractBiSeq[T] {
-    def dummy = self.dummy
+    def headNode = self.headNode
+    def lastNode = self.lastNode
   }
 
 }
 
 object BiSeq {
 
-  def ofNode[T](d: BiSeqNode[T]): BiSeq[T] = new AbstractBiSeq[T] {
-    def dummy = d
+  def ofDummyNode[T](d: BiSeqNode[T]): BiSeq[T] = new AbstractBiSeq[T] {
+    override def dummy = d
+    def headNode = d.next
+    def lastNode = d.prev
   }
 
   def ofHeadLastNode[T](hn: BiSeqNode[T], ln: BiSeqNode[T]): BiSeq[T] = new AbstractBiSeq[T] {
-    def dummy =
-      new BiSeqNode[T] {
-        def next = hn
-        def prev = ln
-        def data = throw new DummyNodeException
-        def isDummy = true
-      }
+    def headNode = hn
+    def lastNode = ln
   }
 
-
   object empty extends BiSeq[Nothing] {
-    def dummy: BiSeqNode[Nothing] = BiSeqNode.dummy
+    override def dummy: BiSeqNode[Nothing] = BiSeqNode.dummy
+    def headNode = dummy
+    def lastNode = dummy
   }
 
 }

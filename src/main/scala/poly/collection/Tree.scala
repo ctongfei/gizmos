@@ -27,9 +27,7 @@ trait Tree[+T] { self =>
   /**
    * Folds a tree bottom-up using the specific function.
    */
-  def foldBottomUp[U](z: U)(f: (T, Seq[U]) => U): U = {
-    ???
-
+  def foldBottomUp[U](z: U)(f: (T, Seq[U]) => U): U = { ???
   }
 
   /**
@@ -43,7 +41,6 @@ trait Tree[+T] { self =>
    *  └ e   f   ┘                   │ e   c   │
    *                                │  \   \  │
    *                                └   f   d ┘
-   *
    * }}}
    * @return Its corresponding binary tree
    */
@@ -102,7 +99,7 @@ trait Tree[+T] { self =>
    *    └  e   f    ┘
    * }}}
    */
-  def postOrder: Iterable[T] = knuthTransform.inOrder //TODO: maybe a more efficient implementation?
+  def postOrder: Iterable[T] = knuthTransform.inOrder //TODO: a more efficient implementation?
   //endregion
 }
 

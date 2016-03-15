@@ -22,7 +22,9 @@ trait Multiset[@sp(i) K, R] extends KeyedLike[K, Multiset[K, R]] { self =>
   /** Returns the ring structure endowed on the counts of this multiset. */
   implicit def ringOnCount: OrderedRing[R]
 
-  def containsKey(k: K): Boolean
+  def contains(k: K): Boolean
+
+  final def containsKey(k: K) = contains(k)
 
   def multiplicity(k: K): R
 
@@ -31,6 +33,14 @@ trait Multiset[@sp(i) K, R] extends KeyedLike[K, Multiset[K, R]] { self =>
   def pairs: Iterable[(K, R)] = keys.map(k => k → multiplicity(k))
 
   final def apply(k: K): R = multiplicity(k)
+
+  def asKeyCountMap: Map[K, R] = new AbstractMap[K, R] {
+    def pairs = self.pairs
+    def containsKey(x: K) = self contains x
+    def apply(k: K) = self(k)
+    def ?(k: K) = if (self.multiplicity(k) == zero[R]) None else Some(self.multiplicity(k))
+    def equivOnKey = self.multiplicity(k)
+  }
 
   def filterKeys(f: K => Boolean): Multiset[K, R] = new AbstractMultiset[K, R] {
     def equivOnKey = self.equivOnKey

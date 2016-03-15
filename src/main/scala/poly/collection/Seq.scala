@@ -5,6 +5,7 @@ import poly.algebra.hkt._
 import poly.algebra.ops._
 import poly.algebra.implicits._
 import poly.algebra.function._
+import poly.collection.exception._
 import poly.collection.mut._
 import poly.collection.node._
 import scala.annotation.unchecked.{uncheckedVariance => uv}
@@ -19,8 +20,15 @@ trait Seq[+T] extends Iterable[T] with IntKeyedSortedMap[T] { self =>
 
   import Seq._
 
+  /** Returns the head node of this sequence. */
+  def headNode: SeqNode[T]
+
   /** Returns a dummy node whose next node is the head of this sequence. */
-  def dummy: SeqNode[T]
+  def dummy: SeqNode[T] = new SeqNode[T] {
+    def next = self.headNode
+    def data = throw new DummyNodeException
+    def isDummy = true
+  }
 
   /** Returns the length of this sequence. $On */
   def length: Int = {
@@ -197,8 +205,6 @@ trait Seq[+T] extends Iterable[T] with IntKeyedSortedMap[T] { self =>
 
   override def head = headNode.data
 
-  def headNode = dummy.next
-
   override def tail: Seq[T] = ofHeadNode(headNode.next)
 
   /**
@@ -355,7 +361,7 @@ trait Seq[+T] extends Iterable[T] with IntKeyedSortedMap[T] { self =>
    */
   override def asIfSorted[U >: T](implicit U: WeakOrder[U]): SortedSeq[T@uv] = new SortedSeq[T] {
     def order = U
-    def dummy: SeqNode[T] = self.dummy
+    def headNode: SeqNode[T] = self.headNode
   }
 
   def zip[U](that: Seq[U]): Seq[(T, U)] = ofDummyNode(self.dummy zip that.dummy)
@@ -439,19 +445,17 @@ object Seq {
   // CONSTRUCTORS
 
   object empty extends Seq[Nothing] {
-    def dummy = SeqNode.dummy
+    def headNode = SeqNode.dummy
+    def unapply[T](xs: Seq[T]) = xs.isEmpty
   }
 
   def ofDummyNode[T](d: SeqNode[T]): Seq[T] = new AbstractSeq[T] {
-    def dummy = d
+    override def dummy = d
+    def headNode = d.next
   }
 
   def ofHeadNode[T](h: SeqNode[T]): Seq[T] = new AbstractSeq[T] {
-    def dummy = new SeqNode[T] {
-      def data = throw new NoSuchElementException
-      def next = h
-      def isDummy = true
-    }
+    def headNode = h
   }
 
   def iterate[T](s: T)(f: T => T): Seq[T] = {
@@ -511,7 +515,7 @@ object Seq {
     def concat[X](sx: Seq[X], sy: Seq[X]) = sx concat sy
   }
 
-  implicit object Comonad extends Comonad[Seq] {
+  implicit object Comonad extends Comonad[Seq] { //TODO: actually should be Comonad[NonEmptySeq]
     def id[X](u: Seq[X]) = u.head
     def extend[X, Y](wx: Seq[X])(f: Seq[X] => Y) = wx.suffixes.map(f)
   }

@@ -15,13 +15,15 @@ class ListSeq[T] private() extends AbstractSeq[T] with KeyMutableSeq[T] with Has
 
   type Node = ListSeq.Node[T]
 
-  val dummy: Node = new Node(default[T], dummy) { override def isDummy = true }
+  override val dummy: Node = new Node(default[T], dummy) { override def isDummy = true }
   dummy.next = dummy
 
   private[poly] var len: Int = 0
   private[poly] var lastNode: Node = dummy
 
   override def length = len
+
+  def headNode = dummy.next
 
   /**
    * Locates the ''i''th element in a singly linked list.

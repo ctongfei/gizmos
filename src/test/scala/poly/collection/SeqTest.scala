@@ -9,8 +9,14 @@ object SeqTest extends App {
 
   for (i ← 0 ~~< 4) println(i)
 
-  val a = ListSeq(0, 2, 3, 4).asSeq
-  val b = ArraySeq(5, 6, 7).asSeq
+  val a = ListSeq[Int]()
+  a appendInplace 0
+  a appendInplace 2
+  a appendInplace 3
+  a appendInplace 4
+
+
+  val b = ArraySeq(5, 6, 7)
 
   val t0 = a map { i => i * 2 }
   val t1 = a flatMap { i: Int => ArraySeq.fill(i)(i) }

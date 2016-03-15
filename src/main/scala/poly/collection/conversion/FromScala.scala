@@ -1,5 +1,6 @@
 package poly.collection.conversion
 
+import poly.algebra._
 import poly.collection._
 import poly.collection.node._
 import scala.{collection => sc}
@@ -29,8 +30,8 @@ object FromScala {
     def newIterator = scalaIteratorAsPoly[T](xs.iterator)
   }
 
-  implicit def scalaSeqAsPoly[T](xs: sc.Seq[T]): Seq[T] = new Seq[T] {
-    class WrappedNode(val s: sc.Seq[T], override val isDummy: Boolean = false) extends SeqNode[T] {
+  implicit def scalaLinearSeqAsPoly[T](xs: sc.LinearSeq[T]): Seq[T] = new Seq[T] {
+    class WrappedNode(val s: sc.LinearSeq[T], override val isDummy: Boolean = false) extends SeqNode[T] {
       def data = s.head
       def next = {
         val t = s.tail
@@ -38,11 +39,7 @@ object FromScala {
       }
     }
     override def newIterator = scalaIteratorAsPoly[T](xs.iterator)
-    def dummy = new SeqNode[T] {
-      def data = throw new NoSuchElementException
-      def next = new WrappedNode(xs.view, xs.isEmpty)
-      def isDummy = true
-    }
+    def headNode = new WrappedNode(xs, xs.isEmpty)
     override def apply(i: Int) = xs(i)
     override def length = xs.length
   }
@@ -52,6 +49,19 @@ object FromScala {
     def fastLength = xs.length
   }
 
+  implicit def scalaSetAsPoly[T](sset: sc.Set[T]): Set[T] = new AbstractSet[T] {
+    def equivOnKey = Equiv.default[T]
+    def keys = sset
+    def contains(x: T) = sset contains x
+  }
+
+  implicit def scalaMapAsPoly[K, V](smap: sc.Map[K, V]): Map[K, V] = new AbstractMap[K, V] {
+    def pairs = smap
+    def containsKey(x: K) = smap contains x
+    def apply(k: K) = smap(k)
+    def ?(k: K) = smap get k
+    def equivOnKey = Equiv.default[K]
+  }
 
 
 

@@ -38,12 +38,9 @@ trait IndexedSeq[+T] extends BiSeq[T] with HasKnownSize { self =>
     }
   }
 
-  def dummy: BiSeqNode[T] = new BiSeqNode[T] {
-    def next = new NodeProxy[T](self, 0)
-    def prev = new NodeProxy[T](self, length - 1)
-    def data = throw new NoSuchElementException
-    def isDummy = true
-  }
+  def headNode = new NodeProxy[T](self, 0)
+  def lastNode = new NodeProxy[T](self, length - 1)
+
 
   override def foreach[V](f: T => V): Unit = {
     FastLoop.ascending(0, length, 1) { i => f(apply(i)) }
@@ -206,7 +203,7 @@ object IndexedSeq {
     }
   }
 
-  class NodeProxy[T](val seq: IndexedSeq[T], val i: Int) extends BiSeqNode[T] {
+  class NodeProxy[+T](val seq: IndexedSeq[T], val i: Int) extends BiSeqNode[T] {
     def isDummy = (i < 0) || (i >= seq.length)
     def data = seq(i)
     def next = if (i == seq.length - 1) BiSeqNode.dummy else new NodeProxy(seq, i + 1)
