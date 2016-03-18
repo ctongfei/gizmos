@@ -1,6 +1,8 @@
 package poly.collection.builder
 
+import poly.algebra._
 import poly.collection._
+
 import scala.annotation._
 import scala.language.higherKinds
 

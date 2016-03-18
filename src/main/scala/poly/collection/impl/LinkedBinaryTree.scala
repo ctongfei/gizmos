@@ -12,7 +12,7 @@ class LinkedBinaryTree[T] extends BinaryTree[T] {
 
   type Node = LinkedBinaryTree.Node[T]
 
-  final val dummy: Node = new Node(default[T], dummy, dummy, dummy) {
+  final override val dummy: Node = new Node(default[T], dummy, dummy, dummy) {
     override def isDummy = true
   }
   dummy.left = dummy

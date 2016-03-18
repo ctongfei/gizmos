@@ -16,7 +16,7 @@ class ArrayQueue[T] private(private val data: CircularArray[T]) extends Queue[T]
 
   def fastSize = data.length
 
-  def elements = ???
+  def elements = IndexedSeq.tabulate(fastSize)(i => data(i))
 
   def top = {
     if (data.isEmpty) throw new QueueEmptyException

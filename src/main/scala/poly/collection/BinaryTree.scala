@@ -18,6 +18,13 @@ trait BinaryTree[+T] { self =>
 
   import BinaryTree._
 
+  def dummy = new BinaryTreeNode[T] {
+    def data: T = throw new DummyNodeException
+    def left: BinaryTreeNode[T] = rootNode
+    def right: BinaryTreeNode[T] = rootNode
+    def isDummy: Boolean = true
+  }
+
   def rootNode: BinaryTreeNode[T]
 
   def root: T = rootNode.data
@@ -155,12 +162,6 @@ object BinaryTree {
   }
 
   def ofRootNode[T](n: BinaryTreeNode[T]): BinaryTree[T] = new BinaryTree[T] {
-    def dummy = new BinaryTreeNode[T] {
-      def data: T = throw new DummyNodeException
-      def left: BinaryTreeNode[T] = n
-      def right: BinaryTreeNode[T] = n
-      def isDummy: Boolean = true
-    }
     override def rootNode = n
   }
 

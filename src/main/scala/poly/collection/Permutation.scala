@@ -48,8 +48,8 @@ class Permutation private(private val a1: Array[Int], private val a2: Array[Int]
     val b1 = Array.ofDim[Int](n)
     val b2 = Array.ofDim[Int](n)
     FastLoop.ascending(0, n, 1) { i =>
-      b1(n - i) = a1(i)
-      b2(n - i) = a2(i)
+      b1(n - i - 1) = a1(i)
+      b2(n - i - 1) = a2(i)
     }
     new Permutation(b1, b2)
   }

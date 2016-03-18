@@ -17,4 +17,6 @@ trait KeyMutableSet[T] extends Set[T] {
 
   def diffInplace(xs: Set[T]) = xs.elements foreach remove
 
+  def intersectInplace(xs: Set[T]) = this.elements filter xs.notContains foreach remove
+
 }

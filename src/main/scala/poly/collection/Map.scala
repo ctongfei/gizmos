@@ -136,8 +136,16 @@ trait Map[@sp(i) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K, 
     def containsKey(x: K) = self.containsKey(x) && that.containsKey(x)
   }
 
+  /**
+   * Returns the inner join of two maps by their keys.
+   * It is similar to the SQL expression `SELECT * FROM self INNER JOIN that ON self.key == that.key`.
+   */
   def innerJoin[W](that: Map[K, W]) = self zip that
 
+  /**
+   * Returns the left outer join of two maps by their keys.
+   * It is similar to the SQL expression `SELECT * FROM self LEFT OUTER JOIN that ON self.key == that.key`.
+   */
   def leftOuterJoin[W](that: Map[K, W]): Map[K, (V, Option[W])] = new AbstractMap[K, (V, Option[W])] {
     def apply(k: K) = (self(k), that ? k)
     def ?(k: K) = for (v ← self ? k) yield (v, that ? k)
@@ -146,6 +154,10 @@ trait Map[@sp(i) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K, 
     def containsKey(x: K) = self containsKey x
   }
 
+  /**
+   * Returns the right outer join of two maps by their keys.
+   * It is similar to the SQL expression `SELECT * FROM self RIGHT OUTER JOIN that ON self.key == that.key`.
+   */
   def rightOuterJoin[W](that: Map[K, W]): Map[K, (Option[V], W)] = new AbstractMap[K, (Option[V], W)] {
     def apply(k: K) = (self ? k, that(k))
     def ?(k: K) = for (w ← that ? k) yield (self ? k, w)
@@ -154,6 +166,10 @@ trait Map[@sp(i) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K, 
     def containsKey(x: K) = that containsKey x
   }
 
+  /**
+   * Returns the full outer join of two maps by their keys.
+   * It is similar to the SQL expression `SELECT * FROM self FULL OUTER JOIN that ON self.key == that.key`.
+   */
   def fullOuterJoin[W](that: Map[K, W]): Map[K, (Option[V], Option[W])] = new AbstractMap[K, (Option[V], Option[W])] {
     def apply(k: K) = (self ? k, that ? k)
     def ?(k: K) = (self ? k, that ? k) match {
@@ -161,14 +177,16 @@ trait Map[@sp(i) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K, 
       case res => Some(res)
     }
     def equivOnKey = self.equivOnKey
-    def pairs = (self.keySet union that.keySet).elements.map(k => k → (self ? k, that ? k))
+    def pairs =
+      (self.pairs map { case (k, v) => k → (Some(v), that ? k) }) ++
+      (that.pairs filter { case (k, w) => self notContainsKey k } map { case (k, w) => k → (None, Some(w)) })
     def containsKey(x: K) = self.containsKey(x) || that.containsKey(x)
   }
 
   /**
    * Wraps the keys of this map with a bijection. $LAZY
    * {{{
-   *   K => V              J <=> K         J => V
+   *   K => V              J <=> K          J => V
    *    self  . contramap  ( that )    ==   result
    * }}}
    * @example {{{
@@ -227,12 +245,13 @@ object Map extends MapLowPriorityImplicits {
     private[this] val F = Field[F]
     def fieldOnScalar = F
     def scale(x: Map[K, F], k: F) = x map (_ * k)
-    def add(x: Map[K, F], y: Map[K, F]) = (x.keySet | y.keySet).createMapBy { k =>
-      x.getOrElse(k, F.zero) + y.getOrElse(k, F.zero)
+    def add(x: Map[K, F], y: Map[K, F]) = (x fullOuterJoin y) map {
+      case (Some(a), Some(b)) => a + b
+      case (Some(a), None) => a
+      case (None, Some(b)) => b
     }
     def zero = empty[K]
   }
-
 }
 
 trait MapLowPriorityImplicits {
@@ -241,8 +260,10 @@ trait MapLowPriorityImplicits {
     private[this] val R = Ring[R]
     def ringOnScalar = R
     def scale(x: Map[K, R], k: R) = x map (_ * k)
-    def add(x: Map[K, R], y: Map[K, R]) = (x.keySet | y.keySet).createMapBy { k =>
-      x.getOrElse(k, R.zero) + y.getOrElse(k, R.zero)
+    def add(x: Map[K, R], y: Map[K, R]) = (x fullOuterJoin y) map {
+      case (Some(a), Some(b)) => a + b
+      case (Some(a), None) => a
+      case (None, Some(b)) => b
     }
     def zero = Map.empty[K]
   }

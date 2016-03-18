@@ -32,8 +32,5 @@ trait SortedSeq[T] extends Seq[T] with SortedIterable[T] { self =>
 
   def orderOnValue = order
 
-  def asSortedSet = ???
-
-  def thenSortBy[X](f: T => X)(implicit subOrder: WeakOrder[X]) = ???
-
+  //TODO: thenSortBy
 }

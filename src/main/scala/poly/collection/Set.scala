@@ -186,7 +186,7 @@ trait Set[T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
     implicit def ringOnCount = R
     def multiplicity(k: T) = if (self.contains(k)) R.one else R.zero
     def keys = self.keys
-    def containsKey(k: T) = self.contains(k)
+    def contains(k: T) = self.contains(k)
   }
 
   override def equals(that: Any) = that match {

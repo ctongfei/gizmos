@@ -225,7 +225,7 @@ trait Traversable[+T] { self =>
   def foldByMonoid[U >: T : Monoid]: U = foldLeft(id)(_ op _)
 
   /** $On */
-  def reduceLeft[U >: T](f: (U, T) => U): U = {
+  def reduceLeft[U >: T](f: (U, T) => U): U = { //TODO: Action[U, T]
     var empty = true
     var res = default[U]
     for (x ← self) {

@@ -30,28 +30,28 @@ class TraversableTest extends FunSuite {
     for (i ← 0 until n) {
       val (s, p) = genVal
       (p intersect p) foreach println
-      s ==?== p
+      s traversable_=== p
     }
   }
 
   test("Map") {
     for (i ← 0 until n) {
       val (s, p) = genVal
-      s.map(_ * 2) ==?== p.map(_ * 2)
+      s.map(_ * 2) traversable_=== p.map(_ * 2)
     }
   }
 
   test("Filter") {
     for (i ← 0 until n) {
       val (s, p) = genVal
-      s.filter(_ % 2 == 1) ==?== p.filter(_ % 2 == 1)
+      s.filter(_ % 2 == 1) traversable_=== p.filter(_ % 2 == 1)
     }
   }
 
   test("FlatMap") {
     for (i ← 0 until n) {
       val (s, p) = genVal
-      s.flatMap(i => scala.Traversable.fill(i)(i)) ==?== p.flatMap(i => i repeat i)
+      s.flatMap(i => scala.Traversable.fill(i)(i)) traversable_=== p.flatMap(i => i repeat i)
     }
   }
 

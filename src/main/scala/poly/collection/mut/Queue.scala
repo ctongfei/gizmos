@@ -43,4 +43,6 @@ trait Queue[T] {
   def dequeue() = pop()
   def front = top
 
+  override def toString = "(" + elements.buildString(",") + ")"
+
 }

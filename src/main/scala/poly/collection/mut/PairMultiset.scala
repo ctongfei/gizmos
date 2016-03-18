@@ -23,7 +23,7 @@ class PairMultiset[K: IntHashing, R: OrderedRing] private(private val data: Hash
 
   def keys = data.keys
 
-  def containsKey(k: K) = data.containsKey(k)
+  def contains(k: K) = data.containsKey(k)
 
   def add(x: K, w: R = ringOnCount.one) = data(x) += w
 }

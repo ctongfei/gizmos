@@ -25,6 +25,7 @@ trait BiSeq[+T] extends Seq[T] { self =>
 
   def headNode: BiSeqNode[T]
 
+  /** Returns the last node of this sequence. */
   def lastNode: BiSeqNode[T]
 
   //region HELPER FUNCTIONS
@@ -33,7 +34,7 @@ trait BiSeq[+T] extends Seq[T] { self =>
 
   override def foldRight[U](z: U)(f: (T, U) => U): U = {
     var accum = z
-    var node = dummy.prev
+    var node = lastNode
     while (node.notDummy) {
       accum = f(node.data, accum)
       node = node.prev
@@ -51,37 +52,37 @@ trait BiSeq[+T] extends Seq[T] { self =>
     ofDummyNode {
       new BiSeqNode[U] {
         def data = throw new DummyNodeException
-        def next = new ConsecutiveNode(self.dummy.next, self.dummy.next.next)
-        def prev = new ConsecutiveNode(self.dummy.prev.prev, self.dummy.prev)
+        def next = new ConsecutiveNode(self.headNode, self.headNode.next)
+        def prev = new ConsecutiveNode(self.lastNode.prev, self.lastNode)
         def isDummy = true
       }
     }
   }
 
-  override def tail = ofHeadLastNode(dummy.next.next, dummy.prev)
+  override def tail = ofHeadLastNode(headNode.next, lastNode)
 
-  override def init = ofHeadLastNode(dummy.next, dummy.prev.prev)
+  override def init = ofHeadLastNode(headNode, lastNode.prev)
 
-  override def last = dummy.prev.data
+  override def last = lastNode.data
 
   override def suffixes = {
     class From(val n: BiSeqNode[T]) extends BiSeqNode[BiSeq[T]] {
-      def data = ofHeadLastNode(n, self.dummy.prev)
+      def data = ofHeadLastNode(n, self.lastNode)
       def next = new From(n.next)
       def prev = new From(n.prev)
       def isDummy = n.isDummy
     }
-    ofHeadLastNode(new From(self.dummy.next), new From(self.dummy.prev))
+    ofHeadLastNode(new From(self.headNode), new From(self.lastNode))
   }
 
   override def prefixes = {
     class Until(val n: BiSeqNode[T]) extends BiSeqNode[BiSeq[T]] {
-      def data = ofHeadLastNode(n.reverse, self.dummy.next.reverse)
+      def data = ofHeadLastNode(n.reverse, self.headNode.reverse)
       def next = new Until(n.prev)
       def prev = new Until(n.next)
       def isDummy = n.isDummy
     }
-    ofHeadLastNode(new Until(self.dummy.prev), new Until(self.dummy.next))
+    ofHeadLastNode(new Until(self.lastNode), new Until(self.headNode))
   }
 
   override def reverse: BiSeq[T] = new AbstractBiSeq[T] {

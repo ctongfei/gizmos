@@ -17,7 +17,7 @@ object TestUtil {
     extends Exception
 
   implicit class checkTraversable[T](s: sc.Traversable[T]) {
-    def ==?==(p: pc.Traversable[T]) = {
+    def traversable_===(p: pc.Traversable[T]) = {
       val sa = scm.ArrayBuffer[T]()
       val pa = scm.ArrayBuffer[T]()
       s foreach sa.+=
@@ -32,7 +32,8 @@ object TestUtil {
   }
 
   implicit class checkIterable[T](s: sc.Iterable[T]) {
-    def ==?==(p: pc.Iterable[T]) = {
+    def iterable_===(p: pc.Iterable[T]) = {
+      s traversable_=== p
       val si = s.iterator
       val pi = p.newIterator
       while (si.hasNext && pi.advance())
@@ -42,7 +43,8 @@ object TestUtil {
   }
 
   implicit class checkSeq[T](s: sc.Seq[T]) {
-    def ==?==(p: pc.Seq[T]) = {
+    def seq_===(p: pc.Seq[T]) = {
+      s iterable_=== p
       if (s.length != p.length) throw new SizeMismatchException
       for (i ← s.indices) {
         if (s(i) != p(i)) throw new ElementMismatchException
@@ -51,7 +53,8 @@ object TestUtil {
   }
 
   implicit class checkSet[T](s: sc.Set[T]) {
-    def ==?==(p: pc.Set[T]) = {
+    def set_===(p: pc.Set[T]) = {
+      s iterable_=== p.elements
       if (s.size != p.size) throw new SizeMismatchException
       for (x ← s) if (!p.contains(x)) throw new ElementMismatchException
       for (x ← p) if (!s.contains(x)) throw new ElementMismatchException
@@ -59,7 +62,8 @@ object TestUtil {
   }
 
   implicit class checkMap[K, V](s: sc.Map[K, V]) {
-    def ==?==(p: pc.Map[K, V]) = {
+    def map_===(p: pc.Map[K, V]) = {
+      s iterable_=== p.pairs
       if (s.size != p.size) throw new SizeMismatchException
       for (k ← s.keys) if (s(k) != p(k)) throw new ElementMismatchException
       for (k ← p.keys) if (s(k) != p(k)) throw new ElementMismatchException

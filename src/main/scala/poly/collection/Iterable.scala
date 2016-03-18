@@ -202,17 +202,17 @@ trait Iterable[+T] extends Traversable[T] { self =>
    * Advances this iterator past the first ''n'' elements.
    * @param n The number of elements to be skipped
    */
-  override def skip(n: Int): Iterable[T] = {
+  override def skip(n: Int): Iterable[T] = ofIterator {
     val skippedIterator = self.newIterator
     var i = 0
     while (i < n && skippedIterator.advance()) i += 1
-    ofIterator(skippedIterator)
+    skippedIterator
   }
 
-  override def skipWhile(f: T => Boolean): Iterable[T] = {
+  override def skipWhile(f: T => Boolean) = ofIterator {
     val skippedIterator = self.newIterator
     while (skippedIterator.advance() && f(skippedIterator.current)) {}
-    ofIterator(skippedIterator)
+    skippedIterator
   }
 
   override def takeWhile(f: T => Boolean) = ofIterator {

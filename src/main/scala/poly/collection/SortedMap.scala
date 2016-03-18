@@ -21,5 +21,5 @@ trait SortedMap[@sp(i) K, +V] extends Map[K, V] { self =>
 }
 
 // TODO: This trait is a workaround to enforce that the K=Int in `Seq[V] extends SortedMap[K, V]` is specialized.
-// TODO: Does not know why specialization under `Seq[T] extends SortedMap[Int, T]` does not work.
+// TODO: I don't know why specialization under `Seq[T] extends SortedMap[Int, T]` does not work.
 private[poly] trait IntKeyedSortedMap[+V] extends SortedMap[Int, V]
