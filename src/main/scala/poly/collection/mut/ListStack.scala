@@ -4,7 +4,6 @@ import poly.collection._
 import poly.collection.builder._
 import poly.collection.factory._
 import poly.collection.impl._
-import poly.util.specgroup._
 
 /**
  * A stack backed by a singly linked list.

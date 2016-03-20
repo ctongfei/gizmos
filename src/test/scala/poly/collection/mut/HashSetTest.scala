@@ -3,7 +3,6 @@ package poly.collection.mut
 import poly.algebra.syntax._
 import poly.collection._
 import poly.collection.impl._
-import poly.util.typeclass.ops._
 
 import scala._
 import scala.util._

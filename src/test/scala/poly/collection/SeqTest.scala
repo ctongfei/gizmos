@@ -9,6 +9,7 @@ object SeqTest extends App {
 
   for (i ← 0 ~~< 4) println(i)
 
+
   val a = ListSeq[Int]()
   a appendInplace 0
   a appendInplace 2

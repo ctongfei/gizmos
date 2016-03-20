@@ -1,8 +1,8 @@
 package poly.collection.search
 
 import poly.algebra._
+import poly.algebra.specgroup._
 import poly.collection._
-import poly.util.specgroup._
 
 /**
  * Represents a search state space whose edges are weighted.

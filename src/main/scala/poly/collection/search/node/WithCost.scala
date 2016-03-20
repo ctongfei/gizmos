@@ -4,7 +4,6 @@ import poly.algebra._
 import poly.algebra.syntax._
 import poly.collection.exception._
 import poly.collection.search._
-import poly.util.specgroup._
 
 /**
  * Represents a node in the fringe / open set of a searching algorithm.

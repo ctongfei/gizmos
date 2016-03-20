@@ -49,6 +49,10 @@ trait Map[@sp(i) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K, 
    */
   def containsKey(x: K): Boolean
 
+  /**
+   * Returns the value associated with the given key,
+   * or a default value if the key is not present in the map.
+   */
   def getOrElse[W >: V](x: K, default: => W) = ?(x) match {
     case Some(y) => y
     case None => default
@@ -202,6 +206,14 @@ trait Map[@sp(i) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K, 
     implicit def equivOnKey = self.equivOnKey contramap f
   }
 
+  def withDefault[W >: V](default: W): Map[K, W] = new AbstractMap[K, W] {
+    def pairs = self.pairs
+    def containsKey(x: K) = self.containsKey(x)
+    def apply(k: K) = (self ? k).getOrElse(default)
+    def ?(k: K) = self ? k
+    def equivOnKey = self.equivOnKey
+}
+
   def asMap: Map[K, V] = new AbstractMap[K, V] {
     def apply(k: K) = self.apply(k)
     def ?(k: K) = self ? k
@@ -249,6 +261,7 @@ object Map extends MapLowPriorityImplicits {
       case (Some(a), Some(b)) => a + b
       case (Some(a), None) => a
       case (None, Some(b)) => b
+      case _ => F.zero
     }
     def zero = empty[K]
   }
@@ -264,6 +277,7 @@ trait MapLowPriorityImplicits {
       case (Some(a), Some(b)) => a + b
       case (Some(a), None) => a
       case (None, Some(b)) => b
+      case _ => R.zero
     }
     def zero = Map.empty[K]
   }

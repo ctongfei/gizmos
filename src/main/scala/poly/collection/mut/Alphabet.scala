@@ -5,6 +5,8 @@ import poly.collection._
 import scala.language.higherKinds
 
 /**
+ * Represents a mutable alphabet.
+ * @since 0.1.0
  * @author Tongfei Chen
  */
 class Alphabet[T: IntHashing] private(
@@ -48,5 +50,13 @@ class Alphabet[T: IntHashing] private(
 
 object Alphabet {
 
+  def apply[T: IntHashing] = new Alphabet(HashMap[T, Int](), ArraySeq())
+
+  /**
+   * Creates an alphabet with a `nil` element. This element will be mapped to index `0`.
+   */
+  def withNil[T: IntHashing](nil: T) = {
+    new Alphabet[T](HashMap[T, Int](nil → 0), ArraySeq(nil))
+  }
 
 }

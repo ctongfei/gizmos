@@ -1,12 +1,5 @@
 package poly.collection.impl
 
-import poly.collection._
-import poly.collection.exception._
-import poly.collection.factory._
-import poly.collection.impl._
-import poly.util.specgroup._
-import scala.reflect._
-
 /**
  * An circular array.
  * @author Tongfei Chen

@@ -6,6 +6,7 @@ import poly.collection.node._
 /**
  * Represents a bidirectional sequence, i.e. a sequence that supports
  * fast access to the last element as well as fast reversed traversal.
+ *
  * @author Tongfei Chen
  * @since 0.1.0
  */
@@ -59,30 +60,30 @@ trait BiSeq[+T] extends Seq[T] { self =>
     }
   }
 
-  override def tail = ofHeadLastNode(headNode.next, lastNode)
+  override def tail = ofHeadAndLastNode(headNode.next, lastNode)
 
-  override def init = ofHeadLastNode(headNode, lastNode.prev)
+  override def init = ofHeadAndLastNode(headNode, lastNode.prev)
 
   override def last = lastNode.data
 
   override def suffixes = {
     class From(val n: BiSeqNode[T]) extends BiSeqNode[BiSeq[T]] {
-      def data = ofHeadLastNode(n, self.lastNode)
+      def data = ofHeadAndLastNode(n, self.lastNode)
       def next = new From(n.next)
       def prev = new From(n.prev)
       def isDummy = n.isDummy
     }
-    ofHeadLastNode(new From(self.headNode), new From(self.lastNode))
+    ofHeadAndLastNode(new From(self.headNode), new From(self.lastNode))
   }
 
   override def prefixes = {
     class Until(val n: BiSeqNode[T]) extends BiSeqNode[BiSeq[T]] {
-      def data = ofHeadLastNode(n.reverse, self.headNode.reverse)
+      def data = ofHeadAndLastNode(n.reverse, self.headNode.reverse)
       def next = new Until(n.prev)
       def prev = new Until(n.next)
       def isDummy = n.isDummy
     }
-    ofHeadLastNode(new Until(self.lastNode), new Until(self.headNode))
+    ofHeadAndLastNode(new Until(self.lastNode), new Until(self.headNode))
   }
 
   override def reverse: BiSeq[T] = new AbstractBiSeq[T] {
@@ -108,7 +109,7 @@ object BiSeq {
     def lastNode = d.prev
   }
 
-  def ofHeadLastNode[T](hn: BiSeqNode[T], ln: BiSeqNode[T]): BiSeq[T] = new AbstractBiSeq[T] {
+  def ofHeadAndLastNode[T](hn: BiSeqNode[T], ln: BiSeqNode[T]): BiSeq[T] = new AbstractBiSeq[T] {
     def headNode = hn
     def lastNode = ln
   }

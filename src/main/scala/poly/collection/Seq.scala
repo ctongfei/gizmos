@@ -16,7 +16,7 @@ import scala.annotation.unchecked.{uncheckedVariance => uv}
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait Seq[+T] extends Iterable[T] with IntKeyedSortedMap[T] { self =>
+trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
 
   import Seq._
 
@@ -513,6 +513,11 @@ object Seq {
     def flatMap[X, Y](mx: Seq[X])(f: X => Seq[Y]) = mx flatMap f
     def empty[X] = Seq.empty
     def concat[X](sx: Seq[X], sy: Seq[X]) = sx concat sy
+  }
+
+  implicit def FreeMonoid[T]: ConcatenativeMonoid[Seq[T]] = new ConcatenativeMonoid[Seq[T]] {
+    def concat(x: Seq[T], y: Seq[T]) = x ++ y
+    def empty = Seq.empty
   }
 
   implicit object Comonad extends Comonad[Seq] { //TODO: actually should be Comonad[NonEmptySeq]

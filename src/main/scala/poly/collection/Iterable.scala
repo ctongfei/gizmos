@@ -502,7 +502,7 @@ object Iterable {
     }
   }
 
-  def zipN[T](xss: Iterable[T]*) = ofIterator {
+  def zipMany[T](xss: Iterable[T]*) = ofIterator {
     new Iterator[IndexedSeq[T]] {
       private[this] val is = ArraySeq.tabulate(xss.length)(i => xss(i).newIterator)
       def current = is.map(_.current)
@@ -533,7 +533,7 @@ object Iterable {
   }
 
 
-  implicit class ofIterables[T](val underlying: Iterable[Iterable[T]]) extends AnyVal {
+  implicit class ofIterablesOps[T](val underlying: Iterable[Iterable[T]]) extends AnyVal {
     /**
       * "Flattens" this collection of collection into one collection.
       * @example {{{((1, 2, 3), (4, 5), (), (7)).flatten == (1, 2, 3, 4, 5, 7)}}}
@@ -541,7 +541,7 @@ object Iterable {
     def flatten: Iterable[T] = underlying.flatMap(identity)
   }
 
-  implicit class ofPairs[A, B](val underlying: Iterable[(A, B)]) extends AnyVal {
+  implicit class ofPairsOps[A, B](val underlying: Iterable[(A, B)]) extends AnyVal {
 
     def unzip = (underlying map firstOfPair, underlying map secondOfPair)
 

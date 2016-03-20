@@ -2,12 +2,9 @@ package poly.collection.mut
 
 import poly.collection._
 import poly.collection.builder._
-import poly.collection.conversion._
 import poly.collection.factory._
 import poly.collection.impl._
 import poly.macroutil._
-import poly.util.specgroup._
-import scala.reflect._
 
 /**
  * A mutable sequence backed by a resizable array.

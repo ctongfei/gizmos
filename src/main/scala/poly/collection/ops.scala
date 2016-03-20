@@ -54,6 +54,9 @@ object ops {
     /** Checks if this element belongs to the specific set. */
     def in(set: Set[T]) = set contains x
 
+    /** Checks if this element belongs to the specific multiset. */
+    def in(mSet: Multiset[T, _]) = mSet contains x
+
     /**
      * Constructs a sequence of length 1 with this specific element.
      * @return A sequence with only `this` element
@@ -81,13 +84,24 @@ object ops {
      */
     def iterate(f: T => T) = Seq.iterate(x)(f)
 
-    def unfold[U](f: T => (U, T)): Seq[U] = {
-      class UnfoldedNode(val state: T) extends SeqNode[U] {
+
+    def unfold[A](f: T => (A, Option[T])): Seq[A] = {
+      class UnfoldedNode(val state: Option[T]) extends SeqNode[A] {
+        println(state)
+        def data = f(state.get)._1
+        def next = new UnfoldedNode(f(state.get)._2)
+        def isDummy = state.isEmpty
+      }
+      Seq.ofHeadNode(new UnfoldedNode(Some(x)))
+    }
+
+    def unfoldInfinitely[A](f: T => (A, T)): Seq[A] = {
+      class InfinitelyUnfoldedNode(val state: T) extends SeqNode[A] {
         val (data, nextState) = f(state)
-        def next = new UnfoldedNode(nextState)
+        def next = new InfinitelyUnfoldedNode(nextState)
         def isDummy = false
       }
-      Seq.ofHeadNode(new UnfoldedNode(x))
+      Seq.ofHeadNode(new InfinitelyUnfoldedNode(x))
     }
 
   }

@@ -28,7 +28,7 @@ class IterableTest extends FunSuite {
   test("Iterable.prepend") { (scala.Iterable(3) ++ s) iterable_=== (3 +: p) }
 
   test("Iterable.scanLeft") { s.scanLeft(0)(_+_) iterable_=== p.scanLeft(0)(_+_) }
-  test("Iterable.scanRight") { s.scanRight(0)(_+_).toSeq.reverse iterable_=== p.scanRight(0)(_+_) }
+  test("Iterable.scanRight") { s.scanRight(0)(_+_) iterable_=== p.scanRight(0)(_+_) }
 
 
   test("Iterable.skip") { s.drop(4) iterable_=== p.skip(4) }

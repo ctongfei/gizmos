@@ -11,9 +11,9 @@ import scala.language.higherKinds
  */
 trait MapFactory[M[_, _]] {
 
-  implicit def newBuilder[K, V]: Builder[(K, V), M[K, V]]
+  implicit def newBuilder[K: Equiv, V]: Builder[(K, V), M[K, V]]
 
-  def apply[K, V](kvs: (K, V)*): M[K, V] = {
+  def apply[K: Equiv, V](kvs: (K, V)*): M[K, V] = {
     val b = newBuilder[K, V]
     b.sizeHint(kvs.length)
     b addAll kvs
@@ -27,6 +27,19 @@ trait MapFactoryWithIntHashing[M[_, _]] {
   implicit def newBuilder[K: IntHashing, V]: Builder[(K, V), M[K, V]]
 
   def apply[K: IntHashing, V](kvs: (K, V)*): M[K, V] = {
+    val b = newBuilder[K, V]
+    b.sizeHint(kvs.length)
+    b addAll kvs
+    b.result
+  }
+
+}
+
+trait MapFactoryWithOrder[M[_, _]] {
+
+  implicit def newBuilder[K: WeakOrder, V]: Builder[(K, V), M[K, V]]
+
+  def apply[K: WeakOrder, V](kvs: (K, V)*): M[K, V] = {
     val b = newBuilder[K, V]
     b.sizeHint(kvs.length)
     b addAll kvs

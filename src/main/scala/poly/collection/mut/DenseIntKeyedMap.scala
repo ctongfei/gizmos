@@ -2,10 +2,9 @@ package poly.collection.mut
 
 import poly.algebra._
 import poly.collection._
-import poly.collection.exception._
 import poly.collection.impl._
 import poly.collection.impl.specialized._
-import poly.util.fastloop._
+import poly.macroutil._
 
 /**
  * A special implementation of maps keyed by integers backed by an array.
@@ -65,3 +64,4 @@ class DenseIntKeyedMap[T] private(
   }
 
 }
+

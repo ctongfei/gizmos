@@ -2,7 +2,7 @@ package poly.collection.impl
 
 import poly.collection._
 import poly.collection.exception._
-import poly.collection.mut._
+import poly.collection.impl.specialized._
 import poly.collection.node._
 
 /**
@@ -11,8 +11,8 @@ import poly.collection.node._
  */
 class ArrayBinaryTree[T] (
   private[poly] val data: ResizableSeq[T],
-  private[poly] val state: ResizableSeq[Boolean]
-) extends BinaryTree[T] { self =>
+  private[poly] val state: SpResizableArray[Boolean]
+) extends AbstractBinaryTree[T] { self =>
 
   class Node (val i: Int) extends BiBinaryTreeNode[T] {
     def isDummy = !state(i)
@@ -49,7 +49,6 @@ class ArrayBinaryTree[T] (
   }
 
   def insertAt(i: Int, x: T, direction: Boolean) = ???
-
 
   @inline private[this] def nodeExists(i: Int) = {
     i >= 0 && i < data.fastLength && state(i)

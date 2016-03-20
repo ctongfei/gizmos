@@ -2,12 +2,15 @@ package poly.collection.mut
 
 import poly.algebra._
 import poly.collection._
+import poly.collection.builder._
 import poly.collection.exception._
+import poly.collection.factory._
 import poly.collection.impl._
 
 /**
  * @author Tongfei Chen
  */
+// TODO: change to impl.linkedlist.SinglyLinkedList with customized node
 class ListMap[K, V] private(private val data: SinglyLinkedList[KeyValuePair[K, V]])(implicit val equivOnKey: Equiv[K]) extends KeyMutableMap[K, V] {
 
   override def size = data.size
@@ -68,6 +71,12 @@ class ListMap[K, V] private(private val data: SinglyLinkedList[KeyValuePair[K, V
 
 }
 
-//TODO:!!! change to MapFactory
-object ListMap {
+object ListMap extends MapFactory[ListMap] {
+
+  implicit def newBuilder[K: Equiv, V]: Builder[(K, V), ListMap[K, V]] = new Builder[(K, V), ListMap[K, V]] {
+    def sizeHint(n: Int) = ???
+    def result = ???
+    def add(x: (K, V)) = ???
+  }
+
 }

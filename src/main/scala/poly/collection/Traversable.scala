@@ -2,16 +2,13 @@ package poly.collection
 
 import poly.algebra._
 import poly.algebra.hkt._
-import poly.algebra.ops._
-import poly.algebra.function._
+import poly.algebra.syntax._
+import poly.algebra.mut._
 import poly.collection.builder._
 import poly.collection.exception._
 import poly.collection.factory._
 import poly.collection.mut._
 import poly.macroutil._
-import poly.util.typeclass._
-import poly.util.typeclass.ops._
-
 import scala.language.higherKinds
 import scala.annotation.unchecked.{uncheckedVariance => uv}
 import scala.reflect._
@@ -215,8 +212,12 @@ trait Traversable[+T] { self =>
     r
   }
 
+  def foldLeftByAction[U](z: U)(f: Action[U, T]) = foldLeft(z)(f.act)
+
   /** $On */
   def foldRight[U](z: U)(f: (T, U) => U): U = reverse.foldLeft(z)((s, t) => f(t, s))
+
+  def foldRightByAction[U](z: U)(f: Action[U, T]) = foldRight(z)((s, t) => f.act(t, s))
 
   /** $On */
   def fold[U >: T](z: U)(f: (U, U) => U): U = foldLeft(z)(f)
@@ -257,7 +258,7 @@ trait Traversable[+T] { self =>
     }
   }
 
-  def scanRight[U](z: U)(f: (T, U) => U) = self.reverse.scanLeft(z)((x, y) => f(y, x))
+  def scanRight[U](z: U)(f: (T, U) => U) = self.reverse.scanLeft(z)((x, y) => f(y, x)).reverse
 
   /** $LAZY $O1 */
   def scan[U >: T](z: U)(f: (U, U) => U): Traversable[U] = scanLeft(z)(f)
@@ -500,12 +501,12 @@ trait Traversable[+T] { self =>
    * @tparam U Supertype of the type of elements: must be endowed with an additive monoid.
    * @return The sum
    */
-  def sum[U >: T : AdditiveCMonoid]: U = fold(zero)(_+_)
+  def sum[U >: T : AdditiveCMonoid]: U = fold(zero[U])(_+_)
 
   def sumBy[U: AdditiveCMonoid](f: T => U) = map(f).sum
 
-  def sumInplace[U >: T](implicit U: InplaceAdditiveCMonoid[U]) = {
-    val sum = zero[U]
+  def sumInplace[U >: T](implicit U: InplaceAdditiveMonoid[U]) = {
+    val sum = U.zero
     for (x ← self) U.addInplace(sum, x)
     sum
   }
@@ -516,7 +517,7 @@ trait Traversable[+T] { self =>
    * @tparam X Supertype of the type of elements: must be endowed with an additive monoid
    * @return The prefix sums sequence
    */
-  def prefixSums[X >: T](implicit X: AdditiveMonoid[X]) = scan(zero)(_+_)
+  def prefixSums[X >: T](implicit X: AdditiveMonoid[X]) = scan(X.zero)(X.add)
 
   /**
    * Returns the consecutive differences sequence of this collection.
@@ -669,16 +670,16 @@ trait Traversable[+T] { self =>
     b.result
   }
 
-  def buildString[U >: T : Formatter](delimiter: String): String = {
+  def buildString(delimiter: String): String = {
     val sb = new StringBuilder
     var first = true
     for (x ← this) {
       if (first) {
-        sb.append(x.str)
+        sb.append(x.toString)
         first = false
       } else {
         sb.append(delimiter)
-        sb.append(x.str)
+        sb.append(x.toString)
       }
     }
     sb.result()

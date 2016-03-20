@@ -5,8 +5,6 @@ import poly.collection.builder._
 import poly.collection.exception._
 import poly.collection.factory._
 import poly.collection.impl._
-import poly.util.specgroup._
-import scala.reflect._
 
 /**
  * An array-backed circular queue that supports amortized O(1) time for both insertion and deletion.

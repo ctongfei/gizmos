@@ -6,8 +6,6 @@ import poly.collection.impl._
 import poly.collection.mut._
 import poly.collection.node._
 import poly.collection.ops._
-import poly.util.typeclass._
-import poly.util.typeclass.ops._
 
 /**
  * Represents a binary tree.
@@ -132,7 +130,7 @@ trait BinaryTree[+T] { self =>
     Tree.ofRootNode(new BinaryTreeAsTreeNode(self.rootNode))
   }
 
-  override def toString() = self.str
+  override def toString = if (isEmpty) "#" else s"($root $left $right)"
 
 }
 
@@ -174,11 +172,6 @@ object BinaryTree {
   implicit object Comonad extends Comonad[BinaryTree] {
     def id[X](u: BinaryTree[X]) = ???
     def extend[X, Y](wx: BinaryTree[X])(f: BinaryTree[X] => Y) = wx.subtrees map f
-  }
-
-  implicit def Formatter[T: Formatter]: Formatter[BinaryTree[T]] = new Formatter[BinaryTree[T]] {
-    def str(x: BinaryTree[T]): String =
-      if (x.isEmpty) "#" else s"(${x.root.str} ${x.left.str} ${x.right.str})" //TODO: change to non-recursion
   }
 
 }

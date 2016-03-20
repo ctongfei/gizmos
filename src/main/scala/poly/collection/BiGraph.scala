@@ -1,7 +1,7 @@
 package poly.collection
 
 import poly.collection.node._
-import poly.util.specgroup._
+import poly.algebra.specgroup._
 
 /**
  * Represents a bidirectional graph, i.e., a graph in which each

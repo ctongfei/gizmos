@@ -17,3 +17,7 @@ trait RemovableBuilder[-T, +C] extends Builder[T, C] {
   def --=(xs: Traversable[T]) = xs foreach remove
 
 }
+
+object RemovableBuilder {
+
+}

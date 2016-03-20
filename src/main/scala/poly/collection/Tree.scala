@@ -3,8 +3,6 @@ package poly.collection
 import poly.algebra._
 import poly.algebra.hkt._
 import poly.collection.mut._
-import poly.util.typeclass._
-import poly.util.typeclass.ops._
 import poly.collection.node._
 
 /**
@@ -27,8 +25,7 @@ trait Tree[+T] { self =>
   /**
    * Folds a tree bottom-up using the specific function.
    */
-  def foldBottomUp[U](z: U)(f: (T, Seq[U]) => U): U = { ???
-  }
+  def foldBottomUp[U](z: U)(f: (T, Seq[U]) => U): U = ???
 
   /**
    * '''Lazily''' performs the Knuth transform on this tree, i.e. representing this multi-way tree
@@ -99,8 +96,16 @@ trait Tree[+T] { self =>
    *    └  e   f    ┘
    * }}}
    */
-  def postOrder: Iterable[T] = knuthTransform.inOrder //TODO: a more efficient implementation?
+  def postOrder = knuthTransform.inOrder //TODO: a more efficient implementation?
+
+  override def toString =
+    "(" + root.toString +
+      (if (children.size == 0) "" else " ") +
+      children.buildString(" ") +
+      ")"
   //endregion
+
+
 }
 
 object Tree {
@@ -109,7 +114,7 @@ object Tree {
     def rootNode = n
   }
 
-  implicit def KnuthTransform[T]: Bijection[Tree[T], BinaryTree[T]] = new Bijection[Tree[T], BinaryTree[T]] {
+  def KnuthTransform[T]: Bijection[Tree[T], BinaryTree[T]] = new Bijection[Tree[T], BinaryTree[T]] {
     def apply(x: Tree[T]) = x.knuthTransform
     def invert(y: BinaryTree[T]) = y.inverseKnuthTransform
   }
@@ -119,17 +124,6 @@ object Tree {
     def extend[X, Y](wx: Tree[X])(f: Tree[X] => Y): Tree[Y] = ???
   }
 
-  /**
-   * Formats a tree into an S-expression.
-   * @return An S-expression that represents the specific tree.
-   */
-  implicit def Formatter[T: Formatter]: Formatter[Tree[T]] = new Formatter[Tree[T]] {
-    def str(x: Tree[T]): String =
-      "(" + x.root.str +
-        (if (x.children.size == 0) "" else " ") +
-        x.children.buildString(" ")(this) +
-      ")"
-  }
 }
 
 abstract class AbstractTree[T] extends Tree[T]

@@ -1,6 +1,7 @@
 package poly.collection.builder
 
 import poly.algebra._
+import poly.algebra.mut._
 import poly.collection._
 
 import scala.annotation._
@@ -14,7 +15,7 @@ import scala.language.higherKinds
   * @since 0.1.0
   */
 @implicitNotFound("Cannot find a builder to build ${C} from ${T}.")
-trait Builder[-T, +C] {
+trait Builder[-T, +C] { // TODO: specialize T?
 
   /**
     * Provides a hint to this builder about how many elements are expected to be added.
@@ -42,4 +43,14 @@ trait Builder[-T, +C] {
 
   def +=(x: T) = add(x)
   def ++=(xs: Traversable[T]) = xs foreach add
+
+
+}
+
+object Builder {
+
+  implicit def Action[T, C]: InplaceAdditiveAction[Builder[T, C], T] = new InplaceAdditiveAction[Builder[T, C], T] {
+    def addInplace(x: Builder[T, C], s: T) = x add s
+  }
+
 }
