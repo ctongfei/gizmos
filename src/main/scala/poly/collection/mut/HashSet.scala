@@ -38,7 +38,7 @@ object HashSet extends FactoryWithIntHashing[HashSet] {
 
   implicit def newBuilder[T: IntHashing]: Builder[T, HashSet[T]] = new Builder[T, HashSet[T]] {
     private[this] val s = new OpenHashTable[T, Entry[T]]()
-    def add(x: T) = s.addEntry(new Entry(x))
+    def addInplace(x: T) = s.addEntry(new Entry(x))
     def result = new HashSet[T](s)
     def sizeHint(n: Int) = s.grow(n)
   }

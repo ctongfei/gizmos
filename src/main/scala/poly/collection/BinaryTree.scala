@@ -16,7 +16,7 @@ trait BinaryTree[+T] { self =>
 
   import BinaryTree._
 
-  def dummy = new BinaryTreeNode[T] {
+  def dummy: BinaryTreeNode[T] = new BinaryTreeNode[T] {
     def data: T = throw new DummyNodeException
     def left: BinaryTreeNode[T] = rootNode
     def right: BinaryTreeNode[T] = rootNode
@@ -90,16 +90,84 @@ trait BinaryTree[+T] { self =>
 
   def fold[U >: T](z: U)(f: (U, U, U) => U) = foldBottomUp(z)(f)
 
-  def zip[U](that: BinaryTree[U]): BinaryTree[(T, U)] = ofRootNode(self.rootNode zip that.rootNode)
+  /**
+   * Zips two binary trees. $LAZY
+   * @example {{{
+   *   ┌      a    ┐     ┌    1      ┐    ┌               ┐
+   *   │     / \   │     │   / \     │    │     (a,1)     │
+   *   │    b   c  │ zip │  2   3    │ == │     /   \     │
+   *   │   / \     │     │     / \   │    │ (b,2)   (c,3) │
+   *   └  d   e    ┘     └    4   5  ┘    └               ┘
+   * }}}
+   */
+  def zip[U](that: BinaryTree[U]) = ofRootNode(self.rootNode zip that.rootNode)
 
+  /**
+   * '''Lazily''' traverses this binary tree in pre-order.
+   * @example {{{
+   *    ┌      a    ┐
+   *    │     / \   │
+   *    │    b   c  │
+   *    │   / \     │.preOrder == (a, b, d, e, c)
+   *    └  d   e    ┘
+   * }}}
+   */
   def preOrder = rootNode.preOrder.map(_.data)
+
+
+  /**
+   * '''Lazily''' traverses this binary tree in in-order.
+   * @example {{{
+   *    ┌      a    ┐
+   *    │     / \   │
+   *    │    b   c  │
+   *    │   / \     │.inOrder == (d, b, e, a, c)
+   *    └  d   e    ┘
+   * }}}
+   */
   def inOrder = rootNode.inOrder.map(_.data)
+
+
+  /**
+   * '''Lazily''' traverses this binary tree in post-order.
+   * @example {{{
+   *    ┌      a    ┐
+   *    │     / \   │
+   *    │    b   c  │
+   *    │   / \     │.postOrder = (d, e, b, c, a)
+   *    └  d   e    ┘
+   * }}}
+   */
   def postOrder = rootNode.postOrder.map(_.data)
+
+
+  /**
+   * '''Lazily''' traverses this binary tree in level-order.
+   * @example {{{
+   *    ┌      a    ┐
+   *    │     / \   │
+   *    │    b   c  │
+   *    │   / \     │.levelOrder == (a, b, c, d, e)
+   *    └  d   e    ┘
+   * }}}
+   */
+  def levelOrder = rootNode.breadthFirstTreeTraversal.map(_.data)
+
+  def leaves = rootNode.preOrder.filter(_.isLeaf).map(_.data)
 
   /**
    * Performs inverse Knuth transform on this binary tree, i.e., recover the multi-way tree
    * compactly represented by this binary tree through Knuth transform (left-child-right-sibling
    * representation). $LAZY
+   * @example {{{
+   *  ┌     a   ┐
+   *  │    /    │                          ┌     a   ┐
+   *  │   b     │                          │    /|\  │
+   *  │  / \    │.inverseKnuthTransform == │   b c d │
+   *  │ e   c   │                          │  / \    │
+   *  │  \   \  │                          └ e   f   ┘
+   *  └   f   d ┘
+   * }}}
    */
   def inverseKnuthTransform: Tree[T] = new Tree[T] {
     class InverseKnuthTransformedTreeNode(val node: BinaryTreeNode[T]) extends TreeNode[T] {

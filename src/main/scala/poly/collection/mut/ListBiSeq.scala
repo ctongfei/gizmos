@@ -113,6 +113,6 @@ object ListBiSeq extends SeqFactory[ListBiSeq] {
     private[this] val l = new ListBiSeq[T]()
     def sizeHint(n: Int) = {}
     def result = l
-    def add(x: T) = l.appendInplace(x)
+    def addInplace(x: T) = l.appendInplace(x)
   }
 }

@@ -206,8 +206,8 @@ object IndexedSeq {
   class NodeProxy[+T](val seq: IndexedSeq[T], val i: Int) extends BiSeqNode[T] {
     def isDummy = (i < 0) || (i >= seq.length)
     def data = seq(i)
-    def next = if (i == seq.length - 1) BiSeqNode.dummy else new NodeProxy(seq, i + 1)
-    def prev = if (i == 0) BiSeqNode.dummy else new NodeProxy(seq, i - 1)
+    def next = if (i >= seq.length - 1) BiSeqNode.dummy else new NodeProxy(seq, i + 1)
+    def prev = if (i <= 0) BiSeqNode.dummy else new NodeProxy(seq, i - 1)
 
     override def equals(that: Any) = that match {
       case that: NodeProxy[T] => (this.seq eq that.seq) && (this.i == that.i)

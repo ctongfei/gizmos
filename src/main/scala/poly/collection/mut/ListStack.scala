@@ -34,7 +34,7 @@ object ListStack extends Factory[ListStack] {
   implicit def newBuilder[T]: Builder[T, ListStack[T]] = new Builder[T, ListStack[T]] {
     var data: SinglyLinkedList[T] = null
     def sizeHint(n: Int) = {}
-    def add(x: T) = data.prependInplace(x)
+    def addInplace(x: T) = data.prependInplace(x)
     def result = new ListStack[T](data)
   }
 

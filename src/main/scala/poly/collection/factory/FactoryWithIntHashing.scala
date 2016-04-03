@@ -20,14 +20,14 @@ trait FactoryWithIntHashing[+C[_]] {
   /** Creates a collection by adding the arguments into it. */
   def apply[T: IntHashing](xs: T*): C[T] = {
     val b = newBuilder[T]
-    b addAll xs
+    b addAllInplace xs
     b.result
   }
 
   /** Creates a collection by adding all the elements in the specific traversable sequence. */
   def from[T: IntHashing](xs: Traversable[T]): C[T] = {
     val b = newBuilder[T]
-    b addAll xs
+    b addAllInplace xs
     b.result
   }
 

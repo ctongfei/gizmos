@@ -86,7 +86,7 @@ object LinkedHashMap extends MapFactoryWithIntHashing[LinkedHashMap] {
 
   implicit def newBuilder[K: IntHashing, V]: Builder[(K, V), LinkedHashMap[K, V]] = new Builder[(K, V), LinkedHashMap[K, V]] {
     private[this] val m = new LinkedHashMap[K, V](new OpenHashTable[K, Entry[K, V]])
-    def add(x: (K, V)) = m.add(x)
+    def addInplace(x: (K, V)) = m.add(x)
     def result = m
     def sizeHint(n: Int) = m.data.grow(n)
   }

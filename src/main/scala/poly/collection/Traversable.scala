@@ -15,6 +15,7 @@ import scala.reflect._
 
 /**
  * Represents a collection whose elements can be traversed through.
+ *
  * @author Tongfei Chen
  * @since 0.1.0
  * @define LAZY The resulting collection is '''lazily''' computed.
@@ -29,6 +30,7 @@ trait Traversable[+T] { self =>
 
   /**
    * Applies a specific function to each element in this collection.
+   *
    * @param f The function to be applied. Return values are discarded.
    */
   def foreach[V](f: T => V): Unit
@@ -37,6 +39,7 @@ trait Traversable[+T] { self =>
 
   /**
    * Returns a new collection by applying a function to all elements in this collection. $LAZY
+   *
    * @example {{{(1, 2, 3) map { _ + 1 } == (2, 3, 4)}}}
    */
   def map[U](f: T => U): Traversable[U] = new AbstractTraversable[U] {
@@ -49,7 +52,8 @@ trait Traversable[+T] { self =>
     * Builds a new collection by applying a function to all elements of this collection
     * and using the elements of the resulting collections.
     * $LAZY This is the direct equivalent of the Haskell function `bind`/`>>=`.
-    * @example {{{(0, 1, 2, 3) flatMap { i => i repeat i } == (1, 2, 2, 3, 3, 3)}}}
+   *
+   * @example {{{(0, 1, 2, 3) flatMap { i => i repeat i } == (1, 2, 2, 3, 3, 3)}}}
     */
   def flatMap[U](f: T => Traversable[U]): Traversable[U] = new AbstractTraversable[U] {
     def foreach[V](g: U => V): Unit = {
@@ -61,7 +65,8 @@ trait Traversable[+T] { self =>
 
   /**
     * Returns the Cartesian product of two traversable sequences. $LAZY
-    * @example {{{(1, 2) cartesianProduct (1, 2) == ((1, 1), (1, 2), (2, 1), (2, 2))}}}
+   *
+   * @example {{{(1, 2) cartesianProduct (1, 2) == ((1, 1), (1, 2), (2, 1), (2, 2))}}}
     * @param that Another traversable sequence
     */
   def product[U](that: Traversable[U]): Traversable[(T, U)] =
@@ -69,6 +74,7 @@ trait Traversable[+T] { self =>
 
   /**
    * Counts the number of elements in this collection that satisfy the specified predicate.
+   *
    * @return The number of elements that satisfy ''f''
    */
   def count(f: T => Boolean): Int = {
@@ -80,6 +86,7 @@ trait Traversable[+T] { self =>
 
   /**
    * Selects only the elements that satisfy the specified predicate. $LAZY
+   *
    * @example {{{(1, 2, 3, 4) filter { _ > 2 } == (3, 4)}}}
    * @return A traversable collection that contains all elements that satisfy ''f''.
    */
@@ -92,23 +99,26 @@ trait Traversable[+T] { self =>
 
   /**
    * Selects the elements that do not satisfy the specified predicate. $LAZY
+   *
    * @return A traversable collection that contains all elements that do not satisfy ''f''.
    */
   def filterNot(f: T => Boolean): Traversable[T] = filter(x => !f(x))
 
   /**
    * Partitions this collection to two collections according to a predicate. $EAGER
+   *
    * @return A pair of collections: ( {x|f(x)} , {x|!f(x)} )
    */
   def partition(f: T => Boolean): (Seq[T], Seq[T]) = {
     val l, r = ArraySeq.newBuilder[T]
     for (x ← self)
-      if (f(x)) l add x else r add x
+      if (f(x)) l addInplace x else r addInplace x
     (l.result, r.result)
   }
 
   /**
    * Puts each element in this collection into multiple bins, where each bin is specified by a predicate. $EAGER
+   *
    * @param fs
    * @return
    */
@@ -144,6 +154,7 @@ trait Traversable[+T] { self =>
   //region Concatenation (concat, prepend, append)
   /**
    * Concatenates two traversable collections into one. $LAZY
+   *
    * @example {{{(1, 2, 3) ++ (4, 5) == (1, 2, 3, 4, 5)}}}
    * @param that Another collection
    * @return A concatenated collection
@@ -176,6 +187,7 @@ trait Traversable[+T] { self =>
 
   /**
    * Returns the number of elements in this collection. $On
+   *
    * @return The size of this collection
    */
   def size: Int = {
@@ -268,6 +280,7 @@ trait Traversable[+T] { self =>
 
   /**
    * Returns the consecutive differences of the sequences. $LAZY
+   *
    * @example {{{ (0, 1, 3, 6, 10).consecutive(_ - _) == (1, 2, 3, 4) }}}
    */
   def consecutive[U](f: (T, T) => U): Traversable[U] = new AbstractTraversable[U] {
@@ -437,13 +450,15 @@ trait Traversable[+T] { self =>
 
   /**
     * Rotates this collection from the index specified. $LAZY
-    * @example {{{(1, 2, 3, 4).rotate(1) == (2, 3, 4, 1)}}}
+   *
+   * @example {{{(1, 2, 3, 4).rotate(1) == (2, 3, 4, 1)}}}
     * @param n Rotation starts here
     */
   def rotate(n: Int) = (self skip n) ++ (self take n)
 
   /**
    * Sorts this collection in ascending order using the implicitly provided order. $EAGER
+   *
    * @example {{{
    *   (3, 2, 4, 1).sort == (1, 2, 3, 4)
    *   (3, 2, 4, 1).sort(WeakOrder[Int].reverse) == (4, 3, 2, 1)
@@ -474,6 +489,7 @@ trait Traversable[+T] { self =>
 
   /**
    * Repeats this collection for a specific number of times. $LAZY
+   *
    * @example {{{(1, 2, 3).repeat(2) == (1, 2, 3, 1, 2, 3)}}}
    * @param n Number of times to repeat
    */
@@ -487,7 +503,8 @@ trait Traversable[+T] { self =>
 
   /**
     * Infinitely cycles through this collection. $LAZY
-    * @example {{{(1, 2, 3).cycle == (1, 2, 3, 1, 2, 3, 1, 2...)}}}
+   *
+   * @example {{{(1, 2, 3).cycle == (1, 2, 3, 1, 2, 3, 1, 2...)}}}
     */
   def cycle: Traversable[T] = new AbstractTraversable[T] {
     def foreach[V](f: T => V) = {
@@ -497,6 +514,7 @@ trait Traversable[+T] { self =>
 
   /**
    * Returns the sum of the elements in this collection.
+   *
    * @example {{{(1, 2, 3).sum == 6}}}
    * @tparam U Supertype of the type of elements: must be endowed with an additive monoid.
    * @return The sum
@@ -513,6 +531,7 @@ trait Traversable[+T] { self =>
 
   /**
    * Returns the prefix sums of this collection.
+   *
    * @example {{{(1, 2, 3, 4).prefixSums == (0, 1, 3, 6, 10)}}}
    * @tparam X Supertype of the type of elements: must be endowed with an additive monoid
    * @return The prefix sums sequence
@@ -521,6 +540,7 @@ trait Traversable[+T] { self =>
 
   /**
    * Returns the consecutive differences sequence of this collection.
+   *
    * @example {{{
    *   (0, 1, 3, 6, 10).differences == (1, 2, 3, 4)
    * }}}
@@ -535,6 +555,7 @@ trait Traversable[+T] { self =>
 
   /**
    * Returns the minimum element in this collection.
+   *
    * @return The minimum element
    */
   def min(implicit T: WeakOrder[T]): T = reduce(T.min[T])
@@ -558,7 +579,8 @@ trait Traversable[+T] { self =>
 
   /**
     * Returns the first element in this collection that makes the specific function least.
-    * @param f The function
+   *
+   * @param f The function
     * @tparam U The implicit weak order on the output of the specific function.
     */
   def argmin[U: WeakOrder](f: T => U): T = argminWithValue(f)._1
@@ -567,7 +589,8 @@ trait Traversable[+T] { self =>
 
   /**
     * Returns the first element in this collection that makes the specific function greatest.
-    * @param f
+   *
+   * @param f
     * @tparam U
     * @return
     */
@@ -631,6 +654,7 @@ trait Traversable[+T] { self =>
   //region Building (to, buildString)
   /**
    * Converts this traversable sequence to any collection type.
+   *
    * @param builder An implicit builder
    * @tparam C Higher-order type of the collection to be built
    */
@@ -666,7 +690,7 @@ trait Traversable[+T] { self =>
   def build[S](implicit builder: Builder[T, S]): S = {
     val b = builder
     if (self.isInstanceOf[HasKnownSize]) b.sizeHint(size)
-    b addAll self
+    b addAllInplace self
     b.result
   }
 
@@ -733,7 +757,8 @@ object Traversable {
   implicit class TraversableOfTraversablesOps[T](val underlying: Traversable[Traversable[T]]) extends AnyVal {
     /**
       * "Flattens" this collection of collection into one collection.
-      * @example {{{((1, 2, 3), (), (7)).flatten == (1, 2, 3, 7)}}}
+     *
+     * @example {{{((1, 2, 3), (), (7)).flatten == (1, 2, 3, 7)}}}
       */
     def flatten: Traversable[T] = underlying.flatMap(identity)
   }
@@ -742,7 +767,8 @@ object Traversable {
 
     /**
       * Lazily unzips a traversable sequence of pairs.
-      * @example {{{((1, 'a'), (2, 'b'), (3, 'c')).unzip == ((1, 2, 3), ('a', 'b', 'c'))}}}
+     *
+     * @example {{{((1, 'a'), (2, 'b'), (3, 'c')).unzip == ((1, 2, 3), ('a', 'b', 'c'))}}}
       */
     def unzip: (Traversable[A], Traversable[B]) = (underlying map firstOfPair, underlying map secondOfPair)
 
@@ -753,15 +779,16 @@ object Traversable {
       val ak = ArraySeq.newBuilder[A]
       val av = ArraySeq.newBuilder[B]
       for ((k, v) ← underlying) {
-        ak add k
-        av add v
+        ak addInplace k
+        av addInplace v
       }
       (ak.result, av.result)
     }
 
     /**
       * Converts this traversable sequence to a map if this sequence consists of (key, value) pairs.
-      * @param builder Implicit builder of the map
+     *
+     * @param builder Implicit builder of the map
       */
     def toMap[M[_, _]](implicit builder: Builder[(A, B), M[A, B]]) = underlying.build(builder)
 

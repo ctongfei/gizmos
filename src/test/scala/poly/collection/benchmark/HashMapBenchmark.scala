@@ -18,7 +18,7 @@ object HashMapBenchmark extends App {
 
   val r = new Random()
 
-  for (n ← scala.Seq(50000, 100000, 200000, 400000, 800000, 1600000)) {
+  for (n ← scala.Seq(25000, 50000, 100000, 200000, 400000, 800000, 1600000)) {
 
     print(s"N = $n: ")
 

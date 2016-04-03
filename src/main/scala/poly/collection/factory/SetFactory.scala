@@ -8,6 +8,7 @@ import scala.language.higherKinds
 
 /**
   * Generic factory for companion objects of set types.
+ *
   * @author Tongfei Chen
   * @since 0.1.0
   */
@@ -20,13 +21,13 @@ trait SetFactory[S[_]] {
   def apply[K: Equiv](ks: K*): S[K] = {
     val b = newBuilder[K]
     b.sizeHint(ks.length)
-    b addAll ks
+    b addAllInplace ks
     b.result
   }
 
   def from[K: Equiv](xs: Traversable[K]): S[K] = {
     val b = newBuilder[K]
-    b addAll xs
+    b addAllInplace xs
     b.result
   }
 
@@ -41,13 +42,13 @@ trait SortedSetFactory[S[_]] {
   def apply[K: WeakOrder](ks: K*): S[K] = {
     val b = newBuilder[K]
     b.sizeHint(ks.length)
-    b addAll ks
+    b addAllInplace ks
     b.result
   }
 
   def from[K: WeakOrder](xs: Traversable[K]): S[K] = {
     val b = newBuilder[K]
-    b addAll xs
+    b addAllInplace xs
     b.result
   }
 
@@ -63,13 +64,13 @@ trait HashSetFactory[S[_]] {
   def apply[K: IntHashing](ks: K*): S[K] = {
     val b = newBuilder[K]
     b.sizeHint(ks.length)
-    b addAll ks
+    b addAllInplace ks
     b.result
   }
 
   def from[K: IntHashing](xs: Traversable[K]): S[K] = {
     val b = newBuilder[K]
-    b addAll xs
+    b addAllInplace xs
     b.result
   }
 

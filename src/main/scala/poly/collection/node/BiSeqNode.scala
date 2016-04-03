@@ -16,8 +16,8 @@ trait BiSeqNodeLike[+T, +N <: BiSeqNodeLike[T, N]] extends BiNodeLike[T, N] with
   override def pred: Iterable[N] = if (isDummy) Iterable.empty else Iterable.single(prev)
   override def succ: Iterable[N] = if (isDummy) Iterable.empty else Iterable.single(next)
 
-
 }
+
 trait BiSeqNode[+T] extends BiNode[T] with SeqNode[T] with NodeWithParent[T] with BiSeqNodeLike[T, BiSeqNode[T]] { self =>
 
   override def reverse: BiSeqNode[T] = new BiSeqNode[T] {

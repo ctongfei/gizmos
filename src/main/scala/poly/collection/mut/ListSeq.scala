@@ -148,7 +148,7 @@ object ListSeq extends SeqFactory[ListSeq] {
   implicit def newBuilder[T]: Builder[T, ListSeq[T]] = new Builder[T, ListSeq[T]] {
     val a = new ListSeq[T]()
     def sizeHint(n: Int) = {}
-    def add(x: T) = a appendInplace x
+    def addInplace(x: T) = a appendInplace x
     def result = a
   }
 }

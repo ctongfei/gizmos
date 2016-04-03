@@ -29,7 +29,7 @@ object SortedArraySeq extends FactoryWithOrder[SortedArraySeq] {
   def newBuilder[T:WeakOrder]: Builder[T, SortedArraySeq[T]] = new Builder[T, SortedArraySeq[T]] {
     val ra = new ResizableSeq[T]()
     def sizeHint(n: Int) = ra.ensureCapacity(n)
-    def add(x: T) = ra.appendInplace(x)
+    def addInplace(x: T) = ra.appendInplace(x)
     def result: SortedArraySeq[T] = {
       ra.sortInplace()
       new SortedArraySeq[T](new SortedArray[T](ra))

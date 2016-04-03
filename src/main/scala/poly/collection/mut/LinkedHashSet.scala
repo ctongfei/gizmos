@@ -60,7 +60,7 @@ object LinkedHashSet extends FactoryWithIntHashing[LinkedHashSet] {
 
   implicit def newBuilder[T: IntHashing]: Builder[T, LinkedHashSet[T]] = new Builder[T, LinkedHashSet[T]] {
     private[this] val s = new LinkedHashSet[T](new OpenHashTable[T, Entry[T]]())
-    def add(x: T) = s.add(x)
+    def addInplace(x: T) = s.add(x)
     def result = s
     def sizeHint(n: Int) = s.data.grow(n)
   }

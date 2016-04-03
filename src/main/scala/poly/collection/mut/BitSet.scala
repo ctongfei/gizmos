@@ -2,11 +2,12 @@ package poly.collection.mut
 
 import poly.algebra._
 import poly.collection._
+import poly.collection.impl.specialized._
 
 /**
  * @author Tongfei Chen
  */
-class BitSet private(private final var data: Array[Long]) extends KeyMutableSet[Int] {
+class BitSet private(private final var data: SpResizableArray[Long]) extends KeyMutableSet[Int] {
 
   def equivOnKey = Equiv.default[Int]
 

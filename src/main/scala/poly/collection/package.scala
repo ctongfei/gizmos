@@ -1,7 +1,7 @@
 package poly
 
 import poly.algebra.specgroup._
-
+import poly.collection.builder._
 import scala.language.implicitConversions
 
 package object collection {
@@ -40,5 +40,9 @@ package object collection {
   implicit def stringAsPoly(s: String): IndexedSeq[Char] = new StringAsIndexedSeq(s)
 
   implicit def booleanFunctionAsPoly[T](f: T => Boolean): Predicate[T] = new BooleanFunctionAsPredicate[T](f)
+
+  implicit def stringBuilderAsPoly(sb: StringBuilder): Builder[Char, String] = new StringBuilderAsBuilder(sb)
+
+  implicit def javaStringBuilderAsPoly(sb: java.lang.StringBuilder): Builder[Char, String] = new JavaStringBuilderAsBuilder(sb)
 
 }

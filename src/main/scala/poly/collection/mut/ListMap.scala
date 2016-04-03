@@ -76,7 +76,7 @@ object ListMap extends MapFactory[ListMap] {
   implicit def newBuilder[K: Equiv, V]: Builder[(K, V), ListMap[K, V]] = new Builder[(K, V), ListMap[K, V]] {
     def sizeHint(n: Int) = ???
     def result = ???
-    def add(x: (K, V)) = ???
+    def addInplace(x: (K, V)) = ???
   }
 
 }

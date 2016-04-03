@@ -73,7 +73,7 @@ object BinaryHeap extends FactoryWithOrder[BinaryHeap] {
   implicit def newBuilder[T:WeakOrder]: Builder[T, BinaryHeap[T]] = new Builder[T, BinaryHeap[T]] {
     private[this] val data = new ResizableSeq[T]()
     def sizeHint(n: Int): Unit = data.ensureCapacity(n)
-    def add(x: T): Unit = data.appendInplace(x)
+    def addInplace(x: T): Unit = data.appendInplace(x)
 
     // heap building algorithm
     def result = {

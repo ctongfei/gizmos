@@ -16,7 +16,7 @@ trait MapFactory[M[_, _]] {
   def apply[K: Equiv, V](kvs: (K, V)*): M[K, V] = {
     val b = newBuilder[K, V]
     b.sizeHint(kvs.length)
-    b addAll kvs
+    b addAllInplace kvs
     b.result
   }
 
@@ -29,7 +29,7 @@ trait MapFactoryWithIntHashing[M[_, _]] {
   def apply[K: IntHashing, V](kvs: (K, V)*): M[K, V] = {
     val b = newBuilder[K, V]
     b.sizeHint(kvs.length)
-    b addAll kvs
+    b addAllInplace kvs
     b.result
   }
 
@@ -42,7 +42,7 @@ trait MapFactoryWithOrder[M[_, _]] {
   def apply[K: WeakOrder, V](kvs: (K, V)*): M[K, V] = {
     val b = newBuilder[K, V]
     b.sizeHint(kvs.length)
-    b addAll kvs
+    b addAllInplace kvs
     b.result
   }
 

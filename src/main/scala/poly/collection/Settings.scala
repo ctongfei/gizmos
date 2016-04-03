@@ -11,6 +11,6 @@ private[poly] object Settings {
 
   final val ArrayInitialSize = 8
 
-  final val HashTableLoadFactor = 0.70
+  final val HashTableLoadFactor = 0.65
 
 }

@@ -123,7 +123,7 @@ trait Map[@sp(i) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K, 
     def apply(k: (K, L)) = (self(k._1), that(k._2))
     def pairs = for (k ← self.keys; k1 ← that.keys) yield ((k, k1), (self(k), that(k1)))
     override def size = self.size * that.size
-}
+  }
 
   /**
    * Zips two maps with the same key type into one. $LAZY

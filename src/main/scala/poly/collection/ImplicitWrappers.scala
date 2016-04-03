@@ -1,6 +1,7 @@
 package poly.collection
 
 import poly.collection.mut._
+import poly.collection.builder._
 
 private[collection]
 class ArrayAsIndexedSeq[T](val underlying: Array[T]) extends ValueMutableIndexedSeq[T] {
@@ -18,4 +19,18 @@ class StringAsIndexedSeq(val underlying: String) extends IndexedSeq[Char] {
 private[collection]
 class BooleanFunctionAsPredicate[T](val underlying: T => Boolean) extends Predicate[T] {
   def apply(x: T) = underlying(x)
+}
+
+private[collection]
+class StringBuilderAsBuilder(val underlying: StringBuilder) extends Builder[Char, String] {
+  def addInplace(x: Char) = underlying.append(x)
+  def result = underlying.result()
+  def sizeHint(n: Int) = underlying.sizeHint(n)
+}
+
+private[collection]
+class JavaStringBuilderAsBuilder(val underlying: java.lang.StringBuilder) extends Builder[Char, String] {
+  def addInplace(x: Char) = underlying.append(x)
+  def result = underlying.toString
+  def sizeHint(n: Int) = {}
 }

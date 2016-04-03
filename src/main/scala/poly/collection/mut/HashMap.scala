@@ -15,7 +15,7 @@ class HashMap[K: IntHashing, V] private(private val data: OpenHashTable[K, HashM
 
   import HashMap._
 
-  def equivOnKey = implicitly[IntHashing[K]]
+  val equivOnKey = implicitly[IntHashing[K]]
 
   def apply(k: K): V = data.locate(k).value
 
@@ -47,7 +47,7 @@ object HashMap extends MapFactoryWithIntHashing[HashMap] {
   implicit def newBuilder[K: IntHashing, V]: Builder[(K, V), HashMap[K, V]] = new Builder[(K, V), HashMap[K, V]] {
     private val data = new OpenHashTable[K, Entry[K, V]]()
     def sizeHint(n: Int) = data.grow(n)
-    def add(x: (K, V)) = data.addEntry(new Entry(x._1, x._2))
+    def addInplace(x: (K, V)) = data.addEntry(new Entry(x._1, x._2))
     def result = new HashMap[K, V](data)
   }
 }

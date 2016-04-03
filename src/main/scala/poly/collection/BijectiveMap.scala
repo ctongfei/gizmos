@@ -16,8 +16,17 @@ trait BijectiveMap[K, V] extends Map[K, V] with Bijection[K, V] { self =>
   /** Gets the corresponding key of a given value. */
   def invert(v: V): K
 
+  /**
+   * Optionally retrieves the key associated with the specified value.
+   * @param v The given value
+   * @return The associated key. If the value is not found, [[None]] will be returned.
+   */
   def invertOption(v: V): Option[K]
 
+  /**
+   * Checks if the specified value is present in this map.
+   * @return Whether the value exists in this map
+   */
   def containsValue(v: V): Boolean
 
   // HELPER FUNCTIONS
@@ -29,7 +38,7 @@ trait BijectiveMap[K, V] extends Map[K, V] with Bijection[K, V] { self =>
     def invert(k: K) = self(k)
     def invertOption(k: K) = self ? k
     def ?(v: V) = self.invertOption(v)
-    def pairs: Iterable[(V, K)] = self.pairs.map(_.swap)
+    def pairs = self.pairs.map(_.swap)
     override def size = self.size
     def apply(v: V) = self.invert(v)
     def containsKey(v: V) = self.containsValue(v)
@@ -44,7 +53,7 @@ trait BijectiveMap[K, V] extends Map[K, V] with Bijection[K, V] { self =>
     def ?(k: K) = for (v ← self ? k; w ← that ? v) yield w
     def invert(w: W) = self.invert(that.invert(w))
     def invertOption(w: W) = for (v ← that.invertOption(w); k ← self.invertOption(v)) yield k
-    def pairs: Iterable[(K, W)] = for (k ← keys; v ← self ? k; w ← that ? v) yield (k, w)
+    def pairs = for (k ← keys; v ← self ? k; w ← that ? v) yield (k, w)
     def containsKey(k: K) = (this ? k).isDefined
     def containsValue(w: W) = this.invertOption(w).isDefined
   }

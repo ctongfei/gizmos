@@ -31,7 +31,7 @@ class DistinctPriorityQueue[Q[α] <: PriorityQueue[α], T] private(stateEquiv: I
 
 object DistinctPriorityQueue {
   def apply[Q[α] <: PriorityQueue[α], T](xs: T*)(stateEquiv: IntHashing[T])(implicit b: Builder[T, Q[T]]): DistinctPriorityQueue[Q, T] = {
-    xs foreach b.add
+    xs foreach b.addInplace
     new DistinctPriorityQueue[Q, T](stateEquiv, b.result)
   }
 }

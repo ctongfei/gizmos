@@ -16,7 +16,7 @@ trait SortedMapFactory[M[_, _]] {
   def apply[K, V](kvs: (K, V)*)(implicit K: WeakOrder[K]): M[K, V] = {
     val b = newBuilder[K, V](K)
     b.sizeHint(kvs.length)
-    b addAll kvs
+    b addAllInplace kvs
     b.result
   }
 

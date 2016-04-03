@@ -58,9 +58,9 @@ class Permutation private(private val a1: Array[Int], private val a2: Array[Int]
 }
 
 object Permutation {
-
+  //TODO: check if it is a valid permutation
   def apply(xs: Int*): Permutation = apply(xs.toArray)
-
+  //TODO: check if it is a valid permutation
   def apply(xs: Array[Int]): Permutation = {
     val ys = Array.ofDim[Int](xs.length)
     FastLoop.ascending(0, xs.length, 1) { i =>

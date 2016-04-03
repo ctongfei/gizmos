@@ -20,7 +20,7 @@ trait Tree[+T] { self =>
 
   def children = rootNode.children map ofRootNode
 
-  //region HELPER FUNCTIONS
+  // HELPER FUNCTIONS
 
   /**
    * Folds a tree bottom-up using the specific function.
@@ -97,6 +97,8 @@ trait Tree[+T] { self =>
    * }}}
    */
   def postOrder = knuthTransform.inOrder //TODO: a more efficient implementation?
+
+  def leaves = rootNode.preOrder.filter(_.isLeaf).map(_.data)
 
   override def toString =
     "(" + root.toString +

@@ -41,7 +41,7 @@ object ArrayStack extends Factory[ArrayStack] {
   implicit def newBuilder[T]: Builder[T, ArrayStack[T]] = new Builder[T, ArrayStack[T]] {
     var data = new ResizableSeq[T]()
     def sizeHint(n: Int) = data.ensureCapacity(n)
-    def add(x: T) = data.appendInplace(x)
+    def addInplace(x: T) = data.appendInplace(x)
     def result = new ArrayStack(data)
   }
 

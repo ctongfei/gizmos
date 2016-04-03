@@ -46,6 +46,6 @@ object RedBlackTreeMap extends SortedMapFactory[RedBlackTreeMap] {
       })
       def sizeHint(n: Int) = {}
       def result = new RedBlackTreeMap(data)
-      def add(x: (K, V)) = data.put(x._1, x._2)
+      def addInplace(x: (K, V)) = data.put(x._1, x._2)
     }
 }

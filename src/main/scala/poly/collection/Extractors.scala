@@ -68,7 +68,7 @@ object \: {
    *    case (l :/ n \: r) => ...
    *   }
    * }}}
-   * The symbols follow the same mnemonics as `:++` and `++:` : ''The COLon side is where the COLlection is''.
+   * The symbols follow the same mnemonics as `:+` and `+:` : ''The COLon side is where the COLlection is''.
    */
   def unapply[T](t: :/.BinaryTreeNodeWithRight[T]) = Some(t.root, t.right)
 

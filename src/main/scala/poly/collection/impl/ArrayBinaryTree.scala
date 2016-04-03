@@ -9,54 +9,21 @@ import poly.collection.node._
  * A binary tree stored in an array.
  * @author Tongfei Chen
  */
-class ArrayBinaryTree[T] (
+class ArrayBinaryTree[T] private(
   private[poly] val data: ResizableSeq[T],
   private[poly] val state: SpResizableArray[Boolean]
-) extends AbstractBinaryTree[T] { self =>
+) extends AbstractIndexedBinaryTree[T] { self =>
 
-  class Node (val i: Int) extends BiBinaryTreeNode[T] {
-    def isDummy = !state(i)
-    def data = if (state(i)) self.data(i) else throw new DummyNodeException
-    def data_=(x: T) = {
-      self.state(i) = true
-      self.data(i) = x
-    }
-    def parent = if (i > 0) new Node((i - 1) / 2) else Dummy
-    def left = if (nodeExists(2 * i + 1)) new Node(2 * i + 1) else Dummy
-    def right = if (nodeExists(2 * i + 2)) new Node(2 * i + 2) else Dummy
-
-    override def equals(that: Any) = that match {
-      case that: Node => this.i == that.i
-      case _ => false
-    }
-  }
-
-  object Dummy extends BiBinaryTreeNode[T] {
-    def left: BiBinaryTreeNode[T] = this
-    def right: BiBinaryTreeNode[T] = rootNode
-    def parent: BiBinaryTreeNode[T] = this
-    def data: T = throw new DummyNodeException
-    override val isDummy = true
-  }
-
-  override def apply(i: Int) = if (nodeExists(i)) data(i) else throw new DummyNodeException
-
-  def rootNode = new Node(0)
+  def fastApply(i: Int) = data(i)
 
   def update(i: Int, x: T) = {
     state(i) = true
     data(i) = x
   }
 
-  def insertAt(i: Int, x: T, direction: Boolean) = ???
-
-  @inline private[this] def nodeExists(i: Int) = {
+  def contains(i: Int) = {
     i >= 0 && i < data.fastLength && state(i)
   }
 
 }
 
-object ArrayBinaryTree {
-
-
-}

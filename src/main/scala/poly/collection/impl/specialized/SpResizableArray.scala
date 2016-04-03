@@ -9,7 +9,7 @@ import scala.reflect._
  * A specialized version for resizable arrays ([[poly.collection.impl.ResizableArray]]).
  * @author Tongfei Chen
  */
-final class SpResizableArray[@sp(fdib) T: ClassTag]
+final class SpResizableArray[@sp(Float, Double, Int, Long, Boolean) T: ClassTag]
 (private[this] var cap: Int = Settings.ArrayInitialSize) { self =>
 
   private[this] var data: Array[T] = Array.ofDim[T](math.max(nextPowerOfTwo(cap), Settings.ArrayInitialSize))

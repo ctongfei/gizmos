@@ -27,13 +27,13 @@ trait Builder[-T, +C] { // TODO: specialize T?
     * Adds a single element to this builder.
     * @param x The element to be added
     */
-  def add(x: T)
+  def addInplace(x: T)
 
   /**
     * Adds all elements provided to this builder.
     * @param xs The elements to be added
     */
-  def addAll(xs: Traversable[T]) = xs foreach add
+  def addAllInplace(xs: Traversable[T]) = xs foreach addInplace
 
   /**
    * Returns the structure built from this builder.
@@ -41,16 +41,15 @@ trait Builder[-T, +C] { // TODO: specialize T?
    */
   def result: C
 
-  def +=(x: T) = add(x)
-  def ++=(xs: Traversable[T]) = xs foreach add
-
+  def :+=(x: T) = addInplace(x)
+  def :++=(xs: Traversable[T]) = xs foreach addInplace
 
 }
 
 object Builder {
 
   implicit def Action[T, C]: InplaceAdditiveAction[Builder[T, C], T] = new InplaceAdditiveAction[Builder[T, C], T] {
-    def addInplace(x: Builder[T, C], s: T) = x add s
+    def addInplace(x: Builder[T, C], s: T) = x addInplace s
   }
 
 }
