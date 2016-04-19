@@ -12,7 +12,7 @@ import poly.collection.search.node._
   * @author Tongfei Chen
   * @since 0.1.0
   */
-trait StateSpace[@sp(i) S] extends Keyed[S] {
+trait StateSpace[@sp(Int) S] extends Keyed[S] {
 
   import StateSpace._
 
@@ -38,7 +38,7 @@ trait StateSpace[@sp(i) S] extends Keyed[S] {
 
 object StateSpace {
 
-  private[collection] def searchByIterator[S, N <: WithParent[S]](si: SearchIterator[N, S], goal: S => Boolean): BiSeq[S] = {
+  private[collection] def searchByIterator[S, N <: WithParent[S]](si: SearchIterator[N, S], goal: S => Boolean): BiIterable[S] = {
     while (si.advance())
       if (goal(si.current))
         return si.currentNode.pathToRoot.map(_.data).reverse

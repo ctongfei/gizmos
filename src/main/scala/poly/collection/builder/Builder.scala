@@ -1,21 +1,21 @@
 package poly.collection.builder
 
-import poly.algebra._
 import poly.algebra.mut._
 import poly.collection._
+import poly.collection.mut._
 
 import scala.annotation._
 import scala.language.higherKinds
 
 /**
-  * The base trait for builders, which are objects that allow
-  * incremental construction of other structures (e.g. collections, models).
+  * Represents builders, which are objects that allow incremental construction
+  * of other structures (e.g. collections, models).
   *
   * @author Tongfei Chen
   * @since 0.1.0
   */
-@implicitNotFound("Cannot find a builder to build ${C} from ${T}.")
-trait Builder[-T, +C] { // TODO: specialize T?
+@implicitNotFound("Cannot find a builder to build ${C} from elements of type ${T}.")
+trait Builder[-T, +C] { // TODO: Specialize T? (Int, Float, Double, Char)
 
   /**
     * Provides a hint to this builder about how many elements are expected to be added.
@@ -37,7 +37,7 @@ trait Builder[-T, +C] { // TODO: specialize T?
 
   /**
    * Returns the structure built from this builder.
-   * @return A structure containing the elements added
+   * @return A structure containing the added elements
    */
   def result: C
 
@@ -48,8 +48,19 @@ trait Builder[-T, +C] { // TODO: specialize T?
 
 object Builder {
 
-  implicit def Action[T, C]: InplaceAdditiveAction[Builder[T, C], T] = new InplaceAdditiveAction[Builder[T, C], T] {
-    def addInplace(x: Builder[T, C], s: T) = x addInplace s
+  implicit def InplaceAction[T, C]: InplaceAdditiveAction[T, Builder[T, C]] = new InplaceAdditiveAction[T, Builder[T, C]] {
+    def addInplace(x: T, s: Builder[T, C]) = s addInplace x
   }
 
+  def ofMutableSet[T, S <: KeyMutableSet[T]](s: S): Builder[T, S] = new Builder[T, S] {
+    def addInplace(x: T) = s add x
+    def result = s
+    def sizeHint(n: Int) = {}
+  }
+
+  def ofMutableMap[K, V, M <: KeyMutableMap[K, V]](m: M): Builder[(K, V), M] = new Builder[(K, V), M] {
+    def addInplace(kv: (K, V)) = m add kv
+    def result = m
+    def sizeHint(n: Int) = {}
+  }
 }

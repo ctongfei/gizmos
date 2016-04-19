@@ -8,7 +8,7 @@ import poly.collection.search._
 /**
  * Represents a node in the fringe / open set of a searching algorithm.
  *
- * @author Yuhuan Jiang (jyuhuan@gmail.com).
+ * @author Yuhuan Jiang
  * @author Tongfei Chen
  */
 trait WithCostAndHeuristic[S, C] extends WithCost[S, C] with WithHeuristic[S, C] {

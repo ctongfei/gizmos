@@ -8,9 +8,9 @@ import scala.language.higherKinds
 /**
   * @author Tongfei Chen
   */
-class DistinctQueue[Q[α] <: Queue[α], T: IntHashing] private(private val inner: Q[T]) extends Queue[T] {
+class DistinctQueue[Q[α] <: Queue[α], T: Equiv] private(private val inner: Q[T]) extends Queue[T] {
 
-  private[this] val seen = HashSet[T]()
+  private[this] val seen = AutoSet[T]()
 
   def push(x: T) = if (!seen(x)) {
     inner push x
@@ -23,7 +23,7 @@ class DistinctQueue[Q[α] <: Queue[α], T: IntHashing] private(private val inner
       if (!seen(x)) {
         seen add x
         buf appendInplace x
-      } // buffers unseen elements and push in batch
+      } // buffers succeeding elements and push in batch
     inner pushAll buf
   }
 
@@ -36,7 +36,7 @@ class DistinctQueue[Q[α] <: Queue[α], T: IntHashing] private(private val inner
 }
 
 object DistinctQueue {
-  def apply[Q[α] <: Queue[α], T](xs: T*)(implicit b: Builder[T, Q[T]]): DistinctQueue[Q, T] = {
+  def apply[Q[α] <: Queue[α], T: Equiv](xs: T*)(implicit b: Builder[T, Q[T]]): DistinctQueue[Q, T] = {
     xs foreach b.addInplace
     new DistinctQueue[Q, T](b.result)
   }

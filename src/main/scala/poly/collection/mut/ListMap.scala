@@ -1,48 +1,58 @@
 package poly.collection.mut
 
 import poly.algebra._
+import poly.algebra.syntax._
 import poly.collection._
 import poly.collection.builder._
 import poly.collection.exception._
 import poly.collection.factory._
-import poly.collection.impl._
+import poly.collection.impl.linkedlist._
 
 /**
+ * Represents a mutable map backed by a list of key-value pairs.
+ * Use only if the number of entries in the map is very small, or no sensible hashing or order of the key type can be found.
+ * @since 0.1.0
  * @author Tongfei Chen
  */
-// TODO: change to impl.linkedlist.SinglyLinkedList with customized node
-class ListMap[K, V] private(private val data: SinglyLinkedList[KeyValuePair[K, V]])(implicit val equivOnKey: Equiv[K]) extends KeyMutableMap[K, V] {
+class ListMap[K, V] private(private val data: SinglyLinkedList[K, ListMap.Node[K, V]])(implicit val equivOnKey: Equiv[K]) extends KeyMutableMap[K, V] with HasKnownSize {
 
-  override def size = data.size
+  type Node = ListMap.Node[K, V]
 
-  private[this] def locateKey(x: K): (data.Node, data.Node) = {
+  data.dummy = new Node(default[K], default[V])
+  data.dummy.next = data.dummy
+
+  override def size = data.len
+
+  private[this] def locateKey(x: K): (Node, Node) = {
     var p = data.dummy
     var c = data.dummy.next
     while (c ne data.dummy) {
-      if (x == c.data.key) return (p, c)
+      if (x === c.data) return (p, c)
       p = c
       c = c.next
     }
     null
   }
 
+  /** @inheritdoc $On */
   def containsKey(x: K) = locateKey(x) ne null
 
+  /** @inheritdoc $On */
   def ?(x: K) = {
     val pc = locateKey(x)
     if (pc eq null) None
     else {
       val (_, c) = pc
-      Some(c.data.value)
+      Some(c.value)
     }
   }
 
   def add(x: K, y: V) = {
     val pc = locateKey(x)
-    if (pc eq null) data.prependInplace(KeyValuePair(x, y))
+    if (pc eq null) data.prependInplace(new Node(x, y))
     else {
       val (_, c) = pc
-      c.data.value = y
+      c.value = y
     }
   }
 
@@ -51,8 +61,7 @@ class ListMap[K, V] private(private val data: SinglyLinkedList[KeyValuePair[K, V
   def remove(x: K) = {
     val pc = locateKey(x)
     if (pc ne null) {
-      val (p, c) = pc
-      p.next = c.next
+      data.deleteNodeAfter(pc._1)
     }
   }
 
@@ -60,23 +69,30 @@ class ListMap[K, V] private(private val data: SinglyLinkedList[KeyValuePair[K, V
     val pc = locateKey(x)
     if (pc eq null) throw new KeyNotFoundException(x)
     val (_, c) = pc
-    c.data.value = y
+    c.value = y
   }
 
+  def apply(x: K): V = locateKey(x)._2.value
 
-  def apply(x: K): V = locateKey(x)._2.data.value
+  def pairs = data.entries.map(n => n.data → n.value)
 
-  def pairs = data.map(_.toTuple)
+  override def keys = data.entries.map(_.data)
 
+  override def values = data.entries.map(_.value)
 
 }
 
 object ListMap extends MapFactory[ListMap] {
 
+  private[poly] class Node[K, V](var data: K, var value: V) extends SinglyLinkedNodeLike[K, Node[K, V]] {
+    var next: Node[K, V] = _
+  }
+
   implicit def newBuilder[K: Equiv, V]: Builder[(K, V), ListMap[K, V]] = new Builder[(K, V), ListMap[K, V]] {
-    def sizeHint(n: Int) = ???
-    def result = ???
-    def addInplace(x: (K, V)) = ???
+    private[this] val r = new ListMap[K, V](new SinglyLinkedList[K, Node[K, V]])
+    def sizeHint(n: Int) = {}
+    def result = r
+    def addInplace(x: (K, V)) = r add x
   }
 
 }

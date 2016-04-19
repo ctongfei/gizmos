@@ -8,11 +8,10 @@ import poly.collection._
  * @author Tongfei Chen
  */
 trait ValueMutableMap[K, V] extends Map[K, V] {
+
   /** Sets the value associated with the specific key. */
   def update(k: K, v: V): Unit
 
-  /**
-   * Transforms the value of this map in-place given a specific function.
-   */
-  def inplaceMap(f: V => V): Unit = for (k ← this.keys) this.update(k, f(this(k)))
+  /** Transforms the value of this map in-place given a specific function. */
+  def mapInplace(f: V => V): Unit = for (k ← this.keys) this.update(k, f(this(k)))
 }

@@ -8,10 +8,12 @@ import poly.collection.conversion.FromJava._
 import poly.collection.factory._
 
 /**
-  * Represents a map backed by a red-black tree. This class is a wrapper of `java.util.TreeMap`.
+  * Represents a map backed by a red-black tree. This class is a wrapper of [[java.util.TreeMap]].
   * @author Tongfei Chen
+ *  @since 0.1.0
   */
-class RedBlackTreeMap[K, V] private(private val data: java.util.TreeMap[K, V]) extends KeyMutableMap[K, V] with SortedMap[K, V] {
+class RedBlackTreeMap[K, V] private(private val data: java.util.TreeMap[K, V])
+  extends KeyMutableMap[K, V] with SortedMap[K, V] with HasKnownSize {
 
   def apply(k: K) = data get k
 
@@ -28,7 +30,7 @@ class RedBlackTreeMap[K, V] private(private val data: java.util.TreeMap[K, V]) e
     def newIterator = data.entrySet().elements.map(e => (e.getKey, e.getValue)).newIterator
   }
 
-  def orderOnKey = data.comparator()
+  def orderOnKey: WeakOrder[K] = data.comparator()
 
   def update(x: K, y: V) = data.put(x, y)
 

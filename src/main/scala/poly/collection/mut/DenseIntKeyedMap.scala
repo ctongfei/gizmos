@@ -15,11 +15,11 @@ import poly.macroutil._
  */
 class DenseIntKeyedMap[T] private(
   private val data: ResizableArray[T],
-  private val state: SpResizableArray[Boolean],
+  private val state: BooleanResizableArray,
   private var n: Int = 0
-) extends KeyMutableMap[Int, T] {
+) extends IntKeyedSortedMap[T] with KeyMutableMap[Int, T] {
 
-  def equivOnKey = poly.algebra.std.IntStructure
+  implicit def orderOnKey = poly.algebra.std.IntStructure
 
   def apply(x: Int): T = data(x)
 
@@ -37,7 +37,7 @@ class DenseIntKeyedMap[T] private(
     if (state(x)) Some(data(x)) else None
   }
 
-  def pairs: Iterable[(Int, T)] = Range(data.capacity).filter(i => state(i)).map(i => (i, data(i)))
+  def pairs = Range(data.capacity).filter(i => state(i)).map(i => (i, data(i))).asIfSorted(WeakOrder by firstOfPair[Int, T])
 
   override def size: Int = n
 

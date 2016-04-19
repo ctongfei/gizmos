@@ -41,7 +41,6 @@ trait IndexedSeq[+T] extends BiSeq[T] with HasKnownSize { self =>
   def headNode = new NodeProxy[T](self, 0)
   def lastNode = new NodeProxy[T](self, length - 1)
 
-
   override def foreach[V](f: T => V): Unit = {
     FastLoop.ascending(0, length, 1) { i => f(apply(i)) }
   }
@@ -153,12 +152,12 @@ trait IndexedSeq[+T] extends BiSeq[T] with HasKnownSize { self =>
     * Rearranges the elements in this indexed sequence according to a permutation. $LAZY
     * @param p A permutation which is of the same length as this sequence
     * @return A permuted sequence
-    * @example {{{('a', 'b', 'c').permuteBy(Permutation(1, 2, 0)) == ('b', 'c', 'a')}}}
+    * @example {{{('a', 'b', 'c') permuteBy Permutation(1, 2, 0) == ('b', 'c', 'a')}}}
     */
   def permuteBy(p: Permutation): IndexedSeq[T] = new AbstractIndexedSeq[T] {
     def fastApply(i: Int) = self(p.invert(i))
     def fastLength = self.fastLength
-    override def permuteBy(q: Permutation) = permuteBy(q compose p)
+    override def permuteBy(q: Permutation) = self.permuteBy(q compose p)
   }
 
   /**

@@ -8,7 +8,7 @@ import poly.collection.mut._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait UndirectedGraph[@sp(i) K, +V, +E] extends BiGraph[K, V, E] { self =>
+trait UndirectedGraph[@sp(Int) K, +V, +E] extends BiGraph[K, V, E] { self =>
 
   import UndirectedGraph._
 
@@ -16,7 +16,7 @@ trait UndirectedGraph[@sp(i) K, +V, +E] extends BiGraph[K, V, E] { self =>
 
   override def arc(i: K, j: K) = new BiGraph.Arc(self, i, j)
 
-  def undirectedEdge(i: K, j: K) = new UndirectedEdge(self, i, j)
+  def edge(i: K, j: K) = new UndirectedEdge(self, i, j)
 
   def adjacentKeysOf(i: K): Iterable[K]
   def adjacentNodesOf(i: K) = adjacentKeysOf(i).map(j => node(j))

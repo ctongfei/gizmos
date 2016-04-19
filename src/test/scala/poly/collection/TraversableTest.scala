@@ -2,7 +2,7 @@ package poly.collection
 
 import org.scalatest._
 import poly.collection.ops._
-
+import poly.algebra.syntax._
 import scala.util._
 import TestUtil._
 /**

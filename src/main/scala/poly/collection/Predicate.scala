@@ -2,6 +2,7 @@ package poly.collection
 
 import poly.algebra._
 import poly.algebra.hkt._
+import poly.algebra.specgroup._
 import scala.language.implicitConversions
 
 /**
@@ -11,7 +12,7 @@ import scala.language.implicitConversions
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait Predicate[-T] extends (T => Boolean) { self =>
+trait Predicate[@sp(Int) -T] extends (T => Boolean) { self =>
 
   def unary_! : Predicate[T] = new Predicate[T] {
     def apply(x: T) = !self(x)
@@ -67,6 +68,6 @@ object Predicate {
     def or(x: Predicate[T], y: Predicate[T]) = x | y
     def bot = Predicate.empty
   }
-  // Order or Equiv will not be implemented: not computationally feasible on a Turing machine!
+  // Order or Equiv will not be implemented: not computable on a Turing machine!
 
 }

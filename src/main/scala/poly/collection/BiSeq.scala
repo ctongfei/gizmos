@@ -10,7 +10,7 @@ import poly.collection.node._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait BiSeq[+T] extends Seq[T] { self =>
+trait BiSeq[+T] extends Seq[T] with BiIterable[T] { self =>
 
   import BiSeq._
 
@@ -24,6 +24,8 @@ trait BiSeq[+T] extends Seq[T] { self =>
     def isDummy = true
   }
 
+  def newReverseIterator = reverse.newIterator
+
   def headNode: BiSeqNode[T]
 
   /** Returns the last node of this sequence. */
@@ -32,16 +34,6 @@ trait BiSeq[+T] extends Seq[T] { self =>
   //region HELPER FUNCTIONS
 
   override def map[U](f: T => U): BiSeq[U] = ofDummyNode(dummy map f)
-
-  override def foldRight[U](z: U)(f: (T, U) => U): U = {
-    var accum = z
-    var node = lastNode
-    while (node.notDummy) {
-      accum = f(node.data, accum)
-      node = node.prev
-    }
-    accum
-  }
 
   override def consecutive[U](f: (T, T) => U): BiSeq[U] = {
     class ConsecutiveNode(val n0: BiSeqNode[T], val n1: BiSeqNode[T]) extends BiSeqNode[U] {

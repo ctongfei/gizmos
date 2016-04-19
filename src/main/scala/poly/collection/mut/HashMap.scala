@@ -11,7 +11,7 @@ import scala.collection.JavaConverters._
 /**
  * @author Tongfei Chen
  */
-class HashMap[K: IntHashing, V] private(private val data: OpenHashTable[K, HashMap.Entry[K, V]]) extends KeyMutableMap[K, V] {
+class HashMap[K: IntHashing, V] private(private val data: OpenHashTable[K, HashMap.Entry[K, V]]) extends KeyMutableMap[K, V] with HasKnownSize {
 
   import HashMap._
 
@@ -28,7 +28,11 @@ class HashMap[K: IntHashing, V] private(private val data: OpenHashTable[K, HashM
     if (e != null) Some(e.value) else None
   }
 
-  def add(k: K, v: V): Unit = data.addEntry(new Entry(k, v))
+  def add(k: K, v: V): Unit = {
+    val e = data.locate(k)
+    if (e != null) e.value = v
+    else data.addEntry(new Entry(k, v))
+  }
 
   def remove(k: K): Unit = data.removeEntry(k)
 
@@ -36,7 +40,7 @@ class HashMap[K: IntHashing, V] private(private val data: OpenHashTable[K, HashM
 
   override def size = data.size
 
-  def pairs: Iterable[(K, V)] = Iterable.ofIterator(data.entryIterator).map(e => e.key → e.value)
+  def pairs: Iterable[(K, V)] = data.entries.map(e => e.key → e.value)
 
 }
 

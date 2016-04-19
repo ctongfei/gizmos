@@ -6,7 +6,7 @@ import poly.algebra.specgroup._
 /**
  * @author Tongfei Chen
  */
-trait GraphArc[@sp(i) K, +V, +E] { self =>
+trait GraphArc[@sp(Int) K, +V, +E] { self =>
 
   def sourceKey: K = source.key
 
@@ -38,7 +38,7 @@ trait GraphArc[@sp(i) K, +V, +E] { self =>
 
 object GraphArc {
 
-  def apply[@sp(i) K: Equiv, V, E](s: GraphNode[K, V, E], t: GraphNode[K, V, E], d: E): GraphArc[K, V, E]
+  def apply[@sp(Int) K: Equiv, V, E](s: GraphNode[K, V, E], t: GraphNode[K, V, E], d: E): GraphArc[K, V, E]
     = new GraphArc[K, V, E] {
     def source = s
     def target = t

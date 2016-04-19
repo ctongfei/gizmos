@@ -9,7 +9,7 @@ import poly.algebra.specgroup._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait BiGraph[@sp(i) K, +V, +E] extends Graph[K, V, E] { self =>
+trait BiGraph[@sp(Int) K, +V, +E] extends Graph[K, V, E] { self =>
 
   import BiGraph._
 

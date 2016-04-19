@@ -15,7 +15,7 @@ import poly.collection.node._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-class LinkedHashMap[K: IntHashing, V] private(val data: OpenHashTable[K, LinkedHashMap.Entry[K, V]]) extends KeyMutableMap[K, V] {
+class LinkedHashMap[K: IntHashing, V] private(val data: OpenHashTable[K, LinkedHashMap.Entry[K, V]]) extends KeyMutableMap[K, V] with HasKnownSize {
 
   import LinkedHashMap._
 
@@ -26,6 +26,7 @@ class LinkedHashMap[K: IntHashing, V] private(val data: OpenHashTable[K, LinkedH
   dummy.prev = dummy
   dummy.next = dummy
 
+  override def size = data.size
 
   def apply(k: K) = data.locate(k).value
 

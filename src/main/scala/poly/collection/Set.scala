@@ -1,8 +1,8 @@
 package poly.collection
 
 import poly.algebra._
+import poly.algebra.specgroup._
 import poly.collection.builder._
-import poly.collection.exception._
 import poly.collection.mut._
 
 /**
@@ -10,7 +10,7 @@ import poly.collection.mut._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait Set[T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
+trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
 
   def equivOnKey: Equiv[T]
 
@@ -194,7 +194,7 @@ trait Set[T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
     case _ => false
   }
 
-
+  override def toString = s"{${elements.buildString(", ")}}"
 
   //Symbolic aliases
   def &(that: Set[T]) = this intersect that
@@ -251,4 +251,4 @@ object Set {
   }
 }
 
-abstract class AbstractSet[T] extends Set[T]
+abstract class AbstractSet[@sp(Int) T] extends Set[T]

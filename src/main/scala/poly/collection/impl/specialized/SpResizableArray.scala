@@ -2,14 +2,16 @@ package poly.collection.impl.specialized
 
 import poly.algebra.specgroup._
 import poly.collection._
+import poly.macroutil._
 
 import scala.reflect._
 
 /**
  * A specialized version for resizable arrays ([[poly.collection.impl.ResizableArray]]).
  * @author Tongfei Chen
+ * @since 0.1.0
  */
-final class SpResizableArray[@sp(Float, Double, Int, Long, Boolean) T: ClassTag]
+abstract class SpResizableArray[@sp(Float, Double, Int, Long, Boolean) T: ClassTag]
 (private[this] var cap: Int = Settings.ArrayInitialSize) { self =>
 
   private[this] var data: Array[T] = Array.ofDim[T](math.max(nextPowerOfTwo(cap), Settings.ArrayInitialSize))
@@ -33,4 +35,15 @@ final class SpResizableArray[@sp(Float, Double, Int, Long, Boolean) T: ClassTag]
     data(i) = x
   }
 
+  def fillInplace(x: T) = FastLoop.ascending(0, capacity, 1) { i =>
+    data(i) = x
+  }
+
 }
+
+// hand-specialized versions
+class IntResizableArray(private[this] var cap: Int = Settings.ArrayInitialSize) extends SpResizableArray[Int](cap)
+class LongResizableArray(private[this] var cap: Int = Settings.ArrayInitialSize) extends SpResizableArray[Long](cap)
+class FloatResizableArray(private[this] var cap: Int = Settings.ArrayInitialSize) extends SpResizableArray[Float](cap)
+class DoubleResizableArray(private[this] var cap: Int = Settings.ArrayInitialSize) extends SpResizableArray[Double](cap)
+class BooleanResizableArray(private[this] var cap: Int = Settings.ArrayInitialSize) extends SpResizableArray[Boolean](cap)

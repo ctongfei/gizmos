@@ -1,5 +1,6 @@
 package poly.collection.impl
 
+import poly.algebra.syntax._
 import poly.collection.mut._
 
 /**

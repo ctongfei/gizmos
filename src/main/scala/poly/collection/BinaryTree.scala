@@ -127,6 +127,7 @@ trait BinaryTree[+T] { self =>
    */
   def inOrder = rootNode.inOrder.map(_.data)
 
+  def reflect = ofRootNode(self.rootNode.reflect)
 
   /**
    * '''Lazily''' traverses this binary tree in post-order.

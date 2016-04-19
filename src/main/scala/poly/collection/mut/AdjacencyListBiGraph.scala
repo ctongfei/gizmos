@@ -7,7 +7,7 @@ import poly.collection._
 /**
  * @author Tongfei Chen
  */
-class AdjacencyListBiGraph[@sp() K: IntHashing, V, E] extends BiGraph[K, V, E] {
+class AdjacencyListBiGraph[@sp(Int) K: Equiv, V, E] extends BiGraph[K, V, E] {
 
   type VertexInfo = AdjacencyListBiGraph.VertexInfo[K, V, E]
 
@@ -30,7 +30,7 @@ class AdjacencyListBiGraph[@sp() K: IntHashing, V, E] extends BiGraph[K, V, E] {
 object AdjacencyListBiGraph {
 
 
-  private[poly] class VertexInfo[K, V, E] {
+  private[poly] class VertexInfo[K: Equiv, V, E] {
     var data: V = _
     val pred = ListSet[K]()
     val succ = HashMap[K, E]() // should be ListMap

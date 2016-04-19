@@ -1,6 +1,7 @@
 package poly.collection.conversion
 
 import java.{lang => jl, util => ju}
+import java.util.{stream => jus}
 import poly.algebra._
 import poly.algebra.conversion.FromJava._
 import poly.collection._
@@ -17,16 +18,69 @@ object FromJava {
   }
 
   implicit def javaIteratorAsPoly[T](xs: ju.Iterator[T]): Iterator[T] = new Iterator[T] {
-    var current: T = default[T]
+    private[this] var curr: T = default[T]
     def advance() = {
       if (xs.hasNext) {
-        current = xs.next()
+        curr = xs.next()
         true
       }
       else false
     }
+    def current = curr
   }
 
+  implicit def javaIntIteratorAsPoly(xs: ju.PrimitiveIterator.OfInt): Iterator[Int] = new Iterator[Int] {
+    private[this] var curr: Int = 0
+    def advance() = {
+      if (xs.hasNext) {
+        curr = xs.nextInt()
+        true
+      }
+      else false
+    }
+    def current = curr
+  }
+
+  implicit def javaDoubleIteratorAsPoly(xs: ju.PrimitiveIterator.OfDouble): Iterator[Double] = new Iterator[Double] {
+    private[this] var curr: Double = 0.0
+    def advance() = {
+      if (xs.hasNext) {
+        curr = xs.nextDouble()
+        true
+      }
+      else false
+    }
+    def current = curr
+  }
+
+  implicit def javaLongIteratorAsPoly(xs: ju.PrimitiveIterator.OfLong): Iterator[Long] = new Iterator[Long] {
+    private[this] var curr: Long = 0l
+    def advance() = {
+      if (xs.hasNext) {
+        curr = xs.nextLong()
+        true
+      }
+      else false
+    }
+    def current = curr
+  }
+
+  implicit def javaStreamAsPoly[T](xs: jus.Stream[T]): Iterable[T] = new AbstractIterable[T] {
+    def newIterator = xs.iterator()
+  }
+
+  implicit def javaIntStreamAsPoly(xs: jus.IntStream): Iterable[Int] = new AbstractIterable[Int] {
+    def newIterator = xs.iterator()
+  }
+
+  implicit def javaLongStreamAsPoly(xs: jus.LongStream): Iterable[Long] = new AbstractIterable[Long] {
+    def newIterator = xs.iterator()
+  }
+
+  implicit def javaDoubleStreamAsPoly(xs: jus.DoubleStream): Iterable[Double] = new AbstractIterable[Double] {
+    def newIterator = xs.iterator()
+  }
+  
   implicit def javaListAsPoly[T](xs: ju.List[T]): IndexedSeq[T] = new ValueMutableIndexedSeq[T] {
     def fastLength = xs.size
     def fastApply(i: Int) = xs.get(i)
@@ -49,6 +103,7 @@ object FromJava {
       def newIterator = xs.iterator()
     }
     def contains(x: T) = xs.contains(x)
+    def orderOnKey = xs.comparator()
   }
 
   implicit def javaQueueAsPoly[T](xs: ju.Queue[T]): Queue[T] = new Queue[T] {

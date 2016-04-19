@@ -17,6 +17,7 @@ package object collection {
   /** Returns the second element of a pair. */
   @inline def secondOfPair[@sp(fdi) α, @sp(fdi) β](pair: (α, β)) = pair._2
 
+  @inline def thirdOfTriple[γ](triple: (_, _, γ)) = triple._3
 
   @inline private[poly] def default[T]: T = {
     class Default {

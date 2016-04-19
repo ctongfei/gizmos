@@ -44,8 +44,8 @@ trait BinaryTreeNodeLike[+T, +N <: BinaryTreeNodeLike[T, N]] extends ForwardNode
    * Performs in-order traversal from this node. $LAZY
    * @return A non-strict sequence of the in-order traversal.
    */
-  def inOrder: Iterable[N] = Iterable.ofIterator {
-    new Iterator[N] {
+  def inOrder: BiIterable[N] = {
+    class ForwardInOrderIterator extends Iterator[N] {
       private[this] val s = ArrayStack[N]()
       private[this] var v: N = default[N]
       private[this] var curr: N = default[N]
@@ -68,6 +68,30 @@ trait BinaryTreeNodeLike[+T, +N <: BinaryTreeNodeLike[T, N]] extends ForwardNode
       }
       def current = curr
     }
+    class BackwardInOrderIterator extends Iterator[N] {
+      private[this] val s = ArrayStack[N]()
+      private[this] var v: N = default[N]
+      private[this] var curr: N = default[N]
+      pushRight(self)
+
+      private[this] def pushRight(n: N) = {
+        var node = n
+        while (node.notDummy) {
+          s.push(node)
+          node = node.right
+        }
+      }
+      def advance(): Boolean = {
+        if (s.isEmpty) return false
+        v = s.pop()
+        curr = v
+        v = v.left
+        if (v.notDummy) pushRight(v)
+        true
+      }
+      def current = curr
+    }
+    BiIterable.ofIterator(new ForwardInOrderIterator, new BackwardInOrderIterator)
   }
 
   /**
@@ -127,6 +151,13 @@ trait BinaryTreeNode[+T] extends BinaryTreeNodeLike[T, BinaryTreeNode[T]] { self
     def right = self.right zip that.right
     def data = (self.data, that.data)
     override def isDummy = self.isDummy || that.isDummy
+  }
+
+  def reflect: BinaryTreeNode[T] = new BinaryTreeNode[T] {
+    def data = self.data
+    def left = self.right.reflect
+    def right = self.left.reflect
+    def isDummy = self.isDummy
   }
 
 }

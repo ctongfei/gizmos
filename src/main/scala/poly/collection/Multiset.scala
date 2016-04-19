@@ -11,11 +11,12 @@ import poly.algebra.specgroup._
  * as long as it forms an ordered ring, it can be used as a type for the
  * counts for the elements.
  *
- * Multisets are useful for implementing counters.
+ * Multisets are useful for implementing counters and sparse feature vectors.
+ *
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait Multiset[@sp(i) K, R] extends KeyedLike[K, Multiset[K, R]] { self =>
+trait Multiset[@sp(Int) K, @sp(Int, Double) R] extends KeyedLike[K, Multiset[K, R]] { self =>
 
   implicit def equivOnKey: Equiv[K]
 
@@ -57,7 +58,7 @@ trait Multiset[@sp(i) K, R] extends KeyedLike[K, Multiset[K, R]] { self =>
     def contains(k: K) = self.containsKey(k)
   }
 
-  def scaleBy(w: R): Multiset[K, R] = new AbstractMultiset[K, R] {
+  def scale(w: R): Multiset[K, R] = new AbstractMultiset[K, R] {
     def equivOnKey = self.equivOnKey
     implicit def ringOnCount = self.ringOnCount
     override def pairs = self.pairs.map { case (k, r) => k → (r * w) }
@@ -67,17 +68,17 @@ trait Multiset[@sp(i) K, R] extends KeyedLike[K, Multiset[K, R]] { self =>
   }
 
   def intersect(that: Multiset[K, R]): Multiset[K, R] = new AbstractMultiset[K, R] {
-    def equivOnKey = self.equivOnKey
+    implicit def equivOnKey = self.equivOnKey
     implicit def ringOnCount = self.ringOnCount
-    def multiplicity(k: K) = min(self.multiplicity(k), that.multiplicity(k))
+    def multiplicity(k: K) = function.min(self.multiplicity(k), that.multiplicity(k))
     def keys = self.keys intersect that.keys
     def contains(k: K) = self.contains(k) && that.contains(k)
   }
 
   def union(that: Multiset[K, R]): Multiset[K, R] = new AbstractMultiset[K, R] {
-    def equivOnKey = self.equivOnKey
+    implicit def equivOnKey = self.equivOnKey
     implicit def ringOnCount = self.ringOnCount
-    def multiplicity(k: K) = max(self.multiplicity(k), that.multiplicity(k))
+    def multiplicity(k: K) = function.max(self.multiplicity(k), that.multiplicity(k))
     def keys = self.keys union that.keys
     def contains(k: K) = self.contains(k) || that.contains(k)
   }
@@ -91,7 +92,7 @@ trait Multiset[@sp(i) K, R] extends KeyedLike[K, Multiset[K, R]] { self =>
   }
 
   def multisetAdd(that: Multiset[K, R]): Multiset[K, R] = new AbstractMultiset[K, R] {
-    def equivOnKey = self.equivOnKey
+    implicit def equivOnKey = self.equivOnKey
     implicit def ringOnCount = self.ringOnCount
     def multiplicity(k: K) = self.multiplicity(k) + that.multiplicity(k)
     def keys = self.keys union that.keys
@@ -102,10 +103,40 @@ trait Multiset[@sp(i) K, R] extends KeyedLike[K, Multiset[K, R]] { self =>
 
   def supersetOf(that: Multiset[K, R]) = that subsetOf this
 
-  def :*(w: R): Multiset[K, R] = scaleBy(w)
-  def *:(w: R): Multiset[K, R] = scaleBy(w)
+  def :*(w: R): Multiset[K, R] = scale(w)
+  def *:(w: R): Multiset[K, R] = scale(w)
+
+
+  // FOLDING
+
+  def sum[L >: K](implicit m: Module[L, R]) = pairs.map { case (k, w) => m.scale(k, w) }.sum(m)
+  def forall(f: K => Boolean) = keys forall f
+  def exists(f: K => Boolean) = keys exists f
+  def max(implicit K: WeakOrder[K]) = keys.max
+  def min(implicit K: WeakOrder[K]) = keys.min
+  def minAndMax(implicit K: WeakOrder[K]) = keys.minAndMax
+  def argmax[L: WeakOrder](f: K => L) = keys.argmax(f)
+  def argmin[L: WeakOrder](f: K => L) = keys.argmin(f)
+  def minBy[L: WeakOrder](f: K => L) = argmin(f)
+  def maxBy[L: WeakOrder](f: K => L) = argmax(f)
+
+  //Symbolic aliases
+  def &(that: Multiset[K, R]) = this intersect that
+  def |(that: Multiset[K, R]) = this union that
+  def &~(that: Multiset[K, R]) = ??? //this setDiff that
+  def ⊂(that: Multiset[K, R]) = ??? //this properSubsetOf that
+  def ⊃(that: Multiset[K, R]) = ??? //this properSupersetOf that
+  def ⊆(that: Multiset[K, R]) = this subsetOf that
+  def ⊇(that: Multiset[K, R]) = this supersetOf that
+  def ∩(that: Multiset[K, R]) = this & that
+  def ∪(that: Multiset[K, R]) = this | that
 
   override def toString = "{" + pairs.map { case (k, w) => s"$k: $w"}.buildString(",") + "}"
+
+  override def equals(that: Any) = that match {
+    case that: Multiset[K, R] => Multiset.ContainmentOrder[K, R].eq(this, that)
+    case _ => false
+  }
 
 }
 
@@ -122,7 +153,7 @@ object Multiset {
   /** Returns the implicit module structure on multisets. */
   implicit def Module[K: Equiv, R: OrderedRing]: Module[Multiset[K, R], R] = new Module[Multiset[K, R], R] {
     implicit def ringOnScalar = Ring[R]
-    def scale(x: Multiset[K, R], k: R) = x scaleBy k
+    def scale(x: Multiset[K, R], k: R) = x scale k
     def add(x: Multiset[K, R], y: Multiset[K, R]) = x multisetAdd y
     def zero = Multiset.empty[K, R]
   }
@@ -132,7 +163,12 @@ object Multiset {
     def inf(x: Multiset[K, R], y: Multiset[K, R]) = x intersect y
   }
 
+  implicit def ContainmentOrder[K: Equiv, R: OrderedRing]: PartialOrder[Multiset[K, R]] = new PartialOrder[Multiset[K, R]] {
+    def le(x: Multiset[K, R], y: Multiset[K, R]) = x subsetOf y
+    override def eq(x: Multiset[K, R], y: Multiset[K, R]) = (x subsetOf y) && (y subsetOf x)
+  }
+
 
 }
 
-abstract class AbstractMultiset[@sp(i) K, R] extends Multiset[K, R]
+abstract class AbstractMultiset[@sp(Int) K, @sp(Int, Double) R] extends Multiset[K, R]

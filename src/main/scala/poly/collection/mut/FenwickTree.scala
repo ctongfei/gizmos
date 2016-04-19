@@ -76,9 +76,9 @@ object FenwickTree extends FactoryWithAdditiveGroup[FenwickTree] {
   implicit def newBuilder[T:AdditiveGroup]: Builder[T, FenwickTree[T]] = new Builder[T, FenwickTree[T]] {
     val coll = new ResizableSeq[T]()
     val G = implicitly[AdditiveGroup[T]]
-    def sizeHint(n: Int): Unit = coll.ensureCapacity(n)
-    def addInplace(x: T): Unit = coll.appendInplace(x)
-    def result: FenwickTree[T] = ??? //TODO:!!! not implemented
+    def sizeHint(n: Int) = coll.ensureCapacity(n)
+    def addInplace(x: T) = coll.appendInplace(x)
+    def result = new FenwickTree[T](coll)
   }
 
 }

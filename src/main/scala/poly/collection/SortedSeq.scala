@@ -32,5 +32,7 @@ trait SortedSeq[T] extends Seq[T] with SortedIterable[T] { self =>
 
   def orderOnValue = order
 
+  def max = last
+
   //TODO: thenSortBy
 }

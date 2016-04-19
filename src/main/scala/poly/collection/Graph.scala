@@ -18,7 +18,7 @@ import scala.annotation.unchecked.{uncheckedVariance => uv}
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait Graph[@sp(i) K, +V, +E] extends KeyedLike[K, Graph[K, V, E]] with StateSpace[K] { self =>
+trait Graph[@sp(Int) K, +V, +E] extends KeyedLike[K, Graph[K, V, E]] with StateSpace[K] { self =>
 
   import Graph._
 
@@ -49,7 +49,7 @@ trait Graph[@sp(i) K, +V, +E] extends KeyedLike[K, Graph[K, V, E]] with StateSpa
   def keys: Iterable[K] = keySet.elements
 
   /** Returns a map that maps keys to the data on corresponding vertices. */
-  def nodeMap: Map[K, V] = keySet createMapBy (k => self(k))
+  def nodeMap: Map[K, V] = keySet createMapBy apply
 
   /** Returns an iterable collection of the vertices in this graph. */
   def nodes: Iterable[Node[K, V]] = keys.map(node)
@@ -174,4 +174,4 @@ object Graph {
 
 }
 
-abstract class AbstractGraph[@sp(i) K, +V, +E] extends Graph[K, V, E]
+abstract class AbstractGraph[@sp(Int) K, +V, +E] extends Graph[K, V, E]

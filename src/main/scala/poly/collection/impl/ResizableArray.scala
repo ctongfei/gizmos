@@ -1,6 +1,7 @@
 package poly.collection.impl
 
 import poly.collection._
+import poly.macroutil._
 
 /**
  * @author Tongfei Chen
@@ -26,6 +27,10 @@ final class ResizableArray[T]
 
   def update(i: Int, x: T) = {
     if (i >= capacity) ensureCapacity(i + 1)
+    data(i) = x.asInstanceOf[AnyRef]
+  }
+
+  def fillInplace(x: T) = FastLoop.ascending(0, capacity, 1) { i =>
     data(i) = x.asInstanceOf[AnyRef]
   }
 

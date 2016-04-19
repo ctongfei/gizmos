@@ -88,6 +88,8 @@ class OpenHashTable[K: IntHashing, E >: Null <: OpenHashEntryLike[K, E]](initial
     }
   }
 
+  def entries = Iterable.ofIterator(entryIterator)
+
   def foreachEntry[U](f: E => U) = {
     var i = 0
     var e: E = null

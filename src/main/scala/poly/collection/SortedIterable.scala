@@ -59,6 +59,8 @@ trait SortedIterable[T] extends Iterable[T] { self =>
     }
   }
 
+  def min = self.head
+
   //TODO: delete?
   @deprecated
   def mergeEagerly(that: SortedIterable[T]): SortedSeq[T] = {

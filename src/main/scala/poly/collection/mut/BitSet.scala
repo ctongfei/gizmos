@@ -3,22 +3,88 @@ package poly.collection.mut
 import poly.algebra._
 import poly.collection._
 import poly.collection.impl.specialized._
+import poly.macroutil._
 
 /**
+ * Represents a bitset, which is internally represented as an array of `Long`s.
  * @author Tongfei Chen
+ * @since 0.1.0
  */
-class BitSet private(private final var data: SpResizableArray[Long]) extends KeyMutableSet[Int] {
+class BitSet private(private final var data: LongResizableArray)
+  extends AbstractSet[Int] with SortedSet[Int] with KeyMutableSet[Int] { self =>
 
-  def equivOnKey = Equiv.default[Int]
+  import BitSet._
 
-  def add(x: Int) = ???
+  implicit def orderOnKey = std.IntStructure
 
-  def remove(x: Int) = ???
+  def add(x: Int) = {
+    val idx = x >> LongBits
+    data.ensureCapacity(idx + 1)
+    data(idx) |= (1l << x)
+  }
 
-  /** Tests if an element belongs to this set. */
-  def contains(x: Int) = ???
+  def remove(x: Int) = {
+    val idx = x >> LongBits
+    if (idx < data.capacity) {
+      data(idx) &= ~(1l << x)
+    }
+  }
 
-  def keys = ???
+  def contains(x: Int) = {
+    val idx = x >> LongBits
+    if (idx < data.capacity) (data(idx) & (1l << x)) != 0l
+    else false
+  }
 
-  def clear() = ???
+  def keys = Iterable.ofIterator {
+    new Iterator[Int] {
+      private[this] var idx = 0
+      private[this] var bitMask = 1l
+      private[this] var k = 0
+      private[this] var curr = -1
+      def advance(): Boolean = {
+        while (idx < data.capacity) {
+          val word = data(idx)
+          while (k < LongSize) {
+            if ((word & bitMask) != 0l) {
+              curr = idx * LongSize + k
+              k += 1
+              bitMask <<= 1
+              return true
+            }
+            k += 1
+            bitMask <<= 1
+          }
+          idx += 1
+          k = 0
+        }
+        false
+      }
+      def current = curr
+    }
+  }.asIfSorted
+
+  override def foreach[U](f: Int => U) = {
+    FastLoop.ascending(0, data.capacity, 1) { i =>
+      var w = data(i)
+      var j = i * LongSize
+      while (w != 0l) {
+        if ((w & 1l) == 1l) f(j)
+        w >>>= 1
+        j += 1
+      }
+    }
+  }
+
+  def clear() = data.fillInplace(0l)
+}
+
+
+object BitSet {
+
+  private[poly] final val LongBits = 6 // 2^6 = 64
+  private[poly] final val LongSize = 64
+
+  def apply() = new BitSet(new LongResizableArray(8))
+
 }

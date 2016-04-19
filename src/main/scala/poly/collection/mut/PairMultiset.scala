@@ -16,7 +16,7 @@ class PairMultiset[K: IntHashing, R: OrderedRing] private(private val data: Hash
 
   def remove(x: K, w: R = ringOnCount.one) = {
     val u = data(x) - w
-    data(x) = max(ringOnCount.zero, u)
+    data(x) = function.max(ringOnCount.zero, u)
   }
 
   def multiplicity(k: K) = data(k)

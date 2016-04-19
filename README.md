@@ -40,9 +40,10 @@ libraryDependencies += "me.tongfei" %% "poly-collection" % "0.1.0-M1-SNAPSHOT"
 
 ## Future work
 
- - More specialization to boost the performance
+ - More specialization (miniboxing?) to boost the performance
  
  - Parallel collections
  
- - ...
+ 
+ 
  

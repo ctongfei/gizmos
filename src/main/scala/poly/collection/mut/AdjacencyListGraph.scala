@@ -8,14 +8,14 @@ import poly.collection.factory._
 /**
  * @author Tongfei Chen
  */
-class AdjacencyListGraph[@sp(i) K, V, E]() extends Graph[K, V, E] {
+class AdjacencyListGraph[@sp(Int) K, V, E]() extends Graph[K, V, E] {
 
   private class VertexInfo {
     var data: V = _
-    val succ = HashMap[K, E]() // TODO: ListMap
+    val succ = ListMap[K, E]() // TODO: ListMap?
   }
 
-  private val r = HashMap[K, VertexInfo]()
+  private val r = AutoMap[K, VertexInfo]()
 
   def apply(i: K): V = r(i).data
 
@@ -33,8 +33,8 @@ object AdjacencyListGraph extends GraphFactory[AdjacencyListGraph] {
   implicit def newBuilder[K, V, E] = new GraphBuilder[K, V, E, AdjacencyListGraph[K, V, E]] {
     private val g = new AdjacencyListGraph[K, V, E]()
     def numNodesHint(n: Int) = ???
-    def addEdge(i: K, j: K, e: E) = ???
-    def addNode(i: K, v: V) = ???
+    def addEdgeInplace(i: K, j: K, e: E) = ???
+    def addNodeInplace(i: K, v: V) = ???
     def result = ???
   }
 }

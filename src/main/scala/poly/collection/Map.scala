@@ -14,7 +14,7 @@ import scala.language.reflectiveCalls
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait Map[@sp(i) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K, V] { self =>
+trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K, V] { self =>
 
   /**
    * Returns all key-value pairs stored in this map.
@@ -93,7 +93,7 @@ trait Map[@sp(i) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K, 
    * }}}
    * @note This function is equivalent to the Scala library's `mapValues`.
    *       To transform all pairs in this map, use `this.pairs.map`.
-   * @example {{{Map(1 -> 2, 2 -> 3) map {_ * 2} == Map(1 -> 4, 2 -> 6)}}}
+   * @example {{{ {1 -> 2, 2 -> 3} map {_ * 2} == {1 -> 4, 2 -> 6} }}}
    * @param f The specific function
    * @return A map view that maps every key of this map to `f(this(key))`.
    */
@@ -109,11 +109,11 @@ trait Map[@sp(i) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K, 
   /**
    * Returns the product map of two maps. $LAZY
    * @example {{{
-   *   Map(1 -> 'A', 2 -> 'B') product Map(true -> 1, false -> 0) ==
-   *   Map((1, true)  -> ('A', 1),
+   *   {1 -> 'A', 2 -> 'B'} product {true -> 1, false -> 0} ==
+   *      {(1, true)  -> ('A', 1),
    *       (1, false) -> ('A', 0),
    *       (2, true)  -> ('B', 1),
-   *       (2, false) -> ('B', 0))
+   *       (2, false) -> ('B', 0)}
    * }}}
    */
   def cartesianProduct[L, W](that: Map[L, W]): Map[(K, L), (V, W)] = new AbstractMap[(K, L), (V, W)] {
@@ -129,7 +129,7 @@ trait Map[@sp(i) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K, 
    * Zips two maps with the same key type into one. $LAZY
    * @note This function is not the same as the Scala library's `zip`. Please
    *       use `this.pairs.zip` instead for zipping a sequence of pairs.
-   * @example {{{Map(1 -> 2, 2 -> 3) zip Map(2 -> 5, 3 -> 6) == Map(2 -> (3, 5))}}}
+   * @example {{{{1 -> 2, 2 -> 3} zip {2 -> 5, 3 -> 6} == {2 -> (3, 5)} }}}
    * @param that Another map to be zipped
    */
   def zip[W](that: Map[K, W]): Map[K, (V, W)] = new AbstractMap[K, (V, W)] {
@@ -194,8 +194,8 @@ trait Map[@sp(i) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K, 
    *    self  . contramap  ( that )    ==   result
    * }}}
    * @example {{{
-   *   Map(1 -> 'A', 2 -> 'B') contramap
-   *   BijectiveMap('a' <-> 1, 'b' <-> 2) == Map('a' -> 'A', 'b' -> 'B')
+   *   {1 -> 'A', 2 -> 'B'} contramap {'a' <-> 1, 'b' <-> 2}
+   *   == {'a' -> 'A', 'b' -> 'B'}
    * }}}
    */
   def contramap[J](f: Bijection[J, K]): Map[J, V] = new AbstractMap[J, V] {
@@ -222,7 +222,7 @@ trait Map[@sp(i) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K, 
     def containsKey(x: K) = self.containsKey(x)
   }
 
-  override def toString = "Map{" + pairs.map { case (k, v) => s"$k → $v" }.buildString(", ") + "}"
+  override def toString = "{" + pairs.map { case (k, v) => s"$k → $v" }.buildString(", ") + "}"
 
   def |>[W](f: V => W) = self map f
   def |<[J](f: Bijection[J, K]) = self contramap f
@@ -283,5 +283,5 @@ trait MapLowPriorityImplicits {
   }
 }
 
-abstract class AbstractMap[@sp(i) K, +V] extends Map[K, V]
+abstract class AbstractMap[@sp(Int) K, +V] extends Map[K, V]
 

@@ -277,8 +277,8 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
 
   override def slice(i: Int, j: Int) = self.skip(i).take(j - i)
 
-  override def distinct[U >: T : IntHashing]: Seq[T] = {
-    val set = HashSet[U]()
+  override def distinct[U >: T : Equiv]: Seq[T] = {
+    val set = AutoSet[U]()
     class DistinctNode(outer: SeqNode[T]) extends SeqNode[T] {
       def next: DistinctNode = {
         var n = outer.next
@@ -297,8 +297,8 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
     ofDummyNode(new DistinctNode(self.dummy))
   }
 
-  override def distinctBy[U: IntHashing](f: T => U): Seq[T] = {
-    val set = HashSet[U]()
+  override def distinctBy[U: Equiv](f: T => U): Seq[T] = {
+    val set = AutoSet[U]()
     class DistinctByNode(outer: SeqNode[T]) extends SeqNode[T] {
       def next: DistinctByNode = {
         var n = outer.next
@@ -318,9 +318,9 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
     ofDummyNode(new DistinctByNode(self.dummy))
   }
 
-  def union[U >: T : IntHashing](that: Seq[U]): Seq[U] = (this concat that).distinct
+  def union[U >: T : Equiv](that: Seq[U]): Seq[U] = (this concat that).distinct
 
-  def intersect[U >: T : IntHashing](that: Seq[U]): Seq[U] = (this filter that.to[HashSet]).distinct
+  def intersect[U >: T : Equiv](that: Seq[U]): Seq[U] = (this filter AutoSet.from(that)).distinct
 
   override def rotate(i: Int) = self.skip(i) ++ self.take(i)
 
@@ -364,8 +364,7 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
     def headNode: SeqNode[T] = self.headNode
   }
 
-  def zip[U](that: Seq[U]): Seq[(T, U)] = ofDummyNode(self.dummy zip that.dummy)
-
+  def zip[U](that: Seq[U]): Seq[(T, U)] = ofHeadNode(self.headNode zip that.headNode)
 
   // INDEXING OPERATIONS
 

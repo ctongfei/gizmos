@@ -240,9 +240,9 @@ trait Iterable[+T] extends Traversable[T] { self =>
 
   override def slice(i: Int, j: Int): Iterable[T] = self.skip(i).take(j - i)
 
-  override def distinct[U >: T : IntHashing]: Iterable[T] = ofIterator {
+  override def distinct[U >: T : Equiv]: Iterable[T] = ofIterator {
     new Iterator[T] {
-      private[this] val set = HashSet[U]()
+      private[this] val set = AutoSet[U]()
       private[this] val i = self.newIterator
       def current = i.current
       def advance(): Boolean = {
@@ -257,9 +257,9 @@ trait Iterable[+T] extends Traversable[T] { self =>
     }
   }
 
-  override def distinctBy[U: IntHashing](f: T => U): Iterable[T] = ofIterator {
+  override def distinctBy[U: Equiv](f: T => U): Iterable[T] = ofIterator {
     new Iterator[T] {
-      private[this] val set = HashSet[U]()
+      private[this] val set = AutoSet[U]()
       private[this] val i = self.newIterator
       def current = i.current
       def advance(): Boolean = {
@@ -275,9 +275,9 @@ trait Iterable[+T] extends Traversable[T] { self =>
     }
   }
 
-  def union[U >: T : IntHashing](that: Iterable[U]): Iterable[U] = (this concat that).distinct
+  def union[U >: T : Equiv](that: Iterable[U]): Iterable[U] = (this concat that).distinct
 
-  def intersect[U >: T : IntHashing](that: Iterable[U]): Iterable[U] = (this filter that.to[HashSet]).distinct
+  def intersect[U >: T : Equiv](that: Iterable[U]): Iterable[U] = (this filter AutoSet.from(that)).distinct
 
   override def rotate(n: Int): Iterable[T] = self.skip(n) ++ self.take(n)
 
@@ -313,7 +313,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
   /**
    * Returns a collection formed from this collection and another iterable collection by combining
    * corresponding elements in pairs. `|~|` is a symbolic alias of this method.
-   * @param that Another enumerable collection
+   * @param that Another iterable collection
    * @example {{{(1, 2, 3) zip (-1, -2, -3, -4) == ((1, -1), (2, -2), (3, -3))}}}
    * @return Zipped sequence
    */

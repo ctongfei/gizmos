@@ -1,7 +1,9 @@
 package poly.collection.mut
 
+import poly.algebra.syntax._
+
 /**
- * @author Tongfei Chen (ctongfei@gmail.com).
+ * @author Tongfei Chen
  */
 object ListSetTest extends App {
 

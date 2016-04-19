@@ -28,7 +28,4 @@ trait ValueMutableSeq[T] extends Seq[T] with ValueMutableMap[Int, T] { self =>
   }
 
   //def inplaceReverse(): Unit
-  def mapInplace(f: T => T): Unit = {
-    for (i ← keys) this(i) = f(this(i))
-  }
 }

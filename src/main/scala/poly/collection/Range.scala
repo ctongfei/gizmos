@@ -35,7 +35,7 @@ sealed trait Range extends SortedIndexedSeq[Int] { self =>
   override def head = left
 
   def asSet: Set[Int] = new AbstractSet[Int] {
-    def equivOnKey = Equiv[Int]
+    def equivOnKey = self.order
     def keys = self
     def contains(x: Int) =
       if (step > 0) x >= left && x < right && (x - left) % step == 0

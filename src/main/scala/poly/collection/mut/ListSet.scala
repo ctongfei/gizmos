@@ -3,6 +3,8 @@ package poly.collection.mut
 import poly.algebra._
 import poly.algebra.ops._
 import poly.collection._
+import poly.collection.builder._
+import poly.collection.factory._
 import poly.collection.impl._
 
 /**
@@ -44,11 +46,13 @@ class ListSet[T] private(private val data: SinglyLinkedList[T])(implicit val equ
   def keys: Seq[T] = data
 }
 
-//TODO:!!! change to SetFactory
-object ListSet {
-  def apply[T: Equiv](xs: T*): ListSet[T] = {
-    val l = new SinglyLinkedList[T]
-    xs foreach l.appendInplace
-    new ListSet[T](l)
+object ListSet extends SetFactory[ListSet] {
+
+  implicit def newBuilder[K: Equiv]: Builder[K, ListSet[K]] = new Builder[K, ListSet[K]] {
+    private[this] val s = new ListSet(new SinglyLinkedList[K]())
+    def addInplace(x: K) = s add x
+    def result = s
+    def sizeHint(n: Int) = {}
   }
+
 }

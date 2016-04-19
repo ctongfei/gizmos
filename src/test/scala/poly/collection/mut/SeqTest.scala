@@ -1,6 +1,7 @@
 package poly.collection.mut
 
-import poly.algebra.implicits._
+import poly.algebra._
+import poly.algebra.syntax._
 
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).
@@ -12,7 +13,8 @@ object SeqTest {
     val a = ArraySeq[Int](1, 2, 3, 4, 5, 6)
     val b = ListSeq[Int](1, 2, 3)
 
-
+    val aa = a.sort
+    val amin = aa.min
 
     val c = a.asIfSorted merge b.asIfSorted
 
