@@ -25,12 +25,10 @@ trait SortedSeq[T] extends Seq[T] with SortedIterable[T] { self =>
         new FilteredSeqNode(nextNode)
       }
     }
-    Seq.ofDummyNode(new FilteredSeqNode(dummy)).asIfSorted(order)
+    Seq.ofDummyNode(new FilteredSeqNode(dummy)).asIfSorted(orderOnElements)
   }
 
   override def filterNot(f: T => Boolean) = filter(x => !f(x))
-
-  def orderOnValue = order
 
   def max = last
 

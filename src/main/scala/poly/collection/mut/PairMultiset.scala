@@ -11,7 +11,7 @@ import scala.language.higherKinds
 class PairMultiset[K: IntHashing, R: OrderedRing] private(private val data: HashMap[K, R])
   extends KeyMutableMultiset[K, R] {
 
-  def equivOnKey = Equiv[K]
+  def equivOnKeys = Equiv[K]
   def ringOnCount = OrderedRing[R]
 
   def remove(x: K, w: R = ringOnCount.one) = {

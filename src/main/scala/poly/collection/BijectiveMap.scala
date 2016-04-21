@@ -11,7 +11,7 @@ import poly.algebra._
 trait BijectiveMap[K, V] extends Map[K, V] with Bijection[K, V] { self =>
 
   /** Returns the equivalence relation on the value set of this bijective map. */
-  def equivOnValue: Equiv[V]
+  def equivOnValues: Equiv[V]
 
   /** Gets the corresponding key of a given value. */
   def invert(v: V): K
@@ -33,8 +33,8 @@ trait BijectiveMap[K, V] extends Map[K, V] with Bijection[K, V] { self =>
 
   /** Returns the inverse map that maps values to keys. $LAZY */
   override def inverse: BijectiveMap[V, K] = new AbstractBijectiveMap[V, K] {
-    def equivOnKey = self.equivOnValue
-    def equivOnValue = self.equivOnKey
+    def equivOnKeys = self.equivOnValues
+    def equivOnValues = self.equivOnKeys
     def invert(k: K) = self(k)
     def invertOption(k: K) = self ? k
     def ?(v: V) = self.invertOption(v)
@@ -47,8 +47,8 @@ trait BijectiveMap[K, V] extends Map[K, V] with Bijection[K, V] { self =>
   }
 
   def map[W](that: BijectiveMap[V, W]): BijectiveMap[K, W] = new AbstractBijectiveMap[K, W] {
-    def equivOnKey = self.equivOnKey
-    def equivOnValue = that.equivOnValue
+    def equivOnKeys = self.equivOnKeys
+    def equivOnValues = that.equivOnValues
     def apply(k: K) = that(self(k))
     def ?(k: K) = for (v ← self ? k; w ← that ? v) yield w
     def invert(w: W) = self.invert(that.invert(w))
@@ -65,6 +65,8 @@ trait BijectiveMap[K, V] extends Map[K, V] with Bijection[K, V] { self =>
 
   def |>[W](that: BijectiveMap[V, W]) = this andThen that
   def |<[J](that: BijectiveMap[J, K]) = this compose that
+
+  override def toString = "{" + pairs.map { case (k, v) => s"$k ↔︎ $v" }.buildString(", ") + "}"
 }
 
 abstract class AbstractBijectiveMap[K, V] extends AbstractMap[K, V] with BijectiveMap[K, V]

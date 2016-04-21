@@ -45,7 +45,7 @@ object ops {
       * Creates a left-exclusive-right-inclusive ascending range.
       * @example {{{ (0 <~~ 4) == (1, 2, 3, 4) }}}
       */
-    @inline def <~~(right: Int) = (left ~~> right).reverse
+    @inline def <~~(right: Int) = (right ~~> left).reverse
   }
 
 

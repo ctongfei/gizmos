@@ -10,7 +10,7 @@ import poly.collection.impl._
  */
 class SortedArraySeq[T] private(private val data: SortedArray[T]) extends MutableSortedIndexedSeq[T] {
 
-  val order = data.order
+  val orderOnElements = data.orderOnElements
 
   def fastLength = data.fastLength
 

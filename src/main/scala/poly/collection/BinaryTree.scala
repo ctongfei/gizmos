@@ -127,7 +127,20 @@ trait BinaryTree[+T] { self =>
    */
   def inOrder = rootNode.inOrder.map(_.data)
 
-  def reflect = ofRootNode(self.rootNode.reflect)
+  /**
+   * Returns the reflected mirror image of this binary tree.
+   * @example {{{
+   *  ┌      a    ┐            ┌    a      ┐
+   *  │     / \   │            │   / \     │
+   *  │    b   c  │            │  c   b    │
+   *  │   / \     │.reflect == │     / \   │
+   *  └  d   e    ┘            └    e   d  ┘
+   * }}}
+   */
+  def reflect: BinaryTree[T] = new AbstractBinaryTree[T] {
+    def rootNode = self.rootNode.reflect
+    override def reflect = self
+  }
 
   /**
    * '''Lazily''' traverses this binary tree in post-order.
@@ -239,7 +252,7 @@ object BinaryTree {
   }
 
   implicit object Comonad extends Comonad[BinaryTree] {
-    def id[X](u: BinaryTree[X]) = ???
+    def id[X](u: BinaryTree[X]) = u.root
     def extend[X, Y](wx: BinaryTree[X])(f: BinaryTree[X] => Y) = wx.subtrees map f
   }
 

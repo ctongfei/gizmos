@@ -18,7 +18,7 @@ import poly.algebra.specgroup._
  */
 trait Multiset[@sp(Int) K, @sp(Int, Double) R] extends KeyedLike[K, Multiset[K, R]] { self =>
 
-  implicit def equivOnKey: Equiv[K]
+  implicit def equivOnKeys: Equiv[K]
 
   /** Returns the ring structure endowed on the counts of this multiset. */
   implicit def ringOnCount: OrderedRing[R]
@@ -40,11 +40,11 @@ trait Multiset[@sp(Int) K, @sp(Int, Double) R] extends KeyedLike[K, Multiset[K, 
     def containsKey(x: K) = self contains x
     def apply(k: K) = self(k)
     def ?(k: K) = if (self.multiplicity(k) == zero[R]) None else Some(self.multiplicity(k))
-    def equivOnKey = self.equivOnKey
+    def equivOnKeys = self.equivOnKeys
   }
 
   def filterKeys(f: K => Boolean): Multiset[K, R] = new AbstractMultiset[K, R] {
-    def equivOnKey = self.equivOnKey
+    def equivOnKeys = self.equivOnKeys
     override def pairs  = self.pairs.filter { case (k, r) => f(k) }
     def multiplicity(k: K) = if (f(k)) self.multiplicity(k) else zero[R]
     implicit def ringOnCount = self.ringOnCount
@@ -53,13 +53,13 @@ trait Multiset[@sp(Int) K, @sp(Int, Double) R] extends KeyedLike[K, Multiset[K, 
   }
 
   def keySet: Set[K] = new AbstractSet[K] {
-    def equivOnKey = self.equivOnKey
+    def equivOnKeys = self.equivOnKeys
     def keys = self.keys
     def contains(k: K) = self.containsKey(k)
   }
 
   def scale(w: R): Multiset[K, R] = new AbstractMultiset[K, R] {
-    def equivOnKey = self.equivOnKey
+    def equivOnKeys = self.equivOnKeys
     implicit def ringOnCount = self.ringOnCount
     override def pairs = self.pairs.map { case (k, r) => k → (r * w) }
     def multiplicity(k: K) = self.multiplicity(k) * w
@@ -68,7 +68,7 @@ trait Multiset[@sp(Int) K, @sp(Int, Double) R] extends KeyedLike[K, Multiset[K, 
   }
 
   def intersect(that: Multiset[K, R]): Multiset[K, R] = new AbstractMultiset[K, R] {
-    implicit def equivOnKey = self.equivOnKey
+    implicit def equivOnKeys = self.equivOnKeys
     implicit def ringOnCount = self.ringOnCount
     def multiplicity(k: K) = function.min(self.multiplicity(k), that.multiplicity(k))
     def keys = self.keys intersect that.keys
@@ -76,7 +76,7 @@ trait Multiset[@sp(Int) K, @sp(Int, Double) R] extends KeyedLike[K, Multiset[K, 
   }
 
   def union(that: Multiset[K, R]): Multiset[K, R] = new AbstractMultiset[K, R] {
-    implicit def equivOnKey = self.equivOnKey
+    implicit def equivOnKeys = self.equivOnKeys
     implicit def ringOnCount = self.ringOnCount
     def multiplicity(k: K) = function.max(self.multiplicity(k), that.multiplicity(k))
     def keys = self.keys union that.keys
@@ -84,7 +84,7 @@ trait Multiset[@sp(Int) K, @sp(Int, Double) R] extends KeyedLike[K, Multiset[K, 
   }
 
   def product[L](that: Multiset[L, R]): Multiset[(K, L), R] = new AbstractMultiset[(K, L), R] {
-    def equivOnKey = Equiv.product(self.equivOnKey, that.equivOnKey)
+    def equivOnKeys = Equiv.product(self.equivOnKeys, that.equivOnKeys)
     implicit def ringOnCount = self.ringOnCount
     def multiplicity(k: (K, L)) = self.multiplicity(k._1) * that.multiplicity(k._2)
     def keys = self.keys product that.keys
@@ -92,7 +92,7 @@ trait Multiset[@sp(Int) K, @sp(Int, Double) R] extends KeyedLike[K, Multiset[K, 
   }
 
   def multisetAdd(that: Multiset[K, R]): Multiset[K, R] = new AbstractMultiset[K, R] {
-    implicit def equivOnKey = self.equivOnKey
+    implicit def equivOnKeys = self.equivOnKeys
     implicit def ringOnCount = self.ringOnCount
     def multiplicity(k: K) = self.multiplicity(k) + that.multiplicity(k)
     def keys = self.keys union that.keys
@@ -123,7 +123,7 @@ trait Multiset[@sp(Int) K, @sp(Int, Double) R] extends KeyedLike[K, Multiset[K, 
   //Symbolic aliases
   def &(that: Multiset[K, R]) = this intersect that
   def |(that: Multiset[K, R]) = this union that
-  def &~(that: Multiset[K, R]) = ??? //this setDiff that
+  def &~(that: Multiset[K, R]) = ??? // this setDiff that
   def ⊂(that: Multiset[K, R]) = ??? //this properSubsetOf that
   def ⊃(that: Multiset[K, R]) = ??? //this properSupersetOf that
   def ⊆(that: Multiset[K, R]) = this subsetOf that
@@ -131,7 +131,7 @@ trait Multiset[@sp(Int) K, @sp(Int, Double) R] extends KeyedLike[K, Multiset[K, 
   def ∩(that: Multiset[K, R]) = this & that
   def ∪(that: Multiset[K, R]) = this | that
 
-  override def toString = "{" + pairs.map { case (k, w) => s"$k: $w"}.buildString(",") + "}"
+  override def toString = "{" + pairs.map { case (k, w) => s"$k: $w"}.buildString(", ") + "}"
 
   override def equals(that: Any) = that match {
     case that: Multiset[K, R] => Multiset.ContainmentOrder[K, R].eq(this, that)
@@ -143,7 +143,7 @@ trait Multiset[@sp(Int) K, @sp(Int, Double) R] extends KeyedLike[K, Multiset[K, 
 object Multiset {
 
   def empty[K: Equiv, R: OrderedRing]: Multiset[K, R] = new Multiset[K, R] {
-    def equivOnKey = Equiv[K]
+    def equivOnKeys = Equiv[K]
     def multiplicity(k: K) = OrderedRing[R].zero
     def ringOnCount = OrderedRing[R]
     def keys = Iterable.empty

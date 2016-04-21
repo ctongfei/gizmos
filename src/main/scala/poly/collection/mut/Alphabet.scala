@@ -15,7 +15,7 @@ class Alphabet[T: IntHashing] private(
   extends BijectiveMap[T, Int]
 {
 
-  def equivOnValue = Equiv.default[Int]
+  def equivOnValues = Equiv.default[Int]
 
   def apply(x: T): Int = w2i ? x match {
     case Some(i) => i
@@ -28,7 +28,7 @@ class Alphabet[T: IntHashing] private(
 
   def ?(x: T): Option[Int] = w2i ? x
 
-  def equivOnKey = implicitly[IntHashing[T]]
+  def equivOnKeys = implicitly[IntHashing[T]]
 
   override def size = w2i.size
 

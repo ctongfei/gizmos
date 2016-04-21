@@ -18,8 +18,8 @@ import scala.reflect._
  *
  * @author Tongfei Chen
  * @since 0.1.0
- * @define LAZY The resulting collection is '''lazily''' computed.
- * @define EAGER The resulting collection is '''eagerly''' computed.
+ * @define LAZY '''[LAZY]'''
+ * @define EAGER '''[EAGER]'''
  * @define Onlogn Time complexity: O(n log n).
  * @define On Time complexity: O(n).
  * @define Ologn Time complexity: O(log n).
@@ -395,7 +395,13 @@ trait Traversable[+T] { self =>
 
   def slice(i: Int, j: Int) = skip(i).take(j - i)
 
-  /** Returns the unique elements in this collection while retaining its original order. */
+  /**
+   * Returns the unique elements in this collection while retaining its original order.
+   * This function requires that an equivalence relation is endowed on the type of the elements.
+   * @example {{{
+   *   (1, 4, 1, 3, 4, 2).distinct == (1, 4, 3, 2)
+   * }}}
+   */
   def distinct[U >: T : Equiv]: Traversable[U] = new AbstractTraversable[U] {
     private[this] val set = AutoSet[U]()
     def foreach[V](f: U => V) = {
@@ -423,10 +429,10 @@ trait Traversable[+T] { self =>
 
   def union[U >: T : Equiv](that: Traversable[U]): Traversable[U] = (this concat that).distinct
 
-  def intersect[U >: T : Equiv](that: Traversable[U]): Traversable[U] = (this filter AutoSet.from(that)).distinct
+  def intersect[U >: T : Equiv](that: Traversable[U]): Traversable[U] = (this filter that.to(AutoSet)).distinct
 
   /** Returns the reverse of this collection. $EAGER */
-  def reverse: BiIterable[T] = self.to[ArraySeq].reverse
+  def reverse: BiIterable[T] = self.to(ArraySeq).reverse
 
   /** Returns a randomly shuffled version of this collection. $EAGER */
   def shuffle: IndexedSeq[T] = {
@@ -452,13 +458,13 @@ trait Traversable[+T] { self =>
    * }}}
    */
   def sort[U >: T](implicit U: WeakOrder[U]): SortedIndexedSeq[T @uv] = {
-    val seq = self.to[ArraySeq]
+    val seq = self.to(ArraySeq)
     seq.sortInplace()(U)
     seq.asIfSorted(U)
   }
 
   def sortBy[U](f: T => U)(implicit U: WeakOrder[U]): SortedIndexedSeq[T @uv] = {
-    val seq = self.to[ArraySeq]
+    val seq = self.to(ArraySeq)
     val o = WeakOrder by f
     seq.sortInplace()(o) // TODO: cache Us and sort to avoid recalculation of Us?
     seq.asIfSorted(o)
@@ -491,7 +497,7 @@ trait Traversable[+T] { self =>
   /**
     * Infinitely cycles through this collection. $LAZY
    *
-   * @example {{{(1, 2, 3).cycle == (1, 2, 3, 1, 2, 3, 1, 2...)}}}
+   * @example {{{(1, 2, 3).cycle == (1, 2, 3, 1, 2, 3, 1, 2, ...)}}}
     */
   def cycle: Traversable[T] = new AbstractTraversable[T] {
     def foreach[V](f: T => V) = {
@@ -641,7 +647,7 @@ trait Traversable[+T] { self =>
   //region Building (to, buildString)
   /**
    * Converts this traversable sequence to any collection type.
-   *
+   * @example {{{ xs.to[ArraySeq] }}}
    * @param builder An implicit builder
    * @tparam C Higher-order type of the collection to be built
    */
@@ -649,13 +655,37 @@ trait Traversable[+T] { self =>
 
   /**
    * Converts this traversable sequence to any collection type given a factory.
-   * @param factory A collection factory
-   * @tparam C Higher-order type of the collection to be built
+   * @example {{{ xs.to(ArraySeq) }}}
    */
   def to[C[_]](factory: Factory[C]): C[T @uv] = to(factory.newBuilder[T])
 
   /**
+   * Converts this traversable sequence to any collection type given a factory that requires an equivalence relation.
+   * @example {{{ xs.to(AutoSet) }}}
+   */
+  def to[C[_]](factory: FactoryWithEquiv[C])(implicit T: Equiv[T]): C[T @uv] = to(factory.newBuilder[T])
+
+  /**
+   * Converts this traversable sequence to any collection type given a factory that requires a weak order.
+   * @example {{{ xs.to(RedBlackTreeSet) }}}
+   */
+  def to[C[_]](factory: FactoryWithOrder[C])(implicit T: WeakOrder[T]): C[T @uv] = to(factory.newBuilder[T])
+
+  /**
+   * Converts this traversable sequence to any collection type given a factory that requires a hashing strategy.
+   * @example {{{ xs.to(HashSet) }}}
+   */
+  def to[C[_]](factory: FactoryWithIntHashing[C])(implicit T: IntHashing[T]): C[T @uv] = to(factory.newBuilder[T])
+
+  /**
+   * Converts this traversable sequence to any collection type given a factory that requires an additive group.
+   * @example {{{ xs.to(FenwickTree) }}}
+   */
+  def to[C[_]](factory: FactoryWithAdditiveGroup[C])(implicit T: AdditiveGroup[T @uv]): C[T @uv] = to(factory.newBuilder[T])
+
+  /**
    * Converts this traversable sequence to an array.
+   * @example {{{ xs.toArray }}}
    */
   def toArray[U >: T : ClassTag]: Array[U] = {
     val n = self.size

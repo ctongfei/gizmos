@@ -11,6 +11,7 @@ import scala.language.reflectiveCalls
  * The base trait for maps.
  * A map is a mapping between a key type (domain) and a value type (codomain).
  * It can also be viewed as a collection of (key, value) pairs, in which each key is unique.
+ *
  * @author Tongfei Chen
  * @since 0.1.0
  */
@@ -18,12 +19,14 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
 
   /**
    * Returns all key-value pairs stored in this map.
+ *
    * @return An iterable sequence of key-value pairs.
    */
   def pairs: Iterable[(K, V)]
 
   /**
    * Optionally retrieves the value associated with the specified key.
+ *
    * @param k The given key
    * @return The associated value. If the key is not found, [[None]] will be returned.
    */
@@ -34,6 +37,7 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
    * If the key is not found, its behavior is undefined
    * (may or may not throw an exception. This is a deliberate design for efficiency).
    * For maximum safety, use `?` to optionally access an element.
+ *
    * @param k The given key
    * @return The associated value of ''k''
    * @throws KeyNotFoundException if key not found (may or may not throw)
@@ -45,6 +49,7 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
 
   /**
    * Checks if the specified key is present in this map.
+ *
    * @return Whether the key exists in this map
    */
   def containsKey(x: K): Boolean
@@ -62,7 +67,7 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
 
   /** Returns the set of the keys of this map. $LAZY */
   def keySet: Set[K] = new AbstractSet[K] {
-    def equivOnKey = self.equivOnKey
+    def equivOnKeys = self.equivOnKeys
     def contains(x: K): Boolean = self.containsKey(x)
     override def size: Int = self.size
     def keys: Iterable[K] = self.pairs.map(firstOfPair)
@@ -81,7 +86,8 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
     def ?(k: K) = if (!f(k)) None else self ? k
     def pairs = self.pairs.filter { case (k, _) => f(k) }
     def containsKey(k: K) = if (!f(k)) false else self.containsKey(k)
-    def equivOnKey = self.equivOnKey
+
+    def equivOnKeys = self.equivOnKeys
   }
 
   /**
@@ -91,6 +97,7 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
    *   K => V        V => W          K => W
    *    self  . map ( that )    ==   result
    * }}}
+ *
    * @note This function is equivalent to the Scala library's `mapValues`.
    *       To transform all pairs in this map, use `this.pairs.map`.
    * @example {{{ {1 -> 2, 2 -> 3} map {_ * 2} == {1 -> 4, 2 -> 6} }}}
@@ -98,7 +105,7 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
    * @return A map view that maps every key of this map to `f(this(key))`.
    */
   def map[W](f: V => W): Map[K, W] = new AbstractMap[K, W] {
-    def equivOnKey = self.equivOnKey
+    def equivOnKeys = self.equivOnKeys
     def containsKey(x: K) = self.containsKey(x)
     def ?(x: K) = (self ? x).map(f)
     def apply(x: K) = f(self(x))
@@ -108,6 +115,7 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
 
   /**
    * Returns the product map of two maps. $LAZY
+ *
    * @example {{{
    *   {1 -> 'A', 2 -> 'B'} product {true -> 1, false -> 0} ==
    *      {(1, true)  -> ('A', 1),
@@ -117,7 +125,7 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
    * }}}
    */
   def cartesianProduct[L, W](that: Map[L, W]): Map[(K, L), (V, W)] = new AbstractMap[(K, L), (V, W)] {
-    def equivOnKey = Equiv.product(self.equivOnKey, that.equivOnKey)
+    def equivOnKeys = Equiv.product(self.equivOnKeys, that.equivOnKeys)
     def containsKey(k: (K, L)) = self.containsKey(k._1) && that.containsKey(k._2)
     def ?(k: (K, L)) = for (v ← self ? k._1; v1 ← that ? k._2) yield (v, v1)
     def apply(k: (K, L)) = (self(k._1), that(k._2))
@@ -127,13 +135,14 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
 
   /**
    * Zips two maps with the same key type into one. $LAZY
+ *
    * @note This function is not the same as the Scala library's `zip`. Please
    *       use `this.pairs.zip` instead for zipping a sequence of pairs.
    * @example {{{{1 -> 2, 2 -> 3} zip {2 -> 5, 3 -> 6} == {2 -> (3, 5)} }}}
    * @param that Another map to be zipped
    */
   def zip[W](that: Map[K, W]): Map[K, (V, W)] = new AbstractMap[K, (V, W)] {
-    def equivOnKey = self.equivOnKey
+    def equivOnKeys = self.equivOnKeys
     def apply(x: K) = (self(x), that(x))
     def ?(x: K) = for (v ← self ? x; w ← that ? x) yield (v, w)
     def pairs = self.pairs filter { case (k, v) => that containsKey k } map { case (k, v) => (k, (v, that(k))) }
@@ -153,7 +162,8 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
   def leftOuterJoin[W](that: Map[K, W]): Map[K, (V, Option[W])] = new AbstractMap[K, (V, Option[W])] {
     def apply(k: K) = (self(k), that ? k)
     def ?(k: K) = for (v ← self ? k) yield (v, that ? k)
-    def equivOnKey = self.equivOnKey
+
+    def equivOnKeys = self.equivOnKeys
     def pairs = self.pairs map { case (k, v) => (k, (v, that ? k)) }
     def containsKey(x: K) = self containsKey x
   }
@@ -165,7 +175,8 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
   def rightOuterJoin[W](that: Map[K, W]): Map[K, (Option[V], W)] = new AbstractMap[K, (Option[V], W)] {
     def apply(k: K) = (self ? k, that(k))
     def ?(k: K) = for (w ← that ? k) yield (self ? k, w)
-    def equivOnKey = that.equivOnKey
+
+    def equivOnKeys = that.equivOnKeys
     def pairs = that.pairs map { case (k, w) => (k, (self ? k, w)) }
     def containsKey(x: K) = that containsKey x
   }
@@ -180,7 +191,8 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
       case (None, None) => None
       case res => Some(res)
     }
-    def equivOnKey = self.equivOnKey
+
+    def equivOnKeys = self.equivOnKeys
     def pairs =
       (self.pairs map { case (k, v) => k → (Some(v), that ? k) }) ++
       (that.pairs filter { case (k, w) => self notContainsKey k } map { case (k, w) => k → (None, Some(w)) })
@@ -193,6 +205,7 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
    *   K => V              J <=> K          J => V
    *    self  . contramap  ( that )    ==   result
    * }}}
+ *
    * @example {{{
    *   {1 -> 'A', 2 -> 'B'} contramap {'a' <-> 1, 'b' <-> 2}
    *   == {'a' -> 'A', 'b' -> 'B'}
@@ -203,7 +216,8 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
     def containsKey(x: J) = self containsKey f(x)
     def apply(k: J) = self apply f(k)
     def ?(k: J) = self ? f(k)
-    implicit def equivOnKey = self.equivOnKey contramap f
+
+    implicit def equivOnKeys = self.equivOnKeys contramap f
   }
 
   def withDefault[W >: V](default: W): Map[K, W] = new AbstractMap[K, W] {
@@ -211,13 +225,15 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
     def containsKey(x: K) = self.containsKey(x)
     def apply(k: K) = (self ? k).getOrElse(default)
     def ?(k: K) = self ? k
-    def equivOnKey = self.equivOnKey
+
+    def equivOnKeys = self.equivOnKeys
 }
 
   def asMap: Map[K, V] = new AbstractMap[K, V] {
     def apply(k: K) = self.apply(k)
     def ?(k: K) = self ? k
-    implicit def equivOnKey = self.equivOnKey
+
+    implicit def equivOnKeys = self.equivOnKeys
     def pairs = self.pairs
     def containsKey(x: K) = self.containsKey(x)
   }
@@ -240,7 +256,7 @@ object Map extends MapLowPriorityImplicits {
   def empty[K: Equiv]: Map[K, Nothing] = new AbstractMap[K, Nothing] {
     def apply(k: K) = throw new KeyNotFoundException[K](k)
     def ?(k: K) = None
-    def equivOnKey = Equiv[K]
+    def equivOnKeys = Equiv[K]
     def pairs = Iterable.empty
     def containsKey(x: K) = false
   }

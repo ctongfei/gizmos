@@ -42,5 +42,4 @@ object AutoMap extends MapFactory[KeyMutableMap] {
     case ko: WeakOrder[K] => RedBlackTreeMap.newBuilder[K, V](ko)
     case ke => ListMap.newBuilder[K, V](ke)
   }
-
 }

@@ -9,76 +9,83 @@ import poly.collection.impl._
 
 /**
  * A Fenwick tree.
- *
+ * Fenwick trees provides efficient methods for the computation and manipulation
+ * of the prefix sums of a sequence of values.
  * @author Tongfei Chen
  * @since 0.1.0
  */
-class FenwickTree[T] private(private val data: ResizableSeq[T])
-  (implicit val group: AdditiveGroup[T]) extends IndexedSeq[T]
-{
+class FenwickTree[T] (private val data: ResizableSeq[T])
+  (implicit val groupOnElements: AdditiveGroup[T]) extends ValueMutableIndexedSeq[T] {
 
   import FenwickTree._
 
-  def fastLength = data.fastLength
+  def fastLength = data.length - 1
+
+  def fastApply(idx: Int) = {
+    var i = idx + 1
+    var sum = data(i)
+    val z = i - lowBit(i)
+    i -= 1
+    while (i != z) {
+      sum -= data(i)
+      i -= lowBit(i)
+    }
+    sum
+  }
 
   /**
-   * Returns an element from this Fenwick tree. This operation has O(log n) complexity.
-   * @param i Index
-   * @return
+   * Returns the sum of the first ''n'' elements of this list. $Ologn
    */
-  def fastApply(i: Int): T = {
-    var idx = i
-    var sum = data(i)
-    if (idx > 0) {
-      val z = idx - lowBit(idx)
-      idx -= 1
-      while (idx != z) {
-        sum -= data(idx)
-        idx -= lowBit(idx)
-      }
-    }
-    sum
-  }
-
-  /** Returns the sum of the elements in the range [0, i). */
-  def cumulativeSum(i: Int) = {
+  def cumulativeSum(n: Int) = {
+    var i = n
     var sum = zero[T]
-    var idx = i - 1
-    while (idx > 0) {
-      sum += data(idx)
-      idx -= lowBit(idx)
+    while (i != 0) {
+      sum += data(i)
+      i -= lowBit(i)
     }
     sum
   }
 
-  /** Returns the sum of the elements in the range [i, j). */
-  def rangeSum(i: Int, j: Int) = cumulativeSum(j) - cumulativeSum(i) //TODO: index! (inclusive or exclusive?)
+  /**
+   * Returns the sum of the elements in the slice [''i'', ''j''). $Ologn
+   */
+  def rangeSum(i: Int, j: Int) = cumulativeSum(j) - cumulativeSum(i)
 
-  def increment(i: Int, delta: T) = {
-    var idx = i
-    while (idx < data.fastLength) {
-      data(idx) += delta
-      idx += lowBit(idx)
+  /**
+   * Increments the ''n''-the element by ''δ''.
+   */
+  def increment(n: Int, δ: T) = {
+    var i = n + 1
+    while (i < data.length) {
+      data(i) += δ
+      i += lowBit(i)
     }
   }
-  
-  def update(i: Int, x: T) = {
-    val delta = x - apply(i)
-    increment(i, delta)
-  }
+
+  def update(idx: Int, value: T) = increment(idx, value - this(idx))
+
+  def prefixSums = Range(length + 1) map cumulativeSum
 
 }
 
 object FenwickTree extends FactoryWithAdditiveGroup[FenwickTree] {
 
-  @inline private def lowBit(x: Int) = x & -x
+  @inline private[poly] def lowBit(x: Int) = x & -x
 
-  implicit def newBuilder[T:AdditiveGroup]: Builder[T, FenwickTree[T]] = new Builder[T, FenwickTree[T]] {
-    val coll = new ResizableSeq[T]()
-    val G = implicitly[AdditiveGroup[T]]
-    def sizeHint(n: Int) = coll.ensureCapacity(n)
-    def addInplace(x: T) = coll.appendInplace(x)
-    def result = new FenwickTree[T](coll)
+  implicit def newBuilder[T: AdditiveGroup]: Builder[T, FenwickTree[T]] = new Builder[T, FenwickTree[T]] {
+    private[this] val data = ResizableSeq[T](zero[T])
+    def addInplace(x: T) = {
+      var i = data.len
+      var sum = x
+      val z = i - lowBit(i)
+      i -= 1
+      while (i != z) {
+        sum += data(i)
+        i -= lowBit(i)
+      }
+      data.appendInplace(sum)
+    }
+    def sizeHint(n: Int) = data.ensureCapacity(n)
+    def result = new FenwickTree[T](data)
   }
-
 }

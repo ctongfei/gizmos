@@ -15,7 +15,7 @@ class HashMap[K: IntHashing, V] private(private val data: OpenHashTable[K, HashM
 
   import HashMap._
 
-  val equivOnKey = implicitly[IntHashing[K]]
+  val equivOnKeys = implicitly[IntHashing[K]]
 
   def apply(k: K): V = data.locate(k).value
 

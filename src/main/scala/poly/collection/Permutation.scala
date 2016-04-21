@@ -21,7 +21,7 @@ class Permutation private(private val a1: Array[Int], private val a2: Array[Int]
   def fastApply(x: Int) = a1(x)
   def invert(y: Int) = a2(y)
 
-  def equivOnValue = Equiv[Int]
+  def equivOnValues = Equiv[Int]
 
   def containsValue(y: Int) = containsKey(y)
 
@@ -100,7 +100,7 @@ object Permutation {
     def inv(x: Permutation) = x.inverse
     def id = identity(n)
     def op(x: Permutation, y: Permutation) = x compose y
-    def equivOnKey = LexicographicOrder
+    def equivOnKeys = LexicographicOrder
     def contains(x: Permutation) = x.size == n
 
     def keys: Iterable[Permutation] = Iterable.ofIterator {

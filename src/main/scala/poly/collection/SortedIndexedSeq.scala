@@ -98,7 +98,7 @@ trait SortedIndexedSeq[T] extends SortedSeq[T] with IndexedSeq[T] { self =>
    * Returns the ''q''-quantile of this sequence under the current sorted order.
    */
   def quantile(q: Double) = {
-    val i = math.round(self.length * q).toInt
+    val i = math.floor(self.length * q).toInt
     if (i < self.length)
       if (i < 0) self.head
       else self(i)

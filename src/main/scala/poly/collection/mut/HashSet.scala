@@ -15,7 +15,7 @@ class HashSet[T: IntHashing] private(val data: OpenHashTable[T, HashSet.Entry[T]
 
   import HashSet._
 
-  def equivOnKey = implicitly[IntHashing[T]]
+  def equivOnKeys = implicitly[IntHashing[T]]
 
   def add(x: T) = data.addEntry(new Entry(x))
 

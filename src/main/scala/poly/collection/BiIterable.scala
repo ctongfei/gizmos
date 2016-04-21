@@ -11,7 +11,7 @@ trait BiIterable[+T] extends Iterable[T] { self =>
 
   def newReverseIterator: Iterator[T]
 
-  /** $LAZY */
+  /** Returns the reverse of this iterable collection. $LAZY */
   override def reverse: BiIterable[T] = new AbstractBiIterable[T] {
     override def foreach[V](f: T => V): Unit = {
       val i = self.newReverseIterator

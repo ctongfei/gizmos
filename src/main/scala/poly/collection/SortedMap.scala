@@ -14,7 +14,7 @@ trait SortedMap[@sp(Int) K, +V] extends Map[K, V] { self =>
   /** Returns the weak order on keys. */
   def orderOnKey: WeakOrder[K]
 
-  def equivOnKey = orderOnKey
+  def equivOnKeys = orderOnKey
 
   def pairs: SortedIterable[(K, V @uv)]
 

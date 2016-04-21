@@ -1,5 +1,9 @@
 import poly.collection._
 import poly.collection.ops._
+import poly.algebra.syntax._
+
+Range(0, 10).sum
+
 
 0 ~<~ 3
 3 ~>~ 0

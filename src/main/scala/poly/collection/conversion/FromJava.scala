@@ -90,7 +90,7 @@ object FromJava {
   implicit def javaSetAsPoly[T](xs: ju.Set[T]): Set[T] = new KeyMutableSet[T] {
     def remove(x: T) = xs.remove(x)
     def add(x: T) = xs.add(x)
-    def equivOnKey = Equiv.default[T]
+    def equivOnKeys = Equiv.default[T]
     def contains(x: T) = xs.contains(x)
     override def size = xs.size()
     def keys = Iterable.ofIterator(xs.iterator())
@@ -99,11 +99,11 @@ object FromJava {
 
   implicit def javaSortedSetAsPoly[T](xs: ju.SortedSet[T]): SortedSet[T] = new SortedSet[T] {
     def keys = new SortedIterable[T] {
-      implicit def order = xs.comparator()
+      implicit def orderOnElements = xs.comparator()
       def newIterator = xs.iterator()
     }
     def contains(x: T) = xs.contains(x)
-    def orderOnKey = xs.comparator()
+    def orderOnKeys = xs.comparator()
   }
 
   implicit def javaQueueAsPoly[T](xs: ju.Queue[T]): Queue[T] = new Queue[T] {
@@ -123,7 +123,7 @@ object FromJava {
   }
 
   implicit def javaMapAsPoly[K, V](jm: ju.Map[K, V]): Map[K, V] = new KeyMutableMap[K, V] {
-    def equivOnKey = Equiv.default[K]
+    def equivOnKeys = Equiv.default[K]
     def add(x: K, y: V): Unit = jm.put(x, y)
     def clear(): Unit = jm.clear()
     def remove(x: K): Unit = jm.remove(x)

@@ -15,7 +15,7 @@ class BitSet private(private final var data: LongResizableArray)
 
   import BitSet._
 
-  implicit def orderOnKey = std.IntStructure
+  implicit def orderOnKeys = std.IntStructure
 
   def add(x: Int) = {
     val idx = x >> LongBits

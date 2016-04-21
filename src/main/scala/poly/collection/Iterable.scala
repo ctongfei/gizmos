@@ -277,7 +277,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
 
   def union[U >: T : Equiv](that: Iterable[U]): Iterable[U] = (this concat that).distinct
 
-  def intersect[U >: T : Equiv](that: Iterable[U]): Iterable[U] = (this filter AutoSet.from(that)).distinct
+  def intersect[U >: T : Equiv](that: Iterable[U]): Iterable[U] = (this filter that.to(AutoSet)).distinct
 
   override def rotate(n: Int): Iterable[T] = self.skip(n) ++ self.take(n)
 
@@ -306,7 +306,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
 
   /** Pretends that this iterable collection is sorted. */
   def asIfSorted[U >: T : WeakOrder]: SortedIterable[T @uv] = new SortedIterable[T] {
-    def order = implicitly[WeakOrder[U]]
+    def orderOnElements = implicitly[WeakOrder[U]]
     def newIterator = self.newIterator
   }
 

@@ -9,9 +9,9 @@ import poly.algebra._
 trait SortedSet[T] extends Set[T] {
 
   /** Returns the order on keys. */
-  def orderOnKey: WeakOrder[T]
+  def orderOnKeys: WeakOrder[T]
 
-  def equivOnKey = orderOnKey
+  def equivOnKeys = orderOnKeys
 
   def keys: SortedIterable[T]
 

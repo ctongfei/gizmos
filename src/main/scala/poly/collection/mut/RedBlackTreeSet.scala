@@ -22,9 +22,9 @@ class RedBlackTreeSet[K] private(private val data: java.util.TreeSet[K])
 
   def remove(x: K) = data.remove(x)
 
-  def orderOnKey = data.comparator()
+  def orderOnKeys = data.comparator()
 
-  def keys = data.asIfSorted(orderOnKey)
+  def keys = data.asIfSorted(orderOnKeys)
 
   def contains(x: K) = data contains x
 

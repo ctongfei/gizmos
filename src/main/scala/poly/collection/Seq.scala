@@ -360,7 +360,7 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
    * @return A sorted sequence
    */
   override def asIfSorted[U >: T](implicit U: WeakOrder[U]): SortedSeq[T@uv] = new SortedSeq[T] {
-    def order = U
+    def orderOnElements = U
     def headNode: SeqNode[T] = self.headNode
   }
 
@@ -421,7 +421,7 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
     case _ => false
   }
 
-  override def toString = "Seq(" + buildString(",") + ")" // overridden the `toString` in Map
+  override def toString = "(" + buildString(", ") + ")" // overridden the `toString` in Map
 
   override def hashCode = ???
 

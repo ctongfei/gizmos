@@ -14,7 +14,7 @@ import poly.collection.impl.linkedlist._
  * @since 0.1.0
  * @author Tongfei Chen
  */
-class ListMap[K, V] private(private val data: SinglyLinkedList[K, ListMap.Node[K, V]])(implicit val equivOnKey: Equiv[K]) extends KeyMutableMap[K, V] with HasKnownSize {
+class ListMap[K, V] private(private val data: SinglyLinkedList[K, ListMap.Node[K, V]])(implicit val equivOnKeys: Equiv[K]) extends KeyMutableMap[K, V] with HasKnownSize {
 
   type Node = ListMap.Node[K, V]
 

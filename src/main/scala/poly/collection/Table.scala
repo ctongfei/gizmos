@@ -23,7 +23,7 @@ trait Table[+T] extends Map[(Int, Int), T] with HasKnownSize { self =>
   def apply(pair: (Int, Int)): T = apply(pair._1, pair._2)
   def ?(x: (Int, Int)): Option[T] = if (containsKey(x)) Some(self(x)) else None
 
-  def equivOnKey = Equiv.default[(Int, Int)]
+  def equivOnKeys = Equiv.default[(Int, Int)]
 
   def pairs = triples map { case (i, j, e) => ((i, j), e) }
 

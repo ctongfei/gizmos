@@ -74,7 +74,7 @@ class LinkedHashMap[K: IntHashing, V] private(val data: OpenHashTable[K, LinkedH
 
   def containsKey(x: K) = data.locate(x) != null
 
-  def equivOnKey = implicitly[IntHashing[K]]
+  def equivOnKeys = implicitly[IntHashing[K]]
 }
 
 object LinkedHashMap extends MapFactoryWithIntHashing[LinkedHashMap] {

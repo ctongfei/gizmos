@@ -7,12 +7,13 @@ import poly.collection.mut._
 
 /**
  * Basic trait for sets whose elements can be iterated.
+ *
  * @author Tongfei Chen
  * @since 0.1.0
  */
 trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
 
-  def equivOnKey: Equiv[T]
+  def equivOnKeys: Equiv[T]
 
   /**
     * Returns an iterable sequence of all the elements in this set.
@@ -37,30 +38,33 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
 
   /**
     * Returns the union of two sets.
+ *
     * @example {{{ {1, 2, 3} | {2, 4} == {1, 2, 3, 4} }}}
     */
   def union(that: Set[T]): Set[T] = new AbstractSet[T] {
-    def equivOnKey = self.equivOnKey
+    def equivOnKeys = self.equivOnKeys
     def contains(x: T) = self.contains(x) || that.contains(x)
     def keys = self.keys ++ that.keys.filter(self.notContains)
   }
 
   /**
     * Returns the intersection of two sets.
+ *
     * @example {{{ {1, 2, 3} & {3, 1} == {1, 3} }}}
     */
   def intersect(that: Set[T]): Set[T] = new AbstractSet[T] {
-    def equivOnKey = self.equivOnKey
+    def equivOnKeys = self.equivOnKeys
     def contains(x: T) = self.contains(x) && that.contains(x)
     def keys = self.keys.filter(that.contains)
   }
 
   /**
     * Returns the set difference of two sets.
+ *
     * @example {{{ {1, 2, 3} \ {2, 3} == {1} }}}
     */
   def setDiff(that: Set[T]): Set[T] = new AbstractSet[T] {
-    def equivOnKey: Equiv[T] = self.equivOnKey
+    def equivOnKeys: Equiv[T] = self.equivOnKeys
     def contains(x: T): Boolean = self.contains(x) && that.notContains(x)
     def keys = self.keys.filter(that.notContains)
   }
@@ -79,7 +83,7 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
 
   /** Returns the cartesian product of two sets. */
   def product[U](that: Set[U]): Set[(T, U)] = new AbstractSet[(T, U)] {
-    def equivOnKey = Equiv.product(self.equivOnKey, that.equivOnKey)
+    def equivOnKeys = Equiv.product(self.equivOnKeys, that.equivOnKeys)
     def keys = self.keys product that.keys
     override def size = self.size * that.size
     def contains(k: (T, U)) = self.containsKey(k._1) && that.containsKey(k._2)
@@ -93,7 +97,8 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
   def createMapBy[V](f: T => V): Map[T, V] = new AbstractMap[T, V] {
     def apply(k: T) = f(k)
     def ?(k: T) = if (self contains k) Some(f(k)) else None
-    def equivOnKey = self.equivOnKey
+
+    def equivOnKeys = self.equivOnKeys
     def pairs = self.keys.map(k => k → f(k))
     override def size = self.size
     def containsKey(x: T) = self.contains(x)
@@ -102,7 +107,8 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
   def createMapByOptional[V](f: T => Option[V]): Map[T, V] = new AbstractMap[T, V] {
     def apply(k: T) = f(k).get
     def ?(k: T) = if (self contains k) f(k) else None
-    def equivOnKey = self.equivOnKey
+
+    def equivOnKeys = self.equivOnKeys
     def pairs = for (k ← self.keys; v ← f(k)) yield (k, v)
     def containsKey(x: T) = (self contains x) && f(x).isDefined
   }
@@ -116,7 +122,7 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
   }
 
   override def filterKeys(f: T => Boolean): Set[T] = new AbstractSet[T] {
-    def equivOnKey = self.equivOnKey
+    def equivOnKeys = self.equivOnKeys
     def contains(x: T) = self.contains(x) && f(x)
     def keys = self.keys.filter(f)
   }
@@ -126,7 +132,7 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
   }
 
   def map[U](f: Bijection[T, U]): Set[U] = new AbstractSet[U] {
-    def equivOnKey = self.equivOnKey contramap f.invert
+    def equivOnKeys = self.equivOnKeys contramap f.invert
     def keys = self.elements.map(f)
     def contains(x: U) = self contains f.invert(x)
   }
@@ -138,7 +144,7 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
   def zip(that: Set[T]): Set[T] = this & that
 
   def contramap[S](f: Bijection[S, T]): Set[S] = new AbstractSet[S] {
-    def equivOnKey = self.equivOnKey contramap f
+    def equivOnKeys = self.equivOnKeys contramap f
     def keys = self.elements.map(f.invert)
     def contains(x: S) = self.contains(f(x))
   }
@@ -179,10 +185,11 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
 
   /**
    * Casts this set as a multiset in which each element appears once.
+ *
    * @tparam R Type of the number of occurrences of elements in the multiset, can be `Int`, `Double`, etc.
    */
   def asMultiset[R](implicit R: OrderedRing[R]): Multiset[T, R] = new AbstractMultiset[T, R] {
-    def equivOnKey = self.equivOnKey
+    def equivOnKeys = self.equivOnKeys
     implicit def ringOnCount = R
     def multiplicity(k: T) = if (self.contains(k)) R.one else R.zero
     def keys = self.keys
@@ -212,11 +219,12 @@ object Set {
 
   /**
    * Creates an empty set of a specific type.
+ *
    * @tparam T Type
    * @return An empty set
    */
   def empty[T: Equiv]: Set[T] = new Set[T] {
-    def equivOnKey = implicitly[Equiv[T]]
+    def equivOnKeys = implicitly[Equiv[T]]
     override def size = 0
     def keys = Iterable.empty
     def contains(x: T) = false

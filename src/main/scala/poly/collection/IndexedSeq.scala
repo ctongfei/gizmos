@@ -26,6 +26,7 @@ trait IndexedSeq[+T] extends BiSeq[T] with HasKnownSize { self =>
 
   @inline final override def length = fastLength
 
+  /** Returns the ''i''-th element of this sequence. $O1 (sometimes O(log ''n''): e.g. [[poly.collection.mut.FenwickTree]]). */
   @inline final override def apply(i: Int) = fastApply(i)
 
   // Overridden newIterator method for performance.
@@ -166,8 +167,8 @@ trait IndexedSeq[+T] extends BiSeq[T] with HasKnownSize { self =>
    * @param U The implicit order
    * @return A sorted order
    */
-  override def asIfSorted[U >: T](implicit U: WeakOrder[U]): SortedIndexedSeq[T@uv] = new SortedIndexedSeq[T] {
-    def order = U
+  override def asIfSorted[U >: T](implicit U: WeakOrder[U]): SortedIndexedSeq[T @uv] = new SortedIndexedSeq[T] {
+    def orderOnElements = U
     def fastLength: Int = self.length
     def fastApply(i: Int): T = self.apply(i)
   }
