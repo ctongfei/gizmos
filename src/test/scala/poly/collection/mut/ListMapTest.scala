@@ -9,13 +9,13 @@ object ListMapTest extends App {
 
   val lm = AutoMap[Int, String]()
 
-  lm.add(1, "a")
-  lm.add(2, "b")
-  lm.add(3, "c")
-  lm.add(4, "d")
-  lm.add(2, "e")
-  lm.remove(2)
-  lm.remove(3)
+  lm.addInplace(1, "a")
+  lm.addInplace(2, "b")
+  lm.addInplace(3, "c")
+  lm.addInplace(4, "d")
+  lm.addInplace(2, "e")
+  lm.removeInplace(2)
+  lm.removeInplace(3)
 
   val bp = 0
 

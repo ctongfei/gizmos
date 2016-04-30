@@ -14,17 +14,17 @@ import poly.collection.factory._
  * @since 0.1.0
  */
 class RedBlackTreeSet[K] private(private val data: java.util.TreeSet[K])
-  extends KeyMutableSet[K] with SortedSet[K] with HasKnownSize { self =>
+  extends AbstractSet[K] with BiSortedSet[K] with KeyMutableSet[K] { self =>
 
-  def add(x: K) = data.add(x)
+  def addInplace(x: K) = data.add(x)
 
   def clear() = data.clear()
 
-  def remove(x: K) = data.remove(x)
+  def removeInplace(x: K) = data.remove(x)
 
   def orderOnKeys = data.comparator()
 
-  def keys = data.asIfSorted(orderOnKeys)
+  def keys = data.keys
 
   def contains(x: K) = data contains x
 

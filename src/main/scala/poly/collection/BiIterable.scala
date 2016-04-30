@@ -9,6 +9,7 @@ trait BiIterable[+T] extends Iterable[T] { self =>
 
   import BiIterable._
 
+  /** Returns an iterator that iterates through this collection in reverse order. */
   def newReverseIterator: Iterator[T]
 
   /** Returns the reverse of this iterable collection. $LAZY */

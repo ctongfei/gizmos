@@ -53,14 +53,20 @@ object Builder {
   }
 
   def ofMutableSet[T, S <: KeyMutableSet[T]](s: S): Builder[T, S] = new Builder[T, S] {
-    def addInplace(x: T) = s add x
+    def addInplace(x: T) = s addInplace x
     def result = s
     def sizeHint(n: Int) = {}
   }
 
   def ofMutableMap[K, V, M <: KeyMutableMap[K, V]](m: M): Builder[(K, V), M] = new Builder[(K, V), M] {
-    def addInplace(kv: (K, V)) = m add kv
+    def addInplace(kv: (K, V)) = m addInplace kv
     def result = m
     def sizeHint(n: Int) = {}
   }
+
+  def ofMutableSeq[T, S <: KeyMutableSeq[T]](s: S): Builder[T, S] = new Builder[T, S] {
+    def addInplace(x: T) = s appendInplace x
+    def result = s
+    def sizeHint(n: Int) = {}
+}
 }

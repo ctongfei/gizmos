@@ -23,11 +23,15 @@ trait BijectiveMap[K, V] extends Map[K, V] with Bijection[K, V] { self =>
    */
   def invertOption(v: V): Option[K]
 
-  /**
-   * Checks if the specified value is present in this map.
-   * @return Whether the value exists in this map
-   */
+  /** Checks if the specified value is present in this map. */
   def containsValue(v: V): Boolean
+
+  /** Returns the set of values in this map. $LAZY */
+  def valueSet: Set[V] = new AbstractSet[V] {
+    def contains(x: V) = self containsValue x
+    def keys = self.values
+    def equivOnKeys = self.equivOnValues
+  }
 
   // HELPER FUNCTIONS
 

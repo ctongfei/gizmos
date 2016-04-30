@@ -21,13 +21,13 @@ object SeqTest {
     a.appendInplace(7)
     a.prependInplace(0)
     a.prependInplace(-1)
-    a.insertAt(4, 4)
-    a.deleteAt(6)
+    a.insertInplace(4, 4)
+    a.deleteInplace(6)
 
     b.appendInplace(4)
     b.prependInplace(0)
-    b.insertAt(0, 1)
-    b.deleteAt(3)
+    b.insertInplace(0, 1)
+    b.deleteInplace(3)
 
     val d = ArraySeq.tabulate(10)(x => util.Random.nextInt(500))
 

@@ -9,8 +9,8 @@ import poly.collection._
  */
 trait KeyMutableGraph[K, V, E] extends ValueMutableGraph[K, V, E] {
 
-  def addVertex(i: K, v: V): Unit
-  def removeVertex(i: K): Unit
+  def addNode(i: K, v: V): Unit
+  def removeNode(i: K): Unit
 
   def addArc(i: K, j: K, e: E): Unit
   def removeArc(i: K, j: K): Unit

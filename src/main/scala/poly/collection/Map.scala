@@ -49,7 +49,6 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
 
   /**
    * Checks if the specified key is present in this map.
- *
    * @return Whether the key exists in this map
    */
   def containsKey(x: K): Boolean
@@ -68,9 +67,9 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
   /** Returns the set of the keys of this map. $LAZY */
   def keySet: Set[K] = new AbstractSet[K] {
     def equivOnKeys = self.equivOnKeys
-    def contains(x: K): Boolean = self.containsKey(x)
-    override def size: Int = self.size
-    def keys: Iterable[K] = self.pairs.map(firstOfPair)
+    def contains(x: K) = self.containsKey(x)
+    override def size = self.size
+    def keys = self.pairs map firstOfPair
   }
 
   /** Returns an iterable collection of the keys in this map. $LAZY */
@@ -97,7 +96,6 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
    *   K => V        V => W          K => W
    *    self  . map ( that )    ==   result
    * }}}
- *
    * @note This function is equivalent to the Scala library's `mapValues`.
    *       To transform all pairs in this map, use `this.pairs.map`.
    * @example {{{ {1 -> 2, 2 -> 3} map {_ * 2} == {1 -> 4, 2 -> 6} }}}
@@ -115,7 +113,6 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
 
   /**
    * Returns the product map of two maps. $LAZY
- *
    * @example {{{
    *   {1 -> 'A', 2 -> 'B'} product {true -> 1, false -> 0} ==
    *      {(1, true)  -> ('A', 1),
@@ -134,12 +131,10 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
   }
 
   /**
-   * Zips two maps with the same key type into one. $LAZY
- *
+   * Zips two maps with the same key type into one map that maps keys to a pair of values. $LAZY
    * @note This function is not the same as the Scala library's `zip`. Please
-   *       use `this.pairs.zip` instead for zipping a sequence of pairs.
+   *       use `pairs.zip` instead for zipping a sequence of pairs.
    * @example {{{{1 -> 2, 2 -> 3} zip {2 -> 5, 3 -> 6} == {2 -> (3, 5)} }}}
-   * @param that Another map to be zipped
    */
   def zip[W](that: Map[K, W]): Map[K, (V, W)] = new AbstractMap[K, (V, W)] {
     def equivOnKeys = self.equivOnKeys
@@ -191,7 +186,6 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
       case (None, None) => None
       case res => Some(res)
     }
-
     def equivOnKeys = self.equivOnKeys
     def pairs =
       (self.pairs map { case (k, v) => k → (Some(v), that ? k) }) ++
@@ -238,7 +232,6 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
     def containsKey(x: K) = self.containsKey(x)
   }
 
-  override def toString = "{" + pairs.map { case (k, v) => s"$k → $v" }.buildString(", ") + "}"
 
   def |>[W](f: V => W) = self map f
   def |<[J](f: Bijection[J, K]) = self contramap f
@@ -248,6 +241,10 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
   def ⟕[W](that: Map[K, W]) = self leftOuterJoin that
   def ⟖[W](that: Map[K, W]) = self rightOuterJoin that
   def ⟗[W](that: Map[K, W]) = self fullOuterJoin that
+
+  override def toString = "{" + pairs.map { case (k, v) => s"$k → $v" }.buildString(", ") + "}"
+
+
 
 }
 

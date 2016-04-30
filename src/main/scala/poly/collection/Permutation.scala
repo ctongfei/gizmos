@@ -15,7 +15,7 @@ import poly.macroutil._
  * @since 0.1.0
  */
 class Permutation private(private val a1: Array[Int], private val a2: Array[Int])
-  extends BijectiveMap[Int, Int] with IndexedSeq[Int] with SequentialOrder[Int] with Bounded[Int] with HasKnownSize
+  extends BijectiveMap[Int, Int] with IndexedSeq[Int] with SequentialOrder[Int] with Bounded[Int]
 {
   def fastLength = a1.length
   def fastApply(x: Int) = a1(x)
@@ -26,6 +26,10 @@ class Permutation private(private val a1: Array[Int], private val a2: Array[Int]
   def containsValue(y: Int) = containsKey(y)
 
   def invertOption(y: Int) = if (y < 0 || y >= size) None else Some(a2(y))
+
+  override def keySet = Range(length).asSet
+
+  override def valueSet = keySet
 
   def compose(that: Permutation) = {
     require(this.size == that.size)
@@ -54,7 +58,7 @@ class Permutation private(private val a1: Array[Int], private val a2: Array[Int]
     new Permutation(b1, b2)
   }
 
-  override def toString = arrayAsPoly(a1).toString
+  override def toString = super[BijectiveMap].toString
 }
 
 object Permutation {

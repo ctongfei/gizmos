@@ -11,7 +11,7 @@ import scala.reflect._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-abstract class SpResizableArray[@sp(Float, Double, Int, Long, Boolean) T: ClassTag]
+class SpResizableArray[@sp(Float, Double, Int, Long, Boolean) T: ClassTag]
 (private[this] var cap: Int = Settings.ArrayInitialSize) { self =>
 
   private[this] var data: Array[T] = Array.ofDim[T](math.max(nextPowerOfTwo(cap), Settings.ArrayInitialSize))

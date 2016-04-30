@@ -8,18 +8,18 @@ import poly.collection._
  */
 trait KeyMutableSet[@sp(Int) T] extends Set[T] {
 
-  def add(x: T)
+  def addInplace(x: T)
 
-  def remove(x: T)
+  def removeInplace(x: T)
 
   def clear()
 
-  def addAllInplace(xs: Traversable[T]) = xs foreach add
+  def addAllInplace(xs: Traversable[T]) = xs foreach addInplace
 
-  def unionInplace(xs: Set[T]) = xs.elements foreach add
+  def unionInplace(xs: Set[T]) = xs.elements foreach addInplace
 
-  def diffInplace(xs: Set[T]) = xs.elements foreach remove
+  def diffInplace(xs: Set[T]) = xs.elements foreach removeInplace
 
-  def intersectInplace(xs: Set[T]) = this.elements filter xs.notContains foreach remove
+  def intersectInplace(xs: Set[T]) = this.elements filter xs.notContains foreach removeInplace
 
 }

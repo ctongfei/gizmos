@@ -58,14 +58,14 @@ final class ResizableSeq[T]
 
   def clear() = len = 0
 
-  def insertAt(i: Int, x: T) = {
+  def insertInplace(i: Int, x: T) = {
     if (cap < len + 1) ensureCapacity(len + 1)
     Array.copy(data, i, data, i + 1, len - i)
     data(i) = x.asInstanceOf[AnyRef]
     len += 1
   }
 
-  def deleteAt(i: Int): Unit = {
+  def deleteInplace(i: Int): Unit = {
     Array.copy(data, i + 1, data, i, len - i - 1)
     len -= 1
   }
@@ -74,7 +74,7 @@ final class ResizableSeq[T]
     Array.copy(data, i, data, k, j - i)
   }
 
-  def prependInplace(x: T) = insertAt(0, x)
+  def prependInplace(x: T) = insertInplace(0, x)
 
   def appendInplace(x: T) = {
     if (cap < len + 1) ensureCapacity(len + 1)

@@ -24,11 +24,7 @@ trait BiGraph[@sp(Int) K, +V, +E] extends Graph[K, V, E] { self =>
   override def outgoingNodesOf(i: K) = outgoingKeysOf(i).map(j => node(j))
 
   // HELPER FUNCTIONS
-  /**
-   * Returns the reverse/transpose graph of the original graph.
-   * @return The reverse graph, in which every edge is reversed
-   */
-  def reverse: BiGraph[K, V, E] = new AbstractBiGraph[K, V, E] {
+  override def reverse: BiGraph[K, V, E] = new AbstractBiGraph[K, V, E] {
     override def reverse = self
     def keySet: Set[K] = self.keySet
     def containsArc(i: K, j: K) = self.containsArc(j, i)

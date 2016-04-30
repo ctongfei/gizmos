@@ -14,7 +14,7 @@ import scala.language.implicitConversions
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait IndexedSeq[+T] extends BiSeq[T] with HasKnownSize { self =>
+trait IndexedSeq[+T] extends BiSeq[T] { self =>
 
   import IndexedSeq._
 
@@ -41,6 +41,10 @@ trait IndexedSeq[+T] extends BiSeq[T] with HasKnownSize { self =>
 
   def headNode = new NodeProxy[T](self, 0)
   def lastNode = new NodeProxy[T](self, length - 1)
+
+  // HELPER FUNCTIONS
+
+  override def sizeKnown = true
 
   override def foreach[V](f: T => V): Unit = {
     FastLoop.ascending(0, length, 1) { i => f(apply(i)) }
@@ -177,6 +181,7 @@ trait IndexedSeq[+T] extends BiSeq[T] with HasKnownSize { self =>
     def fastApply(i: Int) = self.fastApply(i)
     def fastLength = self.fastLength
   }
+
 }
 
 object IndexedSeq {

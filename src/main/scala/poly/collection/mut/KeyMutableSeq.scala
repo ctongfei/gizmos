@@ -1,9 +1,9 @@
 package poly.collection.mut
 
 /**
-  * Represents a structurally-mutable sequence.
- *
- * @tparam T
+ * Represents a structurally-mutable sequence.
+ * @since 0.1.0
+ * @author Tongfei Chen
  */
 trait KeyMutableSeq[T] extends ValueMutableSeq[T] {
   /**
@@ -28,12 +28,12 @@ trait KeyMutableSeq[T] extends ValueMutableSeq[T] {
    * @param i Position for insertion
    * @param x The element to be inserted
    */
-  def insertAt(i: Int, x: T): Unit
+  def insertInplace(i: Int, x: T): Unit
 
   /**
    * Deletes the element at the specific position.
    * @param i Position for deletion
    */
-  def deleteAt(i: Int): Unit
+  def deleteInplace(i: Int): Unit
 
 }

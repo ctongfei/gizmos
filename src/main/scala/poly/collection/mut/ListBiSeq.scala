@@ -9,7 +9,7 @@ import poly.collection.node._
 /**
  * @author Tongfei Chen
  */
-class ListBiSeq[T] private() extends AbstractBiSeq[T] with KeyMutableSeq[T] with HasKnownSize {
+class ListBiSeq[T] private() extends AbstractBiSeq[T] with KeyMutableSeq[T] {
 
   type Node = ListBiSeq.Node[T]
 
@@ -21,7 +21,7 @@ class ListBiSeq[T] private() extends AbstractBiSeq[T] with KeyMutableSeq[T] with
 
   override def length = len
   override def size = len
-
+  override def sizeKnown = true
 
   def headNode = dummy.next
 
@@ -29,6 +29,7 @@ class ListBiSeq[T] private() extends AbstractBiSeq[T] with KeyMutableSeq[T] with
 
   /**
    * Locates the ''i''th element in a doubly linked list.
+   *
    * @param i Index
    * @return The node that contains the ''i''-th element.
    */
@@ -45,6 +46,7 @@ class ListBiSeq[T] private() extends AbstractBiSeq[T] with KeyMutableSeq[T] with
 
   /**
    * Appends an element to the end of the doubly linked list.
+   *
    * @param x The element to be appended
    */
   def appendInplace(x: T) = {
@@ -68,7 +70,7 @@ class ListBiSeq[T] private() extends AbstractBiSeq[T] with KeyMutableSeq[T] with
     node.data = x
   }
 
-  def insertAt(i: Int, x: T) = {
+  def insertInplace(i: Int, x: T) = {
     val p = locate(i)
     val node = new Node(x, p.prev, p)
     node.prev.next = node
@@ -82,7 +84,7 @@ class ListBiSeq[T] private() extends AbstractBiSeq[T] with KeyMutableSeq[T] with
     // leave the other nodes to GC!
   }
 
-  def deleteAt(i: Int) = {
+  def deleteInplace(i: Int) = {
     val p = locate(i)
     p.prev.next = p.next
     p.next.prev = p.prev
@@ -101,6 +103,7 @@ class ListBiSeq[T] private() extends AbstractBiSeq[T] with KeyMutableSeq[T] with
 object ListBiSeq extends SeqFactory[ListBiSeq] {
   /**
    * Type of the internal node of a linked list.
+   *
    * @param data Data held in this node
    * @param prev The previous node
    * @param next The next node

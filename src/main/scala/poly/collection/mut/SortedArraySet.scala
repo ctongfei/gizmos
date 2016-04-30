@@ -14,9 +14,9 @@ class SortedArraySet[T] private(private val data: SortedArray[T]) extends Sorted
 
   def keys = data
 
-  def add(x: T) = data.add(x)
+  def addInplace(x: T) = data.add(x)
 
-  def remove(x: T) = data.remove(x)
+  def removeInplace(x: T) = data.remove(x)
 
   override def size: Int = data.size
 

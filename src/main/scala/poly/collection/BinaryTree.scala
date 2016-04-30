@@ -91,7 +91,7 @@ trait BinaryTree[+T] { self =>
   def fold[U >: T](z: U)(f: (U, U, U) => U) = foldBottomUp(z)(f)
 
   /**
-   * Zips two binary trees. $LAZY
+   * Zips two binary trees into one. $LAZY
    * @example {{{
    *   ┌      a    ┐     ┌    1      ┐    ┌               ┐
    *   │     / \   │     │   / \     │    │     (a,1)     │
@@ -113,7 +113,6 @@ trait BinaryTree[+T] { self =>
    * }}}
    */
   def preOrder = rootNode.preOrder.map(_.data)
-
 
   /**
    * '''Lazily''' traverses this binary tree in in-order.
@@ -153,7 +152,6 @@ trait BinaryTree[+T] { self =>
    * }}}
    */
   def postOrder = rootNode.postOrder.map(_.data)
-
 
   /**
    * '''Lazily''' traverses this binary tree in level-order.
@@ -202,6 +200,22 @@ trait BinaryTree[+T] { self =>
     }
     ofRootNode(new SubtreeNode(self.rootNode))
   }
+
+  ///**
+  // * Constructs a binary tree using two sub-binary-trees and a root element.
+  // * @example {{{ left :/ root \: right }}}
+  // */
+  //def :/[U >: T](n: U) = new {
+  //  def :\(r: BinaryTree[U]): BinaryTree[U] = new AbstractBinaryTree[U] {
+  //    def rootNode = new BinaryTreeNode[U] {
+  //      def data = n
+  //      def left = self.rootNode
+  //      def right = r.rootNode
+  //      def isDummy = false
+  //    }
+  //  }
+  //}
+
 
   def asTree: Tree[T] = {
     class BinaryTreeAsTreeNode(n: BinaryTreeNode[T]) extends TreeNode[T] {

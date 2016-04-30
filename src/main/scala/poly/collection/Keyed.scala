@@ -7,7 +7,7 @@ import poly.algebra.specgroup._
  * Marker trait for any data structure that contains keys (unique identifiers).
  * @author Tongfei Chen
  * @since 0.1.0
- * @define LAZY The resulting collection is '''lazily''' executed.
+ * @define LAZY <p> The resulting collection is '''lazily''' executed. </p>
  * @define EAGER The resulting collection is '''eagerly''' executed.
  * @define Onlogn Time complexity: O(n log n).
  * @define On Time complexity: O(n).

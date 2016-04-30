@@ -30,7 +30,7 @@ class ArrayStack[T] private(private var data: ResizableSeq[T] = null) extends Qu
 
   def pop(): T = {
     val x = top
-    data.deleteAt(data.fastLength - 1)
+    data.deleteInplace(data.fastLength - 1)
     x
   }
 

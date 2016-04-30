@@ -23,14 +23,16 @@ abstract class Searcher[S, N](
   shouldNotBePruned: N => Boolean,
   fringe: Queue[N],
   start: S)
-  (implicit S: StateSpace[S], N: SearchNodeInfo[N, S]) extends SearchIterator[N, S] {
+  (implicit S: StateSpace[S], N: SearchNodeInfo[N, S]) extends Iterator[S] {
 
   private[this] var curr: N = default[N]
 
   fringe += N.startNode(start)
 
+  /** Returns the current node of this search iterator. */
   def currentNode = curr
 
+  /** Returns the current state of this search iterator. */
   def current = N.state(curr)
 
   def advance() = {

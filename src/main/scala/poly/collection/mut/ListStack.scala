@@ -11,7 +11,7 @@ import poly.collection.impl._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-class ListStack[T] private(private var data: SinglyLinkedList[T]) extends Queue[T] with HasKnownSize {
+class ListStack[T] private(private var data: SinglyLinkedList[T]) extends Queue[T] {
 
   override def size = data.len
 
@@ -21,7 +21,7 @@ class ListStack[T] private(private var data: SinglyLinkedList[T]) extends Queue[
 
   def pop(): T = {
     val t = top
-    data.deleteAt(0)
+    data.deleteInplace(0)
     t
   }
 

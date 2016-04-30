@@ -10,7 +10,7 @@ import scala.language.higherKinds
   * @author Tongfei Chen
   * @since 0.1.0
  */
-class Beam[T] private(val capacity: Int, val pq: PriorityQueue[T]) extends Queue[T] with HasKnownSize {
+class Beam[T] private(val capacity: Int, val pq: PriorityQueue[T]) extends Queue[T] {
 
   implicit def order = pq.order.reverse
 

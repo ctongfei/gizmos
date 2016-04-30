@@ -16,7 +16,7 @@ class DistinctPriorityQueue[Q[α] <: PriorityQueue[α], T: Equiv] private(privat
 
   def push(x: T) = if (seen notContainsKey x) {
     inner push x
-    seen add (x, x)
+    seen addInplace (x, x)
   } else if (x < seen(x)) {
     inner push x
     seen(x) = x

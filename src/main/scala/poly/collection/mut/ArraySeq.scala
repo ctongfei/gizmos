@@ -8,6 +8,7 @@ import poly.macroutil._
 
 /**
  * A mutable sequence backed by a resizable array.
+ *
  * @since 0.1.0
  * @author Tongfei Chen
  */
@@ -19,9 +20,9 @@ class ArraySeq[T] private(private var data: ResizableSeq[T] = null) extends Abst
 
   def update(i: Int, x: T) = data.update(i, x)
 
-  def insertAt(i: Int, x: T) = data.insertAt(i, x)
+  def insertInplace(i: Int, x: T) = data.insertInplace(i, x)
 
-  def deleteAt(i: Int) = data.deleteAt(i)
+  def deleteInplace(i: Int) = data.deleteInplace(i)
 
   def prependInplace(x: T) = data.prependInplace(x)
 

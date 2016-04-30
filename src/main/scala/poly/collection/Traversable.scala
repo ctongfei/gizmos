@@ -30,26 +30,33 @@ trait Traversable[+T] { self =>
 
   /**
    * Applies a specific function to each element in this collection.
+   *
    * @param f The function to be applied. Return values are discarded.
    */
   def foreach[V](f: T => V): Unit
 
   // HELPER FUNCTIONS
 
+  /** Returns if the size of this collection can be efficiently retrieved. */
+  def sizeKnown: Boolean = false
+
   /**
    * Returns a new collection by applying a function to all elements in this collection. $LAZY
+   *
    * @example {{{(1, 2, 3) map { _ + 1 } == (2, 3, 4)}}}
    */
   def map[U](f: T => U): Traversable[U] = new AbstractTraversable[U] {
     def foreach[V](g: U => V) = {
       for (x ← self) g(f(x))
     }
+    override def sizeKnown = self.sizeKnown // map preserves size
   }
 
   /**
    * Builds a new collection by applying a function to all elements of this collection
    * and using the elements of the resulting collections.
    * $LAZY This is the direct equivalent of the Haskell function `bind`/`>>=`.
+   *
    * @example {{{(0, 1, 2, 3) flatMap { i => i repeat i } == (1, 2, 2, 3, 3, 3)}}}
    */
   def flatMap[U](f: T => Traversable[U]): Traversable[U] = new AbstractTraversable[U] {
@@ -62,6 +69,7 @@ trait Traversable[+T] { self =>
 
   /**
    * Returns the Cartesian product of two traversable sequences. $LAZY
+   *
    * @example {{{(1, 2) cartesianProduct (1, 2) == ((1, 1), (1, 2), (2, 1), (2, 2))}}}
    */
   def product[U](that: Traversable[U]): Traversable[(T, U)] =
@@ -79,6 +87,7 @@ trait Traversable[+T] { self =>
 
   /**
    * Selects only the elements that satisfy the specified predicate. $LAZY
+   *
    * @example {{{(1, 2, 3, 4) filter { _ > 2 } == (3, 4)}}}
    */
   def filter(f: T => Boolean): Traversable[T] = new AbstractTraversable[T] {
@@ -95,6 +104,7 @@ trait Traversable[+T] { self =>
 
   /**
    * Partitions this collection to two collections according to a predicate. $EAGER
+   *
    * @return A pair of collections: ( {x|f(x)} , {x|!f(x)} )
    */
   def partition(f: T => Boolean): (Seq[T], Seq[T]) = {
@@ -106,10 +116,11 @@ trait Traversable[+T] { self =>
 
   /**
    * Puts each element in this collection into multiple bins, where each bin is specified by a predicate. $EAGER
+   *
    * @param fs
    * @return
    */
-  def filterMany(fs: (T => Boolean)*): IndexedSeq[Seq[T]] = {
+  def filterMany(fs: (T => Boolean)*): IndexedSeq[Iterable[T]] = {
     val l = ArraySeq.fill(fs.length)(ArraySeq[T]())
     for (x ← self)
       FastLoop.ascending(0, fs.length, 1) { i =>
@@ -127,15 +138,21 @@ trait Traversable[+T] { self =>
     None
   }
 
-  def group[U >: T : IntHashing]: Map[U, Traversable[T]] = groupBy(x => x) // TODO!
+  def group[U >: T : Equiv]: Map[U, Iterable[T]] = groupBy(x => x)
 
   /** $EAGER $On */
-  def groupBy[K: IntHashing](f: T => K): Map[K, Traversable[T]] = {
-    val m = HashMap[K, ArraySeq[T]]()
-    for (x ← self)
-      m(f(x)) appendInplace x
+  def groupBy[K: Equiv](f: T => K): Map[K, Iterable[T]] = {
+    val m = AutoMap[K, ArraySeq[T]]()
+    for (x ← self) {
+      val fx = f(x)
+      if (m notContainsKey fx) m.addInplace(fx, ArraySeq[T]())
+      m(fx) appendInplace x
+    }
     m
   }
+
+  def freqMap[U >: T : Equiv]: Multiset[U, Int] = ??? //TODO:!
+
   //endregion
 
   //region Concatenation (concat, prepend, append)
@@ -143,8 +160,6 @@ trait Traversable[+T] { self =>
    * Concatenates two traversable collections into one. $LAZY
    *
    * @example {{{(1, 2, 3) ++ (4, 5) == (1, 2, 3, 4, 5)}}}
-   * @param that Another collection
-   * @return A concatenated collection
    */
   def concat[U >: T](that: Traversable[U]): Traversable[U] = new AbstractTraversable[U] {
     def foreach[V](f: U => V): Unit = {
@@ -398,6 +413,7 @@ trait Traversable[+T] { self =>
   /**
    * Returns the unique elements in this collection while retaining its original order.
    * This function requires that an equivalence relation is endowed on the type of the elements.
+   *
    * @example {{{
    *   (1, 4, 1, 3, 4, 2).distinct == (1, 4, 3, 2)
    * }}}
@@ -407,7 +423,7 @@ trait Traversable[+T] { self =>
     def foreach[V](f: U => V) = {
       for (x ← self) {
         if (set notContains x) {
-          set add x
+          set addInplace x
           f(x)
         }
       }
@@ -420,7 +436,7 @@ trait Traversable[+T] { self =>
       for (x ← self) {
         val u = f(x)
         if (set notContains u) {
-          set add u
+          set addInplace u
           g(x)
         }
       }
@@ -436,17 +452,17 @@ trait Traversable[+T] { self =>
 
   /** Returns a randomly shuffled version of this collection. $EAGER */
   def shuffle: IndexedSeq[T] = {
-    val a = self.to[ArraySeq]
+    val a = self.to(ArraySeq)
     a.shuffleInplace()
     a
   }
 
   /**
-    * Rotates this collection from the index specified. $LAZY
+   * Rotates this collection from the index specified. $LAZY
    *
    * @example {{{(1, 2, 3, 4).rotate(1) == (2, 3, 4, 1)}}}
-    * @param n Rotation starts here
-    */
+   * @param n Rotation starts here
+   */
   def rotate(n: Int) = (self skip n) ++ (self take n)
 
   /**
@@ -457,20 +473,20 @@ trait Traversable[+T] { self =>
    *   (3, 2, 4, 1).sort(WeakOrder[Int].reverse) == (4, 3, 2, 1)
    * }}}
    */
-  def sort[U >: T](implicit U: WeakOrder[U]): SortedIndexedSeq[T @uv] = {
-    val seq = self.to(ArraySeq)
-    seq.sortInplace()(U)
-    seq.asIfSorted(U)
+  def sort[U >: T : WeakOrder]: SortedIndexedSeq[T @uv] = {
+    val seq = self to ArraySeq
+    seq.sortInplace()
+    seq.asIfSorted
   }
 
-  def sortBy[U](f: T => U)(implicit U: WeakOrder[U]): SortedIndexedSeq[T @uv] = {
-    val seq = self.to(ArraySeq)
-    val o = WeakOrder by f
-    seq.sortInplace()(o) // TODO: cache Us and sort to avoid recalculation of Us?
-    seq.asIfSorted(o)
+  def sortBy[U: WeakOrder](f: T => U): SortedIndexedSeq[T @uv] = {
+    val seq = self to ArraySeq
+    val w = seq map f to ArraySeq
+    seq sortInplaceUsing w
+    seq asIfSorted (WeakOrder by f)
   }
 
-  def indexed: Traversable[(Int, T)] = new AbstractTraversable[(Int, T)] {
+  def withIndex: Traversable[(Int, T)] = new AbstractTraversable[(Int, T)] {
     def foreach[V](f: ((Int, T)) => V) = {
       var i = 0
       for (x ← self) {
@@ -484,7 +500,6 @@ trait Traversable[+T] { self =>
    * Repeats this collection for a specific number of times. $LAZY
    *
    * @example {{{(1, 2, 3).repeat(2) == (1, 2, 3, 1, 2, 3)}}}
-   * @param n Number of times to repeat
    */
   def repeat(n: Int): Traversable[T] = new AbstractTraversable[T] {
     def foreach[V](f: T => V) = {
@@ -495,10 +510,10 @@ trait Traversable[+T] { self =>
   }
 
   /**
-    * Infinitely cycles through this collection. $LAZY
+   * Infinitely cycles through this collection. $LAZY
    *
    * @example {{{(1, 2, 3).cycle == (1, 2, 3, 1, 2, 3, 1, 2, ...)}}}
-    */
+   */
   def cycle: Traversable[T] = new AbstractTraversable[T] {
     def foreach[V](f: T => V) = {
       while (true) for (x ← self) f(x)
@@ -546,13 +561,10 @@ trait Traversable[+T] { self =>
    */
   def differences[X >: T](implicit X: AdditiveGroup[X]) = consecutive(X.sub)
 
-  /**
-   * Returns the minimum element in this collection.
-   *
-   * @return The minimum element
-   */
+  /** Returns the minimum element in this collection. */
   def min(implicit T: WeakOrder[T]): T = reduce(T.min[T])
 
+  /** Returns the maximum element in this collection. */
   def max(implicit T: WeakOrder[T]): T = reduce(T.max[T])
 
   /**
@@ -571,11 +583,11 @@ trait Traversable[+T] { self =>
   }
 
   /**
-    * Returns the first element in this collection that makes the specific function least.
+   * Returns the first element in this collection that makes the specific function least.
    *
    * @param f The function
-    * @tparam U The implicit weak order on the output of the specific function.
-    */
+   * @tparam U The implicit weak order on the output of the specific function.
+   */
   def argmin[U: WeakOrder](f: T => U): T = argminWithValue(f)._1
 
   def minBy[U: WeakOrder](f: T => U) = argmin(f)
@@ -647,6 +659,7 @@ trait Traversable[+T] { self =>
   //region Building (to, buildString)
   /**
    * Converts this traversable sequence to any collection type.
+   *
    * @example {{{ xs.to[ArraySeq] }}}
    * @param builder An implicit builder
    * @tparam C Higher-order type of the collection to be built
@@ -655,36 +668,42 @@ trait Traversable[+T] { self =>
 
   /**
    * Converts this traversable sequence to any collection type given a factory.
+   *
    * @example {{{ xs.to(ArraySeq) }}}
    */
   def to[C[_]](factory: Factory[C]): C[T @uv] = to(factory.newBuilder[T])
 
   /**
    * Converts this traversable sequence to any collection type given a factory that requires an equivalence relation.
+   *
    * @example {{{ xs.to(AutoSet) }}}
    */
   def to[C[_]](factory: FactoryWithEquiv[C])(implicit T: Equiv[T]): C[T @uv] = to(factory.newBuilder[T])
 
   /**
    * Converts this traversable sequence to any collection type given a factory that requires a weak order.
+   *
    * @example {{{ xs.to(RedBlackTreeSet) }}}
    */
   def to[C[_]](factory: FactoryWithOrder[C])(implicit T: WeakOrder[T]): C[T @uv] = to(factory.newBuilder[T])
 
   /**
    * Converts this traversable sequence to any collection type given a factory that requires a hashing strategy.
+   *
    * @example {{{ xs.to(HashSet) }}}
    */
   def to[C[_]](factory: FactoryWithIntHashing[C])(implicit T: IntHashing[T]): C[T @uv] = to(factory.newBuilder[T])
 
   /**
    * Converts this traversable sequence to any collection type given a factory that requires an additive group.
+   *
    * @example {{{ xs.to(FenwickTree) }}}
    */
   def to[C[_]](factory: FactoryWithAdditiveGroup[C])(implicit T: AdditiveGroup[T @uv]): C[T @uv] = to(factory.newBuilder[T])
 
   /**
    * Converts this traversable sequence to an array.
+   *
    * @example {{{ xs.toArray }}}
    */
   def toArray[U >: T : ClassTag]: Array[U] = {
@@ -700,13 +719,14 @@ trait Traversable[+T] { self =>
 
   /**
    * Builds a structure based on this traversable sequence given an implicit builder.
+   *
    * @param builder An implicit builder
    * @tparam S Type of the structure to be built
    * @return A new structure of type `S`
    */
   def build[S](implicit builder: Builder[T, S]): S = {
     val b = builder
-    if (self.isInstanceOf[HasKnownSize]) b.sizeHint(size)
+    if (self.sizeKnown) b.sizeHint(self.size)
     b addAllInplace self
     b.result
   }
@@ -746,6 +766,8 @@ trait Traversable[+T] { self =>
   }
 
   override def toString = "(" + buildString(", ") + ")"
+  // hashCode/equals: by reference
+
 }
 
 object Traversable {

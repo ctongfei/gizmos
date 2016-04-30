@@ -30,12 +30,13 @@ trait Iterable[+T] extends Traversable[T] { self =>
 
   //region HELPER FUNCTIONS
 
-  override def map[U](f: T => U) = ofIterator {
-    new Iterator[U] {
+  override def map[U](f: T => U): Iterable[U] = new AbstractIterable[U] {
+    def newIterator = new Iterator[U] {
       private[this] val i = self.newIterator
       def current = f(i.current)
       def advance() = i.advance()
     }
+    override def sizeKnown = self.sizeKnown
   }
 
   def flatMap[U](f: T => Iterable[U]) = ofIterator {
@@ -200,6 +201,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
 
   /**
    * Advances this iterator past the first ''n'' elements.
+   *
    * @param n The number of elements to be skipped
    */
   override def skip(n: Int): Iterable[T] = ofIterator {
@@ -248,7 +250,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
       def advance(): Boolean = {
         while (i.advance()) {
           if (set notContains i.current) {
-            set add i.current
+            set addInplace i.current
             return true
           }
         }
@@ -266,7 +268,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
         while (i.advance()) {
           val u = f(i.current)
           if (set notContains u) {
-            set add u
+            set addInplace u
             return true
           }
         }
@@ -283,6 +285,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
 
   /**
    * Splits this collection into multiple subsequences using the given delimiter.
+   *
    * @param delimiter Predicate that determines whether an element is a delimiter.
    */
   def splitBy(delimiter: T => Boolean): Iterable[Seq[T]] = ofIterator {
@@ -313,6 +316,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
   /**
    * Returns a collection formed from this collection and another iterable collection by combining
    * corresponding elements in pairs. `|~|` is a symbolic alias of this method.
+   *
    * @param that Another iterable collection
    * @example {{{(1, 2, 3) zip (-1, -2, -3, -4) == ((1, -1), (2, -2), (3, -3))}}}
    * @return Zipped sequence
@@ -335,7 +339,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
     }
   }
 
-  override def indexed: SortedIterable[(Int, T@uv)] = {
+  override def withIndex: SortedIterable[(Int, T@uv)] = {
     val paired = ofIterator {
       new Iterator[(Int, T)] {
         private[this] var idx = -1
@@ -352,6 +356,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
 
   /**
    * Returns the interleave sequence of two sequences.
+   *
    * @param that Another enumerable sequence
    * @example {{{(1, 2, 3, 4) interleave (-1, -2, -3) == (1, -1, 2, -2, 3, -3)}}}
    * @return Interleave sequence
@@ -371,7 +376,8 @@ trait Iterable[+T] extends Traversable[T] { self =>
 
   /**
     * Groups elements in fixed size blocks by passing a sliding window over them.
-    * @param windowSize The size of the sliding window
+   *
+   * @param windowSize The size of the sliding window
     * @param step Step size. The default value is 1.
     * @example {{{(1, 2, 3, 4).sliding(2) == ((1, 2), (2, 3), (3, 4))}}}
     */
@@ -442,6 +448,10 @@ trait Iterable[+T] extends Traversable[T] { self =>
     def newIterator = self.newIterator
   }
 
+  // toString: inherit from Traversable
+  // hashCode: by reference
+  // equals: by reference
+
 }
 
 object Iterable {
@@ -495,6 +505,7 @@ object Iterable {
     }
   }
 
+  /** Constructs an infinite iterable stream of the given value. */
   def infinite[T](x: => T) = ofIterator {
     new Iterator[T] {
       def current = x
@@ -505,8 +516,8 @@ object Iterable {
   def zipMany[T](xss: Iterable[T]*) = ofIterator {
     new Iterator[IndexedSeq[T]] {
       private[this] val is = ArraySeq.tabulate(xss.length)(i => xss(i).newIterator)
-      def current = is.map(_.current)
-      def advance() = is.forall(_.advance())
+      def current = is map { _.current }
+      def advance() = is forall { _.advance() }
     }
   }
 
@@ -533,7 +544,7 @@ object Iterable {
   }
 
 
-  implicit class ofIterablesOps[T](val underlying: Iterable[Iterable[T]]) extends AnyVal {
+  implicit class IterableOfIterablesOps[T](val underlying: Iterable[Iterable[T]]) extends AnyVal {
     /**
       * "Flattens" this collection of collection into one collection.
       * @example {{{((1, 2, 3), (4, 5), (), (7)).flatten == (1, 2, 3, 4, 5, 7)}}}
@@ -541,7 +552,7 @@ object Iterable {
     def flatten: Iterable[T] = underlying.flatMap(identity)
   }
 
-  implicit class ofPairsOps[A, B](val underlying: Iterable[(A, B)]) extends AnyVal {
+  implicit class IterableOfPairsOps[A, B](val underlying: Iterable[(A, B)]) extends AnyVal {
 
     def unzip = (underlying map firstOfPair, underlying map secondOfPair)
 

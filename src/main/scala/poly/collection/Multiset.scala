@@ -83,6 +83,14 @@ trait Multiset[@sp(Int) K, @sp(Int, Double) R] extends KeyedLike[K, Multiset[K, 
     def contains(k: K) = self.contains(k) || that.contains(k)
   }
 
+  def multisetDiff(that: Multiset[K, R]): Multiset[K, R] = new AbstractMultiset[K, R] {
+    implicit def equivOnKeys = self.equivOnKeys
+    implicit def ringOnCount = self.ringOnCount
+    def multiplicity(k: K) = function.max(zero[R], self.multiplicity(k) - that.multiplicity(k))
+    def keys = self.keys filter self.contains
+    def contains(k: K) = self.multiplicity(k) > that.multiplicity(k)
+  }
+
   def product[L](that: Multiset[L, R]): Multiset[(K, L), R] = new AbstractMultiset[(K, L), R] {
     def equivOnKeys = Equiv.product(self.equivOnKeys, that.equivOnKeys)
     implicit def ringOnCount = self.ringOnCount
@@ -103,13 +111,17 @@ trait Multiset[@sp(Int) K, @sp(Int, Double) R] extends KeyedLike[K, Multiset[K, 
 
   def supersetOf(that: Multiset[K, R]) = that subsetOf this
 
+  def properSubsetOf(that: Multiset[K, R]) = (this subsetOf that) && (that.keys exists { k => that.multiplicity(k) > this.multiplicity(k) } )
+
+  def properSupersetOf(that: Multiset[K, R]) = that properSubsetOf this
+
   def :*(w: R): Multiset[K, R] = scale(w)
   def *:(w: R): Multiset[K, R] = scale(w)
-
 
   // FOLDING
 
   def sum[L >: K](implicit m: Module[L, R]) = pairs.map { case (k, w) => m.scale(k, w) }.sum(m)
+
   def forall(f: K => Boolean) = keys forall f
   def exists(f: K => Boolean) = keys exists f
   def max(implicit K: WeakOrder[K]) = keys.max
@@ -123,13 +135,13 @@ trait Multiset[@sp(Int) K, @sp(Int, Double) R] extends KeyedLike[K, Multiset[K, 
   //Symbolic aliases
   def &(that: Multiset[K, R]) = this intersect that
   def |(that: Multiset[K, R]) = this union that
-  def &~(that: Multiset[K, R]) = ??? // this setDiff that
-  def ⊂(that: Multiset[K, R]) = ??? //this properSubsetOf that
-  def ⊃(that: Multiset[K, R]) = ??? //this properSupersetOf that
+  def &~(that: Multiset[K, R]) = this multisetDiff that
+  def ⊂(that: Multiset[K, R]) = this properSubsetOf that
+  def ⊃(that: Multiset[K, R]) = this properSupersetOf that
   def ⊆(that: Multiset[K, R]) = this subsetOf that
   def ⊇(that: Multiset[K, R]) = this supersetOf that
-  def ∩(that: Multiset[K, R]) = this & that
-  def ∪(that: Multiset[K, R]) = this | that
+  def ∩(that: Multiset[K, R]) = this intersect that
+  def ∪(that: Multiset[K, R]) = this union that
 
   override def toString = "{" + pairs.map { case (k, w) => s"$k: $w"}.buildString(", ") + "}"
 
@@ -167,7 +179,6 @@ object Multiset {
     def le(x: Multiset[K, R], y: Multiset[K, R]) = x subsetOf y
     override def eq(x: Multiset[K, R], y: Multiset[K, R]) = (x subsetOf y) && (y subsetOf x)
   }
-
 
 }
 

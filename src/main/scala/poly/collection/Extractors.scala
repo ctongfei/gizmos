@@ -29,19 +29,6 @@ object :|: {
   }
 }
 
-object :|< {
-  private[poly] class IndexedSeqRightHalfWithMid[+T](val mid: T, val right: IndexedSeq[T])
-  def unapply[T](t: IndexedSeq[T]) = {
-    val len = t.length
-    val mid = len / 2
-    Some(t.slice(0, mid), new IndexedSeqRightHalfWithMid[T](t(mid), t.slice(mid + 1, len)))
-  }
-}
-
-object <|: {
-  def unapply[T](t: :|<.IndexedSeqRightHalfWithMid[T]) = Some(t.mid, t.right)
-}
-
 object :/ {
   private[poly] class BinaryTreeNodeWithRight[+T](val root: T, val right: BinaryTree[T])
   /**

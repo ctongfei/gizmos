@@ -92,7 +92,7 @@ class SinglyLinkedList[T] extends Seq[T] with KeyMutableSeq[T] {
    * @param i Index
    * @param x New element
    */
-  def insertAt(i: Int, x: T) = {
+  def insertInplace(i: Int, x: T) = {
     val (prev, curr) = locate(i)
     val node = new Node(x, curr)
     prev.next = node
@@ -110,7 +110,7 @@ class SinglyLinkedList[T] extends Seq[T] with KeyMutableSeq[T] {
    * Removes the ''i''-th element.
    * @param i Index
    */
-  def deleteAt(i: Int) = {
+  def deleteInplace(i: Int) = {
     val (prev, curr) = locate(i)
     prev.next = curr.next
     len -= 1

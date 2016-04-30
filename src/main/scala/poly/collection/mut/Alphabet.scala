@@ -9,28 +9,27 @@ import scala.language.higherKinds
  * @since 0.1.0
  * @author Tongfei Chen
  */
-class Alphabet[T: IntHashing] private(
-  private val w2i: HashMap[T, Int],
+class Alphabet[T: Equiv] private(
+  private val w2i: KeyMutableMap[T, Int],
   private val i2w: ArraySeq[T])
   extends BijectiveMap[T, Int]
 {
 
+  def equivOnKeys = implicitly[Equiv[T]]
   def equivOnValues = Equiv.default[Int]
 
   def apply(x: T): Int = w2i ? x match {
     case Some(i) => i
     case None =>
       val newIndex = w2i.size
-      w2i.add(x, newIndex)
+      w2i.addInplace(x, newIndex)
       i2w.appendInplace(x)
       newIndex
   }
 
   def ?(x: T): Option[Int] = w2i ? x
 
-  def equivOnKeys = implicitly[IntHashing[T]]
-
-  override def size = w2i.size
+  override def size = i2w.size
 
   def invert(i: Int): T = i2w(i)
   def invertOption(i: Int): Option[T] = i2w ? i
@@ -45,18 +44,17 @@ class Alphabet[T: IntHashing] private(
     i2w.clear()
   }
 
-
 }
 
 object Alphabet {
 
-  def apply[T: IntHashing] = new Alphabet(HashMap[T, Int](), ArraySeq())
+  def apply[T: Equiv] = new Alphabet(AutoMap[T, Int](), ArraySeq())
 
   /**
    * Creates an alphabet with a `nil` element. This element will be mapped to index `0`.
    */
-  def withNil[T: IntHashing](nil: T) = {
-    new Alphabet[T](HashMap[T, Int](nil → 0), ArraySeq(nil))
+  def withNil[T: Equiv](nil: T) = {
+    new Alphabet[T](AutoMap[T, Int](nil → 0), ArraySeq(nil))
   }
 
 }

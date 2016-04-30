@@ -16,7 +16,7 @@ trait IntIndexedGraphFactory[+IG[_, _]] {
 
    def apply[V, E](vs: V*)(es: (Int, Int, E)*): IG[V, E] = {
      val b = newBuilder[V, E]
-     for ((i, v) ← vs.indexed) b.addNodeInplace(i, v)
+     for ((i, v) ← vs.withIndex) b.addNodeInplace(i, v)
      for ((i, j, e) ← es) b.addEdgeInplace(i, j, e)
      b.result
    }

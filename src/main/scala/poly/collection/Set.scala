@@ -1,13 +1,12 @@
 package poly.collection
 
 import poly.algebra._
+import poly.algebra.syntax._
 import poly.algebra.specgroup._
-import poly.collection.builder._
 import poly.collection.mut._
 
 /**
  * Basic trait for sets whose elements can be iterated.
- *
  * @author Tongfei Chen
  * @since 0.1.0
  */
@@ -38,7 +37,6 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
 
   /**
     * Returns the union of two sets.
- *
     * @example {{{ {1, 2, 3} | {2, 4} == {1, 2, 3, 4} }}}
     */
   def union(that: Set[T]): Set[T] = new AbstractSet[T] {
@@ -49,8 +47,7 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
 
   /**
     * Returns the intersection of two sets.
- *
-    * @example {{{ {1, 2, 3} & {3, 1} == {1, 3} }}}
+    * @example {{{ {1, 2, 3} & {1, 3, 5} == {1, 3} }}}
     */
   def intersect(that: Set[T]): Set[T] = new AbstractSet[T] {
     def equivOnKeys = self.equivOnKeys
@@ -60,12 +57,11 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
 
   /**
     * Returns the set difference of two sets.
- *
-    * @example {{{ {1, 2, 3} \ {2, 3} == {1} }}}
+    * @example {{{ {1, 2, 3} \ {2, 3, 4} == {1} }}}
     */
   def setDiff(that: Set[T]): Set[T] = new AbstractSet[T] {
-    def equivOnKeys: Equiv[T] = self.equivOnKeys
-    def contains(x: T): Boolean = self.contains(x) && that.notContains(x)
+    def equivOnKeys= self.equivOnKeys
+    def contains(x: T) = self.contains(x) && that.notContains(x)
     def keys = self.keys.filter(that.notContains)
   }
 
@@ -91,9 +87,7 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
 
   def cartesianProduct[U](that: Set[U]): Set[(T, U)] = this product that
 
-  /**
-   * Using this set as the key set, construct a map by the given function.
-   */
+  /** Using this set as the key set, construct a map by the given function. */
   def createMapBy[V](f: T => V): Map[T, V] = new AbstractMap[T, V] {
     def apply(k: T) = f(k)
     def ?(k: T) = if (self contains k) Some(f(k)) else None
@@ -128,7 +122,7 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
   }
 
   def map[U: Equiv](f: T => U): Set[U] = {
-    self.elements.map(f).to(Set.autoBuilder[U])
+    self.elements.map(f).to(AutoSet)
   }
 
   def map[U](f: Bijection[T, U]): Set[U] = new AbstractSet[U] {
@@ -138,7 +132,7 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
   }
 
   def flatMap[U: Equiv](f: T => Set[U]): Set[U] = {
-    self.elements.flatMap { x: T => f(x).elements }.to(Set.autoBuilder[U])
+    self.elements.flatMap { x: T => f(x).elements }.to(AutoSet)
   }
 
   def zip(that: Set[T]): Set[T] = this & that
@@ -184,24 +178,16 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
   def argmaxWithValue[U](f: T => U)(implicit O: WeakOrder[U]) = elements.argmaxWithValue(f)(O)
 
   /**
-   * Casts this set as a multiset in which each element appears once.
- *
-   * @tparam R Type of the number of occurrences of elements in the multiset, can be `Int`, `Double`, etc.
+   * Casts this set as a multiset in which each element appears exactly once.
+   * @tparam R Type of the counts of elements in the multiset, can be `Int`, `Double`, etc.
    */
-  def asMultiset[R](implicit R: OrderedRing[R]): Multiset[T, R] = new AbstractMultiset[T, R] {
+  def asMultiset[R: OrderedRing]: Multiset[T, R] = new AbstractMultiset[T, R] {
     def equivOnKeys = self.equivOnKeys
-    implicit def ringOnCount = R
-    def multiplicity(k: T) = if (self.contains(k)) R.one else R.zero
+    def ringOnCount = OrderedRing[R]
+    def multiplicity(k: T) = if (self.contains(k)) one[R] else zero[R]
     def keys = self.keys
     def contains(k: T) = self.contains(k)
   }
-
-  override def equals(that: Any) = that match {
-    case that: Set[T] => Set.ContainmentOrder[T].eq(this, that)
-    case _ => false
-  }
-
-  override def toString = s"{${elements.buildString(", ")}}"
 
   //Symbolic aliases
   def &(that: Set[T]) = this intersect that
@@ -213,18 +199,23 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
   def ⊇(that: Set[T]) = this supersetOf that
   def ∩(that: Set[T]) = this & that
   def ∪(that: Set[T]) = this | that
+
+  override def toString = "{" + elements.buildString(", ") + "}"
+
+  override def equals(that: Any) = that match {
+    case that: Set[T] => Set.ContainmentOrder[T].eq(this, that)
+    case _ => false
+  }
+
+  // hashCode: elements.fold(initialValue, _ xor _)?
+
 }
 
 object Set {
 
-  /**
-   * Creates an empty set of a specific type.
- *
-   * @tparam T Type
-   * @return An empty set
-   */
+  /** Creates an empty set of a specific type. */
   def empty[T: Equiv]: Set[T] = new Set[T] {
-    def equivOnKeys = implicitly[Equiv[T]]
+    def equivOnKeys = poly.algebra.Equiv[T]
     override def size = 0
     def keys = Iterable.empty
     def contains(x: T) = false
@@ -247,16 +238,11 @@ object Set {
     def eq(x: Set[T], y: Set[T]) = (x ⊆ y) && (x ⊇ y)
   }
 
-  implicit def ContainmentOrder[T]: PartialOrder[Set[T]] = new PartialOrder[Set[T]] {
+  def ContainmentOrder[T]: PartialOrder[Set[T]] = new PartialOrder[Set[T]] {
     override def eq(x: Set[T], y: Set[T]) = (x ⊆ y) && (x ⊇ y)
     def le(x: Set[T], y: Set[T]) = x ⊆ y
   }
 
-  def autoBuilder[T](implicit e: Equiv[T]): Builder[T, Set[T]] = e match {
-    case e: IntHashing[T] => HashSet.newBuilder[T] // HashSet.newBuilder(e)
-    case e: WeakOrder[T] => ???
-    case _ => ???
-  }
 }
 
 abstract class AbstractSet[@sp(Int) T] extends Set[T]

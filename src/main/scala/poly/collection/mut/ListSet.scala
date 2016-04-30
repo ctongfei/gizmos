@@ -9,6 +9,7 @@ import poly.collection.impl._
 
 /**
  * A set backed by a linked list.
+ *
  * @author Tongfei Chen
  */
 class ListSet[T] private(private val data: SinglyLinkedList[T])(implicit val equivOnKeys: Equiv[T]) extends KeyMutableSet[T] {
@@ -29,11 +30,11 @@ class ListSet[T] private(private val data: SinglyLinkedList[T])(implicit val equ
 
   def clear() = data.clear()
 
-  def add(x: T) = {
+  def addInplace(x: T) = {
     if (!contains(x)) data.prependInplace(x)
   }
 
-  def remove(x: T) = {
+  def removeInplace(x: T) = {
     var p = data.dummy
     var c = data.dummy.next
     while (c ne data.dummy) {
@@ -50,7 +51,7 @@ object ListSet extends SetFactory[ListSet] {
 
   implicit def newBuilder[K: Equiv]: Builder[K, ListSet[K]] = new Builder[K, ListSet[K]] {
     private[this] val s = new ListSet(new SinglyLinkedList[K]())
-    def addInplace(x: K) = s add x
+    def addInplace(x: K) = s addInplace x
     def result = s
     def sizeHint(n: Int) = {}
   }

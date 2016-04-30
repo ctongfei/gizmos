@@ -12,10 +12,11 @@ import poly.collection.node._
  * Represents a linked hash map.
  * When traversing through this hash map, the order of the key-value pairs
  * will retain the order under which they were inserted.
+ *
  * @author Tongfei Chen
  * @since 0.1.0
  */
-class LinkedHashMap[K: IntHashing, V] private(val data: OpenHashTable[K, LinkedHashMap.Entry[K, V]]) extends KeyMutableMap[K, V] with HasKnownSize {
+class LinkedHashMap[K: IntHashing, V] private(val data: OpenHashTable[K, LinkedHashMap.Entry[K, V]]) extends KeyMutableMap[K, V] {
 
   import LinkedHashMap._
 
@@ -36,7 +37,7 @@ class LinkedHashMap[K: IntHashing, V] private(val data: OpenHashTable[K, LinkedH
   }
 
 
-  def add(x: K, y: V) = {
+  def addInplace(x: K, y: V) = {
     val e = new Entry(x, y, dummy.prev, dummy)
     e.prev.next = e
     e.next.prev = e
@@ -49,7 +50,7 @@ class LinkedHashMap[K: IntHashing, V] private(val data: OpenHashTable[K, LinkedH
     dummy.next = dummy
   }
 
-  def remove(x: K) = {
+  def removeInplace(x: K) = {
     val e = data.locate(x)
     if (e != null) {
       e.prev.next = e.next
@@ -61,7 +62,7 @@ class LinkedHashMap[K: IntHashing, V] private(val data: OpenHashTable[K, LinkedH
   def update(x: K, y: V) = {
     val e = data.locate(x)
     if (e != null) e.value = y
-    else add(x, y)
+    else addInplace(x, y)
   }
 
   def pairs: BiSeq[(K, V)] = BiSeq.ofDummyNode(dummy)
@@ -69,8 +70,6 @@ class LinkedHashMap[K: IntHashing, V] private(val data: OpenHashTable[K, LinkedH
   override def keys = pairs map firstOfPair
 
   override def values = pairs map secondOfPair
-
-  this.keySet
 
   def containsKey(x: K) = data.locate(x) != null
 
@@ -87,7 +86,7 @@ object LinkedHashMap extends MapFactoryWithIntHashing[LinkedHashMap] {
 
   implicit def newBuilder[K: IntHashing, V]: Builder[(K, V), LinkedHashMap[K, V]] = new Builder[(K, V), LinkedHashMap[K, V]] {
     private[this] val m = new LinkedHashMap[K, V](new OpenHashTable[K, Entry[K, V]])
-    def addInplace(x: (K, V)) = m.add(x)
+    def addInplace(x: (K, V)) = m.addInplace(x)
     def result = m
     def sizeHint(n: Int) = m.data.grow(n)
   }

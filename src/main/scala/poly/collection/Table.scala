@@ -9,7 +9,7 @@ import poly.macroutil._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait Table[+T] extends Map[(Int, Int), T] with HasKnownSize { self =>
+trait Table[+T] extends Map[(Int, Int), T] { self =>
 
   /** Returns the element at the ''i''-th row and ''j''-th column in this table. */
   def apply(i: Int, j: Int): T

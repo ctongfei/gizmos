@@ -12,6 +12,7 @@ import poly.macroutil._
 /**
   * An implementation of a binary min-heap.
   * The least element under the specific order will surface at the top of the heap.
+ *
   * @author Tongfei Chen
   */
 class BinaryHeap[T] private[poly](val data: ResizableSeq[T])(implicit val order: WeakOrder[T]) extends PriorityQueue[T] {
@@ -53,7 +54,7 @@ class BinaryHeap[T] private[poly](val data: ResizableSeq[T])(implicit val order:
   def pop(): T = {
     val front = data(0)
     data.swapInplace(0, data.length - 1)
-    data.deleteAt(data.length - 1)
+    data.deleteInplace(data.length - 1)
     if (data.length > 1) siftDown(0)
     front
   }

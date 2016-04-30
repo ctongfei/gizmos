@@ -16,12 +16,12 @@ class SortedArray[T] private[poly](val data: ResizableSeq[T])(implicit val order
 
   def fastApply(i: Int) = data(i)
 
-  def add(x: T) = data.insertAt(lowerBound(x), x)
+  def add(x: T) = data.insertInplace(lowerBound(x), x)
 
-  def deleteAt(i: Int) = data.deleteAt(i)
+  def deleteAt(i: Int) = data.deleteInplace(i)
 
   def remove(x: T) = binarySearch(x) match {
-    case Some(i) => data.deleteAt(i)
+    case Some(i) => data.deleteInplace(i)
     case None =>
   }
 

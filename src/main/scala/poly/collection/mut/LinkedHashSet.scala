@@ -11,6 +11,7 @@ import poly.collection.node._
 /**
  * Represents a linked hash set.
  * When traversing through this hash set, the order of the elements will retain the order under which they were inserted.
+ *
  * @author Tongfei Chen
  * @since 0.1.0
  */
@@ -27,14 +28,14 @@ class LinkedHashSet[T: IntHashing] private(val data: OpenHashTable[T, LinkedHash
 
   def clear() = data.clear()
 
-  def add(x: T) = {
+  def addInplace(x: T) = {
     val e = new Entry(x, dummy.prev, dummy)
     e.prev.next = e
     e.next.prev = e
     data.addEntry(e)
   }
 
-  def remove(x: T) = {
+  def removeInplace(x: T) = {
     val e = data.locate(x)
     e.prev.next = e.next
     e.next.prev = e.prev
@@ -60,7 +61,7 @@ object LinkedHashSet extends FactoryWithIntHashing[LinkedHashSet] {
 
   implicit def newBuilder[T: IntHashing]: Builder[T, LinkedHashSet[T]] = new Builder[T, LinkedHashSet[T]] {
     private[this] val s = new LinkedHashSet[T](new OpenHashTable[T, Entry[T]]())
-    def addInplace(x: T) = s.add(x)
+    def addInplace(x: T) = s.addInplace(x)
     def result = s
     def sizeHint(n: Int) = s.data.grow(n)
   }

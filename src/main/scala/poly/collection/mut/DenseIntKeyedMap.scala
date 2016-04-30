@@ -43,7 +43,7 @@ class DenseIntKeyedMap[T] private(
 
   def containsKey(x: Int): Boolean = state(x)
 
-  def add(x: Int, y: T): Unit = {
+  def addInplace(x: Int, y: T): Unit = {
     if (x >= data.capacity) {
       data.ensureCapacity(x + 1)
       state.ensureCapacity(x + 1)
@@ -58,7 +58,7 @@ class DenseIntKeyedMap[T] private(
     n = 0
   }
 
-  def remove(x: Int): Unit = {
+  def removeInplace(x: Int): Unit = {
     if (state(x)) n -= 1
     state(x) = false
   }

@@ -43,6 +43,7 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
 
   /**
    * Returns the ''i''-th element of this sequence. $On
+ *
    * @param i Index
    * @return The ''i''-th element of this sequence
    */
@@ -86,6 +87,7 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
 
   /**
     * Pairs each element with its index. $LAZY
+ *
     * @example {{{('a', 'b', 'c').pairs == ((0, 'a'), (1, 'b'), (2, 'c'))}}}
     * @return A sequence of index-element pairs.
     */
@@ -104,7 +106,10 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
 
   override def isEmpty = headNode.isDummy
 
-  override def map[U](f: T => U): Seq[U] = ofHeadNode(self.headNode map f)
+  override def map[U](f: T => U): Seq[U] = new AbstractSeq[U] {
+    def headNode = self.headNode map f
+    override def sizeKnown = self.sizeKnown
+  }
 
   def flatMap[U](f: T => Seq[U]): Seq[U] = {
     class FlatMappedSeqNode(val outer: SeqNode[T], val inner: SeqNode[U]) extends SeqNode[U] {
@@ -209,6 +214,7 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
 
   /**
     * Returns the list of tails of this sequence. $LAZY
+ *
     * @example {{{(1, 2, 3).suffixes == ((1, 2, 3), (2, 3), (3))}}}
     */
   override def suffixes = {
@@ -284,7 +290,7 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
         var n = outer.next
         while (n.notDummy) {
           if (set notContains n.data) {
-            set add n.data
+            set addInplace n.data
             return new DistinctNode(n)
           }
           n = n.next
@@ -305,7 +311,7 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
         while (n.notDummy) {
           val u = f(n.data)
           if (set notContains u) {
-            set add u
+            set addInplace u
             return new DistinctByNode(n)
           }
           n = n.next
@@ -355,6 +361,7 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
 
   /**
    * Pretends that this sequence is sorted under the given implicit order.
+ *
    * @param U The implicit order
    * @note Actual orderedness is not guaranteed! The user should make sure that it is sorted.
    * @return A sorted sequence
@@ -406,12 +413,29 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
     k
   }
 
-  def startsWith[U >: T : Equiv](pattern: Seq[U]) = {
-    ???
+  /**
+   * Tests if this sequence starts with the pattern sequence under an implicit equivalence relation.
+ *
+   * @example {{{
+   *   (1, 2, 3, 4) startsWith (1, 2) == true
+   * }}}
+   */
+  def startsWith[U >: T : Equiv](pattern: Seq[U]): Boolean = {
+    val i = self.newIterator
+    val j = pattern.newIterator
+    var iHasNext = false
+    var jHasNext = false
+    while (true) {
+      iHasNext = i.advance()
+      jHasNext = j.advance()
+      if (!iHasNext || !jHasNext) return !jHasNext
+      if (j.current !== i.current)
+        return false
+    }
+    false
   }
 
   def endsWith[U >: T : Equiv](pattern: Seq[U]) = {
-    ???
   }
 
   def asSeq: Seq[T] = ofDummyNode(dummy)
@@ -492,7 +516,7 @@ object Seq {
   /**
    * Returns the lexicographic order on sequences if an order on the elements is given.
    */
-  implicit def LexicographicOrder[T: WeakOrder]: WeakOrder[Seq[T]] = new WeakOrder[Seq[T]] {
+  def LexicographicOrder[T: WeakOrder]: WeakOrder[Seq[T]] = new WeakOrder[Seq[T]] {
     def cmp(x: Seq[T], y: Seq[T]): Int = { //TODO: faster implementation using iterators?
       var xn = x.headNode
       var yn = y.headNode

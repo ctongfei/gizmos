@@ -11,8 +11,7 @@ import scala.language.higherKinds
 import scala.annotation.unchecked.{uncheckedVariance => uv}
 
 /**
- * Represents a forward directed graph.
- *
+ * Represents a directed graph in which each node's successors can be efficiently retrieved.
  * @tparam K Type of keys
  * @tparam V Type of data associated with vertices
  * @tparam E Type of data associated with edges
@@ -91,7 +90,6 @@ trait Graph[@sp(Int) K, +V, +E] extends KeyedLike[K, Graph[K, V, E]] with StateS
 
   /**
    * Returns the subgraph with only the nodes selected by the given predicate.
- *
    * @param f Node selector
    * @return A subgraph with only the nodes selected. An edge will be selected iff both its ends are selected
    *         by the predicate.
@@ -131,6 +129,12 @@ trait Graph[@sp(Int) K, +V, +E] extends KeyedLike[K, Graph[K, V, E]] with StateS
     def keySet = self.keySet.contramap(f)
   }
 
+  /**
+   * Returns the reverse/transpose graph of the original graph.
+   * @return The reverse graph, in which every edge is reversed
+   */
+  def reverse: BiGraph[K, V, E] = ???
+
   def to[G[_, _, _]](implicit builder: GraphBuilder[K, V@uv, E@uv, G[K, V@uv, E@uv]]): G[K, V@uv, E@uv] = {
     val b = builder
     b.numNodesHint(self.numNodes)
@@ -168,7 +172,7 @@ object Graph {
     //TODO: hashing
   }
 
-  implicit class asWeightedStateSpace[K, E](g: Graph[K, _, E])(implicit E: OrderedAdditiveGroup[E]) extends WeightedStateSpace[K, E] {
+  implicit class AsWeightedStateSpace[K, E](g: Graph[K, _, E])(implicit E: OrderedAdditiveGroup[E]) extends WeightedStateSpace[K, E] {
     implicit def groupOnCost = E
     def succWithCost(x: K) = g.outgoingArcsOf(x).map(e => (e.key2, e.data))
 

@@ -17,4 +17,10 @@ trait SortedSet[T] extends Set[T] {
 
   override def elements = keys
 
+  /** Returns the minimum element of this sorted set under the inherent order of this sorted set. */
+  def min = keys.head
+
+  /** Returns the maximum element of this sorted set under the inherent order of this sorted set. */
+  def max = keys.last
+
 }

@@ -88,8 +88,8 @@ object FromJava {
   }
 
   implicit def javaSetAsPoly[T](xs: ju.Set[T]): Set[T] = new KeyMutableSet[T] {
-    def remove(x: T) = xs.remove(x)
-    def add(x: T) = xs.add(x)
+    def removeInplace(x: T) = xs.remove(x)
+    def addInplace(x: T) = xs.add(x)
     def equivOnKeys = Equiv.default[T]
     def contains(x: T) = xs.contains(x)
     override def size = xs.size()
@@ -104,6 +104,16 @@ object FromJava {
     }
     def contains(x: T) = xs.contains(x)
     def orderOnKeys = xs.comparator()
+  }
+
+  implicit def javaNavigableSetAsPoly[T](xs: ju.NavigableSet[T]): BiSortedSet[T] = new BiSortedSet[T] {
+    def keys = new BiSortedIterable[T] {
+      implicit def orderOnElements = xs.comparator()
+      def newReverseIterator = xs.descendingIterator()
+      def newIterator = xs.iterator()
+    }
+    def orderOnKeys = xs.comparator()
+    def contains(x: T) = xs.contains(x)
   }
 
   implicit def javaQueueAsPoly[T](xs: ju.Queue[T]): Queue[T] = new Queue[T] {
@@ -124,9 +134,9 @@ object FromJava {
 
   implicit def javaMapAsPoly[K, V](jm: ju.Map[K, V]): Map[K, V] = new KeyMutableMap[K, V] {
     def equivOnKeys = Equiv.default[K]
-    def add(x: K, y: V): Unit = jm.put(x, y)
+    def addInplace(x: K, y: V): Unit = jm.put(x, y)
     def clear(): Unit = jm.clear()
-    def remove(x: K): Unit = jm.remove(x)
+    def removeInplace(x: K): Unit = jm.remove(x)
     def update(x: K, y: V): Unit = jm.put(x, y)
     def ?(x: K): Option[V] = Option(jm.get(x))
     def pairs: Iterable[(K, V)] = jm.entrySet().elements.map(e => e.getKey → e.getValue)

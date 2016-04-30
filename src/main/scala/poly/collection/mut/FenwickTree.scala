@@ -14,8 +14,8 @@ import poly.collection.impl._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-class FenwickTree[T] (private val data: ResizableSeq[T])
-  (implicit val groupOnElements: AdditiveGroup[T]) extends ValueMutableIndexedSeq[T] {
+class FenwickTree[T] private(private val data: ResizableSeq[T])
+  (implicit val groupOnElements: AdditiveGroup[T]) extends AbstractIndexedSeq[T] with ValueMutableIndexedSeq[T] {
 
   import FenwickTree._
 
@@ -52,7 +52,7 @@ class FenwickTree[T] (private val data: ResizableSeq[T])
   def rangeSum(i: Int, j: Int) = cumulativeSum(j) - cumulativeSum(i)
 
   /**
-   * Increments the ''n''-the element by ''δ''.
+   * Increments the ''n''-th element by ''δ''.
    */
   def increment(n: Int, δ: T) = {
     var i = n + 1
@@ -63,6 +63,8 @@ class FenwickTree[T] (private val data: ResizableSeq[T])
   }
 
   def update(idx: Int, value: T) = increment(idx, value - this(idx))
+
+  def sum = cumulativeSum(length)
 
   def prefixSums = Range(length + 1) map cumulativeSum
 

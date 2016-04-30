@@ -24,7 +24,7 @@ sealed trait Range extends SortedIndexedSeq[Int] { self =>
 
   def step: Int
   
-  lazy val fastLength = {
+  val fastLength = {
     val gap = right - left
     val len = gap / step + (if (gap % step != 0) 1 else 0)
     if (len < 0) 0 else len
@@ -32,12 +32,12 @@ sealed trait Range extends SortedIndexedSeq[Int] { self =>
 
   def fastApply(i: Int): Int = left + i * step
 
-  def sum = (head + last) * length / 2
-  
   // HELPER FUNCTIONS
-  override def head = left
+
+  def sum = (head + last) * length / 2
 
   def asSet: Set[Int] = new AbstractSet[Int] {
+    override def size = self.fastLength
     def equivOnKeys = self.orderOnElements
     def keys = self
     def contains(x: Int) =

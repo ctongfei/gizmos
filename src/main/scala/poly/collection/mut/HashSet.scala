@@ -11,15 +11,15 @@ import poly.collection.impl.hashtable._
  * A hash set.
  * @author Tongfei Chen
  */
-class HashSet[T: IntHashing] private(val data: OpenHashTable[T, HashSet.Entry[T]]) extends KeyMutableSet[T] with HasKnownSize {
+class HashSet[T: IntHashing] private(val data: OpenHashTable[T, HashSet.Entry[T]]) extends KeyMutableSet[T] {
 
   import HashSet._
 
   def equivOnKeys = implicitly[IntHashing[T]]
 
-  def add(x: T) = data.addEntry(new Entry(x))
+  def addInplace(x: T) = data.addEntry(new Entry(x))
 
-  def remove(x: T) = data.removeEntry(x)
+  def removeInplace(x: T) = data.removeEntry(x)
 
   def contains(x: T) = data.locate(x) != null
 

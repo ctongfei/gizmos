@@ -17,13 +17,13 @@ class BitSet private(private final var data: LongResizableArray)
 
   implicit def orderOnKeys = std.IntStructure
 
-  def add(x: Int) = {
+  def addInplace(x: Int) = {
     val idx = x >> LongBits
     data.ensureCapacity(idx + 1)
     data(idx) |= (1l << x)
   }
 
-  def remove(x: Int) = {
+  def removeInplace(x: Int) = {
     val idx = x >> LongBits
     if (idx < data.capacity) {
       data(idx) &= ~(1l << x)

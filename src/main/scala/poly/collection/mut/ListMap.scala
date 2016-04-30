@@ -11,10 +11,11 @@ import poly.collection.impl.linkedlist._
 /**
  * Represents a mutable map backed by a list of key-value pairs.
  * Use only if the number of entries in the map is very small, or no sensible hashing or order of the key type can be found.
+ *
  * @since 0.1.0
  * @author Tongfei Chen
  */
-class ListMap[K, V] private(private val data: SinglyLinkedList[K, ListMap.Node[K, V]])(implicit val equivOnKeys: Equiv[K]) extends KeyMutableMap[K, V] with HasKnownSize {
+class ListMap[K, V] private(private val data: SinglyLinkedList[K, ListMap.Node[K, V]])(implicit val equivOnKeys: Equiv[K]) extends KeyMutableMap[K, V] {
 
   type Node = ListMap.Node[K, V]
 
@@ -47,7 +48,7 @@ class ListMap[K, V] private(private val data: SinglyLinkedList[K, ListMap.Node[K
     }
   }
 
-  def add(x: K, y: V) = {
+  def addInplace(x: K, y: V) = {
     val pc = locateKey(x)
     if (pc eq null) data.prependInplace(new Node(x, y))
     else {
@@ -58,7 +59,7 @@ class ListMap[K, V] private(private val data: SinglyLinkedList[K, ListMap.Node[K
 
   def clear() = data.clear()
 
-  def remove(x: K) = {
+  def removeInplace(x: K) = {
     val pc = locateKey(x)
     if (pc ne null) {
       data.deleteNodeAfter(pc._1)
@@ -92,7 +93,7 @@ object ListMap extends MapFactory[ListMap] {
     private[this] val r = new ListMap[K, V](new SinglyLinkedList[K, Node[K, V]])
     def sizeHint(n: Int) = {}
     def result = r
-    def addInplace(x: (K, V)) = r add x
+    def addInplace(x: (K, V)) = r addInplace x
   }
 
 }

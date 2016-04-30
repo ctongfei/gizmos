@@ -14,14 +14,14 @@ class DistinctQueue[Q[α] <: Queue[α], T: Equiv] private(private val inner: Q[T
 
   def push(x: T) = if (!seen(x)) {
     inner push x
-    seen add x
+    seen addInplace x
   }
 
   override def pushAll(xs: Traversable[T]) = {
     val buf = ArraySeq[T]()
     for (x ← xs)
       if (!seen(x)) {
-        seen add x
+        seen addInplace x
         buf appendInplace x
       } // buffers succeeding elements and push in batch
     inner pushAll buf

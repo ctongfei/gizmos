@@ -9,9 +9,10 @@ import poly.collection.node._
 
 /**
  * A sequence backed by a linked list.
+ *
  * @author Tongfei Chen
  */
-class ListSeq[T] private() extends AbstractSeq[T] with KeyMutableSeq[T] with HasKnownSize {
+class ListSeq[T] private() extends AbstractSeq[T] with KeyMutableSeq[T] {
 
   type Node = ListSeq.Node[T]
 
@@ -22,11 +23,14 @@ class ListSeq[T] private() extends AbstractSeq[T] with KeyMutableSeq[T] with Has
   private[poly] var lastNode: Node = dummy
 
   override def length = len
+  override def size = len
+  override def sizeKnown = true
 
   def headNode = dummy.next
 
   /**
    * Locates the ''i''th element in a singly linked list.
+   *
    * @param i Index
    * @return The previous node and the node that contains the ''i''-th element.
    */
@@ -46,6 +50,7 @@ class ListSeq[T] private() extends AbstractSeq[T] with KeyMutableSeq[T] with Has
 
   /**
    * Appends an element to the end of the singly linked list. $O1
+   *
    * @param x The element to be appended
    */
   def appendInplace(x: T) = {
@@ -57,6 +62,7 @@ class ListSeq[T] private() extends AbstractSeq[T] with KeyMutableSeq[T] with Has
 
   /**
    * Prepends an element to the start of the doubly linked list. $O1
+   *
    * @param x The element to be prepended.
    */
   def prependInplace(x: T) = {
@@ -67,6 +73,7 @@ class ListSeq[T] private() extends AbstractSeq[T] with KeyMutableSeq[T] with Has
 
   /**
    * Gets the ''i''-th element.
+   *
    * @param i Index
    * @return The ''i''-th element.
    */
@@ -74,6 +81,7 @@ class ListSeq[T] private() extends AbstractSeq[T] with KeyMutableSeq[T] with Has
 
   /**
    * Sets the ''i''-th element of this doubly linked list to the specified value.
+   *
    * @param i Index
    * @param x The new value
    */
@@ -84,10 +92,11 @@ class ListSeq[T] private() extends AbstractSeq[T] with KeyMutableSeq[T] with Has
 
   /**
    * Inserts an element at the ''i''-th position.
+   *
    * @param i Index
    * @param x New element
    */
-  def insertAt(i: Int, x: T) = {
+  def insertInplace(i: Int, x: T) = {
     val (prev, curr) = locate(i)
     val node = new Node(x, curr)
     prev.next = node
@@ -103,9 +112,10 @@ class ListSeq[T] private() extends AbstractSeq[T] with KeyMutableSeq[T] with Has
 
   /**
    * Removes the ''i''-th element.
+   *
    * @param i Index
    */
-  def deleteAt(i: Int) = {
+  def deleteInplace(i: Int) = {
     val (prev, curr) = locate(i)
     prev.next = curr.next
     len -= 1

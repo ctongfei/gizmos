@@ -8,15 +8,20 @@ import scala.language.higherKinds
 /**
  * @author Tongfei Chen
  */
-class PairMultiset[K: IntHashing, R: OrderedRing] private(private val data: HashMap[K, R])
+class PairMultiset[K: IntHashing, R: OrderedRing] private(private val data: KeyMutableMap[K, R])
   extends KeyMutableMultiset[K, R] {
 
   def equivOnKeys = Equiv[K]
   def ringOnCount = OrderedRing[R]
 
-  def remove(x: K, w: R = ringOnCount.one) = {
+  def removeInplace(x: K, w: R = ringOnCount.one) = {
     val u = data(x) - w
-    data(x) = function.max(ringOnCount.zero, u)
+    if (u == zero[R]) data.removeInplace(x)
+    data(x) = function.max(zero[R], u)
+  }
+
+  def removeAll(x: K) = {
+    data.removeInplace(x)
   }
 
   def multiplicity(k: K) = data(k)
@@ -25,7 +30,7 @@ class PairMultiset[K: IntHashing, R: OrderedRing] private(private val data: Hash
 
   def contains(k: K) = data.containsKey(k)
 
-  def add(x: K, w: R = ringOnCount.one) = data(x) += w
+  def addInplace(x: K, w: R = ringOnCount.one) = data(x) += w
 }
 
 object PairMultiset {
