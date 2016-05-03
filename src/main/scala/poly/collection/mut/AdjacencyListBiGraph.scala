@@ -7,11 +7,11 @@ import poly.collection._
 /**
  * @author Tongfei Chen
  */
-class AdjacencyListBiGraph[@sp(Int) K: Equiv, V, E] extends BiGraph[K, V, E] {
+class AdjacencyListBiGraph[@sp(Int) K: Eq, V, E] extends BiGraph[K, V, E] {
 
   type VertexInfo = AdjacencyListBiGraph.VertexInfo[K, V, E]
 
-  private val r = HashMap[K, VertexInfo]()
+  private val r = AutoMap[K, VertexInfo]()
 
   def apply(i: K): V = r(i).data
 
@@ -30,10 +30,10 @@ class AdjacencyListBiGraph[@sp(Int) K: Equiv, V, E] extends BiGraph[K, V, E] {
 object AdjacencyListBiGraph {
 
 
-  private[poly] class VertexInfo[K: Equiv, V, E] {
+  private[poly] class VertexInfo[K: Eq, V, E] {
     var data: V = _
     val pred = ListSet[K]()
-    val succ = HashMap[K, E]() // should be ListMap
+    val succ = AutoMap[K, E]() // should be ListMap
   }
 
 }

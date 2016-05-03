@@ -11,11 +11,11 @@ import poly.collection.impl.hashtable._
  * A hash set.
  * @author Tongfei Chen
  */
-class HashSet[T: IntHashing] private(val data: OpenHashTable[T, HashSet.Entry[T]]) extends KeyMutableSet[T] {
+class HashSet[T: Hashing] private(val data: OpenHashTable[T, HashSet.Entry[T]]) extends KeyMutableSet[T] {
 
   import HashSet._
 
-  def equivOnKeys = implicitly[IntHashing[T]]
+  def equivOnKeys = implicitly[Hashing[T]]
 
   def addInplace(x: T) = data.addEntry(new Entry(x))
 
@@ -32,11 +32,11 @@ class HashSet[T: IntHashing] private(val data: OpenHashTable[T, HashSet.Entry[T]
   override def size: Int = data.size
 }
 
-object HashSet extends FactoryWithIntHashing[HashSet] {
+object HashSet extends FactoryEv[HashSet, Hashing] {
 
   private[poly] class Entry[K](val key: K) extends OpenHashEntryLike[K, Entry[K]]
 
-  implicit def newBuilder[T: IntHashing]: Builder[T, HashSet[T]] = new Builder[T, HashSet[T]] {
+  implicit def newBuilder[T: Hashing]: Builder[T, HashSet[T]] = new Builder[T, HashSet[T]] {
     private[this] val s = new OpenHashTable[T, Entry[T]]()
     def addInplace(x: T) = s.addEntry(new Entry(x))
     def result = new HashSet[T](s)

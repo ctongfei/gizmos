@@ -1,32 +1,30 @@
 package poly.collection.factory
 
-import poly.algebra._
 import poly.collection._
 import poly.collection.conversion.FromScala._
 import poly.collection.builder._
 import scala.language.higherKinds
 
 /**
+ * Represents a factory of higher type [[C]] that when building, requires evidence of higher type [[Ev]]
+ * being endowed on the actual type of the elements.
  * @author Tongfei Chen
+ * @since 0.1.0
  */
-trait FactoryWithEquiv[+C[_]] {
-
+trait FactoryEv[+C[_], Ev[_]] {
   /** Returns a new builder of this collection type. */
-  implicit def newBuilder[T: Equiv]: Builder[T, C[T]]
+  implicit def newBuilder[T: Ev]: Builder[T, C[T]]
 
   /** Creates an empty collection. */
-  def empty[T: Equiv]: C[T] = newBuilder[T].result
+  def empty[T: Ev]: C[T] = newBuilder[T].result
 
   /** Creates a collection by adding the arguments into it. */
-  def apply[T: Equiv](xs: T*): C[T] = {
-    val b = newBuilder[T]
-    b addAllInplace xs
-    b.result
-  }
+  def apply[T: Ev](xs: T*): C[T] = from(xs)
 
   /** Creates a collection by adding all the elements in the specific traversable sequence. */
-  def from[T: Equiv](xs: Traversable[T]): C[T] = {
+  def from[T: Ev](xs: Traversable[T]): C[T] = {
     val b = newBuilder[T]
+    if (xs.sizeKnown) b.sizeHint(xs.size)
     b addAllInplace xs
     b.result
   }

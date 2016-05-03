@@ -14,7 +14,7 @@ object SearchTest extends App {
 
   val ss = new StateSpace[Int] {
     def succ(x: Int) = g(x)
-    def equivOnKeys = Equiv.default[Int]
+    def equivOnKeys = Eq.default[Int]
   }
 
   ss.depthFirstTraversal(0) foreach println

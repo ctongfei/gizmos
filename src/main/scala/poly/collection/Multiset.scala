@@ -18,7 +18,7 @@ import poly.algebra.specgroup._
  */
 trait Multiset[@sp(Int) K, @sp(Int, Double) R] extends KeyedLike[K, Multiset[K, R]] { self =>
 
-  implicit def equivOnKeys: Equiv[K]
+  implicit def equivOnKeys: Eq[K]
 
   /** Returns the ring structure endowed on the counts of this multiset. */
   implicit def ringOnCount: OrderedRing[R]
@@ -92,7 +92,7 @@ trait Multiset[@sp(Int) K, @sp(Int, Double) R] extends KeyedLike[K, Multiset[K, 
   }
 
   def product[L](that: Multiset[L, R]): Multiset[(K, L), R] = new AbstractMultiset[(K, L), R] {
-    def equivOnKeys = Equiv.product(self.equivOnKeys, that.equivOnKeys)
+    def equivOnKeys = Eq.product(self.equivOnKeys, that.equivOnKeys)
     implicit def ringOnCount = self.ringOnCount
     def multiplicity(k: (K, L)) = self.multiplicity(k._1) * that.multiplicity(k._2)
     def keys = self.keys product that.keys
@@ -154,8 +154,8 @@ trait Multiset[@sp(Int) K, @sp(Int, Double) R] extends KeyedLike[K, Multiset[K, 
 
 object Multiset {
 
-  def empty[K: Equiv, R: OrderedRing]: Multiset[K, R] = new Multiset[K, R] {
-    def equivOnKeys = Equiv[K]
+  def empty[K: Eq, R: OrderedRing]: Multiset[K, R] = new Multiset[K, R] {
+    def equivOnKeys = Eq[K]
     def multiplicity(k: K) = OrderedRing[R].zero
     def ringOnCount = OrderedRing[R]
     def keys = Iterable.empty
@@ -163,19 +163,19 @@ object Multiset {
   }
 
   /** Returns the implicit module structure on multisets. */
-  implicit def Module[K: Equiv, R: OrderedRing]: Module[Multiset[K, R], R] = new Module[Multiset[K, R], R] {
+  implicit def Module[K: Eq, R: OrderedRing]: Module[Multiset[K, R], R] = new Module[Multiset[K, R], R] {
     implicit def ringOnScalar = Ring[R]
     def scale(x: Multiset[K, R], k: R) = x scale k
     def add(x: Multiset[K, R], y: Multiset[K, R]) = x multisetAdd y
     def zero = Multiset.empty[K, R]
   }
 
-  implicit def Lattice[K: Equiv, R: OrderedRing]: Lattice[Multiset[K, R]] = new Lattice[Multiset[K, R]] {
+  implicit def Lattice[K: Eq, R: OrderedRing]: Lattice[Multiset[K, R]] = new Lattice[Multiset[K, R]] {
     def sup(x: Multiset[K, R], y: Multiset[K, R]) = x union y
     def inf(x: Multiset[K, R], y: Multiset[K, R]) = x intersect y
   }
 
-  implicit def ContainmentOrder[K: Equiv, R: OrderedRing]: PartialOrder[Multiset[K, R]] = new PartialOrder[Multiset[K, R]] {
+  implicit def ContainmentOrder[K: Eq, R: OrderedRing]: PartialOrder[Multiset[K, R]] = new PartialOrder[Multiset[K, R]] {
     def le(x: Multiset[K, R], y: Multiset[K, R]) = x subsetOf y
     override def eq(x: Multiset[K, R], y: Multiset[K, R]) = (x subsetOf y) && (y subsetOf x)
   }

@@ -16,7 +16,7 @@ import poly.collection.node._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-class LinkedHashMap[K: IntHashing, V] private(val data: OpenHashTable[K, LinkedHashMap.Entry[K, V]]) extends KeyMutableMap[K, V] {
+class LinkedHashMap[K: Hashing, V] private(val data: OpenHashTable[K, LinkedHashMap.Entry[K, V]]) extends KeyMutableMap[K, V] {
 
   import LinkedHashMap._
 
@@ -73,10 +73,10 @@ class LinkedHashMap[K: IntHashing, V] private(val data: OpenHashTable[K, LinkedH
 
   def containsKey(x: K) = data.locate(x) != null
 
-  def equivOnKeys = implicitly[IntHashing[K]]
+  def equivOnKeys = implicitly[Hashing[K]]
 }
 
-object LinkedHashMap extends MapFactoryWithIntHashing[LinkedHashMap] {
+object LinkedHashMap extends Factory2Ev[LinkedHashMap, Hashing] {
 
   private[poly] class Entry[K, V](val key: K, var value: V, var prev: Entry[K, V], var next: Entry[K, V])
     extends OpenHashEntryLike[K, Entry[K, V]] with BiSeqNode[(K, V)] {
@@ -84,7 +84,7 @@ object LinkedHashMap extends MapFactoryWithIntHashing[LinkedHashMap] {
     def isDummy = false
   }
 
-  implicit def newBuilder[K: IntHashing, V]: Builder[(K, V), LinkedHashMap[K, V]] = new Builder[(K, V), LinkedHashMap[K, V]] {
+  implicit def newBuilder[K: Hashing, V]: Builder[(K, V), LinkedHashMap[K, V]] = new Builder[(K, V), LinkedHashMap[K, V]] {
     private[this] val m = new LinkedHashMap[K, V](new OpenHashTable[K, Entry[K, V]])
     def addInplace(x: (K, V)) = m.addInplace(x)
     def result = m

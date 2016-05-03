@@ -66,5 +66,5 @@ class GreedyBestFirstIterator[S, C: OrderedAdditiveGroup](ss: WeightedStateSpace
 class AStarIterator[S, C: OrderedAdditiveGroup](ss: WeightedStateSpace[S, C], start: S, heuristic: S => C)
   extends WeightedSearcher[S, WithCostAndHeuristic[S, C], C](
     x => false,
-    DistinctPriorityQueue[BinaryHeap, WithCostAndHeuristic[S, C]]()(Equiv.byRef, BinaryHeap.newBuilder[WithCostAndHeuristic[S, C]](WithCostAndHeuristic.order)),
+    DistinctPriorityQueue[BinaryHeap, WithCostAndHeuristic[S, C]]()(Eq.byRef, BinaryHeap.newBuilder[WithCostAndHeuristic[S, C]](WithCostAndHeuristic.order)),
     start)(ss, WithCostAndHeuristic.WeightedSearchNodeInfo(heuristic))

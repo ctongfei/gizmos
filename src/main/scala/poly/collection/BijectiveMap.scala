@@ -11,7 +11,7 @@ import poly.algebra._
 trait BijectiveMap[K, V] extends Map[K, V] with Bijection[K, V] { self =>
 
   /** Returns the equivalence relation on the value set of this bijective map. */
-  def equivOnValues: Equiv[V]
+  def equivOnValues: Eq[V]
 
   /** Gets the corresponding key of a given value. */
   def invert(v: V): K

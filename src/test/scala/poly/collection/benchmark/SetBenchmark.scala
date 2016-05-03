@@ -3,7 +3,7 @@ package poly.collection.benchmark
 import org.scalameter.Measurer._
 import org.scalameter._
 import poly.collection._
-
+import poly.algebra.syntax._
 import scala.collection.mutable._
 import scala.util._
 

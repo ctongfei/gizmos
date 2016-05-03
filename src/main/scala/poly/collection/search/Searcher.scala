@@ -23,7 +23,7 @@ abstract class Searcher[S, N](
   shouldNotBePruned: N => Boolean,
   fringe: Queue[N],
   start: S)
-  (implicit S: StateSpace[S], N: SearchNodeInfo[N, S]) extends Iterator[S] {
+  (implicit S: StateSpace[S], N: SearchNodeInfo[N, S]) extends SearchIterator[N, S] {
 
   private[this] var curr: N = default[N]
 

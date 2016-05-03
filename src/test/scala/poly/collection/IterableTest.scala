@@ -2,6 +2,7 @@ package poly.collection
 
 import poly.collection.ops._
 import org.scalatest._
+import poly.collection.testutil._
 
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).

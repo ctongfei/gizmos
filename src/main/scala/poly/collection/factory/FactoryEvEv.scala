@@ -2,35 +2,28 @@ package poly.collection.factory
 
 import poly.algebra._
 import poly.collection._
-import poly.collection.builder._
 import poly.collection.conversion.FromScala._
+import poly.collection.builder._
 import scala.language.higherKinds
 
 /**
  * @author Tongfei Chen
  */
-trait FactoryWithAdditiveGroup[+C[_]] {
-
+trait FactoryEvEv[+C[_, _], EvA[_], EvB[_]] {
   /** Returns a new builder of this collection type. */
-  implicit def newBuilder[T: AdditiveGroup]: Builder[T, C[T]]
+  implicit def newBuilder[A: EvA, B: EvB]: Builder[A, C[A, B]]
 
   /** Creates an empty collection. */
-  def empty[T: AdditiveGroup]: C[T] = newBuilder[T].result
+  def empty[A: EvA, B: EvB]: C[A, B] = newBuilder[A, B].result
 
   /** Creates a collection by adding the arguments into it. */
-  def apply[T: AdditiveGroup](xs: T*): C[T] = {
-    val b = newBuilder[T]
-    b addAllInplace xs
-    b.result
-  }
+  def apply[A: EvA, B: EvB](xs: A*) = from(xs)
 
   /** Creates a collection by adding all the elements in the specific traversable sequence. */
-  def from[T: AdditiveGroup](xs: Traversable[T]): C[T] = {
-    val b = newBuilder[T]
+  def from[A: EvA, B: EvB](xs: Traversable[A]): C[A, B] = {
+    val b = newBuilder[A, B]
     b addAllInplace xs
     b.result
   }
-
-  //implicit def factory: CollectionFactoryWithAdditiveGroup[C] = this
 
 }

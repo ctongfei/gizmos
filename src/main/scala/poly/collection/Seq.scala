@@ -13,6 +13,7 @@ import scala.annotation.unchecked.{uncheckedVariance => uv}
 /**
  * Represents sequences that guarantee the same order every time it is traversed,
  * henceforth we can talk about indices on sequences.
+ *
  * @author Tongfei Chen
  * @since 0.1.0
  */
@@ -283,7 +284,7 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
 
   override def slice(i: Int, j: Int) = self.skip(i).take(j - i)
 
-  override def distinct[U >: T : Equiv]: Seq[T] = {
+  override def distinct[U >: T : Eq]: Seq[T] = {
     val set = AutoSet[U]()
     class DistinctNode(outer: SeqNode[T]) extends SeqNode[T] {
       def next: DistinctNode = {
@@ -303,7 +304,7 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
     ofDummyNode(new DistinctNode(self.dummy))
   }
 
-  override def distinctBy[U: Equiv](f: T => U): Seq[T] = {
+  override def distinctBy[U: Eq](f: T => U): Seq[T] = {
     val set = AutoSet[U]()
     class DistinctByNode(outer: SeqNode[T]) extends SeqNode[T] {
       def next: DistinctByNode = {
@@ -324,9 +325,9 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
     ofDummyNode(new DistinctByNode(self.dummy))
   }
 
-  def union[U >: T : Equiv](that: Seq[U]): Seq[U] = (this concat that).distinct
+  def union[U >: T : Eq](that: Seq[U]): Seq[U] = (this concat that).distinct
 
-  def intersect[U >: T : Equiv](that: Seq[U]): Seq[U] = (this filter AutoSet.from(that)).distinct
+  def intersect[U >: T : Eq](that: Seq[U]): Seq[U] = (this filter AutoSet.from(that)).distinct
 
   override def rotate(i: Int) = self.skip(i) ++ self.take(i)
 
@@ -420,7 +421,7 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
    *   (1, 2, 3, 4) startsWith (1, 2) == true
    * }}}
    */
-  def startsWith[U >: T : Equiv](pattern: Seq[U]): Boolean = {
+  def startsWith[U >: T : Eq](pattern: Seq[U]): Boolean = {
     val i = self.newIterator
     val j = pattern.newIterator
     var iHasNext = false
@@ -435,13 +436,13 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
     false
   }
 
-  def endsWith[U >: T : Equiv](pattern: Seq[U]) = {
+  def endsWith[U >: T : Eq](pattern: Seq[U]) = {
   }
 
   def asSeq: Seq[T] = ofDummyNode(dummy)
 
   override def equals(that: Any) = that match {
-    case (that: Seq[T]) => Equiv[T](poly.algebra.Equiv.default[T]).eq(this, that)
+    case (that: Seq[T]) => Eq[T](poly.algebra.Eq.default[T]).eq(this, that)
     case _ => false
   }
 
@@ -498,8 +499,12 @@ object Seq {
     ofDummyNode(new InfiniteSeqNode)
   }
 
-  implicit def Equiv[T: Equiv]: Equiv[Seq[T]] = new Equiv[Seq[T]] {
-    def eq(x: Seq[T], y: Seq[T]): Boolean = { //TODO: faster implementation using iterators?
+  // TYPECLASS INSTANCES
+
+  //TODO: should be implicit, but results in ambiguous implicits because of contravariant typeclass
+  def Eq[T: Eq]: Eq[Seq[T]] = new Eq[Seq[T]] {
+    def eq(x: Seq[T], y: Seq[T]): Boolean = {
+      //TODO: faster implementation using iterators?
       var xn = x.headNode
       var yn = y.headNode
       while (xn.notDummy && yn.notDummy) {
@@ -517,7 +522,8 @@ object Seq {
    * Returns the lexicographic order on sequences if an order on the elements is given.
    */
   def LexicographicOrder[T: WeakOrder]: WeakOrder[Seq[T]] = new WeakOrder[Seq[T]] {
-    def cmp(x: Seq[T], y: Seq[T]): Int = { //TODO: faster implementation using iterators?
+    def cmp(x: Seq[T], y: Seq[T]): Int = {
+      //TODO: faster implementation using iterators?
       var xn = x.headNode
       var yn = y.headNode
       while (xn.notDummy && yn.notDummy) {
@@ -532,7 +538,7 @@ object Seq {
   }
 
   implicit object Monad extends ConcatenativeMonad[Seq] {
-    def id[X](u: X) = ListSeq(u)
+    def id[X](u: X) = mut.ListSeq(u)
     def flatMap[X, Y](mx: Seq[X])(f: X => Seq[Y]) = mx flatMap f
     def empty[X] = Seq.empty
     def concat[X](sx: Seq[X], sy: Seq[X]) = sx concat sy
@@ -543,7 +549,8 @@ object Seq {
     def empty = Seq.empty
   }
 
-  implicit object Comonad extends Comonad[Seq] { //TODO: actually should be Comonad[NonEmptySeq]
+  implicit object Comonad extends Comonad[Seq] {
+    //TODO: actually should be Comonad[NonEmptySeq]
     def id[X](u: Seq[X]) = u.head
     def extend[X, Y](wx: Seq[X])(f: Seq[X] => Y) = wx.suffixes.map(f)
   }

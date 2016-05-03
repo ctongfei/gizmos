@@ -50,7 +50,7 @@ object FromScala {
   }
 
   implicit def scalaSetAsPoly[T](sset: sc.Set[T]): Set[T] = new AbstractSet[T] {
-    def equivOnKeys = Equiv.default[T]
+    def equivOnKeys = Eq.default[T]
     def keys = sset
     def contains(x: T) = sset contains x
   }
@@ -60,7 +60,7 @@ object FromScala {
     def containsKey(x: K) = smap contains x
     def apply(k: K) = smap(k)
     def ?(k: K) = smap get k
-    def equivOnKeys = Equiv.default[K]
+    def equivOnKeys = Eq.default[K]
   }
 
 

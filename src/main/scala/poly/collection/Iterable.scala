@@ -240,9 +240,9 @@ trait Iterable[+T] extends Traversable[T] { self =>
 
   override def takeUntil(f: T => Boolean) = takeWhile(x => !f(x))
 
-  override def slice(i: Int, j: Int): Iterable[T] = self.skip(i).take(j - i)
+  override def slice(i: Int, j: Int) = self.skip(i).take(j - i)
 
-  override def distinct[U >: T : Equiv]: Iterable[T] = ofIterator {
+  override def distinct[U >: T : Eq]: Iterable[U] = ofIterator {
     new Iterator[T] {
       private[this] val set = AutoSet[U]()
       private[this] val i = self.newIterator
@@ -259,7 +259,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
     }
   }
 
-  override def distinctBy[U: Equiv](f: T => U): Iterable[T] = ofIterator {
+  override def distinctBy[U: Eq](f: T => U) = ofIterator {
     new Iterator[T] {
       private[this] val set = AutoSet[U]()
       private[this] val i = self.newIterator
@@ -277,9 +277,9 @@ trait Iterable[+T] extends Traversable[T] { self =>
     }
   }
 
-  def union[U >: T : Equiv](that: Iterable[U]): Iterable[U] = (this concat that).distinct
+  def union[U >: T : Eq](that: Iterable[U]): Iterable[U] = (this concat that).distinct
 
-  def intersect[U >: T : Equiv](that: Iterable[U]): Iterable[U] = (this filter that.to(AutoSet)).distinct
+  def intersect[U >: T : Eq](that: Iterable[U]): Iterable[U] = (this filter that.to(AutoSet)).distinct
 
   override def rotate(n: Int): Iterable[T] = self.skip(n) ++ self.take(n)
 

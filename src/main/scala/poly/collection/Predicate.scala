@@ -68,6 +68,6 @@ object Predicate {
     def or(x: Predicate[T], y: Predicate[T]) = x | y
     def bot = Predicate.empty
   }
-  // Order or Equiv will not be implemented: not computable on a Turing machine!
+  // Order or Eq will not be implemented: not computable on a Turing machine!
 
 }

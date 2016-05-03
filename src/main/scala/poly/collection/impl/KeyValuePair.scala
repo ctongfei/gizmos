@@ -34,8 +34,8 @@ object KeyValuePair {
   def apply[@sp(Int) K, V](key: K, value: V) = new KeyValuePair(key, value)
 
   /** Returns a hashing function on key-value pairs that operates only on the key. */
-  implicit def hashByKey[@sp(Int) K, V](implicit K: IntHashing[K]): IntHashing[KeyValuePair[K, V]] =
-    new IntHashing[KeyValuePair[K, V]] {
+  implicit def hashByKey[@sp(Int) K, V](implicit K: Hashing[K]): Hashing[KeyValuePair[K, V]] =
+    new Hashing[KeyValuePair[K, V]] {
       def hash(x: KeyValuePair[K, V]) = K.hash(x.key)
       def eq(x: KeyValuePair[K, V], y: KeyValuePair[K, V]) = x.key === y.key
     }
@@ -47,8 +47,8 @@ object KeyValuePair {
     }
 
   /** Returns an equivalence relation on key-value pairs that is based on the equivalence relation on the key. */
-  implicit def equivByKey[@sp(Int) K: Equiv, V]: Equiv[KeyValuePair[K, V]] =
-    new Equiv[KeyValuePair[K, V]] {
+  implicit def equivByKey[@sp(Int) K: Eq, V]: Eq[KeyValuePair[K, V]] =
+    new Eq[KeyValuePair[K, V]] {
       def eq(x: KeyValuePair[K, V], y: KeyValuePair[K, V]) = x.key === y.key
     }
 }

@@ -11,6 +11,7 @@ import scala.language.implicitConversions
 /**
  * Represents an indexed sequence.
  * Indexed sequences should support efficient random access (typically O(1), sometimes may be O(log ''n'')).
+ *
  * @author Tongfei Chen
  * @since 0.1.0
  */
@@ -155,7 +156,8 @@ trait IndexedSeq[+T] extends BiSeq[T] { self =>
 
   /**
     * Rearranges the elements in this indexed sequence according to a permutation. $LAZY
-    * @param p A permutation which is of the same length as this sequence
+   *
+   * @param p A permutation which is of the same length as this sequence
     * @return A permuted sequence
     * @example {{{('a', 'b', 'c') permuteBy Permutation(1, 2, 0) == ('b', 'c', 'a')}}}
     */
@@ -168,6 +170,7 @@ trait IndexedSeq[+T] extends BiSeq[T] { self =>
   /**
    * Pretends that this sequence is sorted under the given order.
    * (WARNING: Actual orderedness is not guaranteed! The user should make sure that it is sorted.)
+   *
    * @param U The implicit order
    * @return A sorted order
    */
@@ -201,10 +204,16 @@ object IndexedSeq {
     def fastApply(i: Int): T = f(i)
   }
 
-  implicit def Equiv[T: Equiv]: Equiv[IndexedSeq[T]] = new Equiv[IndexedSeq[T]] {
-    def eq(x: IndexedSeq[T], y: IndexedSeq[T]) = {
-      if (x.length != y.length) false
-      else x.keys.forall(i => x(i) === y(i))
+  //TODO: should be implicit, but results in ambiguous implicits because of contravariant typeclass
+  def Eq[T: Eq]: Eq[IndexedSeq[T]] = new Eq[IndexedSeq[T]] {
+    def eq(x: IndexedSeq[T], y: IndexedSeq[T]): Boolean = {
+      if (x.fastLength != y.fastLength) false
+      else {
+        FastLoop.ascending(0, x.fastLength, 1) { i =>
+          if (x(i) !== y(i)) return false
+        }
+        true
+      }
     }
   }
 
@@ -219,7 +228,7 @@ object IndexedSeq {
       case _ => false
     }
   }
-
 }
+
 
 abstract class AbstractIndexedSeq[+T] extends IndexedSeq[T]

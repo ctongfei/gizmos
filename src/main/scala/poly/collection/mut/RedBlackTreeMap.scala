@@ -39,7 +39,7 @@ class RedBlackTreeMap[K, V] private(private val data: java.util.TreeMap[K, V])
   def containsKey(x: K) = data.containsKey(x)
 }
 
-object RedBlackTreeMap extends SortedMapFactory[RedBlackTreeMap] {
+object RedBlackTreeMap extends Factory2Ev[RedBlackTreeMap, WeakOrder] {
 
   implicit def newBuilder[K, V](implicit K: WeakOrder[K]): Builder[(K, V), RedBlackTreeMap[K, V]] =
     new Builder[(K, V), RedBlackTreeMap[K, V]] {

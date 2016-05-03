@@ -19,14 +19,12 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
 
   /**
    * Returns all key-value pairs stored in this map.
- *
    * @return An iterable sequence of key-value pairs.
    */
   def pairs: Iterable[(K, V)]
 
   /**
    * Optionally retrieves the value associated with the specified key.
- *
    * @param k The given key
    * @return The associated value. If the key is not found, [[None]] will be returned.
    */
@@ -36,8 +34,7 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
    * Retrieves the value associated with the specified key.
    * If the key is not found, its behavior is undefined
    * (may or may not throw an exception. This is a deliberate design for efficiency).
-   * For maximum safety, use `?` to optionally access an element.
- *
+   * For maximum safety, use [[?]] to optionally access an element.
    * @param k The given key
    * @return The associated value of ''k''
    * @throws KeyNotFoundException if key not found (may or may not throw)
@@ -49,6 +46,7 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
 
   /**
    * Checks if the specified key is present in this map.
+   *
    * @return Whether the key exists in this map
    */
   def containsKey(x: K): Boolean
@@ -96,6 +94,7 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
    *   K => V        V => W          K => W
    *    self  . map ( that )    ==   result
    * }}}
+   *
    * @note This function is equivalent to the Scala library's `mapValues`.
    *       To transform all pairs in this map, use `this.pairs.map`.
    * @example {{{ {1 -> 2, 2 -> 3} map {_ * 2} == {1 -> 4, 2 -> 6} }}}
@@ -113,6 +112,7 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
 
   /**
    * Returns the product map of two maps. $LAZY
+   *
    * @example {{{
    *   {1 -> 'A', 2 -> 'B'} product {true -> 1, false -> 0} ==
    *      {(1, true)  -> ('A', 1),
@@ -122,7 +122,7 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
    * }}}
    */
   def cartesianProduct[L, W](that: Map[L, W]): Map[(K, L), (V, W)] = new AbstractMap[(K, L), (V, W)] {
-    def equivOnKeys = Equiv.product(self.equivOnKeys, that.equivOnKeys)
+    def equivOnKeys = Eq.product(self.equivOnKeys, that.equivOnKeys)
     def containsKey(k: (K, L)) = self.containsKey(k._1) && that.containsKey(k._2)
     def ?(k: (K, L)) = for (v ← self ? k._1; v1 ← that ? k._2) yield (v, v1)
     def apply(k: (K, L)) = (self(k._1), that(k._2))
@@ -132,6 +132,7 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
 
   /**
    * Zips two maps with the same key type into one map that maps keys to a pair of values. $LAZY
+   *
    * @note This function is not the same as the Scala library's `zip`. Please
    *       use `pairs.zip` instead for zipping a sequence of pairs.
    * @example {{{{1 -> 2, 2 -> 3} zip {2 -> 5, 3 -> 6} == {2 -> (3, 5)} }}}
@@ -232,7 +233,7 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
     def containsKey(x: K) = self.containsKey(x)
   }
 
-
+  // SYMBOLIC ALIASES
   def |>[W](f: V => W) = self map f
   def |<[J](f: Bijection[J, K]) = self contramap f
   def |~|[W](that: Map[K, W]) = self zip that
@@ -242,23 +243,44 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
   def ⟖[W](that: Map[K, W]) = self rightOuterJoin that
   def ⟗[W](that: Map[K, W]) = self fullOuterJoin that
 
+  // OVERRIDING JAVA METHODS
   override def toString = "{" + pairs.map { case (k, v) => s"$k → $v" }.buildString(", ") + "}"
 
+  override def equals(that: Any) = that match {
+    case that: Map[K, V] => Map.Eq(Eq.default[V]).eq(this, that)
+    case _ => false
+  }
 
+  override def hashCode = ???
 
 }
 
-object Map extends MapLowPriorityImplicits {
+object Map extends MapLowPriorityTypeclassInstances {
 
-  def empty[K: Equiv]: Map[K, Nothing] = new AbstractMap[K, Nothing] {
+  def empty[K: Eq]: Map[K, Nothing] = new AbstractMap[K, Nothing] {
     def apply(k: K) = throw new KeyNotFoundException[K](k)
     def ?(k: K) = None
-    def equivOnKeys = Equiv[K]
+    def equivOnKeys = poly.algebra.Eq[K]
     def pairs = Iterable.empty
     def containsKey(x: K) = false
   }
 
-  // TYPECLASS INSTANCES
+  //TODO: dynamic resolution of implicit Eq based on runtime type
+  //TODO: this should be resolved at compile time
+  implicit def __dynamicEq[K, V: Eq]: Eq[Map[K, V]] = new Eq[Map[K, V]] {
+    def eq(x: Map[K, V], y: Map[K, V]) = (x, y) match {
+      case (x: IndexedSeq[V], y: IndexedSeq[V]) => IndexedSeq.Eq[V].eq(x, y)
+      case (x: Seq[V], y: Seq[V]) => Seq.Eq[V].eq(x, y)
+      case _ => Map.Eq[K, V].eq(x, y)
+    }
+  }
+
+  //TODO: should be implicit, but results in ambiguous implicits because of contravariant typeclass
+  /** Returns the equivalence relation on maps as long as there is an equivalence relation on the value type. */
+  def Eq[K, V: Eq]: Eq[Map[K, V]] = new Eq[Map[K, V]] {
+    def eq(x: Map[K, V], y: Map[K, V]) =
+      (x.keys forall { k => x(k) === y(k) }) && (y.keys forall { k => y(k) === x(k) })
+  }
 
   /** Returns the functor on maps. */
   implicit def Functor[K]: Functor[({type λ[+V] = Map[K, V]})#λ] = new Functor[({type λ[+V] = Map[K, V]})#λ] {
@@ -266,7 +288,7 @@ object Map extends MapLowPriorityImplicits {
   }
 
   /** Returns the vector space on maps given the value set of the map forms a field. */
-  implicit def VectorSpace[K: Equiv, F: Field]: VectorSpace[Map[K, F], F] = new VectorSpace[Map[K, F], F] {
+  implicit def VectorSpace[K: Eq, F: Field]: VectorSpace[Map[K, F], F] = new VectorSpace[Map[K, F], F] {
     private[this] val F = Field[F]
     def fieldOnScalar = F
     def scale(x: Map[K, F], k: F) = x map (_ * k)
@@ -276,13 +298,14 @@ object Map extends MapLowPriorityImplicits {
       case (None, Some(b)) => b
       case _ => F.zero
     }
-    def zero = empty[K]
+    def zero = Map.empty[K]
   }
+
 }
 
-trait MapLowPriorityImplicits {
+trait MapLowPriorityTypeclassInstances {
   /** Returns the module on maps given the value set of the map forms a ring. */
-  implicit def Module[K: Equiv, R: Ring]: Module[Map[K, R], R] = new Module[Map[K, R], R] {
+  implicit def Module[K: Eq, R: Ring]: Module[Map[K, R], R] = new Module[Map[K, R], R] {
     private[this] val R = Ring[R]
     def ringOnScalar = R
     def scale(x: Map[K, R], k: R) = x map (_ * k)
@@ -295,6 +318,7 @@ trait MapLowPriorityImplicits {
     def zero = Map.empty[K]
   }
 }
+
 
 abstract class AbstractMap[@sp(Int) K, +V] extends Map[K, V]
 

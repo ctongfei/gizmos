@@ -10,12 +10,12 @@ import poly.collection.impl._
 import poly.macroutil._
 
 /**
-  * An implementation of a binary min-heap.
-  * The least element under the specific order will surface at the top of the heap.
- *
-  * @author Tongfei Chen
-  */
-class BinaryHeap[T] private[poly](val data: ResizableSeq[T])(implicit val order: WeakOrder[T]) extends PriorityQueue[T] {
+ * An implementation of a binary min-heap.
+ * The least element under the specific order will surface at the top of the heap.
+ * @since 0.1.0
+ * @author Tongfei Chen
+ */
+class BinaryHeap[T] private(private val data: ResizableSeq[T])(implicit val orderOnElements: WeakOrder[T]) extends PriorityQueue[T] {
 
   import BinaryTree._
 
@@ -24,7 +24,7 @@ class BinaryHeap[T] private[poly](val data: ResizableSeq[T])(implicit val order:
     if (l < data.fastLength - 1 && data(l + 1) < data(l)) l + 1 else l
   }
 
-  protected def siftUp(i: Int): Unit = {
+  private def siftUp(i: Int): Unit = {
     var p = i
     val t = data(p)
     while (p > 0 && t < data(parentIndex(p))) {
@@ -34,7 +34,7 @@ class BinaryHeap[T] private[poly](val data: ResizableSeq[T])(implicit val order:
     data(p) = t
   }
 
-  protected def siftDown(i: Int): Unit = {
+  private def siftDown(i: Int): Unit = {
     var p = i
     var c = smallerChildIndex(p)
     val t = data(p)
@@ -46,12 +46,12 @@ class BinaryHeap[T] private[poly](val data: ResizableSeq[T])(implicit val order:
     data(p) = t
   }
 
-  def push(x: T): Unit = {
+  def push(x: T) = {
     data.appendInplace(x)
     siftUp(data.fastLength - 1)
   }
 
-  def pop(): T = {
+  def pop() = {
     val front = data(0)
     data.swapInplace(0, data.length - 1)
     data.deleteInplace(data.length - 1)
@@ -63,15 +63,13 @@ class BinaryHeap[T] private[poly](val data: ResizableSeq[T])(implicit val order:
 
   def elements: Iterable[T] = data
 
-  override def size: Int = data.length
+  override def size = data.length
 
 }
 
+object BinaryHeap extends FactoryEv[BinaryHeap, WeakOrder] {
 
-
-object BinaryHeap extends FactoryWithOrder[BinaryHeap] {
-
-  implicit def newBuilder[T:WeakOrder]: Builder[T, BinaryHeap[T]] = new Builder[T, BinaryHeap[T]] {
+  implicit def newBuilder[T: WeakOrder]: Builder[T, BinaryHeap[T]] = new Builder[T, BinaryHeap[T]] {
     private[this] val data = new ResizableSeq[T]()
     def sizeHint(n: Int): Unit = data.ensureCapacity(n)
     def addInplace(x: T): Unit = data.appendInplace(x)

@@ -12,7 +12,7 @@ import poly.collection.mut._
  */
 trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
 
-  def equivOnKeys: Equiv[T]
+  def equivOnKeys: Eq[T]
 
   /**
     * Returns an iterable sequence of all the elements in this set.
@@ -23,7 +23,7 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
   /** Tests if an element belongs to this set. */
   def contains(x: T): Boolean
 
-  def containsKey(x: T) = contains(x)
+  final def containsKey(x: T) = contains(x)
 
   final def notContains(x: T) = !contains(x)
 
@@ -79,7 +79,7 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
 
   /** Returns the cartesian product of two sets. */
   def product[U](that: Set[U]): Set[(T, U)] = new AbstractSet[(T, U)] {
-    def equivOnKeys = Equiv.product(self.equivOnKeys, that.equivOnKeys)
+    def equivOnKeys = Eq.product(self.equivOnKeys, that.equivOnKeys)
     def keys = self.keys product that.keys
     override def size = self.size * that.size
     def contains(k: (T, U)) = self.containsKey(k._1) && that.containsKey(k._2)
@@ -118,12 +118,10 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
   override def filterKeys(f: T => Boolean): Set[T] = new AbstractSet[T] {
     def equivOnKeys = self.equivOnKeys
     def contains(x: T) = self.contains(x) && f(x)
-    def keys = self.keys.filter(f)
+    def keys = self.keys filter f
   }
 
-  def map[U: Equiv](f: T => U): Set[U] = {
-    self.elements.map(f).to(AutoSet)
-  }
+  def map[U: Eq](f: T => U): Set[U] = elements map f to AutoSet
 
   def map[U](f: Bijection[T, U]): Set[U] = new AbstractSet[U] {
     def equivOnKeys = self.equivOnKeys contramap f.invert
@@ -131,12 +129,23 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
     def contains(x: U) = self contains f.invert(x)
   }
 
-  def flatMap[U: Equiv](f: T => Set[U]): Set[U] = {
-    self.elements.flatMap { x: T => f(x).elements }.to(AutoSet)
+  def flatMap[U: Eq](f: T => Set[U]): Set[U] = {
+    elements flatMap { x: T => f(x).elements } to AutoSet
   }
 
   def zip(that: Set[T]): Set[T] = this & that
 
+  /**
+   * Wraps each element of this element with a bijective function.
+   * {{{
+   *   Set[T]              S <=> T         Set[S]
+   *    self  . contramap  (  f  )    ==   result
+   * }}}
+   * @example {{{
+   *   {1, 2, 3} contramap {'A' <-> 1, 'B' <-> 2, 'C' <-> 3}
+   *   == {'A', 'B', 'C'}
+   * }}}
+   */
   def contramap[S](f: Bijection[S, T]): Set[S] = new AbstractSet[S] {
     def equivOnKeys = self.equivOnKeys contramap f
     def keys = self.elements.map(f.invert)
@@ -199,23 +208,25 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
   def ⊇(that: Set[T]) = this supersetOf that
   def ∩(that: Set[T]) = this & that
   def ∪(that: Set[T]) = this | that
+  def ∋(x: T) = this contains x
+  def ∌(x: T) = this notContains x
 
   override def toString = "{" + elements.buildString(", ") + "}"
 
   override def equals(that: Any) = that match {
-    case that: Set[T] => Set.ContainmentOrder[T].eq(this, that)
+    case that: Set[T] => Set.Eq[T].eq(this, that)
     case _ => false
   }
 
-  // hashCode: elements.fold(initialValue, _ xor _)?
+  // hashCode: elements.fold(0xdeadbeef, _ xor _)?
 
 }
 
 object Set {
 
   /** Creates an empty set of a specific type. */
-  def empty[T: Equiv]: Set[T] = new Set[T] {
-    def equivOnKeys = poly.algebra.Equiv[T]
+  def empty[T: Eq]: Set[T] = new Set[T] {
+    def equivOnKeys = poly.algebra.Eq[T]
     override def size = 0
     def keys = Iterable.empty
     def contains(x: T) = false
@@ -227,14 +238,14 @@ object Set {
   }
 
   /** Returns the lattice on sets. */
-  implicit def Lattice[T]: Lattice[Set[T]] with BoundedLowerSemilattice[Set[T]] =
+  implicit def Lattice[T: Eq]: Lattice[Set[T]] with BoundedLowerSemilattice[Set[T]] =
     new Lattice[Set[T]] with BoundedLowerSemilattice[Set[T]] {
-      def bot = empty[T](poly.algebra.Equiv.default[T])
+      def bot = empty[T]
       def inf(x: Set[T], y: Set[T]) = x & y
       def sup(x: Set[T], y: Set[T]) = x | y
   }
 
-  implicit def Equiv[T]: Equiv[Set[T]] = new Equiv[Set[T]] {
+  implicit def Eq[T]: Eq[Set[T]] = new Eq[Set[T]] {
     def eq(x: Set[T], y: Set[T]) = (x ⊆ y) && (x ⊇ y)
   }
 

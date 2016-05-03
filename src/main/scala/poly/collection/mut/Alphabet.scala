@@ -9,14 +9,14 @@ import scala.language.higherKinds
  * @since 0.1.0
  * @author Tongfei Chen
  */
-class Alphabet[T: Equiv] private(
+class Alphabet[T: Eq] private(
   private val w2i: KeyMutableMap[T, Int],
   private val i2w: ArraySeq[T])
   extends BijectiveMap[T, Int]
 {
 
-  def equivOnKeys = implicitly[Equiv[T]]
-  def equivOnValues = Equiv.default[Int]
+  def equivOnKeys = implicitly[Eq[T]]
+  def equivOnValues = Eq.default[Int]
 
   def apply(x: T): Int = w2i ? x match {
     case Some(i) => i
@@ -48,12 +48,12 @@ class Alphabet[T: Equiv] private(
 
 object Alphabet {
 
-  def apply[T: Equiv] = new Alphabet(AutoMap[T, Int](), ArraySeq())
+  def apply[T: Eq] = new Alphabet(AutoMap[T, Int](), ArraySeq())
 
   /**
    * Creates an alphabet with a `nil` element. This element will be mapped to index `0`.
    */
-  def withNil[T: Equiv](nil: T) = {
+  def withNil[T: Eq](nil: T) = {
     new Alphabet[T](AutoMap[T, Int](nil → 0), ArraySeq(nil))
   }
 

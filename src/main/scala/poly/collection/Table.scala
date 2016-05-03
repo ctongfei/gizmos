@@ -23,7 +23,7 @@ trait Table[+T] extends Map[(Int, Int), T] { self =>
   def apply(pair: (Int, Int)): T = apply(pair._1, pair._2)
   def ?(x: (Int, Int)): Option[T] = if (containsKey(x)) Some(self(x)) else None
 
-  def equivOnKeys = Equiv.default[(Int, Int)]
+  def equivOnKeys = Eq.default[(Int, Int)]
 
   def pairs = triples map { case (i, j, e) => ((i, j), e) }
 
@@ -103,7 +103,7 @@ trait Table[+T] extends Map[(Int, Int), T] { self =>
   def sliding(i: Int, j: Int, rowStep: Int = 1, colStep: Int = 1): Table[Table[T]] = ???
 
   override def equals(that: Any) = that match {
-    case other: Table[T] => Table.Equiv[T](Equiv.default[T]).eq(self, other)
+    case other: Table[T] => Table.Eq[T](Eq.default[T]).eq(self, other)
     case _ => false
   }
 
@@ -126,7 +126,7 @@ object Table {
     def numCols = nc
   }
 
-  implicit def Equiv[T: Equiv]: Equiv[Table[T]] = new Equiv[Table[T]] {
+  implicit def Eq[T: Eq]: Eq[Table[T]] = new Eq[Table[T]] {
     def eq(x: Table[T], y: Table[T]): Boolean = {
       if (x.numRows != y.numRows) return false
       if (x.numCols != y.numCols) return false

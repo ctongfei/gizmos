@@ -9,7 +9,7 @@ import poly.collection.node._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-class DisjointSets[T] private(private val data: HashMap[T, DisjointSets.Node]) extends Equiv[T] {
+class DisjointSets[T] private(private val data: KeyMutableMap[T, DisjointSets.Node]) extends Eq[T] {
 
   import DisjointSets._
 
@@ -61,7 +61,7 @@ object DisjointSets {
     def isDummy = false
   }
 
-  def apply[T: IntHashing](xs: T*): DisjointSets[T] =
-    new DisjointSets[T](HashMap(xs.map(t => t → new Node()): _*))
+  def apply[T: Eq](xs: T*): DisjointSets[T] =
+    new DisjointSets[T](AutoMap(xs.map(t => t → new Node()): _*))
 
 }

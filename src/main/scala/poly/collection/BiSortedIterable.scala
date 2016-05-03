@@ -6,8 +6,6 @@ package poly.collection
  */
 trait BiSortedIterable[T] extends BiIterable[T] with SortedIterable[T] { self =>
 
-  def max = self.last
-
   override def reverse: BiSortedIterable[T] = new BiSortedIterable[T] {
     implicit def orderOnElements = self.orderOnElements.reverse
     def newReverseIterator = self.newIterator

@@ -21,7 +21,7 @@ class Permutation private(private val a1: Array[Int], private val a2: Array[Int]
   def fastApply(x: Int) = a1(x)
   def invert(y: Int) = a2(y)
 
-  def equivOnValues = Equiv[Int]
+  def equivOnValues = Eq[Int]
 
   def containsValue(y: Int) = containsKey(y)
 

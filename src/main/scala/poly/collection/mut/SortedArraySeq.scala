@@ -24,7 +24,7 @@ class SortedArraySeq[T] private(private val data: SortedArray[T]) extends Mutabl
 
 }
 
-object SortedArraySeq extends FactoryWithOrder[SortedArraySeq] {
+object SortedArraySeq extends FactoryEv[SortedArraySeq, WeakOrder] {
 
   def newBuilder[T:WeakOrder]: Builder[T, SortedArraySeq[T]] = new Builder[T, SortedArraySeq[T]] {
     val ra = new ResizableSeq[T]()

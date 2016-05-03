@@ -16,8 +16,8 @@ class AllPairsShortestPath[K, E : OrderedAdditiveGroup : HasTop]
 
   private[this] val max = top[E]
 
-  private[this] val d = HashMap[(K, K), E]()
-  private[this] val mid = HashMap[(K, K), K]()
+  private[this] val d = HashMap[(K, K), E]()(???)
+  private[this] val mid = HashMap[(K, K), K]()(???)
 
   for (i ← graph.keys; j ← graph.keys) {
     if (i == j) d(i → j) = zero[E]

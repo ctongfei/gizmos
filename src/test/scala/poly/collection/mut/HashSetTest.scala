@@ -1,10 +1,8 @@
 package poly.collection.mut
 
 import poly.algebra.syntax._
-import poly.collection._
-import poly.collection.impl._
+import poly.collection.testutil.TestUtil._
 
-import scala._
 import scala.util._
 
 /**
@@ -17,8 +15,6 @@ object HashSetTest extends App {
   val pls = LinkedHashSet[Int](1, 2, 3, 4, 5, 6, 7)
 
   val plm = LinkedHashMap[Int, String](1 → "a", 3 → "4", 4 → "b")
-
-  import TestUtil._
 
   val p = HashSet[Double]()
   val s = scala.collection.mutable.HashSet[Double]()

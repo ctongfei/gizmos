@@ -10,7 +10,7 @@ object ShuffleTest extends App {
 
   val a = ArraySeq(1, 2, 3)
 
-  val b = Iterable.infinite(a.shuffle).take(10000).group(IndexedSeq.Equiv[Int]).map(_.size)
+  val b = Iterable.infinite(a.shuffle).take(10000).group.map(_.size)
 
   val bp = 0
 

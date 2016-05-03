@@ -18,18 +18,18 @@ trait GraphArc[@sp(Int) K, +V, +E] { self =>
 
   def target: GraphNode[K, V, E]
 
-  def equivOnKey: Equiv[K]
+  def equivOnKey: Eq[K]
 
   def mapNode[W](f: V => W): GraphArc[K, W, E] = new GraphArc[K, W, E] {
     def source: GraphNode[K, W, E] = self.source.mapNode(f)
-    def equivOnKey: Equiv[K] = self.equivOnKey
+    def equivOnKey: Eq[K] = self.equivOnKey
     def target: GraphNode[K, W, E] = self.target.mapNode(f)
     def data: E = self.data
   }
 
   def mapArc[F](f: E => F): GraphArc[K, V, F] = new GraphArc[K, V, F] {
     def source: GraphNode[K, V, F] = self.source.mapArc(f)
-    def equivOnKey: Equiv[K] = self.equivOnKey
+    def equivOnKey: Eq[K] = self.equivOnKey
     def target: GraphNode[K, V, F] = self.target.mapArc(f)
     def data: F = f(self.data)
   }
@@ -38,12 +38,12 @@ trait GraphArc[@sp(Int) K, +V, +E] { self =>
 
 object GraphArc {
 
-  def apply[@sp(Int) K: Equiv, V, E](s: GraphNode[K, V, E], t: GraphNode[K, V, E], d: E): GraphArc[K, V, E]
+  def apply[@sp(Int) K: Eq, V, E](s: GraphNode[K, V, E], t: GraphNode[K, V, E], d: E): GraphArc[K, V, E]
     = new GraphArc[K, V, E] {
     def source = s
     def target = t
     def data = d
-    def equivOnKey: Equiv[K] = Equiv[K]
+    def equivOnKey: Eq[K] = Eq[K]
   }
 
 }

@@ -15,7 +15,7 @@ import poly.collection.node._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-class LinkedHashSet[T: IntHashing] private(val data: OpenHashTable[T, LinkedHashSet.Entry[T]]) extends KeyMutableSet[T] {
+class LinkedHashSet[T: Hashing] private(val data: OpenHashTable[T, LinkedHashSet.Entry[T]]) extends KeyMutableSet[T] {
 
   import LinkedHashSet._
 
@@ -42,7 +42,7 @@ class LinkedHashSet[T: IntHashing] private(val data: OpenHashTable[T, LinkedHash
     data.removeEntry(x)
   }
 
-  def equivOnKeys = implicitly[IntHashing[T]]
+  def equivOnKeys = implicitly[Hashing[T]]
 
   def keys: BiSeq[T] = BiSeq.ofDummyNode(dummy)
 
@@ -51,7 +51,7 @@ class LinkedHashSet[T: IntHashing] private(val data: OpenHashTable[T, LinkedHash
   def contains(x: T) = data.locate(x) != null
 }
 
-object LinkedHashSet extends FactoryWithIntHashing[LinkedHashSet] {
+object LinkedHashSet extends FactoryEv[LinkedHashSet, Hashing] {
 
   private[poly] class Entry[K](val key: K, var prev: Entry[K], var next: Entry[K])
     extends OpenHashEntryLike[K, Entry[K]] with BiSeqNode[K] {
@@ -59,7 +59,7 @@ object LinkedHashSet extends FactoryWithIntHashing[LinkedHashSet] {
     def isDummy = false
   }
 
-  implicit def newBuilder[T: IntHashing]: Builder[T, LinkedHashSet[T]] = new Builder[T, LinkedHashSet[T]] {
+  implicit def newBuilder[T: Hashing]: Builder[T, LinkedHashSet[T]] = new Builder[T, LinkedHashSet[T]] {
     private[this] val s = new LinkedHashSet[T](new OpenHashTable[T, Entry[T]]())
     def addInplace(x: T) = s.addInplace(x)
     def result = s

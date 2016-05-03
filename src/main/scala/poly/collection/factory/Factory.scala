@@ -19,15 +19,12 @@ trait Factory[+C[_]] {
   def empty[T]: C[T] = newBuilder[T].result
 
   /** Creates a collection by adding the arguments into it. */
-  def apply[T](xs: T*): C[T] = {
-    val b = newBuilder[T]
-    b addAllInplace xs
-    b.result
-  }
+  def apply[T](xs: T*): C[T] = from(xs)
 
   /** Creates a collection by adding all the elements in the specific traversable sequence. */
   def from[T](xs: Traversable[T]): C[T] = {
     val b = newBuilder[T]
+    if (xs.sizeKnown) b.sizeHint(xs.size)
     b addAllInplace xs
     b.result
   }

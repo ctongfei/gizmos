@@ -1,9 +1,10 @@
-package poly.collection
+package poly.collection.testutil
 
-import scala.{collection => sc}
-import scala.collection.{mutable => scm}
-import poly.{collection => pc}
 import poly.collection.{mut => pcm}
+import poly.{collection => pc}
+
+import scala.collection.{mutable => scm}
+import scala.{collection => sc}
 
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).

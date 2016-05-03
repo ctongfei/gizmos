@@ -1,9 +1,11 @@
 package poly.collection
 
+import java.util._
+
 import org.scalatest._
 import poly.collection.ops._
 import poly.algebra.syntax._
-import scala.util._
+import poly.collection.testutil._
 import TestUtil._
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).

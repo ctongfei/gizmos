@@ -52,10 +52,19 @@ object ops {
   implicit class withCollectionOps[T](val x: T) {
 
     /** Checks if this element belongs to the specific set. */
-    def in(set: Set[T]) = set contains x
+    def in[U >: T](set: Set[U]) = set contains x
+
+    /** Checks if this element does not belong to the specific set. */
+    def notIn[U >: T](set: Set[U]) = set notContains x
+
+    /** Checks if this element belongs to the specific set. */
+    def ∈[U >: T](set: Set[U]) = set contains x
+
+    /** Checks if this element does not belong to the specific set. */
+    def ∉[U >: T](set: Set[U]) = set notContains x
 
     /** Checks if this element belongs to the specific multiset. */
-    def in(mSet: Multiset[T, _]) = mSet contains x
+    def in[U >: T](mSet: Multiset[U, _]) = mSet contains x
 
     /**
      * Constructs a sequence of length 1 with this specific element.

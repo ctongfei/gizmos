@@ -11,11 +11,11 @@ import scala.collection.JavaConverters._
 /**
  * @author Tongfei Chen
  */
-class HashMap[K: IntHashing, V] private(private val data: OpenHashTable[K, HashMap.Entry[K, V]]) extends KeyMutableMap[K, V] {
+class HashMap[K: Hashing, V] private(private val data: OpenHashTable[K, HashMap.Entry[K, V]]) extends KeyMutableMap[K, V] {
 
   import HashMap._
 
-  val equivOnKeys = implicitly[IntHashing[K]]
+  val equivOnKeys = implicitly[Hashing[K]]
 
   def apply(k: K): V = data.locate(k).value
 
@@ -44,11 +44,11 @@ class HashMap[K: IntHashing, V] private(private val data: OpenHashTable[K, HashM
 
 }
 
-object HashMap extends MapFactoryWithIntHashing[HashMap] {
+object HashMap extends Factory2Ev[HashMap, Hashing] {
 
   private[poly] class Entry[K, V](val key: K, var value: V) extends OpenHashEntryLike[K, Entry[K, V]]
 
-  implicit def newBuilder[K: IntHashing, V]: Builder[(K, V), HashMap[K, V]] = new Builder[(K, V), HashMap[K, V]] {
+  implicit def newBuilder[K: Hashing, V]: Builder[(K, V), HashMap[K, V]] = new Builder[(K, V), HashMap[K, V]] {
     private val data = new OpenHashTable[K, Entry[K, V]]()
     def sizeHint(n: Int) = data.grow(n)
     def addInplace(x: (K, V)) = data.addEntry(new Entry(x._1, x._2))

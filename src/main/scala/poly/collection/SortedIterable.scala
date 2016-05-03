@@ -20,6 +20,12 @@ trait SortedIterable[T] extends Iterable[T] { self =>
   override def filterNot(f: T => Boolean) = filter(x => !f(x))
 
   /**
+   * Returns the unique elements of this iterable collection while retaining their original order.
+   * The equivalence function is this sorted iterable collection's inherent order.
+   */
+  def distinct: Iterable[T] = self.distinct(orderOnElements)
+
+  /**
    * Merges two sorted iterable collection into one sorted iterable collection. $LAZY
    * @param that Another sorted sequence. These two sequences must be sorted under the same order.
    * @return A merged sorted sequence
@@ -60,6 +66,8 @@ trait SortedIterable[T] extends Iterable[T] { self =>
   }
 
   def min = self.head
+
+  def max = self.last
 
   def mergeEagerly(that: SortedIterable[T]): SortedSeq[T] = {
     val ai = this.newIterator

@@ -8,7 +8,7 @@ import poly.algebra.specgroup._
  * @author Tongfei Chen
  * @since 0.1.0
  * @define LAZY <p> The resulting collection is '''lazily''' executed. </p>
- * @define EAGER The resulting collection is '''eagerly''' executed.
+ * @define EAGER <p> The resulting collection is '''eagerly''' executed. </p>
  * @define Onlogn Time complexity: O(n log n).
  * @define On Time complexity: O(n).
  * @define Ologn Time complexity: O(log n).
@@ -18,6 +18,6 @@ import poly.algebra.specgroup._
 trait Keyed[@sp(Int) K] {
 
   /** Returns the equivalence relation on keys. */
-  def equivOnKeys: Equiv[K]
+  def equivOnKeys: Eq[K]
 
 }
