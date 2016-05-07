@@ -49,7 +49,7 @@ object UndirectedGraph {
         case _ => false
       }
 
-    def equivOnKeys = graph.equivOnKeys
+    def eqOnKeys = graph.eqOnKeys
 
     override def hashCode = key1.## ^ key2.##
     def contains(x: K) = x == key1 || x == key2

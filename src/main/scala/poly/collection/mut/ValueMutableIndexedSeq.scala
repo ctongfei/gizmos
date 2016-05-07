@@ -19,7 +19,7 @@ trait ValueMutableIndexedSeq[T] extends ValueMutableSeq[T] with IndexedSeq[T] {
    * Sorts this sequence in-place using the order provided.
    * @param T The order for sorting
    */
-  def sortInplace()(implicit T: WeakOrder[T]): Unit = {
+  def sortInplace()(implicit T: Order[T]): Unit = {
     def quicksort(i: Int, j: Int): Unit = {
       var l = i
       var r = j
@@ -39,7 +39,7 @@ trait ValueMutableIndexedSeq[T] extends ValueMutableSeq[T] with IndexedSeq[T] {
     quicksort(0, length - 1)
   }
 
-  def sortInplaceUsing[U: WeakOrder](w: IndexedSeq[U]): Unit = {
+  def sortInplaceUsing[U: Order](w: IndexedSeq[U]): Unit = {
     def quicksort(i: Int, j: Int): Unit = {
       var l = i
       var r = j

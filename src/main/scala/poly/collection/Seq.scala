@@ -2,12 +2,13 @@ package poly.collection
 
 import poly.algebra._
 import poly.algebra.hkt._
-import poly.algebra.ops._
-import poly.algebra.implicits._
-import poly.algebra.function._
+import poly.algebra.syntax._
 import poly.collection.exception._
+import poly.collection.factory._
+import poly.collection.impl._
 import poly.collection.mut._
 import poly.collection.node._
+
 import scala.annotation.unchecked.{uncheckedVariance => uv}
 
 /**
@@ -59,7 +60,7 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
   }
 
   /** Returns the weak order on keys. In this case (`Seq`), it returns the total order on integers. */
-  def orderOnKey = TotalOrder[Int]
+  def orderOnKeys = Order[Int]
 
   override def size = length
 
@@ -88,7 +89,6 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
 
   /**
     * Pairs each element with its index. $LAZY
- *
     * @example {{{('a', 'b', 'c').pairs == ((0, 'a'), (1, 'b'), (2, 'c'))}}}
     * @return A sequence of index-element pairs.
     */
@@ -98,7 +98,7 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
       def next = new SeqNodeWithIndex(outer.next, i + 1)
       def isDummy = outer.isDummy
     }
-    ofHeadNode(new SeqNodeWithIndex(headNode, 0)).asIfSorted[(Int, T)](WeakOrder by firstOfPair)
+    ofHeadNode(new SeqNodeWithIndex(headNode, 0)).asIfSorted[(Int, T)](Order by firstOfPair)
   }
 
   override def keys = pairs map firstOfPair
@@ -109,7 +109,8 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
 
   override def map[U](f: T => U): Seq[U] = new AbstractSeq[U] {
     def headNode = self.headNode map f
-    override def sizeKnown = self.sizeKnown
+    override def sizeKnown = self.sizeKnown // map preserves size
+    override def size = self.size
   }
 
   def flatMap[U](f: T => Seq[U]): Seq[U] = {
@@ -360,6 +361,8 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
     ofHeadNode(new CycleNode(self.headNode))
   }
 
+  override def reverse: BiSeq[T] = self.to(ArraySeq).reverse
+
   /**
    * Pretends that this sequence is sorted under the given implicit order.
  *
@@ -367,7 +370,7 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
    * @note Actual orderedness is not guaranteed! The user should make sure that it is sorted.
    * @return A sorted sequence
    */
-  override def asIfSorted[U >: T](implicit U: WeakOrder[U]): SortedSeq[T@uv] = new SortedSeq[T] {
+  override def asIfSorted[U >: T](implicit U: Order[U]): SortedSeq[T@uv] = new SortedSeq[T] {
     def orderOnElements = U
     def headNode: SeqNode[T] = self.headNode
   }
@@ -416,7 +419,6 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
 
   /**
    * Tests if this sequence starts with the pattern sequence under an implicit equivalence relation.
- *
    * @example {{{
    *   (1, 2, 3, 4) startsWith (1, 2) == true
    * }}}
@@ -436,7 +438,14 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
     false
   }
 
+  /**
+   * Tests if this sequence ends with the pattern sequence under an impliciti equivalence relation.
+   * @example {{{
+   *   (1, 2, 3, 4) endsWith (3, 4) == true
+   * }}}
+   */
   def endsWith[U >: T : Eq](pattern: Seq[U]) = {
+    self.reverse startsWith pattern.reverse
   }
 
   def asSeq: Seq[T] = ofDummyNode(dummy)
@@ -446,9 +455,9 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
     case _ => false
   }
 
-  override def toString = "(" + buildString(", ") + ")" // overridden the `toString` in Map
+  override def toString = super[Iterable].toString
 
-  override def hashCode = ???
+  override def hashCode = MurmurHash3.sequentialHash(self)(Hashing.default[T])
 
   override def |>[U](f: T => U): Seq[U] = this map f
   override def +:[U >: T](u: U): Seq[U] = this prepend u
@@ -456,7 +465,7 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
   def ++[U >: T](that: Seq[U]) = this concat that
 }
 
-object Seq {
+object Seq extends Factory[Seq] {
 
   // EXTRACTORS
 
@@ -467,6 +476,10 @@ object Seq {
   }
 
   // CONSTRUCTORS
+
+  override def apply[T](xs: T*) = arrayAsPoly(getArrayFromVarargs(xs))
+
+  def from[T](xs: Traversable[T]) = xs to ArraySeq
 
   object empty extends Seq[Nothing] {
     def headNode = SeqNode.dummy
@@ -521,7 +534,7 @@ object Seq {
   /**
    * Returns the lexicographic order on sequences if an order on the elements is given.
    */
-  def LexicographicOrder[T: WeakOrder]: WeakOrder[Seq[T]] = new WeakOrder[Seq[T]] {
+  def LexicographicOrder[T: Order]: Order[Seq[T]] = new Order[Seq[T]] {
     def cmp(x: Seq[T], y: Seq[T]): Int = {
       //TODO: faster implementation using iterators?
       var xn = x.headNode

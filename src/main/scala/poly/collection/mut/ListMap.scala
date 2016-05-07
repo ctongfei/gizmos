@@ -15,7 +15,7 @@ import poly.collection.impl.linkedlist._
  * @since 0.1.0
  * @author Tongfei Chen
  */
-class ListMap[K, V] private(private val data: SinglyLinkedList[K, ListMap.Node[K, V]])(implicit val equivOnKeys: Eq[K]) extends KeyMutableMap[K, V] {
+class ListMap[K, V] private(private val data: SinglyLinkedList[K, ListMap.Node[K, V]])(implicit val eqOnKeys: Eq[K]) extends KeyMutableMap[K, V] {
 
   type Node = ListMap.Node[K, V]
 
@@ -83,7 +83,7 @@ class ListMap[K, V] private(private val data: SinglyLinkedList[K, ListMap.Node[K
 
 }
 
-object ListMap extends Factory2Ev[ListMap, Eq] {
+object ListMap extends BuilderFactory2Ev[ListMap, Eq] {
 
   private[poly] class Node[K, V](var data: K, var value: V) extends SinglyLinkedNodeLike[K, Node[K, V]] {
     var next: Node[K, V] = _

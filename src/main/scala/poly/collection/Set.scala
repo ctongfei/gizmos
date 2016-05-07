@@ -3,6 +3,9 @@ package poly.collection
 import poly.algebra._
 import poly.algebra.syntax._
 import poly.algebra.specgroup._
+import poly.collection.conversion.FromScala._
+import poly.collection.factory._
+import poly.collection.impl._
 import poly.collection.mut._
 
 /**
@@ -12,7 +15,7 @@ import poly.collection.mut._
  */
 trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
 
-  def equivOnKeys: Eq[T]
+  implicit def eqOnKeys: Eq[T]
 
   /**
     * Returns an iterable sequence of all the elements in this set.
@@ -31,16 +34,18 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
 
   def elements = keys
 
-  final override def keySet = this
+  override def keySet = this
 
   def size = elements.size
+
+  def isEmpty = size == 0
 
   /**
     * Returns the union of two sets.
     * @example {{{ {1, 2, 3} | {2, 4} == {1, 2, 3, 4} }}}
     */
   def union(that: Set[T]): Set[T] = new AbstractSet[T] {
-    def equivOnKeys = self.equivOnKeys
+    def eqOnKeys = self.eqOnKeys
     def contains(x: T) = self.contains(x) || that.contains(x)
     def keys = self.keys ++ that.keys.filter(self.notContains)
   }
@@ -50,7 +55,7 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
     * @example {{{ {1, 2, 3} & {1, 3, 5} == {1, 3} }}}
     */
   def intersect(that: Set[T]): Set[T] = new AbstractSet[T] {
-    def equivOnKeys = self.equivOnKeys
+    def eqOnKeys = self.eqOnKeys
     def contains(x: T) = self.contains(x) && that.contains(x)
     def keys = self.keys.filter(that.contains)
   }
@@ -60,7 +65,7 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
     * @example {{{ {1, 2, 3} \ {2, 3, 4} == {1} }}}
     */
   def setDiff(that: Set[T]): Set[T] = new AbstractSet[T] {
-    def equivOnKeys= self.equivOnKeys
+    def eqOnKeys = self.eqOnKeys
     def contains(x: T) = self.contains(x) && that.notContains(x)
     def keys = self.keys.filter(that.notContains)
   }
@@ -79,7 +84,7 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
 
   /** Returns the cartesian product of two sets. */
   def product[U](that: Set[U]): Set[(T, U)] = new AbstractSet[(T, U)] {
-    def equivOnKeys = Eq.product(self.equivOnKeys, that.equivOnKeys)
+    def eqOnKeys = Eq.product(self.eqOnKeys, that.eqOnKeys)
     def keys = self.keys product that.keys
     override def size = self.size * that.size
     def contains(k: (T, U)) = self.containsKey(k._1) && that.containsKey(k._2)
@@ -92,7 +97,7 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
     def apply(k: T) = f(k)
     def ?(k: T) = if (self contains k) Some(f(k)) else None
 
-    def equivOnKeys = self.equivOnKeys
+    def eqOnKeys = self.eqOnKeys
     def pairs = self.keys.map(k => k → f(k))
     override def size = self.size
     def containsKey(x: T) = self.contains(x)
@@ -102,7 +107,7 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
     def apply(k: T) = f(k).get
     def ?(k: T) = if (self contains k) f(k) else None
 
-    def equivOnKeys = self.equivOnKeys
+    def eqOnKeys = self.eqOnKeys
     def pairs = for (k ← self.keys; v ← f(k)) yield (k, v)
     def containsKey(x: T) = (self contains x) && f(x).isDefined
   }
@@ -116,7 +121,7 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
   }
 
   override def filterKeys(f: T => Boolean): Set[T] = new AbstractSet[T] {
-    def equivOnKeys = self.equivOnKeys
+    def eqOnKeys = self.eqOnKeys
     def contains(x: T) = self.contains(x) && f(x)
     def keys = self.keys filter f
   }
@@ -124,7 +129,7 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
   def map[U: Eq](f: T => U): Set[U] = elements map f to AutoSet
 
   def map[U](f: Bijection[T, U]): Set[U] = new AbstractSet[U] {
-    def equivOnKeys = self.equivOnKeys contramap f.invert
+    def eqOnKeys = self.eqOnKeys contramap f.invert
     def keys = self.elements.map(f)
     def contains(x: U) = self contains f.invert(x)
   }
@@ -134,6 +139,16 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
   }
 
   def zip(that: Set[T]): Set[T] = this & that
+
+  //TODO: !
+//  def quotient(coarser: Eq[T]): Set[Set[T]] = new AbstractSet[Set[T]] {
+//    private[this] val m = AutoMap[T, KeyMutableSet[T]]()(coarser)
+//    def eqOnKeys = Set.Eq[T]
+//    def keys = m.values
+//    def contains(x: Set[T]) = {
+//      if (x.isEmpty) false else Set.Eq[T].eq(x, m(x.elements.head))
+//    }
+//  }
 
   /**
    * Wraps each element of this element with a bijective function.
@@ -147,7 +162,7 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
    * }}}
    */
   def contramap[S](f: Bijection[S, T]): Set[S] = new AbstractSet[S] {
-    def equivOnKeys = self.equivOnKeys contramap f
+    def eqOnKeys = self.eqOnKeys contramap f
     def keys = self.elements.map(f.invert)
     def contains(x: S) = self.contains(f(x))
   }
@@ -168,30 +183,30 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
 
   def sum[U >: T : AdditiveCMonoid] = elements.sum[U]
 
-  def max(implicit T: WeakOrder[T]) = elements.max
+  def max(implicit T: Order[T]) = elements.max
 
-  def min(implicit T: WeakOrder[T]) = elements.min
+  def min(implicit T: Order[T]) = elements.min
 
-  def minAndMax(implicit T: WeakOrder[T]) = elements.minAndMax
+  def minAndMax(implicit T: Order[T]) = elements.minAndMax
 
-  def argmin[U: WeakOrder](f: T => U): T = elements.argmin(f)
+  def argmin[U: Order](f: T => U): T = elements.argmin(f)
 
-  def minBy[U: WeakOrder](f: T => U) = argmin(f)
+  def minBy[U: Order](f: T => U) = argmin(f)
 
-  def argmax[U: WeakOrder](f: T => U): T = elements.argmax(f)
+  def argmax[U: Order](f: T => U): T = elements.argmax(f)
 
-  def maxBy[U: WeakOrder](f: T => U) = argmax(f)
+  def maxBy[U: Order](f: T => U) = argmax(f)
 
-  def argminWithValue[U](f: T => U)(implicit O: WeakOrder[U]) = elements.argminWithValue(f)(O)
+  def argminWithValue[U](f: T => U)(implicit O: Order[U]) = elements.argminWithValue(f)(O)
 
-  def argmaxWithValue[U](f: T => U)(implicit O: WeakOrder[U]) = elements.argmaxWithValue(f)(O)
+  def argmaxWithValue[U](f: T => U)(implicit O: Order[U]) = elements.argmaxWithValue(f)(O)
 
   /**
    * Casts this set as a multiset in which each element appears exactly once.
    * @tparam R Type of the counts of elements in the multiset, can be `Int`, `Double`, etc.
    */
   def asMultiset[R: OrderedRing]: Multiset[T, R] = new AbstractMultiset[T, R] {
-    def equivOnKeys = self.equivOnKeys
+    def eqOnKeys = self.eqOnKeys
     def ringOnCount = OrderedRing[R]
     def multiplicity(k: T) = if (self.contains(k)) one[R] else zero[R]
     def keys = self.keys
@@ -214,19 +229,22 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
   override def toString = "{" + elements.buildString(", ") + "}"
 
   override def equals(that: Any) = that match {
-    case that: Set[T] => Set.Eq[T].eq(this, that)
+    case that: Set[T] => (this ⊆ that) && (this ⊇ that)
     case _ => false
   }
 
-  // hashCode: elements.fold(0xdeadbeef, _ xor _)?
-
+  override def hashCode = MurmurHash3.symmetricHash(self.elements)(Hashing.default[T])
 }
 
-object Set {
+object Set extends FactoryEv[Set, Eq] {
+
+  // CONSTRUCTORS
+
+  def from[T: Eq](xs: Traversable[T]) = AutoSet from xs
 
   /** Creates an empty set of a specific type. */
-  def empty[T: Eq]: Set[T] = new Set[T] {
-    def equivOnKeys = poly.algebra.Eq[T]
+  override def empty[T: Eq]: Set[T] = new Set[T] {
+    def eqOnKeys = poly.algebra.Eq[T]
     override def size = 0
     def keys = Iterable.empty
     def contains(x: T) = false
@@ -237,16 +255,19 @@ object Set {
     override def properSubsetOf(that: Set[T]) = that.size != 0
   }
 
+  // TYPECLASSES INSTANCES
+
   /** Returns the lattice on sets. */
   implicit def Lattice[T: Eq]: Lattice[Set[T]] with BoundedLowerSemilattice[Set[T]] =
     new Lattice[Set[T]] with BoundedLowerSemilattice[Set[T]] {
       def bot = empty[T]
-      def inf(x: Set[T], y: Set[T]) = x & y
-      def sup(x: Set[T], y: Set[T]) = x | y
+      def inf(x: Set[T], y: Set[T]) = x ∩ y
+      def sup(x: Set[T], y: Set[T]) = x ∪ y
   }
 
-  implicit def Eq[T]: Eq[Set[T]] = new Eq[Set[T]] {
+  implicit def Hashing[T: Hashing]: Hashing[Set[T]] = new Hashing[Set[T]] {
     def eq(x: Set[T], y: Set[T]) = (x ⊆ y) && (x ⊇ y)
+    def hash(x: Set[T]) = MurmurHash3.symmetricHash(x.elements)
   }
 
   def ContainmentOrder[T]: PartialOrder[Set[T]] = new PartialOrder[Set[T]] {

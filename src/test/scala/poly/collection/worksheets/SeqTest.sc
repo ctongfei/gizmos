@@ -1,5 +1,6 @@
 import poly.algebra.syntax._
 import poly.collection.ops._
+import poly.collection._
 import poly.collection.mut._
 
 val a = ListSeq(0, 1, 2, 3, 4, 3, 2).asSeq
@@ -7,6 +8,10 @@ val b = ArraySeq(5, 6, 7, 8).asSeq
 b.asMap
 
 a startsWith ListSeq(0, 1, 2, 3, 4, 3, 2, 0)
+
+a endsWith ListSeq()
+
+a.pairs to Map
 
 a.take(3)
 a.takeWhile(_ < 3)

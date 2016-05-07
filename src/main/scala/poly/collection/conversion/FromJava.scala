@@ -90,7 +90,7 @@ object FromJava {
   implicit def javaSetAsPoly[T](xs: ju.Set[T]): Set[T] = new KeyMutableSet[T] {
     def removeInplace(x: T) = xs.remove(x)
     def addInplace(x: T) = xs.add(x)
-    def equivOnKeys = Eq.default[T]
+    def eqOnKeys = Eq.default[T]
     def contains(x: T) = xs.contains(x)
     override def size = xs.size()
     def keys = Iterable.ofIterator(xs.iterator())
@@ -133,7 +133,7 @@ object FromJava {
   }
 
   implicit def javaMapAsPoly[K, V](jm: ju.Map[K, V]): Map[K, V] = new KeyMutableMap[K, V] {
-    def equivOnKeys = Eq.default[K]
+    def eqOnKeys = Eq.default[K]
     def addInplace(x: K, y: V): Unit = jm.put(x, y)
     def clear(): Unit = jm.clear()
     def removeInplace(x: K): Unit = jm.remove(x)

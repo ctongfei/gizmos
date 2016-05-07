@@ -17,6 +17,6 @@ trait PriorityQueue[T] extends Queue[T] {
   def elements: Iterable[T]
 
   /** Retrieves the order under which the elements are sorted. */
-  def orderOnElements: WeakOrder[T]
+  def orderOnElements: Order[T]
 
 }

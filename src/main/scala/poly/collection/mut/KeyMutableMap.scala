@@ -3,7 +3,7 @@ package poly.collection.mut
 /**
  * @author Tongfei Chen
  */
-trait KeyMutableMap[K, V] extends ValueMutableMap[K, V] {
+trait KeyMutableMap[K, V] extends ValueMutableMap[K, V] { self =>
 
   /**
    * Adds a key-value pair into this map.
@@ -12,6 +12,12 @@ trait KeyMutableMap[K, V] extends ValueMutableMap[K, V] {
   def addInplace(k: K, v: V): Unit
 
   def addInplace(kv: (K, V)): Unit = addInplace(kv._1, kv._2)
+
+  def getOrElseUpdate(k: K, v: => V) = {
+    if (notContainsKey(k))
+      self.addInplace(k, v)
+    self(k)
+  }
 
   /**
    * Removes a key-value pair given the key.

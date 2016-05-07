@@ -48,5 +48,5 @@ object WithHeuristic extends WithHeuristicLowPriorityImplicits {
 }
 
 private[collection] trait WithHeuristicLowPriorityImplicits {
-  implicit def order[S, C: OrderedAdditiveGroup]: WeakOrder[WithHeuristic[S, C]] = WeakOrder.by(_.h)
+  implicit def order[S, C: OrderedAdditiveGroup]: Order[WithHeuristic[S, C]] = Order.by(_.h)
 }

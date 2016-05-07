@@ -40,7 +40,7 @@ trait Graph[@sp(Int) K, +V, +E] extends KeyedLike[K, Graph[K, V, E]] with StateS
   /** Returns the number of edges in this graph. */
   def numArcs: Int = arcs.size
 
-  implicit def equivOnKeys = keySet.equivOnKeys
+  implicit def eqOnKeys = keySet.eqOnKeys
 
   /** Returns the set of the keys of the vertices in this graph. */
   def keySet: Set[K]
@@ -151,7 +151,7 @@ object Graph {
     def data = graph(key)
     def succ = graph.outgoingNodesOf(key)
 
-    implicit def equivOnKey = graph.equivOnKeys
+    implicit def equivOnKey = graph.eqOnKeys
 
     override def equals(that: Any) = that match {
       case that: Node[K, V] => (this.graph eq that.graph) && (this.key === that.key)
@@ -164,7 +164,7 @@ object Graph {
 
     def data = graph.apply(key1, key2)
 
-    implicit def equivOnKey = graph.equivOnKeys
+    implicit def equivOnKey = graph.eqOnKeys
 
     override def equals(that: Any) = that match {
       case that: Arc[K, E] => (this.graph eq that.graph) && (this.key1 === that.key1) && (this.key2 === that.key2)
@@ -176,7 +176,7 @@ object Graph {
     implicit def groupOnCost = E
     def succWithCost(x: K) = g.outgoingArcsOf(x).map(e => (e.key2, e.data))
 
-    def equivOnKeys = g.equivOnKeys
+    def eqOnKeys = g.eqOnKeys
   }
 
 }

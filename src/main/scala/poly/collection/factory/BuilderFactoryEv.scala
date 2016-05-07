@@ -11,15 +11,12 @@ import scala.language.higherKinds
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait FactoryEv[+C[_], Ev[_]] {
+trait BuilderFactoryEv[+C[_], Ev[_]] extends FactoryEv[C, Ev] {
   /** Returns a new builder of this collection type. */
   implicit def newBuilder[T: Ev]: Builder[T, C[T]]
 
   /** Creates an empty collection. */
-  def empty[T: Ev]: C[T] = newBuilder[T].result
-
-  /** Creates a collection by adding the arguments into it. */
-  def apply[T: Ev](xs: T*): C[T] = from(xs)
+  override def empty[T: Ev]: C[T] = newBuilder[T].result
 
   /** Creates a collection by adding all the elements in the specific traversable sequence. */
   def from[T: Ev](xs: Traversable[T]): C[T] = {
@@ -28,5 +25,18 @@ trait FactoryEv[+C[_], Ev[_]] {
     b addAllInplace xs
     b.result
   }
+
+}
+
+trait FactoryEv[+C[_], Ev[_]] {
+
+  /** Creates an empty collection. */
+  def empty[T: Ev]: C[T] = from(Traversable.empty)
+
+  /** Creates a collection by adding the arguments into it. */
+  def apply[T: Ev](xs: T*): C[T] = from(xs)
+
+  /** Creates a collection by adding all the elements in the specific traversable sequence. */
+  def from[T: Ev](xs: Traversable[T]): C[T]
 
 }

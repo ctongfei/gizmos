@@ -21,7 +21,7 @@ trait WithCostAndHeuristic[S, C] extends WithCost[S, C] with WithHeuristic[S, C]
 
 object WithCostAndHeuristic {
 
-  implicit def order[S, C: OrderedAdditiveGroup]: WeakOrder[WithCostAndHeuristic[S, C]] = WeakOrder.by(_.f)
+  implicit def order[S, C: OrderedAdditiveGroup]: Order[WithCostAndHeuristic[S, C]] = Order.by(_.f)
 
   def apply[S, C](s: S, d: Int, gv: C, hv: C, p: WithCostAndHeuristic[S, C]): WithCostAndHeuristic[S, C] = new WithCostAndHeuristic[S, C] {
     val state = s

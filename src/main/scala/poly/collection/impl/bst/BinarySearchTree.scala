@@ -10,7 +10,7 @@ import poly.collection._
  */
 trait BinarySearchTree[K, N >: Null <: BinarySearchTreeNodeLike[K, N]] {
 
-  implicit def orderOnKey: WeakOrder[K]
+  implicit def orderOnKey: Order[K]
 
   var dummy: N
 

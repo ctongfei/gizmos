@@ -38,14 +38,14 @@ class DisjointSets[T] private(private val data: KeyMutableMap[T, DisjointSets.No
 
   /** Joins the two sets in which the two specified elements resides. */
   def join(x: T, y: T): Unit = {
-    if (data.equivOnKeys.eq(x, y)) return
+    if (data.eqOnKeys.eq(x, y)) return
     link(find(data(x)), find(data(y)))
     numSets -= 1
   }
 
   /** Tests if the two specified elements belong to the same set. */
   def eq(x: T, y: T) = {
-    if (data.equivOnKeys.eq(x, y)) true
+    if (data.eqOnKeys.eq(x, y)) true
     else find(data(x)) == find(data(y))
   }
 

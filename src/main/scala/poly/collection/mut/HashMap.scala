@@ -15,7 +15,7 @@ class HashMap[K: Hashing, V] private(private val data: OpenHashTable[K, HashMap.
 
   import HashMap._
 
-  val equivOnKeys = implicitly[Hashing[K]]
+  val eqOnKeys = implicitly[Hashing[K]]
 
   def apply(k: K): V = data.locate(k).value
 
@@ -44,7 +44,7 @@ class HashMap[K: Hashing, V] private(private val data: OpenHashTable[K, HashMap.
 
 }
 
-object HashMap extends Factory2Ev[HashMap, Hashing] {
+object HashMap extends BuilderFactory2Ev[HashMap, Hashing] {
 
   private[poly] class Entry[K, V](val key: K, var value: V) extends OpenHashEntryLike[K, Entry[K, V]]
 

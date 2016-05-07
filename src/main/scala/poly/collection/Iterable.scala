@@ -11,7 +11,7 @@ import scala.language.implicitConversions
 /**
  * The basic trait for all collections that exposes an iterator.
  *
- * `Iterable`s differ from `Traversable`s in that the iteration process can be controlled:
+ * `Iterable`s differ from [[Traversable]]s in that the iteration process can be controlled:
  * It can be paused or resumed by the user.
  * @author Tongfei Chen
  * @since 0.1.0
@@ -36,7 +36,8 @@ trait Iterable[+T] extends Traversable[T] { self =>
       def current = f(i.current)
       def advance() = i.advance()
     }
-    override def sizeKnown = self.sizeKnown
+    override def sizeKnown = self.sizeKnown // map preserves size
+    override def size = self.size
   }
 
   def flatMap[U](f: T => Iterable[U]) = ofIterator {
@@ -308,8 +309,8 @@ trait Iterable[+T] extends Traversable[T] { self =>
   }
 
   /** Pretends that this iterable collection is sorted. */
-  def asIfSorted[U >: T : WeakOrder]: SortedIterable[T @uv] = new SortedIterable[T] {
-    def orderOnElements = implicitly[WeakOrder[U]]
+  def asIfSorted[U >: T : Order]: SortedIterable[T @uv] = new SortedIterable[T] {
+    def orderOnElements = implicitly[Order[U]]
     def newIterator = self.newIterator
   }
 
@@ -351,7 +352,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
         }
       }
     }
-    paired.asIfSorted[(Int, T)](WeakOrder by firstOfPair)
+    paired.asIfSorted[(Int, T)](Order by firstOfPair)
   }
 
   /**

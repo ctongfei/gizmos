@@ -36,7 +36,7 @@ class ArrayStack[T] private(private var data: ResizableSeq[T] = null) extends Qu
 
 }
 
-object ArrayStack extends Factory[ArrayStack] {
+object ArrayStack extends BuilderFactory[ArrayStack] {
 
   implicit def newBuilder[T]: Builder[T, ArrayStack[T]] = new Builder[T, ArrayStack[T]] {
     var data = new ResizableSeq[T]()

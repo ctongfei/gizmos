@@ -8,7 +8,6 @@ import poly.collection.builder._
 import poly.collection.exception._
 import poly.collection.factory._
 import poly.collection.mut._
-import poly.collection.ops._
 import poly.macroutil._
 import scala.language.higherKinds
 import scala.annotation.unchecked.{uncheckedVariance => uv}
@@ -49,6 +48,7 @@ trait Traversable[+T] { self =>
       for (x ← self) g(f(x))
     }
     override def sizeKnown = self.sizeKnown // map preserves size
+    override def size = self.size
   }
 
   /**
@@ -144,8 +144,6 @@ trait Traversable[+T] { self =>
     }
     m
   }
-
-  def freqMap[U >: T : Eq]: Multiset[U, Int] = ??? //TODO:!
 
   //endregion
 
@@ -462,20 +460,20 @@ trait Traversable[+T] { self =>
    *
    * @example {{{
    *   (3, 2, 4, 1).sort == (1, 2, 3, 4)
-   *   (3, 2, 4, 1).sort(WeakOrder[Int].reverse) == (4, 3, 2, 1)
+   *   (3, 2, 4, 1).sort(Order[Int].reverse) == (4, 3, 2, 1)
    * }}}
    */
-  def sort[U >: T : WeakOrder]: SortedIndexedSeq[T @uv] = {
+  def sort[U >: T : Order]: SortedIndexedSeq[T @uv] = {
     val seq = self to ArraySeq
     seq.sortInplace()
     seq.asIfSorted
   }
 
-  def sortBy[U: WeakOrder](f: T => U): SortedIndexedSeq[T @uv] = {
+  def sortBy[U: Order](f: T => U): SortedIndexedSeq[T @uv] = {
     val seq = self to ArraySeq
     val w = seq map f to ArraySeq
     seq sortInplaceUsing w
-    seq asIfSorted (WeakOrder by f)
+    seq asIfSorted (Order by f)
   }
 
   def withIndex: Traversable[(Int, T)] = new AbstractTraversable[(Int, T)] {
@@ -554,22 +552,22 @@ trait Traversable[+T] { self =>
   def differences[X >: T](implicit X: AdditiveGroup[X]) = consecutive(X.sub)
 
   /** Returns the minimum element in this collection. */
-  def min(implicit T: WeakOrder[T]): T = reduce(T.min[T])
+  def min(implicit T: Order[T]): T = reduce(T.min[T])
 
   /** Returns the maximum element in this collection. */
-  def max(implicit T: WeakOrder[T]): T = reduce(T.max[T])
+  def max(implicit T: Order[T]): T = reduce(T.max[T])
 
   /**
    * Returns the top-''k'' elements in this collection.
    */
-  def top(k: Int)(implicit T: WeakOrder[T]) = {
+  def top(k: Int)(implicit T: Order[T]) = {
     val beam = Beam.ofWidth[T](k)(T.reverse)
     self foreach beam.push
     beam.elements
   }
 
-  def topBy[U: WeakOrder](f: T => U)(k: Int) = {
-    val beam = Beam.ofWidth(k)((WeakOrder by secondOfPair[T, U]).reverse)
+  def topBy[U: Order](f: T => U)(k: Int) = {
+    val beam = Beam.ofWidth(k)((Order by secondOfPair[T, U]).reverse)
     for (x ← self) beam.push(x → f(x))
     beam.elements map firstOfPair
   }
@@ -580,9 +578,9 @@ trait Traversable[+T] { self =>
    * @param f The function
    * @tparam U The implicit weak order on the output of the specific function.
    */
-  def argmin[U: WeakOrder](f: T => U): T = argminWithValue(f)._1
+  def argmin[U: Order](f: T => U): T = argminWithValue(f)._1
 
-  def minBy[U: WeakOrder](f: T => U) = argmin(f)
+  def minBy[U: Order](f: T => U) = argmin(f)
 
   /**
     * Returns the first element in this collection that makes the specific function greatest.
@@ -591,11 +589,11 @@ trait Traversable[+T] { self =>
     * @tparam U
     * @return
     */
-  def argmax[U: WeakOrder](f: T => U): T = argmaxWithValue(f)._1
+  def argmax[U: Order](f: T => U): T = argmaxWithValue(f)._1
 
-  def maxBy[U: WeakOrder](f: T => U) = argmax(f)
+  def maxBy[U: Order](f: T => U) = argmax(f)
 
-  def minAndMax(implicit T: WeakOrder[T]): (T, T) = {
+  def minAndMax(implicit T: Order[T]): (T, T) = {
     var minVal = default[T]
     var maxVal = default[T]
     var first = true
@@ -614,7 +612,7 @@ trait Traversable[+T] { self =>
     (minVal, maxVal)
   }
 
-  def argminWithValue[U](f: T => U)(implicit O: WeakOrder[U]): (T, U) = {
+  def argminWithValue[U](f: T => U)(implicit O: Order[U]): (T, U) = {
     var minKey = default[T]
     var minVal = default[U]
     var first = true
@@ -631,7 +629,7 @@ trait Traversable[+T] { self =>
     (minKey, minVal)
   }
 
-  def argmaxWithValue[U](f: T => U)(implicit O: WeakOrder[U]): (T, U) = {
+  def argmaxWithValue[U](f: T => U)(implicit O: Order[U]): (T, U) = {
     var maxKey = default[T]
     var maxVal = default[U]
     var first = true
@@ -651,15 +649,20 @@ trait Traversable[+T] { self =>
   //region Building (to, buildString)
   /**
    * Converts this traversable sequence to any collection type given a factory.
-   * @example {{{ xs.to(ArraySeq) }}}
+   * @example {{{ xs to ArraySeq }}}
    */
-  def to[U >: T, C[_]](factory: Factory[C]): C[U] = build(factory.newBuilder[U])
+  def to[U >: T, C[_]](factory: Factory[C]): C[U] = factory from self
 
   /**
    * Converts this traversable sequence to any collection type given a factory that requires an additional evidence.
-   * @example {{{ xs.to(AutoSet) }}}
+   * @example {{{
+   *         (1) xs to AutoSet
+   *         (2) xs to PairMultiset.of[Int] }}}
    */
-  def to[U >: T : Ev, C[_], Ev[_]](factory: FactoryEv[C, Ev]): C[U] = build(factory.newBuilder[U])
+  def to[U >: T : Ev, C[_], Ev[_]](factory: FactoryEv[C, Ev]): C[U] = factory from self
+
+  // Seems not useful, type signature too complicated
+  //def to[U >: T : EvU, V: EvV, C[_, _], EvU[_], EvV[_]](factory: FactoryEv2[C, EvU, EvV]): C[U, V] = build(factory.newBuilder[U, V])
 
   /**
    * Converts this traversable sequence to an array.
@@ -765,15 +768,12 @@ object Traversable {
   implicit class TraversableOfPairsOps[A, B](val underlying: Traversable[(A, B)]) extends AnyVal {
 
     /**
-      * Lazily unzips a traversable sequence of pairs.
-     *
+     * Lazily unzips a traversable sequence of pairs.
      * @example {{{((1, 'a'), (2, 'b'), (3, 'c')).unzip == ((1, 2, 3), ('a', 'b', 'c'))}}}
-      */
+     */
     def unzip: (Traversable[A], Traversable[B]) = (underlying map firstOfPair, underlying map secondOfPair)
 
-    /**
-      * Eagerly unzips a traversable sequence of pairs. This method only traverses through the collection once.
-      */
+    /** Eagerly unzips a traversable sequence of pairs. This method only traverses through the collection once. */
     def unzipEagerly: (IndexedSeq[A], IndexedSeq[B]) = {
       val ak = ArraySeq.newBuilder[A]
       val av = ArraySeq.newBuilder[B]
@@ -785,11 +785,10 @@ object Traversable {
     }
 
     /**
-      * Converts this traversable sequence to a map if this sequence consists of (key, value) pairs.
-     *
-     * @param builder Implicit builder of the map
-      */
-    def toMap[M[_, _]](implicit builder: Builder[(A, B), M[A, B]]) = underlying.build(builder)
+     * Converts this traversable sequence to a map if this sequence consists of (key, value) pairs.
+     */
+    def to[M[_, _], Ev[_]](factory: Factory2Ev[M, Ev])(implicit A: Ev[A]) = factory from underlying
+
 
   }
 

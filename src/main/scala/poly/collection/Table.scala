@@ -23,7 +23,7 @@ trait Table[+T] extends Map[(Int, Int), T] { self =>
   def apply(pair: (Int, Int)): T = apply(pair._1, pair._2)
   def ?(x: (Int, Int)): Option[T] = if (containsKey(x)) Some(self(x)) else None
 
-  def equivOnKeys = Eq.default[(Int, Int)]
+  def eqOnKeys = Eq.default[(Int, Int)]
 
   def pairs = triples map { case (i, j, e) => ((i, j), e) }
 

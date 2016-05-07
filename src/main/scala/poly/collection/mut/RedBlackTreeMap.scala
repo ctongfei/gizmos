@@ -26,11 +26,11 @@ class RedBlackTreeMap[K, V] private(private val data: java.util.TreeMap[K, V])
   def removeInplace(x: K) = data.remove(x)
 
   def pairs = new SortedIterable[(K, V)] {
-    def orderOnElements = orderOnKey contramap firstOfPair
+    def orderOnElements = orderOnKeys contramap firstOfPair
     def newIterator = data.entrySet().elements.map(e => (e.getKey, e.getValue)).newIterator
   }
 
-  def orderOnKey: WeakOrder[K] = data.comparator()
+  def orderOnKeys: Order[K] = data.comparator()
 
   def update(x: K, y: V) = data.put(x, y)
 
@@ -39,9 +39,9 @@ class RedBlackTreeMap[K, V] private(private val data: java.util.TreeMap[K, V])
   def containsKey(x: K) = data.containsKey(x)
 }
 
-object RedBlackTreeMap extends Factory2Ev[RedBlackTreeMap, WeakOrder] {
+object RedBlackTreeMap extends BuilderFactory2Ev[RedBlackTreeMap, Order] {
 
-  implicit def newBuilder[K, V](implicit K: WeakOrder[K]): Builder[(K, V), RedBlackTreeMap[K, V]] =
+  implicit def newBuilder[K, V](implicit K: Order[K]): Builder[(K, V), RedBlackTreeMap[K, V]] =
     new Builder[(K, V), RedBlackTreeMap[K, V]] {
       private[this] val data = new java.util.TreeMap[K, V](new java.util.Comparator[K] {
         def compare(a: K, b: K) = K.cmp(a, b)

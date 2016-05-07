@@ -5,11 +5,11 @@ import poly.algebra.syntax._
 import poly.macroutil._
 
 /**
- * Represents a permutation on the set N,,''n'',, = {0, ..., ''n'' - 1}.
+ * Represents a permutation on the set '''Z''',,''n'',, = {0, ..., ''n'' - 1}.
  * <p>
- *   A permutation is a bijective endofunction on the set N,,''n'',, and defines
- *   a total order on the set N,,''n'',,. Its inverse (inverse of the bijective function)
- *   and its reverse (reverse of the total order) are also permutations on N,,''n'',,.
+ *   A permutation is a bijective endofunction on the set '''Z''',,''n'',, and defines
+ *   a total order on the set '''Z''',,''n'',,. Its inverse (inverse of the bijective function)
+ *   and its reverse (reverse of the total order) are also permutations on '''Z''',,''n'',,.
  * </p>
  * @author Tongfei Chen
  * @since 0.1.0
@@ -21,7 +21,7 @@ class Permutation private(private val a1: Array[Int], private val a2: Array[Int]
   def fastApply(x: Int) = a1(x)
   def invert(y: Int) = a2(y)
 
-  def equivOnValues = Eq[Int]
+  def eqOnValues = Eq[Int]
 
   def containsValue(y: Int) = containsKey(y)
 
@@ -62,14 +62,18 @@ class Permutation private(private val a1: Array[Int], private val a2: Array[Int]
 }
 
 object Permutation {
-  //TODO: check if it is a valid permutation
+
   def apply(xs: Int*): Permutation = apply(xs.toArray)
-  //TODO: check if it is a valid permutation
+
   def apply(xs: Array[Int]): Permutation = {
     val ys = Array.ofDim[Int](xs.length)
+    val bs = Array.fill(xs.length)(false)
     FastLoop.ascending(0, xs.length, 1) { i =>
       ys(xs(i)) = i
+      bs(xs(i)) = true
     }
+    // Requires that this is essentially a true bijection: all bits should be set as true
+    require(bs.forall(x => x))
     new Permutation(xs.clone, ys)
   }
 
@@ -104,7 +108,7 @@ object Permutation {
     def inv(x: Permutation) = x.inverse
     def id = identity(n)
     def op(x: Permutation, y: Permutation) = x compose y
-    def equivOnKeys = LexicographicOrder
+    def eqOnKeys = LexicographicOrder
     def contains(x: Permutation) = x.size == n
 
     def keys: Iterable[Permutation] = Iterable.ofIterator {

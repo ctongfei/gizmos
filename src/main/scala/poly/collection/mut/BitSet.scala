@@ -79,7 +79,6 @@ class BitSet private(private final var data: LongResizableArray)
   def clear() = data.fillInplace(0l)
 }
 
-
 object BitSet {
 
   private[poly] final val LongBits = 6 // 2^6 = 64

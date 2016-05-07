@@ -53,14 +53,14 @@ class BreadthFirstTreeIterator[S](ss: StateSpace[S], start: S)
   extends Searcher[S, S](x => false, ArrayQueue[S](), start)(ss, SearchNodeInfo.None)
 
 class DepthFirstIterator[S](ss: StateSpace[S], start: S)
-  extends Searcher[S, S](x => false, DistinctQueue[ArrayStack, S]()(ss.equivOnKeys, ArrayStack.newBuilder), start)(ss, SearchNodeInfo.None)
+  extends Searcher[S, S](x => false, DistinctQueue[ArrayStack, S]()(ss.eqOnKeys, ArrayStack.newBuilder), start)(ss, SearchNodeInfo.None)
 
 class BreadthFirstIterator[S](ss: StateSpace[S], start: S)
-  extends Searcher[S, S](x => false, DistinctQueue[ArrayQueue, S]()(ss.equivOnKeys, ArrayQueue.newBuilder), start)(ss, SearchNodeInfo.None)
+  extends Searcher[S, S](x => false, DistinctQueue[ArrayQueue, S]()(ss.eqOnKeys, ArrayQueue.newBuilder), start)(ss, SearchNodeInfo.None)
 
 class DepthFirstBacktrackableIterator[S](ss: StateSpace[S], start: S)
-  extends Searcher[S, WithParent[S]](x => false, DistinctQueue[ArrayStack, WithParent[S]]()(ss.equivOnKeys contramap { _.state }, ArrayStack.newBuilder), start)(ss, WithParent.SearchNodeInfo[S])
+  extends Searcher[S, WithParent[S]](x => false, DistinctQueue[ArrayStack, WithParent[S]]()(ss.eqOnKeys contramap { _.state }, ArrayStack.newBuilder), start)(ss, WithParent.SearchNodeInfo[S])
 
 class BreadthFirstBacktrackableIterator[S](ss: StateSpace[S], start: S)
-  extends Searcher[S, WithParent[S]](x => false, DistinctQueue[ArrayQueue, WithParent[S]]()(ss.equivOnKeys contramap { _.state }, ArrayQueue.newBuilder), start)(ss, WithParent.SearchNodeInfo[S])
+  extends Searcher[S, WithParent[S]](x => false, DistinctQueue[ArrayQueue, WithParent[S]]()(ss.eqOnKeys contramap { _.state }, ArrayQueue.newBuilder), start)(ss, WithParent.SearchNodeInfo[S])
 

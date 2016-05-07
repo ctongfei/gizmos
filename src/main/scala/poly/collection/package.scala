@@ -2,9 +2,11 @@ package poly
 
 import poly.algebra.specgroup._
 import poly.collection.builder._
+
+import scala.collection._
 import scala.language.implicitConversions
 
-package object collection {
+package object collection extends ImplicitWrappers {
   /** Returns the first element of two elements. */
   @inline def first[@sp(fdi) α, @sp(fdi) β](a: α, b: β) = a
 
@@ -36,14 +38,8 @@ package object collection {
     c + 1
   }
 
-  implicit def arrayAsPoly[T](a: Array[T]): IndexedSeq[T] = new ArrayAsIndexedSeq[T](a)
-
-  implicit def stringAsPoly(s: String): IndexedSeq[Char] = new StringAsIndexedSeq(s)
-
-  implicit def booleanFunctionAsPoly[T](f: T => Boolean): Predicate[T] = new BooleanFunctionAsPredicate[T](f)
-
-  implicit def stringBuilderAsPoly(sb: StringBuilder): Builder[Char, String] = new StringBuilderAsBuilder(sb)
-
-  implicit def javaStringBuilderAsPoly(sb: java.lang.StringBuilder): Builder[Char, String] = new JavaStringBuilderAsBuilder(sb)
+  private[poly] def getArrayFromVarargs[T](xs: scala.Seq[T]): Array[T] = xs match {
+    case xs: mutable.WrappedArray[T] => xs.array
+  }
 
 }

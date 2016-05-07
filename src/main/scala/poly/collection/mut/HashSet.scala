@@ -15,7 +15,7 @@ class HashSet[T: Hashing] private(val data: OpenHashTable[T, HashSet.Entry[T]]) 
 
   import HashSet._
 
-  def equivOnKeys = implicitly[Hashing[T]]
+  def eqOnKeys = implicitly[Hashing[T]]
 
   def addInplace(x: T) = data.addEntry(new Entry(x))
 
@@ -32,7 +32,7 @@ class HashSet[T: Hashing] private(val data: OpenHashTable[T, HashSet.Entry[T]]) 
   override def size: Int = data.size
 }
 
-object HashSet extends FactoryEv[HashSet, Hashing] {
+object HashSet extends BuilderFactoryEv[HashSet, Hashing] {
 
   private[poly] class Entry[K](val key: K) extends OpenHashEntryLike[K, Entry[K]]
 

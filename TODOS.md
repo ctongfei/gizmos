@@ -1,4 +1,11 @@
-##### Implicit resolution of contravariant typeclass instances
+##### \[BUG\] Map's hashCode and Seq's are not compatible
+```scala
+val x: Seq[Int]
+Map.Hashing.hash(x) should_== Seq.Hashing.hash(x)
+```
+But currently this is not the case.
+
+##### \[IMPROVEMENT\] Implicit resolution of contravariant typeclass instances
 
 Map.Eq / Seq.Eq / IndexedSeq.Eq 
 
@@ -19,4 +26,3 @@ implicit def __eq[K, V: Eq]: Eq[Map[K, V]] = new Eq[Map[K, V]] {
 ```
 
 This is not optimal.
-

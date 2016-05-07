@@ -15,29 +15,26 @@ import poly.macroutil._
  */
 class DenseIntKeyedMap[T] private(
   private val data: ResizableArray[T],
-  private val state: BooleanResizableArray,
+  private val state: BitSet,
   private var n: Int = 0
 ) extends IntKeyedSortedMap[T] with KeyMutableMap[Int, T] {
 
-  implicit def orderOnKey = poly.algebra.std.IntStructure
+  implicit def orderOnKeys = poly.algebra.std.IntStructure
 
   def apply(x: Int): T = data(x)
 
   def update(x: Int, y: T): Unit = {
     if (x >= data.capacity) {
       data.ensureCapacity(x + 1)
-      state.ensureCapacity(x + 1)
     }
     data(x) = y
     if (!state(x)) n += 1
-    state(x) = true
+    state += x
   }
 
-  def ?(x: Int): Option[T] = {
-    if (state(x)) Some(data(x)) else None
-  }
+  def ?(x: Int): Option[T] = if (state(x)) Some(data(x)) else None
 
-  def pairs = Range(data.capacity).filter(i => state(i)).map(i => (i, data(i))).asIfSorted(WeakOrder by firstOfPair[Int, T])
+  def pairs = state.createMapBy(i => data(i)).pairs
 
   override def size: Int = n
 
@@ -46,21 +43,18 @@ class DenseIntKeyedMap[T] private(
   def addInplace(x: Int, y: T): Unit = {
     if (x >= data.capacity) {
       data.ensureCapacity(x + 1)
-      state.ensureCapacity(x + 1)
     }
-    state(x) = true
+    state += x
     data(x) = y
     n += 1
   }
 
-  def clear(): Unit = {
-    FastLoop.ascending(0, data.capacity, 1) { i => state(i) = false }
-    n = 0
-  }
+  def clear(): Unit = state.clear()
+
 
   def removeInplace(x: Int): Unit = {
     if (state(x)) n -= 1
-    state(x) = false
+    state -= x
   }
 
 }

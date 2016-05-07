@@ -46,5 +46,5 @@ object WithCost extends WithCostLowPriorityImplicit {
 
 // This should have lower priority than SearchNodeWithHeuristic.order
 private[collection] trait WithCostLowPriorityImplicit {
-  implicit def order[S, C: OrderedAdditiveGroup]: WeakOrder[WithCost[S, C]] = WeakOrder.by(_.g)
+  implicit def order[S, C: OrderedAdditiveGroup]: Order[WithCost[S, C]] = Order.by(_.g)
 }

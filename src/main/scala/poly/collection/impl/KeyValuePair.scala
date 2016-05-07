@@ -41,8 +41,8 @@ object KeyValuePair {
     }
 
   /** Returns a weak order on key-value pairs that is based on the weak order on the key. */
-  implicit def orderByKey[@sp(Int) K: WeakOrder, V]: WeakOrder[KeyValuePair[K, V]] =
-    new WeakOrder[KeyValuePair[K, V]] {
+  implicit def orderByKey[@sp(Int) K: Order, V]: Order[KeyValuePair[K, V]] =
+    new Order[KeyValuePair[K, V]] {
       def cmp(x: KeyValuePair[K, V], y: KeyValuePair[K, V]) = x.key >?< y.key
     }
 

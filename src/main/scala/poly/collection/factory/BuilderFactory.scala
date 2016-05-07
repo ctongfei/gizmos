@@ -6,20 +6,28 @@ import poly.collection.builder._
 import poly.collection.conversion.FromScala._
 import scala.language.higherKinds
 
+trait Factory[+C[_]] {
+  /** Creates an empty collection. */
+  def empty[T]: C[T] = from(Traversable.empty)
+
+  /** Creates a collection by adding the arguments into it. */
+  def apply[T](xs: T*): C[T] = from(xs)
+
+  /** Creates a collection by adding all the elements in the specific traversable sequence. */
+  def from[T](xs: Traversable[T]): C[T]
+}
+
 /**
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait Factory[+C[_]] {
+trait BuilderFactory[+C[_]] extends Factory[C] {
 
   /** Returns a new builder of this collection type. */
   implicit def newBuilder[T]: Builder[T, C[T]]
 
   /** Creates an empty collection. */
-  def empty[T]: C[T] = newBuilder[T].result
-
-  /** Creates a collection by adding the arguments into it. */
-  def apply[T](xs: T*): C[T] = from(xs)
+  override def empty[T]: C[T] = newBuilder[T].result
 
   /** Creates a collection by adding all the elements in the specific traversable sequence. */
   def from[T](xs: Traversable[T]): C[T] = {
@@ -28,7 +36,5 @@ trait Factory[+C[_]] {
     b addAllInplace xs
     b.result
   }
-
-  //implicit def factory: CollectionFactoryWithOrder[C] = this
 
 }

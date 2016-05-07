@@ -12,9 +12,9 @@ import scala.annotation.unchecked.{uncheckedVariance => uv}
 trait SortedMap[@sp(Int) K, +V] extends Map[K, V] { self =>
 
   /** Returns the weak order on keys. */
-  def orderOnKey: WeakOrder[K]
+  def orderOnKeys: Order[K]
 
-  def equivOnKeys = orderOnKey
+  def eqOnKeys = orderOnKeys
 
   def pairs: SortedIterable[(K, V @uv)]
 

@@ -7,9 +7,10 @@ import poly.collection.builder._
 import scala.language.higherKinds
 
 /**
+ * For factories that builds on a stream of A, but requiring evidences of type A and B.
  * @author Tongfei Chen
  */
-trait FactoryEvEv[+C[_, _], EvA[_], EvB[_]] {
+trait BuilderFactoryEv2[+C[_, _], EvA[_], EvB[_]] {
   /** Returns a new builder of this collection type. */
   implicit def newBuilder[A: EvA, B: EvB]: Builder[A, C[A, B]]
 

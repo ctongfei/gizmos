@@ -15,7 +15,7 @@ import poly.macroutil._
  * @since 0.1.0
  * @author Tongfei Chen
  */
-class BinaryHeap[T] private(private val data: ResizableSeq[T])(implicit val orderOnElements: WeakOrder[T]) extends PriorityQueue[T] {
+class BinaryHeap[T] private(private val data: ResizableSeq[T])(implicit val orderOnElements: Order[T]) extends PriorityQueue[T] {
 
   import BinaryTree._
 
@@ -67,9 +67,9 @@ class BinaryHeap[T] private(private val data: ResizableSeq[T])(implicit val orde
 
 }
 
-object BinaryHeap extends FactoryEv[BinaryHeap, WeakOrder] {
+object BinaryHeap extends BuilderFactoryEv[BinaryHeap, Order] {
 
-  implicit def newBuilder[T: WeakOrder]: Builder[T, BinaryHeap[T]] = new Builder[T, BinaryHeap[T]] {
+  implicit def newBuilder[T: Order]: Builder[T, BinaryHeap[T]] = new Builder[T, BinaryHeap[T]] {
     private[this] val data = new ResizableSeq[T]()
     def sizeHint(n: Int): Unit = data.ensureCapacity(n)
     def addInplace(x: T): Unit = data.appendInplace(x)

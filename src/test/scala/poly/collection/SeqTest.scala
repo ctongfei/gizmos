@@ -10,7 +10,7 @@ object SeqTest extends App {
   for (i ← 0 ~~< 4) println(i)
 
 
-  val a = ListSeq[Int]()
+  val a = ListSeq[Int](3, 3, 2)
   a appendInplace 0
   a appendInplace 2
   a appendInplace 3

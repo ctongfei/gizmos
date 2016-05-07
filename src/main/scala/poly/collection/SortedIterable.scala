@@ -13,7 +13,7 @@ import poly.collection.mut._
 trait SortedIterable[T] extends Iterable[T] { self =>
 
   /** Returns the order under which the elements of this collection are sorted. */
-  implicit def orderOnElements: WeakOrder[T]
+  implicit def orderOnElements: Order[T]
 
   override def filter(f: T => Boolean): SortedIterable[T] = super.filter(f).asIfSorted(orderOnElements)
 
@@ -31,7 +31,7 @@ trait SortedIterable[T] extends Iterable[T] { self =>
    * @return A merged sorted sequence
    */
   def merge(that: SortedIterable[T]): SortedIterable[T] = new SortedIterable[T] {
-    implicit def orderOnElements: WeakOrder[T] = self.orderOnElements
+    implicit def orderOnElements: Order[T] = self.orderOnElements
     def newIterator: Iterator[T] = new Iterator[T] {
       private[this] val ai = self.newIterator
       private[this] val bi = that.newIterator

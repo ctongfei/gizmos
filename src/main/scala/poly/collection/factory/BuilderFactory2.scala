@@ -8,7 +8,7 @@ import scala.language.higherKinds
 /**
  * @author Tongfei Chen
  */
-trait Factory2[+C[_, _]] {
+trait BuilderFactory2[+C[_, _]] {
 
   implicit def newBuilder[A, B]: Builder[(A, B), C[A, B]]
 

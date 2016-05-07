@@ -47,12 +47,13 @@ trait IndexedSeq[+T] extends BiSeq[T] { self =>
 
   override def sizeKnown = true
 
+  // Overridden foreach method for performance.
   override def foreach[V](f: T => V): Unit = {
     FastLoop.ascending(0, length, 1) { i => f(apply(i)) }
   }
 
   override def pairs: SortedIndexedSeq[(Int, T@uv)] =
-    IndexedSeq.tabulate(length)(i => i → self(i)).asIfSorted[(Int, T)](WeakOrder by firstOfPair)
+    IndexedSeq.tabulate(length)(i => i → self(i)).asIfSorted[(Int, T)](Order by firstOfPair)
 
   override def keys = Range(length)
 
@@ -174,7 +175,7 @@ trait IndexedSeq[+T] extends BiSeq[T] { self =>
    * @param U The implicit order
    * @return A sorted order
    */
-  override def asIfSorted[U >: T](implicit U: WeakOrder[U]): SortedIndexedSeq[T @uv] = new SortedIndexedSeq[T] {
+  override def asIfSorted[U >: T](implicit U: Order[U]): SortedIndexedSeq[T @uv] = new SortedIndexedSeq[T] {
     def orderOnElements = U
     def fastLength: Int = self.length
     def fastApply(i: Int): T = self.apply(i)

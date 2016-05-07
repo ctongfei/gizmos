@@ -4,7 +4,12 @@ import poly.algebra._
 import poly.algebra.syntax._
 import poly.algebra.hkt._
 import poly.algebra.specgroup._
+import poly.collection.conversion.FromScala._
 import poly.collection.exception._
+import poly.collection.factory._
+import poly.collection.impl._
+import poly.collection.mut._
+
 import scala.language.reflectiveCalls
 
 /**
@@ -64,7 +69,7 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
 
   /** Returns the set of the keys of this map. $LAZY */
   def keySet: Set[K] = new AbstractSet[K] {
-    def equivOnKeys = self.equivOnKeys
+    def eqOnKeys = self.eqOnKeys
     def contains(x: K) = self.containsKey(x)
     override def size = self.size
     def keys = self.pairs map firstOfPair
@@ -78,13 +83,15 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
 
   // HELPER FUNCTIONS
 
+  def isEmpty = size != 0
+
   def filterKeys(f: K => Boolean): Map[K, V] = new AbstractMap[K, V] {
     def apply(k: K) = if (!f(k)) throw new KeyNotFoundException(k) else self(k)
     def ?(k: K) = if (!f(k)) None else self ? k
     def pairs = self.pairs.filter { case (k, _) => f(k) }
     def containsKey(k: K) = if (!f(k)) false else self.containsKey(k)
 
-    def equivOnKeys = self.equivOnKeys
+    def eqOnKeys = self.eqOnKeys
   }
 
   /**
@@ -102,7 +109,7 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
    * @return A map view that maps every key of this map to `f(this(key))`.
    */
   def map[W](f: V => W): Map[K, W] = new AbstractMap[K, W] {
-    def equivOnKeys = self.equivOnKeys
+    def eqOnKeys = self.eqOnKeys
     def containsKey(x: K) = self.containsKey(x)
     def ?(x: K) = (self ? x).map(f)
     def apply(x: K) = f(self(x))
@@ -122,7 +129,7 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
    * }}}
    */
   def cartesianProduct[L, W](that: Map[L, W]): Map[(K, L), (V, W)] = new AbstractMap[(K, L), (V, W)] {
-    def equivOnKeys = Eq.product(self.equivOnKeys, that.equivOnKeys)
+    def eqOnKeys = Eq.product(self.eqOnKeys, that.eqOnKeys)
     def containsKey(k: (K, L)) = self.containsKey(k._1) && that.containsKey(k._2)
     def ?(k: (K, L)) = for (v ← self ? k._1; v1 ← that ? k._2) yield (v, v1)
     def apply(k: (K, L)) = (self(k._1), that(k._2))
@@ -138,7 +145,7 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
    * @example {{{{1 -> 2, 2 -> 3} zip {2 -> 5, 3 -> 6} == {2 -> (3, 5)} }}}
    */
   def zip[W](that: Map[K, W]): Map[K, (V, W)] = new AbstractMap[K, (V, W)] {
-    def equivOnKeys = self.equivOnKeys
+    def eqOnKeys = self.eqOnKeys
     def apply(x: K) = (self(x), that(x))
     def ?(x: K) = for (v ← self ? x; w ← that ? x) yield (v, w)
     def pairs = self.pairs filter { case (k, v) => that containsKey k } map { case (k, v) => (k, (v, that(k))) }
@@ -159,7 +166,7 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
     def apply(k: K) = (self(k), that ? k)
     def ?(k: K) = for (v ← self ? k) yield (v, that ? k)
 
-    def equivOnKeys = self.equivOnKeys
+    def eqOnKeys = self.eqOnKeys
     def pairs = self.pairs map { case (k, v) => (k, (v, that ? k)) }
     def containsKey(x: K) = self containsKey x
   }
@@ -172,7 +179,7 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
     def apply(k: K) = (self ? k, that(k))
     def ?(k: K) = for (w ← that ? k) yield (self ? k, w)
 
-    def equivOnKeys = that.equivOnKeys
+    def eqOnKeys = that.eqOnKeys
     def pairs = that.pairs map { case (k, w) => (k, (self ? k, w)) }
     def containsKey(x: K) = that containsKey x
   }
@@ -187,7 +194,7 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
       case (None, None) => None
       case res => Some(res)
     }
-    def equivOnKeys = self.equivOnKeys
+    def eqOnKeys = self.eqOnKeys
     def pairs =
       (self.pairs map { case (k, v) => k → (Some(v), that ? k) }) ++
       (that.pairs filter { case (k, w) => self notContainsKey k } map { case (k, w) => k → (None, Some(w)) })
@@ -212,7 +219,7 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
     def apply(k: J) = self apply f(k)
     def ?(k: J) = self ? f(k)
 
-    implicit def equivOnKeys = self.equivOnKeys contramap f
+    implicit def eqOnKeys = self.eqOnKeys contramap f
   }
 
   def withDefault[W >: V](default: W): Map[K, W] = new AbstractMap[K, W] {
@@ -221,14 +228,14 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
     def apply(k: K) = (self ? k).getOrElse(default)
     def ?(k: K) = self ? k
 
-    def equivOnKeys = self.equivOnKeys
+    def eqOnKeys = self.eqOnKeys
 }
 
   def asMap: Map[K, V] = new AbstractMap[K, V] {
     def apply(k: K) = self.apply(k)
     def ?(k: K) = self ? k
 
-    implicit def equivOnKeys = self.equivOnKeys
+    implicit def eqOnKeys = self.eqOnKeys
     def pairs = self.pairs
     def containsKey(x: K) = self.containsKey(x)
   }
@@ -251,19 +258,25 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
     case _ => false
   }
 
-  override def hashCode = ???
+  override def hashCode = MurmurHash3.symmetricHash(self.pairs)(Hashing.default[(K, V)])
 
 }
 
-object Map extends MapLowPriorityTypeclassInstances {
+object Map extends Factory2Ev[Map, Eq] with MapLowPriorityTypeclassInstances {
+
+  // CONSTRUCTORS
+
+  def from[K: Eq, V](kvs: Traversable[(K, V)]) = AutoMap from kvs
 
   def empty[K: Eq]: Map[K, Nothing] = new AbstractMap[K, Nothing] {
     def apply(k: K) = throw new KeyNotFoundException[K](k)
     def ?(k: K) = None
-    def equivOnKeys = poly.algebra.Eq[K]
+    def eqOnKeys = poly.algebra.Eq[K]
     def pairs = Iterable.empty
     def containsKey(x: K) = false
   }
+
+  // TYPECLASS INSTANCES
 
   //TODO: dynamic resolution of implicit Eq based on runtime type
   //TODO: this should be resolved at compile time

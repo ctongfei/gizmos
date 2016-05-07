@@ -15,8 +15,8 @@ class Alphabet[T: Eq] private(
   extends BijectiveMap[T, Int]
 {
 
-  def equivOnKeys = implicitly[Eq[T]]
-  def equivOnValues = Eq.default[Int]
+  def eqOnKeys = implicitly[Eq[T]]
+  def eqOnValues = Eq.default[Int]
 
   def apply(x: T): Int = w2i ? x match {
     case Some(i) => i

@@ -11,7 +11,7 @@ import poly.algebra._
 trait BijectiveMap[K, V] extends Map[K, V] with Bijection[K, V] { self =>
 
   /** Returns the equivalence relation on the value set of this bijective map. */
-  def equivOnValues: Eq[V]
+  def eqOnValues: Eq[V]
 
   /** Gets the corresponding key of a given value. */
   def invert(v: V): K
@@ -30,15 +30,15 @@ trait BijectiveMap[K, V] extends Map[K, V] with Bijection[K, V] { self =>
   def valueSet: Set[V] = new AbstractSet[V] {
     def contains(x: V) = self containsValue x
     def keys = self.values
-    def equivOnKeys = self.equivOnValues
+    def eqOnKeys = self.eqOnValues
   }
 
   // HELPER FUNCTIONS
 
   /** Returns the inverse map that maps values to keys. $LAZY */
   override def inverse: BijectiveMap[V, K] = new AbstractBijectiveMap[V, K] {
-    def equivOnKeys = self.equivOnValues
-    def equivOnValues = self.equivOnKeys
+    def eqOnKeys = self.eqOnValues
+    def eqOnValues = self.eqOnKeys
     def invert(k: K) = self(k)
     def invertOption(k: K) = self ? k
     def ?(v: V) = self.invertOption(v)
@@ -51,8 +51,8 @@ trait BijectiveMap[K, V] extends Map[K, V] with Bijection[K, V] { self =>
   }
 
   def map[W](that: BijectiveMap[V, W]): BijectiveMap[K, W] = new AbstractBijectiveMap[K, W] {
-    def equivOnKeys = self.equivOnKeys
-    def equivOnValues = that.equivOnValues
+    def eqOnKeys = self.eqOnKeys
+    def eqOnValues = that.eqOnValues
     def apply(k: K) = that(self(k))
     def ?(k: K) = for (v ← self ? k; w ← that ? v) yield w
     def invert(w: W) = self.invert(that.invert(w))
