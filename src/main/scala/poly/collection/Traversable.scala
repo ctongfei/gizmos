@@ -463,10 +463,10 @@ trait Traversable[+T] { self =>
    *   (3, 2, 4, 1).sort(Order[Int].reverse) == (4, 3, 2, 1)
    * }}}
    */
-  def sort[U >: T : Order]: SortedIndexedSeq[T @uv] = {
+  def sort(implicit T: Order[T]): SortedIndexedSeq[T @uv] = {
     val seq = self to ArraySeq
-    seq.sortInplace()
-    seq.asIfSorted
+    seq.sortInplace()(T)
+    seq.asIfSorted(T)
   }
 
   def sortBy[U: Order](f: T => U): SortedIndexedSeq[T @uv] = {
@@ -574,21 +574,20 @@ trait Traversable[+T] { self =>
 
   /**
    * Returns the first element in this collection that makes the specific function least.
-   *
-   * @param f The function
-   * @tparam U The implicit weak order on the output of the specific function.
+   * @example {{{
+   *   (1, 2, 3, 4, 5) argmin { _ % 4 } == 4
+   * }}}
    */
   def argmin[U: Order](f: T => U): T = argminWithValue(f)._1
 
   def minBy[U: Order](f: T => U) = argmin(f)
 
   /**
-    * Returns the first element in this collection that makes the specific function greatest.
-   *
-   * @param f
-    * @tparam U
-    * @return
-    */
+   * Returns the first element in this collection that makes the specific function greatest.
+   * @example {{{
+   *   (1, 2, 3, 4, 5) argmax { _ % 4 } == 3
+   * }}}
+   */
   def argmax[U: Order](f: T => U): T = argmaxWithValue(f)._1
 
   def maxBy[U: Order](f: T => U) = argmax(f)
@@ -612,7 +611,7 @@ trait Traversable[+T] { self =>
     (minVal, maxVal)
   }
 
-  def argminWithValue[U](f: T => U)(implicit O: Order[U]): (T, U) = {
+  def argminWithValue[U: Order](f: T => U): (T, U) = {
     var minKey = default[T]
     var minVal = default[U]
     var first = true
@@ -629,7 +628,7 @@ trait Traversable[+T] { self =>
     (minKey, minVal)
   }
 
-  def argmaxWithValue[U](f: T => U)(implicit O: Order[U]): (T, U) = {
+  def argmaxWithValue[U: Order](f: T => U): (T, U) = {
     var maxKey = default[T]
     var maxVal = default[U]
     var first = true
@@ -666,7 +665,6 @@ trait Traversable[+T] { self =>
 
   /**
    * Converts this traversable sequence to an array.
-   *
    * @example {{{ xs.toArray }}}
    */
   def toArray[U >: T : ClassTag]: Array[U] = {
@@ -682,7 +680,6 @@ trait Traversable[+T] { self =>
 
   /**
    * Builds a structure based on this traversable sequence given an implicit builder.
-   *
    * @param builder An implicit builder
    * @tparam S Type of the structure to be built
    * @return A new structure of type `S`
@@ -716,11 +713,8 @@ trait Traversable[+T] { self =>
   def :+[U >: T](x: U) = this append x
   def +:[U >: T](x: U) = this prepend x
   def ++[U >: T](that: Traversable[U]) = this concat that
-  def |×|[U](that: Traversable[U]) = this product that
+  def |*|[U](that: Traversable[U]) = this product that
 
-  def |>[U](f: T => U) = this map f
-  def |?(f: T => Boolean) = this filter f
-  def ||>[U](f: T => Traversable[U]) = this flatMap f
   //endregion
   //endregion
 
@@ -758,11 +752,10 @@ object Traversable {
 
   implicit class TraversableOfTraversablesOps[T](val underlying: Traversable[Traversable[T]]) extends AnyVal {
     /**
-      * "Flattens" this collection of collection into one collection.
-     *
+     * "Flattens" this collection of collection into one collection.
      * @example {{{((1, 2, 3), (), (7)).flatten == (1, 2, 3, 7)}}}
-      */
-    def flatten: Traversable[T] = underlying.flatMap(identity)
+     */
+    def flatten: Traversable[T] = underlying.flatMap(x => x)
   }
 
   implicit class TraversableOfPairsOps[A, B](val underlying: Traversable[(A, B)]) extends AnyVal {
@@ -784,11 +777,9 @@ object Traversable {
       (ak.result, av.result)
     }
 
-    /**
-     * Converts this traversable sequence to a map if this sequence consists of (key, value) pairs.
-     */
-    def to[M[_, _], Ev[_]](factory: Factory2Ev[M, Ev])(implicit A: Ev[A]) = factory from underlying
+    def to[M[_, _]](factory: Factory2[M]) = factory from underlying
 
+    def to[M[_, _], Ev[_]](factory: Factory2Ev[M, Ev])(implicit A: Ev[A]) = factory from underlying
 
   }
 

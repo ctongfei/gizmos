@@ -3,7 +3,7 @@ package poly.collection.mut
 import poly.collection._
 
 /**
- * Represents a mutable queue.
+ * Represents a mutable queue/stack/priority queue.
  * @author Tongfei Chen
  * @since 0.1.0
  */
@@ -43,6 +43,6 @@ trait Queue[T] {
   def dequeue() = pop()
   def front = top
 
-  override def toString = "(" + elements.buildString(",") + ")"
+  override def toString = "[" + elements.buildString(", ") + "]"
 
 }

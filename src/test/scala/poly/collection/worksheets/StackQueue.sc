@@ -1,4 +1,5 @@
 import poly.collection.mut._
+import poly.algebra.syntax._
 
 val s = ArrayStack[Int]()
 s.push(0)
@@ -15,8 +16,22 @@ s.top
 
 s.size
 
-val q = ArrayQueue[Int]()
-q.enqueue(0)
+val q = BinaryHeap[Int]()
+q += 0
+q += 1
+q += 2
+q += 3
+q += 4
+q += 5
 q
-q.enqueue(1)
+q.pop()
+q
+q.pop()
+q
+q.pop()
+q
+q += 6
+q += 7
+q += 8
+q += 9
 q

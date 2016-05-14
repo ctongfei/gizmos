@@ -92,3 +92,5 @@ trait SortedIterable[T] extends Iterable[T] { self =>
   }
 
 }
+
+abstract class AbstractSortedIterable[T] extends AbstractIterable[T] with SortedIterable[T]

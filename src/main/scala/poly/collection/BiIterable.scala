@@ -2,6 +2,7 @@ package poly.collection
 
 /**
  * Represents a collection that can be iterated in two directions, namely forward and backward.
+ *
  * @author Tongfei Chen
  * @since 0.1.0
  */
@@ -23,18 +24,22 @@ trait BiIterable[+T] extends Iterable[T] { self =>
     override def reverse = self
   }
 
-  override def map[U](f: T => U) = ofIterator(
-    new Iterator[U] {
+  override def map[U](f: T => U): BiIterable[U] = new AbstractBiIterable[U] {
+    def newIterator = new Iterator[U] {
       private[this] val i = self.newIterator
       def current = f(i.current)
       def advance() = i.advance()
-    },
-    new Iterator[U] {
+    }
+
+    def newReverseIterator = new Iterator[U] {
       private[this] val i = self.newReverseIterator
       def current = f(i.current)
       def advance() = i.advance()
     }
-  )
+
+    override def size = self.size // map preserves size
+    override def sizeKnown = self.sizeKnown
+  }
 
   override def last = reverse.head
 

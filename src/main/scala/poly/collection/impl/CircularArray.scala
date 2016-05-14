@@ -34,7 +34,7 @@ class CircularArray[T](private[poly] val data: ResizableSeq[T]) {
   def apply(i: Int) = data((frontPtr + i) % data.capacity)
 
   def length = {
-    if (backPtr > frontPtr)
+    if (backPtr >= frontPtr)
       backPtr - frontPtr
     else backPtr - frontPtr + data.capacity
   }

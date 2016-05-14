@@ -16,15 +16,13 @@ trait KeyedLike[@sp(Int) K, +Coll <: KeyedLike[K, Coll]] extends Keyed[K] { self
   /** Tests if the specific key is absent in this structure. */
   final def notContainsKey(k: K) = !containsKey(k)
 
-  /** Returns an iterable sequence of all the keys in this structure. */
+  /** Returns an iterable collection of all the keys in this structure. */
   def keys: Iterable[K]
 
+  /** Returns a set of all the keys in this structure. */
   def keySet: Set[K]
 
-  /**
-    * Returns the restricted substructure obtained by choosing a smaller domain for the key.
-    * @param f Key selector
-    */
+  /** Returns the restricted substructure obtained by choosing a smaller domain for the key given a specific predicate. */
   def filterKeys(f: K => Boolean): Coll
 
 }

@@ -6,8 +6,8 @@ import poly.collection.builder._
 import scala.language.higherKinds
 
 /**
- * Represents a factory of higher type [[C]] that when building, requires evidence of higher type [[Ev]]
- * being endowed on the actual type of the elements.
+ * Represents a factory of higher type [[C]] that when building a structure of type C[A],
+ * requires evidence of type [[Ev]][A] being endowed on the actual type of the elements.
  * @author Tongfei Chen
  * @since 0.1.0
  */

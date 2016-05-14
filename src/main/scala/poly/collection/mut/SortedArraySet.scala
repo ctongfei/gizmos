@@ -1,12 +1,15 @@
 package poly.collection.mut
 
+import poly.algebra._
 import poly.collection._
+import poly.collection.builder._
+import poly.collection.factory._
 import poly.collection.impl._
 
 /**
  * @author Tongfei Chen
  */
-class SortedArraySet[T] private(private val data: SortedArray[T]) extends SortedSet[T] with KeyMutableSet[T] {
+class SortedArraySet[T] private(private val data: SortedArraySeq[T]) extends SortedSet[T] with KeyMutableSet[T] {
 
   override def orderOnKeys = data.orderOnElements
 
@@ -20,5 +23,14 @@ class SortedArraySet[T] private(private val data: SortedArray[T]) extends Sorted
 
   override def size: Int = data.size
 
-  def clear() = ???
+  def clear() = data.data.clear()
+}
+
+object SortedArraySet extends BuilderFactoryEv[SortedArraySet, Order] {
+  implicit def newBuilder[T: Order]: Builder[T, SortedArraySet[T]] = new Builder[T, SortedArraySet[T]] {
+    private[this] val b = SortedArraySeq.newBuilder
+    def addInplace(x: T) = b += x
+    def result = new SortedArraySet(b.result)
+    def sizeHint(n: Int) = b.sizeHint(n)
+  }
 }

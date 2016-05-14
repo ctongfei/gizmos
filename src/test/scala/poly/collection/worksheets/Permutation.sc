@@ -12,4 +12,6 @@ a.succ(1)
 a.lt(1, 0)
 
 a.compose(a.inverse)
-Permutation.Group(4).elements
+Permutation.Group(4).elements foreach println
+
+

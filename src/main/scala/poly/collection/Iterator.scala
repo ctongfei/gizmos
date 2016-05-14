@@ -23,7 +23,7 @@ import poly.collection.exception._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait Iterator[@sp +T] { self =>
+trait Iterator[@sp(Int, Char) +T] { self =>
 
   /** Returns the current element of this iterator. This method should be side-effect free. */
   def current: T
@@ -44,7 +44,7 @@ trait Iterator[@sp +T] { self =>
   }
 
   override def toString = try {
-    s"Current = ${current.toString}"
+    s"Current = $current"
   } catch {
     case _: Exception => "<invalid position>"
   }

@@ -152,6 +152,14 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
     def containsKey(x: K) = self.containsKey(x) && that.containsKey(x)
   }
 
+  def zipWith[W, X](that: Map[K, W])(f: (V, W) => X): Map[K, X] = new AbstractMap[K, X] {
+    def ?(k: K) = for (v ← self ? k; w ← that ? k) yield f(v, w)
+    def pairs = self.pairs filter { case (k, v) => that containsKey k } map { case (k, v) => (k, f(v, that(k))) }
+    def containsKey(x: K) = self.containsKey(x) && that.containsKey(x)
+    def apply(k: K) = f(self(k), that(k))
+    def eqOnKeys = self.eqOnKeys
+}
+
   /**
    * Returns the inner join of two maps by their keys.
    * It is similar to the SQL expression `SELECT * FROM self INNER JOIN that ON self.key == that.key`.
@@ -222,7 +230,7 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
     implicit def eqOnKeys = self.eqOnKeys contramap f
   }
 
-  def withDefault[W >: V](default: W): Map[K, W] = new AbstractMap[K, W] {
+  def withDefault[W >: V](default: => W): Map[K, W] = new AbstractMap[K, W] {
     def pairs = self.pairs
     def containsKey(x: K) = self.containsKey(x)
     def apply(k: K) = (self ? k).getOrElse(default)
@@ -241,8 +249,6 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
   }
 
   // SYMBOLIC ALIASES
-  def |>[W](f: V => W) = self map f
-  def |<[J](f: Bijection[J, K]) = self contramap f
   def |~|[W](that: Map[K, W]) = self zip that
 
   def ⋈[W](that: Map[K, W]) = self innerJoin that

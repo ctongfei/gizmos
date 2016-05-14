@@ -53,7 +53,7 @@ trait IndexedSeq[+T] extends BiSeq[T] { self =>
   }
 
   override def pairs: SortedIndexedSeq[(Int, T@uv)] =
-    IndexedSeq.tabulate(length)(i => i → self(i)).asIfSorted[(Int, T)](Order by firstOfPair)
+    IndexedSeq.tabulate(length)(i => i → self(i)).asIfSorted(Order by firstOfPair)
 
   override def keys = Range(length)
 
@@ -150,6 +150,11 @@ trait IndexedSeq[+T] extends BiSeq[T] { self =>
     def fastLength = math.min(self.length, that.length)
   }
 
+  def zipWith[U, V](that: IndexedSeq[U])(f: (T, U) => V): IndexedSeq[V] = new AbstractIndexedSeq[V] {
+    def fastApply(i: Int) = f(self(i), that(i))
+    def fastLength = math.min(self.length, that.length)
+  }
+
   def interleave[U >: T](that: IndexedSeq[U]): IndexedSeq[U] = new AbstractIndexedSeq[U] {
     def fastLength = math.min(self.length, that.length) * 2
     def fastApply(i: Int) = if (i % 2 == 0) self(i / 2) else that(i / 2)
@@ -175,8 +180,8 @@ trait IndexedSeq[+T] extends BiSeq[T] { self =>
    * @param U The implicit order
    * @return A sorted order
    */
-  override def asIfSorted[U >: T](implicit U: Order[U]): SortedIndexedSeq[T @uv] = new SortedIndexedSeq[T] {
-    def orderOnElements = U
+  override def asIfSorted(implicit T: Order[T]): SortedIndexedSeq[T @uv] = new SortedIndexedSeq[T] {
+    def orderOnElements = T
     def fastLength: Int = self.length
     def fastApply(i: Int): T = self.apply(i)
   }

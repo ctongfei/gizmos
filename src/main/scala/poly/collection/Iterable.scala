@@ -28,6 +28,8 @@ trait Iterable[+T] extends Traversable[T] { self =>
     while (i.advance()) f(i.current)
   }
 
+  final def ringOnWeight = OrderedRing[Int]
+
   //region HELPER FUNCTIONS
 
   override def map[U](f: T => U): Iterable[U] = new AbstractIterable[U] {
@@ -169,13 +171,13 @@ trait Iterable[+T] extends Traversable[T] { self =>
 
   override def diffByGroup[U >: T](implicit U: Group[U]) = consecutive((x, y) => U.op(y, U.inv(x)))
 
-  override def tail: Iterable[T] = {
+  override def tail = {
     val tailIterator = self.newIterator
     tailIterator.advance()
     ofIterator(tailIterator)
   }
 
-  override def init: Iterable[T] = ofIterator {
+  override def init = ofIterator {
     new Iterator[T] {
       private[this] val i = self.newIterator
       i.advance()
@@ -309,8 +311,8 @@ trait Iterable[+T] extends Traversable[T] { self =>
   }
 
   /** Pretends that this iterable collection is sorted. */
-  def asIfSorted[U >: T : Order]: SortedIterable[T @uv] = new SortedIterable[T] {
-    def orderOnElements = implicitly[Order[U]]
+  def asIfSorted(implicit T: Order[T]): SortedIterable[T @uv] = new SortedIterable[T] {
+    def orderOnElements = T
     def newIterator = self.newIterator
   }
 
@@ -331,6 +333,12 @@ trait Iterable[+T] extends Traversable[T] { self =>
     }
   }
 
+  /**
+   * Equivalent to "`this zip that map f`" but may be more efficient.
+   * @example {{{
+   *   (1, 2, 3) zipWith (2, 3, 4) (_+_) == (3, 5, 7)
+   * }}}
+   */
   def zipWith[U, V](that: Iterable[U])(f: (T, U) => V): Iterable[V] = ofIterator {
     new Iterator[V] {
       val ti = self.newIterator
@@ -352,7 +360,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
         }
       }
     }
-    paired.asIfSorted[(Int, T)](Order by firstOfPair)
+    paired.asIfSorted(Order by firstOfPair)
   }
 
   /**
@@ -438,10 +446,8 @@ trait Iterable[+T] extends Traversable[T] { self =>
   override def +:[U >: T](u: U): Iterable[U] = this prepend u
   override def :+[U >: T](u: U): Iterable[U] = this append u
   def ++[U >: T](that: Iterable[U]) = this concat that
-  override def |>[U](f: T => U) = this map f
-  def ||>[U](f: T => Iterable[U]) = this flatMap f
-  override def |?(f: T => Boolean) = this filter f
-  def |×|[U](that: Iterable[U]) = this product that
+  def *(n: Int) = this repeat n
+  def |*|[U](that: Iterable[U]) = this product that
   def |~|[U](that: Iterable[U]) = this zip that
   //endregion
 
@@ -530,6 +536,7 @@ object Iterable {
     def empty[X]: Iterable[X] = Iterable.empty
     def concat[X](a: Iterable[X], b: Iterable[X]) = a.concat(b)
     override def filter[X](mx: Iterable[X])(f: X => Boolean) = mx.filter(f)
+    override def productMap[X, Y, Z](mx: Iterable[X], my: Iterable[Y])(f: (X, Y) => Z) = (mx zipWith my)(f)
   }
 
   object ZipIdiom extends Idiom[Iterable] {

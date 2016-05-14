@@ -22,6 +22,7 @@ trait KeyMutableMap[K, V] extends ValueMutableMap[K, V] { self =>
   /**
    * Removes a key-value pair given the key.
    * If the key does not exist in the map, this method does nothing.
+   *
    * @param x Key
    */
   def removeInplace(x: K): Unit
@@ -29,4 +30,9 @@ trait KeyMutableMap[K, V] extends ValueMutableMap[K, V] { self =>
   /** Removes all key-value pairs in this map. */
   def clear(): Unit
 
+  //TODO: withDefaultUpdate?
+
+  def +=(k: K, v: V) = addInplace(k, v)
+  def +=(kv: (K, V)) = addInplace(kv)
+  def -=(k: K) = removeInplace(k)
 }

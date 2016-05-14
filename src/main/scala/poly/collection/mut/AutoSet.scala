@@ -11,7 +11,7 @@ import poly.collection.factory._
  *   <li> If the key is endowed with a hashing instance ([[poly.algebra.Hashing]]),
  *     the result type is [[poly.collection.mut.HashSet]]. Under this condition, the lookup complexity is amortized O(1). </li>
  *   <li> Else, if the key is endowed with a weak order ([[poly.algebra.Order]]),
- *     the result type is [[poly.collection.mut.RedBlackTreeSet]]. Under this condition, the lookup complexity is O(''n'' log ''n''). </li>
+ *     the result type is [[poly.collection.mut.RedBlackTreeSet]]. Under this condition, the lookup complexity is O(log ''n''). </li>
  *   <li> Else, the result type is [[poly.collection.mut.ListSet]]. Under this condition, the lookup complexity is O(''n''). </li>
  * </ul>
  * @author Tongfei Chen

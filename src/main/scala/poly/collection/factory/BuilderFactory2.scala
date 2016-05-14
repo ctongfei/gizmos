@@ -8,13 +8,11 @@ import scala.language.higherKinds
 /**
  * @author Tongfei Chen
  */
-trait BuilderFactory2[+C[_, _]] {
+trait BuilderFactory2[+C[_, _]] extends Factory2[C] {
 
   implicit def newBuilder[A, B]: Builder[(A, B), C[A, B]]
 
-  def empty[A, B] = newBuilder[A, B].result
-
-  def apply[A, B](xs: (A, B)*): C[A, B] = from(xs)
+  override def empty[A, B] = newBuilder[A, B].result
 
   def from[A, B](xs: Traversable[(A, B)]) = {
     val b = newBuilder[A, B]
@@ -22,4 +20,14 @@ trait BuilderFactory2[+C[_, _]] {
     b addAllInplace xs
     b.result
   }
+}
+
+trait Factory2[+C[_, _]] {
+
+  def empty[A, B]: C[A, B] = from(Traversable.empty)
+
+  def apply[A, B](xs: (A, B)*): C[A, B] = from(xs)
+
+  def from[A, B](xs: Traversable[(A, B)]): C[A, B]
+
 }

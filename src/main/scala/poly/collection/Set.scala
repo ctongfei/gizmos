@@ -207,8 +207,8 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
    */
   def asMultiset[R: OrderedRing]: Multiset[T, R] = new AbstractMultiset[T, R] {
     def eqOnKeys = self.eqOnKeys
-    def ringOnCount = OrderedRing[R]
-    def multiplicity(k: T) = if (self.contains(k)) one[R] else zero[R]
+    def ringOnWeight = OrderedRing[R]
+    def weight(k: T) = if (self.contains(k)) one[R] else zero[R]
     def keys = self.keys
     def contains(k: T) = self.contains(k)
   }

@@ -77,6 +77,9 @@ class BitSet private(private final var data: LongResizableArray)
   }
 
   def clear() = data.fillInplace(0l)
+
+  //TODO: eager version of union, intersect, setDiff, symmetricDiff
+
 }
 
 object BitSet {

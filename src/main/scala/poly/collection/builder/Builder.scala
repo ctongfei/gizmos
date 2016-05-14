@@ -41,8 +41,8 @@ trait Builder[-T, +C] { // TODO: Specialize T? (Int, Float, Double, Char)
    */
   def result: C
 
-  def :+=(x: T) = addInplace(x)
-  def :++=(xs: Traversable[T]) = xs foreach addInplace
+  def +=(x: T) = addInplace(x)
+  def ++=(xs: Traversable[T]) = xs foreach addInplace
 
 }
 

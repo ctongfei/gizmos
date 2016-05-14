@@ -11,9 +11,9 @@ import poly.collection.impl._
  *
  * @author Tongfei Chen
  */
-class ArrayStack[T] private(private var data: ResizableSeq[T] = null) extends Queue[T] {
+class ArrayStack[T] private(private var data: ResizableSeq[T]) extends Queue[T] {
 
-  def elements = data
+  def elements = data.reverse
 
   override def size = data.fastLength
 

@@ -4,13 +4,15 @@ import poly.collection._
 import poly.collection.impl.specialized._
 
 /**
+ * Represents a graph whose underlying representation is an adjacency matrix.
  * @author Tongfei Chen
+ * @since 0.1.0
  */
-abstract class AdjacencyMatrixGraph[V, E] private(
+class AdjacencyMatrixGraph[V, E] private(
   private val n: Int,
-  private val nodeData: Seq[V],
+  private val nodeData: ValueMutableSeq[V],
   private val edgeExists: SpArrayTable[Boolean],
-  private val edgeData: Table[E]
+  private val edgeData: ValueMutableTable[E]
 ) extends AbstractBiGraph[Int, V, E] with ValueMutableGraph[Int, V, E] {
 
   override def numNodes = n
@@ -28,5 +30,14 @@ abstract class AdjacencyMatrixGraph[V, E] private(
   def apply(i: Int, j: Int) = edgeData(i, j)
 
   def keySet = Range(n).asSet
+
+  def update(i: Int, j: Int, e: E) = {
+    edgeExists(i, j) = true
+    edgeData(i, j) = e
+  }
+
+  def update(i: Int, v: V) = {
+    nodeData(i) = v
+  }
 
 }

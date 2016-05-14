@@ -13,7 +13,7 @@ import scala.annotation.unchecked.{uncheckedVariance => uv}
 
 /**
  * Represents sequences that guarantee the same order every time it is traversed,
- * henceforth we can talk about indices on sequences.
+ * henceforth indices on sequences are well-defined.
  *
  * @author Tongfei Chen
  * @since 0.1.0
@@ -45,7 +45,6 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
 
   /**
    * Returns the ''i''-th element of this sequence. $On
- *
    * @param i Index
    * @return The ''i''-th element of this sequence
    */
@@ -98,7 +97,7 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
       def next = new SeqNodeWithIndex(outer.next, i + 1)
       def isDummy = outer.isDummy
     }
-    ofHeadNode(new SeqNodeWithIndex(headNode, 0)).asIfSorted[(Int, T)](Order by firstOfPair)
+    ofHeadNode(new SeqNodeWithIndex(headNode, 0)).asIfSorted(Order by firstOfPair)
   }
 
   override def keys = pairs map firstOfPair
@@ -216,7 +215,6 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
 
   /**
     * Returns the list of tails of this sequence. $LAZY
- *
     * @example {{{(1, 2, 3).suffixes == ((1, 2, 3), (2, 3), (3))}}}
     */
   override def suffixes = {
@@ -366,33 +364,42 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
   /**
    * Pretends that this sequence is sorted under the given implicit order.
  *
-   * @param U The implicit order
+   * @param T The implicit order
    * @note Actual orderedness is not guaranteed! The user should make sure that it is sorted.
    * @return A sorted sequence
    */
-  override def asIfSorted[U >: T](implicit U: Order[U]): SortedSeq[T@uv] = new SortedSeq[T] {
-    def orderOnElements = U
+  override def asIfSorted(implicit T: Order[T]): SortedSeq[T @uv] = new SortedSeq[T] {
+    def orderOnElements = T
     def headNode: SeqNode[T] = self.headNode
   }
 
   def zip[U](that: Seq[U]): Seq[(T, U)] = ofHeadNode(self.headNode zip that.headNode)
 
+  def zipWith[U, V](that: Seq[U])(f: (T, U) => V): Seq[V] = {
+    class ZippedWithNode(nt: SeqNode[T], nu: SeqNode[U]) extends SeqNode[V] {
+      def next = new ZippedWithNode(nt.next, nu.next)
+      def data = f(nt.data, nu.data)
+      def isDummy = nt.isDummy || nu.isDummy
+    }
+    ofHeadNode(new ZippedWithNode(self.headNode, that.headNode))
+  }
+
   // INDEXING OPERATIONS
 
-  def firstIndexOf[U >: T](x: U): Int = {
+  def firstIndexOf[U >: T: Eq](x: U): Int = {
     var i = 0
     for (y ← this) {
-      if (y == x) return i
+      if (x === y) return i
       i += 1
     }
     -1
   }
 
-  def lastIndexOf[U >: T](x: U): Int = {
+  def lastIndexOf[U >: T : Eq](x: U): Int = {
     var i = 0
     var k = -1
     for (y ← this) {
-      if (y == x) k = i
+      if (x === y) k = i
       i += 1
     }
     k
@@ -439,16 +446,25 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
   }
 
   /**
-   * Tests if this sequence ends with the pattern sequence under an impliciti equivalence relation.
+   * Tests if this sequence ends with the pattern sequence under an implicit equivalence relation.
    * @example {{{
    *   (1, 2, 3, 4) endsWith (3, 4) == true
    * }}}
    */
-  def endsWith[U >: T : Eq](pattern: Seq[U]) = {
-    self.reverse startsWith pattern.reverse
-  }
+  def endsWith[U >: T : Eq](pattern: Seq[U]) = self.reverse startsWith pattern.reverse
 
   def asSeq: Seq[T] = ofDummyNode(dummy)
+
+  // SYMBOLIC ALIASES
+
+  override def +:[U >: T](u: U): Seq[U] = this prepend u
+  override def :+[U >: T](u: U): Seq[U] = this append u
+  def ++[U >: T](that: Seq[U]) = this concat that
+  override def *(n: Int) = this repeat n
+  def |*|[U](that: Seq[U]) = this product that
+  def |~|[U](that: Seq[U]) = this zip that
+
+  // OVERRIDING JAVA DEFAULT METHODS
 
   override def equals(that: Any) = that match {
     case (that: Seq[T]) => Eq[T](poly.algebra.Eq.default[T]).eq(this, that)
@@ -459,10 +475,6 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
 
   override def hashCode = MurmurHash3.sequentialHash(self)(Hashing.default[T])
 
-  override def |>[U](f: T => U): Seq[U] = this map f
-  override def +:[U >: T](u: U): Seq[U] = this prepend u
-  override def :+[U >: T](u: U): Seq[U] = this append u
-  def ++[U >: T](that: Seq[U]) = this concat that
 }
 
 object Seq extends Factory[Seq] {
@@ -514,7 +526,7 @@ object Seq extends Factory[Seq] {
 
   // TYPECLASS INSTANCES
 
-  //TODO: should be implicit, but results in ambiguous implicits because of contravariant typeclass
+  //TODO: should be implicit, but results in ambiguous implicits because of problems with contravariant typeclass
   def Eq[T: Eq]: Eq[Seq[T]] = new Eq[Seq[T]] {
     def eq(x: Seq[T], y: Seq[T]): Boolean = {
       //TODO: faster implementation using iterators?
@@ -563,7 +575,7 @@ object Seq extends Factory[Seq] {
   }
 
   implicit object Comonad extends Comonad[Seq] {
-    //TODO: actually should be Comonad[NonEmptySeq]
+    //TODO: actually should be Comonad[NonEmptySeq] ?
     def id[X](u: Seq[X]) = u.head
     def extend[X, Y](wx: Seq[X])(f: Seq[X] => Y) = wx.suffixes.map(f)
   }

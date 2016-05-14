@@ -7,12 +7,12 @@ import poly.collection._
  */
 trait KeyMutableMultiset[K, R] extends Multiset[K, R] {
 
-  def addInplace(x: K, w: R = ringOnCount.one)
+  def addInplace(x: K, w: R = ringOnWeight.one)
 
-  def removeInplace(x: K, w: R = ringOnCount.one)
+  def removeInplace(x: K, w: R = ringOnWeight.one)
 
-  def multisetAddInplace(that: Multiset[K, R]) = for ((k, r) ← that.pairs) addInplace(k, r)
+  def multisetAddInplace(that: Multiset[K, R]) = for ((k, r) ← that.keyWeightPairs) addInplace(k, r)
 
-  def diffInplace(that: Multiset[K, R]) = for ((k, r) ← that.pairs) removeInplace(k, r)
+  def diffInplace(that: Multiset[K, R]) = for ((k, r) ← that.keyWeightPairs) removeInplace(k, r)
 
 }

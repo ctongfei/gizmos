@@ -25,7 +25,9 @@ trait Tree[+T] { self =>
   /**
    * Folds a tree bottom-up using the specific function.
    */
-  def foldBottomUp[U](z: U)(f: (T, Seq[U]) => U): U = ???
+  //TODO: a non-recursive faster implementation?
+  def foldBottomUp[U](z: U)(f: (T, Seq[U]) => U): U =
+    f(self.root, self.children.map(_.foldBottomUp(z)(f)))
 
   /**
    * '''Lazily''' performs the Knuth transform on this tree, i.e. representing this multi-way tree

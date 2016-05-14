@@ -58,7 +58,7 @@ class Permutation private(private val a1: Array[Int], private val a2: Array[Int]
     new Permutation(b1, b2)
   }
 
-  override def toString = super[BijectiveMap].toString
+  override def toString = super[IndexedSeq].toString
 }
 
 object Permutation {

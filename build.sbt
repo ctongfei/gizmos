@@ -1,5 +1,5 @@
 name := "poly-collection"
-version := "0.0.4-SNAPSHOT"
+version := "0.0.5-SNAPSHOT"
 isSnapshot := true
 organization := "me.tongfei"
 scalaVersion := "2.11.8"
@@ -12,7 +12,7 @@ libraryDependencies += "org.scalatest"     %% "scalatest"       % "2.2.6"       
 libraryDependencies += "com.storm-enroute" %% "scalameter-core" % "0.7"             % Test
 
 //scalacOptions += "-Ymacro-debug-lite"
-scalacOptions in doc += "-diagrams"
+scalacOptions in (Compile, doc) ++= Seq("-diagrams", "-Ymacro-debug-lite")
 
 publishMavenStyle := true
 publishArtifact in Test := false

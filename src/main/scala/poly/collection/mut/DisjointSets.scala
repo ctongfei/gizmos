@@ -1,11 +1,15 @@
 package poly.collection.mut
 
 import poly.algebra._
+import poly.collection.conversion.FromScala._
 import poly.collection.node._
 
 /**
  * A union-find disjoint sets structure.
- * This structure keeps track of a set of elements partitioned into a number of disjoint subsets.
+ * This structure keeps track of a set of elements partitioned into a number of disjoint subsets,
+ * and enables the user to join two sets at any time.
+ *
+ * This structure is essential in the Kruskal's algorithm ([[poly.collection.algorithm.MinimumSpanningTree]]).
  * @author Tongfei Chen
  * @since 0.1.0
  */
@@ -62,6 +66,6 @@ object DisjointSets {
   }
 
   def apply[T: Eq](xs: T*): DisjointSets[T] =
-    new DisjointSets[T](AutoMap(xs.map(t => t → new Node()): _*))
+    new DisjointSets[T](AutoMap from xs.map(t => t → new Node()))
 
 }

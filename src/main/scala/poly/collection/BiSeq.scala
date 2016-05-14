@@ -84,8 +84,6 @@ trait BiSeq[+T] extends Seq[T] with BiIterable[T] { self =>
     override def reverse = self
   }
 
-  override def rotate(n: Int): BiSeq[T] = ???
-
   def asBiSeq: BiSeq[T] = new AbstractBiSeq[T] {
     def headNode = self.headNode
     def lastNode = self.lastNode

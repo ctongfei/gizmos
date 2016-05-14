@@ -36,3 +36,5 @@ trait SortedSet[T] extends Set[T] { self =>
   }
 
 }
+
+abstract class AbstractSortedSet[T] extends AbstractSet[T] with SortedSet[T]

@@ -7,11 +7,11 @@ import poly.algebra.specgroup._
 /**
  * A multiset in which elements can appear more than once.
  *
- * The multiplicity in Poly-collection's Multiset can be real-valued:
- * as long as it forms an ordered ring, it can be used as a type for the
- * counts for the elements.
+ * The weight/multiplicity in Poly-collection's Multiset can be real-valued:
+ * as long as it forms an ordered ring ([[poly.algebra.OrderedRing]]), it can be used as a type for the
+ * weights for the elements.
  *
- * Multisets are useful for implementing counters and sparse feature vectors.
+ * Multisets are potentially useful for implementing counters and sparse feature vectors.
  *
  * @author Tongfei Chen
  * @since 0.1.0
@@ -21,33 +21,34 @@ trait Multiset[@sp(Int) K, @sp(Int, Double) R] extends KeyedLike[K, Multiset[K, 
   implicit def eqOnKeys: Eq[K]
 
   /** Returns the ring structure endowed on the counts of this multiset. */
-  implicit def ringOnCount: OrderedRing[R]
+  implicit def ringOnWeight: OrderedRing[R]
 
   def contains(k: K): Boolean
 
   final def containsKey(k: K) = contains(k)
 
-  def multiplicity(k: K): R
+  /** Returns the weight (multiplicity) of a specific element. */
+  def weight(k: K): R
 
   def keys: Iterable[K]
 
-  def pairs: Iterable[(K, R)] = keys.map(k => k → multiplicity(k))
+  def keyWeightPairs = keys.map(k => k → weight(k))
 
-  final def apply(k: K): R = multiplicity(k)
+  final def apply(k: K) = weight(k)
 
-  def asKeyCountMap: Map[K, R] = new AbstractMap[K, R] {
-    def pairs = self.pairs
+  def asKeyWeightMap: Map[K, R] = new AbstractMap[K, R] {
+    def pairs = self.keyWeightPairs
     def containsKey(x: K) = self contains x
     def apply(k: K) = self(k)
-    def ?(k: K) = if (self.multiplicity(k) == zero[R]) None else Some(self.multiplicity(k))
+    def ?(k: K) = if (self.weight(k) == ringOnWeight.zero) None else Some(self.weight(k))
     def eqOnKeys = self.eqOnKeys
   }
 
   def filterKeys(f: K => Boolean): Multiset[K, R] = new AbstractMultiset[K, R] {
     def eqOnKeys = self.eqOnKeys
-    override def pairs  = self.pairs.filter { case (k, r) => f(k) }
-    def multiplicity(k: K) = if (f(k)) self.multiplicity(k) else zero[R]
-    implicit def ringOnCount = self.ringOnCount
+    override def keyWeightPairs  = self.keyWeightPairs.filter { case (k, r) => f(k) }
+    def weight(k: K) = if (f(k)) self.weight(k) else zero[R]
+    implicit def ringOnWeight = self.ringOnWeight
     def keys = self.keys.filter(f)
     def contains(k: K) = f(k) && self.contains(k)
   }
@@ -60,58 +61,58 @@ trait Multiset[@sp(Int) K, @sp(Int, Double) R] extends KeyedLike[K, Multiset[K, 
 
   def scale(w: R): Multiset[K, R] = new AbstractMultiset[K, R] {
     def eqOnKeys = self.eqOnKeys
-    implicit def ringOnCount = self.ringOnCount
-    override def pairs = self.pairs.map { case (k, r) => k → (r * w) }
-    def multiplicity(k: K) = self.multiplicity(k) * w
+    implicit def ringOnWeight = self.ringOnWeight
+    override def keyWeightPairs = self.keyWeightPairs.map { case (k, r) => k → (r * w) }
+    def weight(k: K) = self.weight(k) * w
     def keys = self.keys
     def contains(k: K) = self.contains(k)
   }
 
   def intersect(that: Multiset[K, R]): Multiset[K, R] = new AbstractMultiset[K, R] {
     implicit def eqOnKeys = self.eqOnKeys
-    implicit def ringOnCount = self.ringOnCount
-    def multiplicity(k: K) = function.min(self.multiplicity(k), that.multiplicity(k))
+    implicit def ringOnWeight = self.ringOnWeight
+    def weight(k: K) = function.min(self.weight(k), that.weight(k))
     def keys = self.keys intersect that.keys
     def contains(k: K) = self.contains(k) && that.contains(k)
   }
 
   def union(that: Multiset[K, R]): Multiset[K, R] = new AbstractMultiset[K, R] {
     implicit def eqOnKeys = self.eqOnKeys
-    implicit def ringOnCount = self.ringOnCount
-    def multiplicity(k: K) = function.max(self.multiplicity(k), that.multiplicity(k))
+    implicit def ringOnWeight = self.ringOnWeight
+    def weight(k: K) = function.max(self.weight(k), that.weight(k))
     def keys = self.keys union that.keys
     def contains(k: K) = self.contains(k) || that.contains(k)
   }
 
   def multisetDiff(that: Multiset[K, R]): Multiset[K, R] = new AbstractMultiset[K, R] {
     implicit def eqOnKeys = self.eqOnKeys
-    implicit def ringOnCount = self.ringOnCount
-    def multiplicity(k: K) = function.max(zero[R], self.multiplicity(k) - that.multiplicity(k))
+    implicit def ringOnWeight = self.ringOnWeight
+    def weight(k: K) = function.max(zero[R], self.weight(k) - that.weight(k))
     def keys = self.keys filter self.contains
-    def contains(k: K) = self.multiplicity(k) > that.multiplicity(k)
+    def contains(k: K) = self.weight(k) > that.weight(k)
   }
 
   def product[L](that: Multiset[L, R]): Multiset[(K, L), R] = new AbstractMultiset[(K, L), R] {
     def eqOnKeys = Eq.product(self.eqOnKeys, that.eqOnKeys)
-    implicit def ringOnCount = self.ringOnCount
-    def multiplicity(k: (K, L)) = self.multiplicity(k._1) * that.multiplicity(k._2)
+    implicit def ringOnWeight = self.ringOnWeight
+    def weight(k: (K, L)) = self.weight(k._1) * that.weight(k._2)
     def keys = self.keys product that.keys
     def contains(k: (K, L)) = self.contains(k._1) && that.contains(k._2)
   }
 
   def multisetAdd(that: Multiset[K, R]): Multiset[K, R] = new AbstractMultiset[K, R] {
     implicit def eqOnKeys = self.eqOnKeys
-    implicit def ringOnCount = self.ringOnCount
-    def multiplicity(k: K) = self.multiplicity(k) + that.multiplicity(k)
+    implicit def ringOnWeight = self.ringOnWeight
+    def weight(k: K) = self.weight(k) + that.weight(k)
     def keys = self.keys union that.keys
     def contains(k: K) = self.contains(k) || that.contains(k)
   }
 
-  def subsetOf(that: Multiset[K, R]) = this.keys forall { k => this.multiplicity(k) <= that.multiplicity(k) }
+  def subsetOf(that: Multiset[K, R]) = this.keys forall { k => this.weight(k) <= that.weight(k) }
 
   def supersetOf(that: Multiset[K, R]) = that subsetOf this
 
-  def properSubsetOf(that: Multiset[K, R]) = (this subsetOf that) && (that.keys exists { k => that.multiplicity(k) > this.multiplicity(k) } )
+  def properSubsetOf(that: Multiset[K, R]) = (this subsetOf that) && (that.keys exists { k => that.weight(k) > this.weight(k) } )
 
   def properSupersetOf(that: Multiset[K, R]) = that properSubsetOf this
 
@@ -120,7 +121,7 @@ trait Multiset[@sp(Int) K, @sp(Int, Double) R] extends KeyedLike[K, Multiset[K, 
 
   // FOLDING
 
-  def sum[L >: K](implicit m: Module[L, R]) = pairs.map { case (k, w) => m.scale(k, w) }.sum(m)
+  def sum[L >: K](implicit m: Module[L, R]) = keyWeightPairs.map { case (k, w) => m.scale(k, w) }.sum(m)
 
   def forall(f: K => Boolean) = keys forall f
   def exists(f: K => Boolean) = keys exists f
@@ -143,7 +144,7 @@ trait Multiset[@sp(Int) K, @sp(Int, Double) R] extends KeyedLike[K, Multiset[K, 
   def ∩(that: Multiset[K, R]) = this intersect that
   def ∪(that: Multiset[K, R]) = this union that
 
-  override def toString = "{" + pairs.map { case (k, w) => s"$k: $w"}.buildString(", ") + "}"
+  override def toString = "{" + keyWeightPairs.map { case (k, w) => s"$k: $w"}.buildString(", ") + "}"
 
   override def equals(that: Any) = that match {
     case that: Multiset[K, R] => Multiset.ContainmentOrder[K, R].eq(this, that)
@@ -156,8 +157,8 @@ object Multiset {
 
   def empty[K: Eq, R: OrderedRing]: Multiset[K, R] = new Multiset[K, R] {
     def eqOnKeys = Eq[K]
-    def multiplicity(k: K) = OrderedRing[R].zero
-    def ringOnCount = OrderedRing[R]
+    def weight(k: K) = OrderedRing[R].zero
+    def ringOnWeight = OrderedRing[R]
     def keys = Iterable.empty
     def contains(k: K) = false
   }

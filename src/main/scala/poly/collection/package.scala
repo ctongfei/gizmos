@@ -1,12 +1,10 @@
 package poly
 
 import poly.algebra.specgroup._
-import poly.collection.builder._
-
-import scala.collection._
 import scala.language.implicitConversions
 
 package object collection extends ImplicitWrappers {
+
   /** Returns the first element of two elements. */
   @inline def first[@sp(fdi) α, @sp(fdi) β](a: α, b: β) = a
 
@@ -39,7 +37,7 @@ package object collection extends ImplicitWrappers {
   }
 
   private[poly] def getArrayFromVarargs[T](xs: scala.Seq[T]): Array[T] = xs match {
-    case xs: mutable.WrappedArray[T] => xs.array
+    case xs: scala.collection.mutable.WrappedArray[T] => xs.array
   }
 
 }

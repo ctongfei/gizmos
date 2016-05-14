@@ -8,32 +8,32 @@ import scala.language.reflectiveCalls
 import scala.language.higherKinds
 
 /**
- * Represents a multiset whose underlying representation is a map of (key, count) pairs.
+ * Represents a multiset whose underlying representation is a map of (key, weight) pairs.
  * @author Tongfei Chen
  * @since 0.1.0
  */
 class PairMultiset[K, R: OrderedRing] private(private val data: KeyMutableMap[K, R]) extends KeyMutableMultiset[K, R] {
 
   def eqOnKeys = data.eqOnKeys
-  def ringOnCount = OrderedRing[R]
+  def ringOnWeight = OrderedRing[R]
 
-  def removeInplace(x: K, w: R = ringOnCount.one) = {
+  def removeInplace(x: K, w: R = ringOnWeight.one) = {
     val u = data(x) - w
-    if (u == ringOnCount.zero) data.removeInplace(x)
-    data(x) = function.max(ringOnCount.zero, u)
+    if (u == ringOnWeight.zero) data.removeInplace(x)
+    data(x) = function.max(ringOnWeight.zero, u)
   }
 
   def removeAll(x: K) = {
     data.removeInplace(x)
   }
 
-  def multiplicity(k: K) = data(k)
+  def weight(k: K) = data(k)
 
   def keys = data.keys
 
   def contains(k: K) = data.containsKey(k)
 
-  def addInplace(x: K, w: R = ringOnCount.one) = {
+  def addInplace(x: K, w: R = ringOnWeight.one) = {
     if (data containsKey x) data(x) += w
     else data addInplace(x, w)
   }
