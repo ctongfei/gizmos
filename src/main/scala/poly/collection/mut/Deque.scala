@@ -1,8 +1,7 @@
 package poly.collection.mut
 
 /**
- * Represents a double-ended queue.
- *
+ * Represents a mutable double-ended queue.
  * @author Tongfei Chen
  * @since 0.1.0
  */
@@ -17,8 +16,8 @@ trait Deque[T] extends Queue[T] {
 
   def pop(): T = popTop()
 
-  def dequeueFront() = popTop()
-  def dequeueBack() = popBottom()
-  def back = bottom
+  final def dequeueFront() = popTop()
+  final def dequeueBack() = popBottom()
+  final def back = bottom
 
 }

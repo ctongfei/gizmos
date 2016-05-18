@@ -42,7 +42,7 @@ class LinkedHashSet[T: Hashing] private(val data: OpenHashTable[T, LinkedHashSet
     data.removeEntry(x)
   }
 
-  def eqOnKeys = implicitly[Hashing[T]]
+  def eqOnKeys = Hashing[T]
 
   def keys: BiSeq[T] = BiSeq.ofDummyNode(dummy)
 

@@ -3,7 +3,7 @@ package poly
 import poly.algebra.specgroup._
 import scala.language.implicitConversions
 
-package object collection extends ImplicitWrappers {
+package object collection extends ImplicitWrappers with ImplicitOperators {
 
   /** Returns the first element of two elements. */
   @inline def first[@sp(fdi) α, @sp(fdi) β](a: α, b: β) = a

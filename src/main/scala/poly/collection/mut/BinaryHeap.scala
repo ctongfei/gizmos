@@ -11,7 +11,7 @@ import poly.macroutil._
 
 /**
  * An implementation of a binary min-heap.
- * The least element under the specific order will surface at the top of the heap.
+ * The least element under the specific order will surface to the top of the heap.
  * @since 0.1.0
  * @author Tongfei Chen
  */

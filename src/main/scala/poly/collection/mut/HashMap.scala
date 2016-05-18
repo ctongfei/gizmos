@@ -9,6 +9,8 @@ import poly.collection.impl.hashtable._
 import scala.collection.JavaConverters._
 
 /**
+ * Represents a map backed by an open hash table.
+ * @since 0.1.0
  * @author Tongfei Chen
  */
 class HashMap[K: Hashing, V] private(private val data: OpenHashTable[K, HashMap.Entry[K, V]]) extends KeyMutableMap[K, V] {
@@ -40,7 +42,7 @@ class HashMap[K: Hashing, V] private(private val data: OpenHashTable[K, HashMap.
 
   override def size = data.size
 
-  def pairs: Iterable[(K, V)] = data.entries.map(e => e.key → e.value)
+  def pairs = data.entries.map(e => e.key → e.value).withKnownSize(size)
 
 }
 

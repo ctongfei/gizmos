@@ -1,7 +1,6 @@
 package poly.collection
 
 import poly.collection.mut._
-import poly.collection.ops._
 /**
   * @author Tongfei Chen (ctongfei@gmail.com).
   */

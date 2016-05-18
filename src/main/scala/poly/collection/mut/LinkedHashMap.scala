@@ -73,7 +73,7 @@ class LinkedHashMap[K: Hashing, V] private(val data: OpenHashTable[K, LinkedHash
 
   def containsKey(x: K) = data.locate(x) != null
 
-  def eqOnKeys = implicitly[Hashing[K]]
+  def eqOnKeys = Hashing[K]
 }
 
 object LinkedHashMap extends BuilderFactory2Ev[LinkedHashMap, Hashing] {

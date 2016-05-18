@@ -6,11 +6,11 @@ import poly.collection._
 import scala.language.higherKinds
 
 /**
-  * Represents a beam, which is a queue that only keeps the ''k'' smallest elements.
+  * Represents a beam, which is a priority queue that only keeps the ''k'' smallest elements.
   * @author Tongfei Chen
   * @since 0.1.0
  */
-class Beam[T] private(val capacity: Int, val pq: PriorityQueue[T]) extends Queue[T] {
+class Beam[T] private(private val capacity: Int, private val pq: PriorityQueue[T]) extends Queue[T] {
 
   implicit def order = pq.orderOnElements.reverse
 

@@ -36,4 +36,8 @@ trait KeyMutableSeq[T] extends ValueMutableSeq[T] {
    */
   def deleteInplace(i: Int): Unit
 
+  final def :+=(x: T) = appendInplace(x)
+
+  final def =+:(x: T) = prependInplace(x)
+
 }

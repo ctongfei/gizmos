@@ -8,9 +8,9 @@ import poly.collection.impl._
 import poly.collection.node._
 
 /**
- * A sequence backed by a linked list.
- *
+ * A sequence backed by a singly-linked list.
  * @author Tongfei Chen
+ * @since 0.1.0
  */
 class ListSeq[T] private() extends AbstractSeq[T] with KeyMutableSeq[T] {
 

@@ -287,14 +287,13 @@ trait Iterable[+T] extends Traversable[T] { self =>
   override def rotate(n: Int): Iterable[T] = self.skip(n) ++ self.take(n)
 
   /**
-   * Splits this collection into multiple subsequences using the given delimiter.
-   *
+   * Lazily splits this collection into multiple subsequences using the given delimiter predicate.
    * @param delimiter Predicate that determines whether an element is a delimiter.
    */
   def splitBy(delimiter: T => Boolean): Iterable[Seq[T]] = ofIterator {
     new Iterator[Seq[T]] {
       private[this] val i = self.newIterator
-      private[this] var buf = ArraySeq[T]()
+      private[this] var buf: ArraySeq[T] = null
       private[this] var complete = false
       def current = buf
       def advance(): Boolean = {
@@ -302,7 +301,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
         buf = ArraySeq[T]()
         while (i.advance()) {
           if (delimiter(i.current)) return true
-          else buf appendInplace i.current
+          else buf :+= i.current
         }
         complete = true
         true
@@ -310,7 +309,14 @@ trait Iterable[+T] extends Traversable[T] { self =>
     }
   }
 
-  /** Pretends that this iterable collection is sorted. */
+  /** Lazily splits this collection into multiple subsequences using the given delimiter. */
+  def split[U >: T : Eq](delimiter: U) = splitBy(x => delimiter === x)
+
+  /**
+   * Pretends that this sequence is sorted under the given implicit order.
+   * @param T The implicit order
+   * @note Actual orderedness is not guaranteed! The user should make sure that it is sorted.
+   */
   def asIfSorted(implicit T: Order[T]): SortedIterable[T @uv] = new SortedIterable[T] {
     def orderOnElements = T
     def newIterator = self.newIterator
@@ -438,6 +444,13 @@ trait Iterable[+T] extends Traversable[T] { self =>
         true
       }
     }
+  }
+
+  override def withKnownSize(s: Int): Iterable[T] = new AbstractIterable[T] {
+    def newIterator = self.newIterator
+    override def foreach[V](f: T => V) = self.foreach(f)
+    override def sizeKnown = true
+    override def size = s
   }
 
   //endregion

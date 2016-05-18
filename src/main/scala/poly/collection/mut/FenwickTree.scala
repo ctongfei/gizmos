@@ -51,14 +51,12 @@ class FenwickTree[T] private(private val data: ResizableSeq[T])
    */
   def rangeSum(i: Int, j: Int) = cumulativeSum(j) - cumulativeSum(i)
 
-  /**
-   * Increments the ''n''-th element by ''δ''.
-   */
-  def increment(n: Int, δ: T) = {
-    var i = n + 1
-    while (i < data.length) {
-      data(i) += δ
-      i += lowBit(i)
+  /**  Increments the ''i''-th element by ''δ''. */
+  def increment(i: Int, δ: T)  {
+    var j = i + 1
+    while (j < data.length) {
+      data(j) += δ
+      j += lowBit(j)
     }
   }
 

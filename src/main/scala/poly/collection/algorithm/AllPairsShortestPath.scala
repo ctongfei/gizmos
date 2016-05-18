@@ -11,13 +11,13 @@ import poly.collection.mut._
  * @author Tongfei Chen
  */
 class AllPairsShortestPath[K, E : OrderedAdditiveGroup : HasTop]
-  (val graph: Graph[K, Any, E]) extends MetricSpace[K, E]
+  (val graph: Graph[K, _, E]) extends MetricSpace[K, E]
 {
 
   private[this] val max = top[E]
 
-  private[this] val d = HashMap[(K, K), E]()(???)
-  private[this] val mid = HashMap[(K, K), K]()(???)
+  private[this] val d = AutoMap[(K, K), E]()(???)
+  private[this] val mid = AutoMap[(K, K), K]()(???)
 
   for (i ← graph.keys; j ← graph.keys) {
     if (i == j) d(i → j) = zero[E]

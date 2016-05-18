@@ -72,13 +72,13 @@ trait Table[+T] extends Map[(Int, Int), T] { self =>
     i >= 0 && i < numRows && j >= 0 && j < numCols
   }
 
-  def row(i: Int): IndexedSeq[T] = IndexedSeq.tabulate(numCols)(j => self(i, j))
+  def row(i: Int): IndexedSeq[T] = Range(numCols) map (j => self(i, j))
 
-  def col(j: Int): IndexedSeq[T] = IndexedSeq.tabulate(numRows)(i => self(i, j))
+  def col(j: Int): IndexedSeq[T] = Range(numRows) map (i => self(i, j))
 
-  def rows: IndexedSeq[IndexedSeq[T]] = IndexedSeq.tabulate(numRows)(row)
+  def rows: IndexedSeq[IndexedSeq[T]] = Range(numRows) map row
 
-  def cols: IndexedSeq[IndexedSeq[T]] = IndexedSeq.tabulate(numCols)(col)
+  def cols: IndexedSeq[IndexedSeq[T]] = Range(numCols) map col
 
   override def map[U](f: T => U): Table[U] = new AbstractTable[U] {
     def numCols = self.numCols
@@ -126,7 +126,7 @@ object Table {
     def numCols = nc
   }
 
-  implicit def Eq[T: Eq]: Eq[Table[T]] = new Eq[Table[T]] {
+  def Eq[T: Eq]: Eq[Table[T]] = new Eq[Table[T]] {
     def eq(x: Table[T], y: Table[T]): Boolean = {
       if (x.numRows != y.numRows) return false
       if (x.numCols != y.numCols) return false

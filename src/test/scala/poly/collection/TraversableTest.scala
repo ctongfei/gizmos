@@ -3,7 +3,6 @@ package poly.collection
 import java.util._
 
 import org.scalatest._
-import poly.collection.ops._
 import poly.algebra.syntax._
 import poly.collection.testutil._
 import TestUtil._

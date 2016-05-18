@@ -2,6 +2,8 @@ package poly.collection
 
 import poly.algebra.specgroup._
 import poly.collection.exception._
+import poly.macroutil._
+import scala.annotation.unchecked.{uncheckedVariance => uv}
 
 /**
  * Represents iterators that support an iteration over a collection that can be
@@ -23,7 +25,7 @@ import poly.collection.exception._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait Iterator[@sp(Int, Char) +T] { self =>
+trait Iterator[@sp(Int, Long, Double, Char) +T] { self =>
 
   /** Returns the current element of this iterator. This method should be side-effect free. */
   def current: T
@@ -43,8 +45,17 @@ trait Iterator[@sp(Int, Char) +T] { self =>
     else None
   }
 
+  def readToArray(a: Array[T @uv], off: Int, len: Int): Unit = {
+    FastLoop.ascending(off, off + len, 1) { i =>
+      if (!self.advance()) return
+      a(i) = self.current
+    }
+  }
+
+  def readToArray(a: Array[T @uv]): Unit = readToArray(a, 0, a.length)
+
   override def toString = try {
-    s"Current = $current"
+    s"⋯ $current ⋯"
   } catch {
     case _: Exception => "<invalid position>"
   }

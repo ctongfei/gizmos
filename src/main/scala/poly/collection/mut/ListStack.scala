@@ -6,8 +6,7 @@ import poly.collection.factory._
 import poly.collection.impl._
 
 /**
- * A stack backed by a singly linked list.
- *
+ * A stack backed by a singly-linked list.
  * @author Tongfei Chen
  * @since 0.1.0
  */

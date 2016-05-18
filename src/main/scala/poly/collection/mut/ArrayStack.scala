@@ -8,8 +8,8 @@ import poly.collection.impl._
 
 /**
  * An array-backed stack.
- *
  * @author Tongfei Chen
+ * @since 0.1.0
  */
 class ArrayStack[T] private(private var data: ResizableSeq[T]) extends Queue[T] {
 

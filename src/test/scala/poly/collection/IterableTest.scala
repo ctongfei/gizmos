@@ -1,6 +1,5 @@
 package poly.collection
 
-import poly.collection.ops._
 import org.scalatest._
 import poly.collection.testutil._
 

@@ -23,7 +23,7 @@ class PairMultiset[K, R: OrderedRing] private(private val data: KeyMutableMap[K,
     data(x) = function.max(ringOnWeight.zero, u)
   }
 
-  def removeAll(x: K) = {
+  def removeKeyInplace(x: K) = {
     data.removeInplace(x)
   }
 

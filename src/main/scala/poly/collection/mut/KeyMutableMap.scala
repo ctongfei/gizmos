@@ -32,7 +32,7 @@ trait KeyMutableMap[K, V] extends ValueMutableMap[K, V] { self =>
 
   //TODO: withDefaultUpdate?
 
-  def +=(k: K, v: V) = addInplace(k, v)
-  def +=(kv: (K, V)) = addInplace(kv)
-  def -=(k: K) = removeInplace(k)
+  final def +=(k: K, v: V) = addInplace(k, v)
+  final def +=(kv: (K, V)) = addInplace(kv)
+  final def -=(k: K) = removeInplace(k)
 }

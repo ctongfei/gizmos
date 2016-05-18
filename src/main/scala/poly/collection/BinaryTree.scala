@@ -2,10 +2,8 @@ package poly.collection
 
 import poly.algebra.hkt._
 import poly.collection.exception._
-import poly.collection.impl._
 import poly.collection.mut._
 import poly.collection.node._
-import poly.collection.ops._
 
 /**
  * Represents a binary tree.
@@ -24,6 +22,18 @@ trait BinaryTree[+T] { self =>
   }
 
   def rootNode: BinaryTreeNode[T]
+
+  /**
+   * Returns the left subtree of this binary tree. $LAZY $CX_1
+   * @return The left subtree
+   */
+  def left: BinaryTree[T] = ofRootNode(rootNode.left)
+
+  /**
+   * Returns the right subtree of this binary tree. $LAZY $CX_1
+   * @return The right subtree
+   */
+  def right: BinaryTree[T] = ofRootNode(rootNode.right)
 
   def root: T = rootNode.data
 
@@ -66,17 +76,6 @@ trait BinaryTree[+T] { self =>
 
   // HELPER FUNCTIONS
 
-  /**
-   * Returns the left subtree of this binary tree. $LAZY $CX_1
-   * @return The left subtree
-   */
-  def left: BinaryTree[T] = ofRootNode(rootNode.left)
-
-  /**
-   * Returns the right subtree of this binary tree. $LAZY $CX_1
-   * @return The right subtree
-   */
-  def right: BinaryTree[T] = ofRootNode(rootNode.right)
 
   def map[U](f: T => U): BinaryTree[U] = ofRootNode(rootNode.map(f))
 

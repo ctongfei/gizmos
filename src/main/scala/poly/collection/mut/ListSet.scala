@@ -8,8 +8,8 @@ import poly.collection.factory._
 import poly.collection.impl._
 
 /**
- * A set backed by a linked list.
- *
+ * A set backed by a singly-linked list.
+ * @since 0.1.0
  * @author Tongfei Chen
  */
 class ListSet[T] private(private val data: SinglyLinkedList[T])(implicit val eqOnKeys: Eq[T]) extends KeyMutableSet[T] {

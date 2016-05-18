@@ -49,8 +49,7 @@ object ListProduct extends App {
 
   val d = listProduct(ArraySeq(a, b, c))
 
-  val l = d.newIterator
-  while (l.advance()) println(l.current)
+  d foreach println
 
   val bp = 0
 

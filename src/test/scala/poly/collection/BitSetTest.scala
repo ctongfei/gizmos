@@ -9,6 +9,7 @@ object BitSetTest extends App {
 
   val bs = BitSet()
 
+
   bs.addInplace(3)
   bs.addInplace(4)
   bs.addInplace(5)

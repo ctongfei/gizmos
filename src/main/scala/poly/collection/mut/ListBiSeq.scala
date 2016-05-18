@@ -7,6 +7,8 @@ import poly.collection.impl._
 import poly.collection.node._
 
 /**
+ * Represents a bidirectional list backed by a doubly-linked list.
+ * @since 0.1.0
  * @author Tongfei Chen
  */
 class ListBiSeq[T] private() extends AbstractBiSeq[T] with KeyMutableSeq[T] {

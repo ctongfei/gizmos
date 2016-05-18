@@ -1,16 +1,15 @@
 package poly.collection
 
 import poly.collection.node._
-
 import scala.language.implicitConversions
 
 /**
  * @author Tongfei Chen
  * @since 0.1.0
  */
-object ops {
+trait ImplicitOperators {
 
-  implicit final class withRangeOps(val left: Int) extends AnyVal {
+  implicit final class withRangeOps(val left: Int) {
     /**
       * Creates a left-inclusive-right-inclusive ascending range.
       * @example {{{ (1 ~<~ 4) == (1, 2, 3, 4) }}}
@@ -65,6 +64,9 @@ object ops {
 
     /** Checks if this element belongs to the specific multiset. */
     def in[U >: T](mSet: Multiset[U, _]) = mSet contains x
+
+    /** Checks if this element does not belong to the specific multiset. */
+    def notIn[U >: T](mSet: Multiset[U, _]) = mSet notContains x
 
     /**
      * Constructs a sequence of length 1 with this specific element.

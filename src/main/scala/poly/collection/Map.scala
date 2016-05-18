@@ -290,6 +290,7 @@ object Map extends Factory2Ev[Map, Eq] with MapLowPriorityTypeclassInstances {
     def eq(x: Map[K, V], y: Map[K, V]) = (x, y) match {
       case (x: IndexedSeq[V], y: IndexedSeq[V]) => IndexedSeq.Eq[V].eq(x, y)
       case (x: Seq[V], y: Seq[V]) => Seq.Eq[V].eq(x, y)
+      case (x: Table[V], y: Table[V]) => Table.Eq[V].eq(x, y)
       case _ => Map.Eq[K, V].eq(x, y)
     }
   }

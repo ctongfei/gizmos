@@ -1,6 +1,6 @@
 package poly.collection.conversion
 
-import java.{lang => jl, util => ju}
+import java.{lang => jl, util => ju, io => ji}
 import java.util.{stream => jus}
 import poly.algebra._
 import poly.algebra.conversion.FromJava._
@@ -9,15 +9,17 @@ import poly.collection.mut._
 import scala.language.implicitConversions
 
 /**
+ * Contains implicit conversions that converts Java collections ([[java.util]]) classes to Poly-collection classes.
  * @author Tongfei Chen
+ * @since 0.1.0
  */
 object FromJava {
 
-  implicit def javaIterableAsPoly[T](xs: jl.Iterable[T]): Iterable[T] = new AbstractIterable[T] {
+  implicit class javaIterableAsPoly[T](xs: jl.Iterable[T]) extends AbstractIterable[T] {
     def newIterator = javaIteratorAsPoly[T](xs.iterator())
   }
 
-  implicit def javaIteratorAsPoly[T](xs: ju.Iterator[T]): Iterator[T] = new Iterator[T] {
+  implicit class javaIteratorAsPoly[T](xs: ju.Iterator[T]) extends Iterator[T] {
     private[this] var curr: T = default[T]
     def advance() = {
       if (xs.hasNext) {
@@ -29,7 +31,7 @@ object FromJava {
     def current = curr
   }
 
-  implicit def javaIntIteratorAsPoly(xs: ju.PrimitiveIterator.OfInt): Iterator[Int] = new Iterator[Int] {
+  implicit class javaIntIteratorAsPoly(xs: ju.PrimitiveIterator.OfInt) extends Iterator[Int] {
     private[this] var curr: Int = 0
     def advance() = {
       if (xs.hasNext) {
@@ -41,7 +43,7 @@ object FromJava {
     def current = curr
   }
 
-  implicit def javaDoubleIteratorAsPoly(xs: ju.PrimitiveIterator.OfDouble): Iterator[Double] = new Iterator[Double] {
+  implicit class javaDoubleIteratorAsPoly(xs: ju.PrimitiveIterator.OfDouble) extends Iterator[Double] {
     private[this] var curr: Double = 0.0
     def advance() = {
       if (xs.hasNext) {
@@ -53,7 +55,7 @@ object FromJava {
     def current = curr
   }
 
-  implicit def javaLongIteratorAsPoly(xs: ju.PrimitiveIterator.OfLong): Iterator[Long] = new Iterator[Long] {
+  implicit class javaLongIteratorAsPoly(xs: ju.PrimitiveIterator.OfLong) extends Iterator[Long] {
     private[this] var curr: Long = 0l
     def advance() = {
       if (xs.hasNext) {
@@ -65,29 +67,29 @@ object FromJava {
     def current = curr
   }
 
-  implicit def javaStreamAsPoly[T](xs: jus.Stream[T]): Iterable[T] = new AbstractIterable[T] {
+  implicit class javaStreamAsPoly[T](xs: jus.Stream[T]) extends AbstractIterable[T] {
     def newIterator = xs.iterator()
   }
 
-  implicit def javaIntStreamAsPoly(xs: jus.IntStream): Iterable[Int] = new AbstractIterable[Int] {
+  implicit class javaIntStreamAsPoly(xs: jus.IntStream) extends AbstractIterable[Int] {
     def newIterator = xs.iterator()
   }
 
-  implicit def javaLongStreamAsPoly(xs: jus.LongStream): Iterable[Long] = new AbstractIterable[Long] {
+  implicit class javaLongStreamAsPoly(xs: jus.LongStream) extends AbstractIterable[Long] {
     def newIterator = xs.iterator()
   }
 
-  implicit def javaDoubleStreamAsPoly(xs: jus.DoubleStream): Iterable[Double] = new AbstractIterable[Double] {
+  implicit class javaDoubleStreamAsPoly(xs: jus.DoubleStream) extends AbstractIterable[Double] {
     def newIterator = xs.iterator()
   }
   
-  implicit def javaListAsPoly[T](xs: ju.List[T]): IndexedSeq[T] = new ValueMutableIndexedSeq[T] {
+  implicit class javaListAsPoly[T](xs: ju.List[T]) extends ValueMutableIndexedSeq[T] {
     def fastLength = xs.size
     def fastApply(i: Int) = xs.get(i)
     def update(i: Int, x: T) = xs.set(i, x)
   }
 
-  implicit def javaSetAsPoly[T](xs: ju.Set[T]): Set[T] = new KeyMutableSet[T] {
+  implicit class javaSetAsPoly[T](xs: ju.Set[T]) extends KeyMutableSet[T] {
     def removeInplace(x: T) = xs.remove(x)
     def addInplace(x: T) = xs.add(x)
     def eqOnKeys = Eq.default[T]
@@ -97,7 +99,7 @@ object FromJava {
     def clear() = xs.clear()
   }
 
-  implicit def javaSortedSetAsPoly[T](xs: ju.SortedSet[T]): SortedSet[T] = new SortedSet[T] {
+  implicit class javaSortedSetAsPoly[T](xs: ju.SortedSet[T]) extends AbstractSortedSet[T] {
     def keys = new SortedIterable[T] {
       implicit def orderOnElements = xs.comparator()
       def newIterator = xs.iterator()
@@ -106,7 +108,7 @@ object FromJava {
     def orderOnKeys = xs.comparator()
   }
 
-  implicit def javaNavigableSetAsPoly[T](xs: ju.NavigableSet[T]): BiSortedSet[T] = new BiSortedSet[T] {
+  implicit class javaNavigableSetAsPoly[T](xs: ju.NavigableSet[T]) extends AbstractSortedSet[T] with BiSortedSet[T] {
     def keys = new BiSortedIterable[T] {
       implicit def orderOnElements = xs.comparator()
       def newReverseIterator = xs.descendingIterator()
@@ -116,14 +118,14 @@ object FromJava {
     def contains(x: T) = xs.contains(x)
   }
 
-  implicit def javaQueueAsPoly[T](xs: ju.Queue[T]): Queue[T] = new Queue[T] {
+  implicit class javaQueueAsPoly[T](xs: ju.Queue[T]) extends Queue[T] {
     def push(x: T) = xs.add(x)
     def top = xs.peek()
     def pop() = xs.remove()
     def elements = xs
   }
 
-  implicit def javaDequeAsPoly[T](xs: ju.Deque[T]): Deque[T] = new Deque[T] {
+  implicit class javaDequeAsPoly[T](xs: ju.Deque[T]) extends Deque[T] {
     def bottom = xs.peekLast()
     def popTop() = xs.removeFirst()
     def popBottom() = xs.removeLast()
@@ -132,7 +134,7 @@ object FromJava {
     def elements = xs
   }
 
-  implicit def javaMapAsPoly[K, V](jm: ju.Map[K, V]): Map[K, V] = new KeyMutableMap[K, V] {
+  implicit class javaMapAsPoly[K, V](jm: ju.Map[K, V]) extends AbstractMap[K, V] with KeyMutableMap[K, V] {
     def eqOnKeys = Eq.default[K]
     def addInplace(x: K, y: V): Unit = jm.put(x, y)
     def clear(): Unit = jm.clear()
@@ -146,6 +148,44 @@ object FromJava {
   }
 
 
+  // java.io
 
+  implicit class javaInputStreamAsPoly(jis: ji.InputStream) extends Iterator[Byte] {
+    private[this] var c: Int = 0
+    def advance() = {
+      if (c != -1) {
+        c = jis.read()
+        true
+      } else false
+    }
+    def current = c.toByte
+    override def readToArray(a: Array[Byte], off: Int, len: Int) = jis.read(a, off, len)
+  }
+
+  implicit class javaReaderAsPoly(jr: ji.Reader) extends Iterator[Char] {
+    private[this] var c: Int = 0
+    def advance() = {
+      if (c != -1) {
+        c = jr.read()
+        true
+      } else false
+    }
+    def current = c.toChar
+    override def readToArray(a: Array[Char], off: Int, len: Int) = jr.read(a, off, len)
+  }
+
+  implicit class javaOutputStreamAsPoly(jos: ji.OutputStream) extends Observer[Byte] {
+    def onCompleted() = jos.close()
+    def onError(error: Throwable) = {}
+    def onNext(x: Byte) = jos.write(x)
+    override def writeFromArray(a: Array[Byte], off: Int, len: Int) = jos.write(a, off, len)
+  }
+
+  implicit class javaWriterAsPoly(jw: ji.Writer) extends Observer[Char] {
+    def onCompleted() = jw.close()
+    def onError(error: Throwable) = {}
+    def onNext(x: Char) = jw.write(x)
+    override def writeFromArray(a: Array[Char], off: Int, len: Int) = jw.write(a, off, len)
+  }
 
 }

@@ -3,7 +3,6 @@ package poly.collection
 import poly.algebra._
 import poly.algebra.syntax._
 import poly.collection.node._
-import poly.collection.ops._
 import poly.macroutil._
 import scala.annotation.unchecked.{uncheckedVariance => uv}
 import scala.language.implicitConversions
@@ -40,19 +39,18 @@ trait IndexedSeq[+T] extends BiSeq[T] { self =>
     }
   }
 
-  def headNode = new NodeProxy[T](self, 0)
-  def lastNode = new NodeProxy[T](self, length - 1)
-
-  // HELPER FUNCTIONS
-
-  override def sizeKnown = true
-
   // Overridden foreach method for performance.
   override def foreach[V](f: T => V): Unit = {
     FastLoop.ascending(0, length, 1) { i => f(apply(i)) }
   }
 
-  override def pairs: SortedIndexedSeq[(Int, T@uv)] =
+
+  def headNode = new NodeProxy[T](self, 0)
+  def lastNode = new NodeProxy[T](self, length - 1)
+
+  override def sizeKnown = true
+
+  override def pairs: SortedIndexedSeq[(Int, T @uv)] =
     IndexedSeq.tabulate(length)(i => i → self(i)).asIfSorted(Order by firstOfPair)
 
   override def keys = Range(length)
@@ -96,6 +94,10 @@ trait IndexedSeq[+T] extends BiSeq[T] { self =>
 
   override def reduce[U >: T](f: (U, U) => U): U = {
     MapReduceOps.bySemigroup[U](length, x => self(x): U, f) // optimize through macros
+  }
+
+  override def fold[U >: T](z: U)(f: (U, U) => U): U = {
+    MapReduceOps.byMonoid[U](length, x => self(x): U, z, f) // optimize through macros
   }
 
   override def head = self(0)
@@ -173,13 +175,6 @@ trait IndexedSeq[+T] extends BiSeq[T] { self =>
     override def permuteBy(q: Permutation) = self.permuteBy(q compose p)
   }
 
-  /**
-   * Pretends that this sequence is sorted under the given order.
-   * (WARNING: Actual orderedness is not guaranteed! The user should make sure that it is sorted.)
-   *
-   * @param U The implicit order
-   * @return A sorted order
-   */
   override def asIfSorted(implicit T: Order[T]): SortedIndexedSeq[T @uv] = new SortedIndexedSeq[T] {
     def orderOnElements = T
     def fastLength: Int = self.length

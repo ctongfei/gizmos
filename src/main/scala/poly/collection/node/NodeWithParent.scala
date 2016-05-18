@@ -2,7 +2,6 @@ package poly.collection.node
 
 import poly.collection._
 import poly.collection.mut._
-import poly.collection.ops._
 
 /**
  * Represents a node that has only one predecessor node.

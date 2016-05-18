@@ -25,6 +25,8 @@ trait Multiset[@sp(Int) K, @sp(Int, Double) R] extends KeyedLike[K, Multiset[K, 
 
   def contains(k: K): Boolean
 
+  final def notContains(k: K) = !contains(k)
+
   final def containsKey(k: K) = contains(k)
 
   /** Returns the weight (multiplicity) of a specific element. */
@@ -33,6 +35,8 @@ trait Multiset[@sp(Int) K, @sp(Int, Double) R] extends KeyedLike[K, Multiset[K, 
   def keys: Iterable[K]
 
   def keyWeightPairs = keys.map(k => k → weight(k))
+
+  // HELPER FUNCTIONS
 
   final def apply(k: K) = weight(k)
 

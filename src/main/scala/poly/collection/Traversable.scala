@@ -707,6 +707,12 @@ trait Traversable[+T] { self =>
   }
   //endregion
 
+  def withKnownSize(s: Int): Traversable[T] = new AbstractTraversable[T] {
+    def foreach[V](f: T => V) = self.foreach(f)
+    override def sizeKnown = true
+    override def size = s
+  }
+
   //region Symbolic aliases
   def /:[U](z: U)(f: (U, T) => U) = foldLeft(z)(f)
   def :\[U](z: U)(f: (T, U) => U) = foldRight(z)(f)

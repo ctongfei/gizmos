@@ -58,7 +58,7 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
     node.data
   }
 
-  /** Returns the weak order on keys. In this case (`Seq`), it returns the total order on integers. */
+  /** Returns the weak order on keys. In this case (`Seq`), it returns the default order on integers. */
   def orderOnKeys = Order[Int]
 
   override def size = length
@@ -361,13 +361,7 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
 
   override def reverse: BiSeq[T] = self.to(ArraySeq).reverse
 
-  /**
-   * Pretends that this sequence is sorted under the given implicit order.
- *
-   * @param T The implicit order
-   * @note Actual orderedness is not guaranteed! The user should make sure that it is sorted.
-   * @return A sorted sequence
-   */
+
   override def asIfSorted(implicit T: Order[T]): SortedSeq[T @uv] = new SortedSeq[T] {
     def orderOnElements = T
     def headNode: SeqNode[T] = self.headNode

@@ -49,7 +49,7 @@ object Predicate {
 
   // IMPLICIT CONVERSIONS
 
-  implicit def fromFuncToBool[T](f: T => Boolean): Predicate[T] = new Predicate[T] {
+  implicit def fromBooleanFunc[T](f: T => Boolean): Predicate[T] = new Predicate[T] {
     def apply(x: T) = f(x)
   }
 
