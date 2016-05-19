@@ -88,7 +88,7 @@ object LinkedHashMap extends BuilderFactory2Ev[LinkedHashMap, Hashing] {
     private[this] val m = new LinkedHashMap[K, V](new OpenHashTable[K, Entry[K, V]])
     def addInplace(x: (K, V)) = m.addInplace(x)
     def result = m
-    def sizeHint(n: Int) = m.data.grow(n)
+    override def sizeHint(n: Int) = m.data.grow(n)
   }
 
 }

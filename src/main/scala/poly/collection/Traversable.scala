@@ -457,7 +457,6 @@ trait Traversable[+T] { self =>
 
   /**
    * Sorts this collection in ascending order using the implicitly provided order. $EAGER
-   *
    * @example {{{
    *   (3, 2, 4, 1).sort == (1, 2, 3, 4)
    *   (3, 2, 4, 1).sort(Order[Int].reverse) == (4, 3, 2, 1)

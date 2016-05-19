@@ -31,6 +31,6 @@ object SortedArraySet extends BuilderFactoryEv[SortedArraySet, Order] {
     private[this] val b = SortedArraySeq.newBuilder
     def addInplace(x: T) = b += x
     def result = new SortedArraySet(b.result)
-    def sizeHint(n: Int) = b.sizeHint(n)
+    override def sizeHint(n: Int) = b.sizeHint(n)
   }
 }

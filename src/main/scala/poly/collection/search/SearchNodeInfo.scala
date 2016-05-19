@@ -9,11 +9,12 @@ import poly.collection.node._
  * Witnesses that a type can be used as the type of search node for a specific state type.
  * @tparam N Type of search node
  * @tparam S Type of search state
- * @author Yuhuan Jiang (jyuhuan@gmail.com).
+ * @author Yuhuan Jiang
  * @author Tongfei Chen
  * @since 0.1.0
  */
 trait SearchNodeInfo[N, S] {
+
   /** Creates a node given the starting state. */
   def startNode(s: S): N
 

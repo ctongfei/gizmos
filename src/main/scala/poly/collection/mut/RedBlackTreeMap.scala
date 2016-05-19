@@ -46,7 +46,6 @@ object RedBlackTreeMap extends BuilderFactory2Ev[RedBlackTreeMap, Order] {
       private[this] val data = new java.util.TreeMap[K, V](new java.util.Comparator[K] {
         def compare(a: K, b: K) = K.cmp(a, b)
       })
-      def sizeHint(n: Int) = {}
       def result = new RedBlackTreeMap(data)
       def addInplace(x: (K, V)) = data.put(x._1, x._2)
     }

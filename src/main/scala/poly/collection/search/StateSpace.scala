@@ -12,7 +12,7 @@ import poly.collection.search.node._
   * @author Tongfei Chen
   * @since 0.1.0
   */
-trait StateSpace[@sp(Int) S] extends Keyed[S] {
+trait StateSpace[@sp(Int) S] extends Keyed[S] { self =>
 
   import StateSpace._
 
@@ -21,6 +21,11 @@ trait StateSpace[@sp(Int) S] extends Keyed[S] {
 
   /** Returns the equivalence relation on search states. */
   def eqOnKeys: Eq[S]
+
+  def filterKeys(f: S => Boolean): StateSpace[S] = new AbstractStateSpace[S] {
+    def eqOnKeys = self.eqOnKeys
+    def succ(x: S) = self.succ(x) filter f
+  }
 
   /**
    * Depth-first traverses this state space from the given starting state.
@@ -44,7 +49,7 @@ trait StateSpace[@sp(Int) S] extends Keyed[S] {
 
 object StateSpace {
 
-  private[collection] def searchByIterator[S, N <: WithParent[S]](si: SearchIterator[N, S], goal: S => Boolean): BiIterable[S] = {
+  private[collection] def searchByIterator[S, N <: WithParent[S]](si: SearchIterator[N, S], goal: S => Boolean): BiSeq[S] = {
     while (si.advance())
       if (goal(si.current))
         return si.currentNode.pathToRoot.map(_.data).reverse
@@ -52,3 +57,5 @@ object StateSpace {
   }
 
 }
+
+abstract class AbstractStateSpace[@sp(Int) S] extends StateSpace[S]

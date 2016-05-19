@@ -50,6 +50,5 @@ object PairMultiset extends BuilderFactoryEv2[PairMultiset, Eq, OrderedRing] {
     private[this] val ms = new PairMultiset[K, R](AutoMap[K, R]())
     def addInplace(x: K) = ms.addInplace(x)
     def result = ms
-    def sizeHint(n: Int) = {}
   }
 }

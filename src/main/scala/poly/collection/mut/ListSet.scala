@@ -53,7 +53,6 @@ object ListSet extends BuilderFactoryEv[ListSet, Eq] {
     private[this] val s = new ListSet(new SinglyLinkedList[K]())
     def addInplace(x: K) = s addInplace x
     def result = s
-    def sizeHint(n: Int) = {}
   }
 
 }

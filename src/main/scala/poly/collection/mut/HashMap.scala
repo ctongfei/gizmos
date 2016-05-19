@@ -52,7 +52,7 @@ object HashMap extends BuilderFactory2Ev[HashMap, Hashing] {
 
   implicit def newBuilder[K: Hashing, V]: Builder[(K, V), HashMap[K, V]] = new Builder[(K, V), HashMap[K, V]] {
     private val data = new OpenHashTable[K, Entry[K, V]]()
-    def sizeHint(n: Int) = data.grow(n)
+    override def sizeHint(n: Int) = data.grow(n)
     def addInplace(x: (K, V)) = data.addEntry(new Entry(x._1, x._2))
     def result = new HashMap[K, V](data)
   }

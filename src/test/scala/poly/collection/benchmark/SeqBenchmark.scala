@@ -14,7 +14,7 @@ object SeqBenchmark extends App {
   val conf = config(Key.exec.benchRuns → 50)
     .withWarmer(new Warmer.Default).withMeasurer(new IgnoringGC)
 
-  for (n ← scala.Seq(100000, 200000, 400000, 800000, 1600000)) {
+  for (n ← scala.Seq(100000, 200000, 400000, 800000, 1600000, 3200000)) {
 
     val tNative = conf measure {
       val l0 = Array.ofDim[Int](n)
@@ -28,7 +28,7 @@ object SeqBenchmark extends App {
 
     val tArrayList = conf measure {
       val l0 = new java.util.ArrayList[Int](n)
-      for (i ← Range(n))
+      for (i ← Range(n).fast)
         l0.add(i)
     }
     println(s"Vanilla Java ArrayList: $tArrayList")

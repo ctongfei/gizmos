@@ -26,7 +26,7 @@ object SortedArraySeq extends BuilderFactoryEv[SortedArraySeq, Order] {
 
   def newBuilder[T: Order]: Builder[T, SortedArraySeq[T]] = new Builder[T, SortedArraySeq[T]] {
     val ra = new ResizableSeq[T]()
-    def sizeHint(n: Int) = ra.ensureCapacity(n)
+    override def sizeHint(n: Int) = ra.ensureCapacity(n)
     def addInplace(x: T) = ra.appendInplace(x)
     def result: SortedArraySeq[T] = {
       ra.sortInplace()

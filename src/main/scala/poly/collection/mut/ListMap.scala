@@ -91,7 +91,6 @@ object ListMap extends BuilderFactory2Ev[ListMap, Eq] {
 
   implicit def newBuilder[K: Eq, V]: Builder[(K, V), ListMap[K, V]] = new Builder[(K, V), ListMap[K, V]] {
     private[this] val r = new ListMap[K, V](new SinglyLinkedList[K, Node[K, V]])
-    def sizeHint(n: Int) = {}
     def result = r
     def addInplace(x: (K, V)) = r addInplace x
   }

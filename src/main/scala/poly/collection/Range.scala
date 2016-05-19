@@ -1,8 +1,10 @@
 package poly.collection
 
 import poly.algebra._
+import poly.algebra.specgroup._
 import poly.algebra.syntax._
 import poly.macroutil._
+
 import scala.reflect.macros.blackbox._
 import scala.language.experimental.macros
 
@@ -29,10 +31,22 @@ sealed trait Range extends SortedIndexedSeq[Int] { self =>
     val len = gap / step + (if (gap % step != 0) 1 else 0)
     if (len < 0) 0 else len
   }
-
   def fastApply(i: Int): Int = left + i * step
 
+  override val head = left
+
+  override val last = left + (fastLength - 1) * step
+
   // HELPER FUNCTIONS
+
+  @inline final override def foreach[@sp(Unit) V](f: Int => V): Unit = {
+    var i = left
+    while (true) {
+      f(i)
+      if (i == last) return
+      i += step
+    }
+  }
 
   def sum = (head + last) * length / 2
 
@@ -59,6 +73,7 @@ object Range {
     }
 
     def fast = new FastTraversable(this)
+
     def orderOnElements = Order[Int]
     override def tail = new Range.Ascending(left + step, right, step)
     override def reverse = new Range.Descending(left + step * (length - 1), left - math.signum(step), -step)

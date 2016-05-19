@@ -14,19 +14,15 @@ object StackQueueTest extends App {
   q += 3
   q += 4
   q += 5
-  q
   q.pop()
-  q
   q.pop()
-  q
   q.pop()
-  q
   q += 6
   q += 7
   q += 8
   q += 9
   q += 10
-  q
+  val bp = 0
 
 
 }

@@ -19,7 +19,7 @@ class BinaryHeap[T] private(private val data: ResizableSeq[T])(implicit val orde
 
   import BinaryTree._
 
-  @inline private[this] def smallerChildIndex(x: Int) = {
+  @inline private def smallerChildIndex(x: Int) = {
     val l = 2 * x + 1
     if (l < data.fastLength - 1 && data(l + 1) < data(l)) l + 1 else l
   }
@@ -71,8 +71,8 @@ object BinaryHeap extends BuilderFactoryEv[BinaryHeap, Order] {
 
   implicit def newBuilder[T: Order]: Builder[T, BinaryHeap[T]] = new Builder[T, BinaryHeap[T]] {
     private[this] val data = new ResizableSeq[T]()
-    def sizeHint(n: Int): Unit = data.ensureCapacity(n)
-    def addInplace(x: T): Unit = data.appendInplace(x)
+    override def sizeHint(n: Int) = data.ensureCapacity(n)
+    def addInplace(x: T) = data.appendInplace(x)
 
     // heap building algorithm
     def result = {

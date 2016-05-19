@@ -116,7 +116,6 @@ object ListBiSeq extends SeqFactory[ListBiSeq] {
 
   implicit def newBuilder[T]: Builder[T, ListBiSeq[T]] = new Builder[T, ListBiSeq[T]] {
     private[this] val l = new ListBiSeq[T]()
-    def sizeHint(n: Int) = {}
     def result = l
     def addInplace(x: T) = l.appendInplace(x)
   }

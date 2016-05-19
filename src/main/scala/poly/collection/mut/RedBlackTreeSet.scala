@@ -41,6 +41,5 @@ object RedBlackTreeSet extends BuilderFactoryEv[RedBlackTreeSet, Order] {
       })
       def addInplace(x: K) = data.add(x)
       def result = new RedBlackTreeSet(data)
-      def sizeHint(n: Int) = {}
     }
 }

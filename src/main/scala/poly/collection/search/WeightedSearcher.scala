@@ -1,9 +1,10 @@
 package poly.collection.search
 
 import poly.algebra._
-import poly.collection.exception._
+import poly.collection._
 import poly.collection.mut._
 import poly.collection.search.node._
+import poly.collection.search.ops._
 
 /**
   * An extremely generic iterator that executes a weighted search algorithm.
@@ -11,38 +12,38 @@ import poly.collection.search.node._
   * @tparam S Type of state
   * @tparam N Type of search node
   * @tparam C Type of cost on edges
-  * @param S The searching state space
-  * @param N A typeclass instance that witnesses the additional information stored on search nodes
-  * @param shouldNotBePruned A predicate that dictates which nodes should be not pruned in the searching process
-  * @param fringe A fringe for storing the search nodes
-  * @param start Starting state
   * @author Yuhuan Jiang
   * @author Tongfei Chen
   * @since 0.1.0
   */
-class WeightedSearcher[S, N, C](
-  shouldNotBePruned: N => Boolean,
-  fringe: Queue[N],
-  start: S
-)(implicit
-  S: WeightedStateSpace[S, C],
-  N: WeightedSearchNodeInfo[N, S, C]
-) extends SearchIterator[N, S] {
+abstract class WeightedSearcher[S, N, C] extends SearchIterator[N, S] {
 
-  private[this] var curr: N = throw new DummyNodeException
+  def prune(n: N): Boolean
 
-  fringe += N.startNode(start)
+  val fringe: Queue[N]
+
+  val start: S
+
+  /** The state space in which the search process is performed. */
+  implicit def stateSpace: WeightedStateSpace[S, C]
+
+  /** Encapsulates the relation between underlying states and wrapping search nodes. */
+  implicit def searchNodeInfo: WeightedSearchNodeInfo[N, S, C]
+
+  private[this] var curr: N = default[N]
+
+  fringe += searchNodeInfo.startNode(start)
 
   def currentNode = curr
 
-  def current = N.state(curr)
+  def current = searchNodeInfo.state(curr)
 
   def advance() = {
     if (fringe.notEmpty) {
       curr = fringe.pop()
-      if (shouldNotBePruned(curr))
-        fringe ++= S.succWithCost(N.state(curr)).map { case (next, cost) =>
-          N.nextNode(curr)(next, cost)
+      if (!prune(curr))
+        fringe ++= curr.state.succWithCost.map { case (next, cost) =>
+          curr.next(next, cost)
         }
       true
     }
@@ -50,21 +51,25 @@ class WeightedSearcher[S, N, C](
   }
 }
 
-class UniformCostIterator[S, C: OrderedAdditiveGroup](ss: WeightedStateSpace[S, C], start: S)
-  extends WeightedSearcher[S, WithCost[S, C], C](
-    x => false,
-    DistinctPriorityQueue[BinaryHeap, WithCost[S, C]](),
-    start)(ss, WithCost.WeightedSearchNodeInfo)
+class UniformCostIterator[S, C: OrderedAdditiveGroup](val stateSpace: WeightedStateSpace[S, C], val start: S)
+  extends WeightedSearcher[S, WithCost[S, C], C]
+{
+  val fringe = DistinctPriorityQueue[BinaryHeap, WithCost[S, C]]()
+  def searchNodeInfo = WithCost.WeightedSearchNodeInfo[S, C]
+  def prune(n: WithCost[S, C]) = false
+}
 
-class GreedyBestFirstIterator[S, C: OrderedAdditiveGroup](ss: WeightedStateSpace[S, C], start: S, heuristic: S => C)
-  extends WeightedSearcher[S, WithHeuristic[S, C], C](
-    x => false,
-    DistinctPriorityQueue[BinaryHeap, WithHeuristic[S, C]](),
-    start)(ss, WithHeuristic.WeightedSearchNodeInfo(heuristic)
-  )
+class GreedyBestFirstIterator[S, C: OrderedAdditiveGroup](val stateSpace: WeightedStateSpace[S, C], val start: S, val heuristic: S => C)
+  extends WeightedSearcher[S, WithHeuristic[S, C], C]
+{
+  val fringe = DistinctPriorityQueue[BinaryHeap, WithHeuristic[S, C]]()
+  def searchNodeInfo = WithHeuristic.WeightedSearchNodeInfo(heuristic)
+  def prune(n: WithHeuristic[S, C]) = false
+}
 
-class AStarIterator[S, C: OrderedAdditiveGroup](ss: WeightedStateSpace[S, C], start: S, heuristic: S => C)
-  extends WeightedSearcher[S, WithCostAndHeuristic[S, C], C](
-    x => false,
-    DistinctPriorityQueue[BinaryHeap, WithCostAndHeuristic[S, C]]()(Eq.byRef, BinaryHeap.newBuilder[WithCostAndHeuristic[S, C]](WithCostAndHeuristic.order)),
-    start)(ss, WithCostAndHeuristic.WeightedSearchNodeInfo(heuristic))
+class AStarIterator[S, C: OrderedAdditiveGroup](val stateSpace: WeightedStateSpace[S, C], val start: S, val heuristic: S => C)
+  extends WeightedSearcher[S, WithCostAndHeuristic[S, C], C] {
+  val fringe = DistinctPriorityQueue[BinaryHeap, WithCostAndHeuristic[S, C]]()(Eq.byRef, BinaryHeap.newBuilder[WithCostAndHeuristic[S, C]](WithCostAndHeuristic.order))
+  def searchNodeInfo = WithCostAndHeuristic.WeightedSearchNodeInfo(heuristic)
+  def prune(n: WithCostAndHeuristic[S, C]) = false
+}

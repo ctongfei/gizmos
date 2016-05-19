@@ -9,7 +9,6 @@ import scala.util.control.Breaks._
  */
 object ListProduct extends App {
 
-
   def listProduct[T](ls: Seq[Seq[T]]): Iterable[Seq[T]] = Iterable.ofIterator {
     new Iterator[Seq[T]] {
       val n = ls.length
@@ -36,7 +35,6 @@ object ListProduct extends App {
       }
     }
   }
-
 
 
   val a = ArraySeq(1, 2, 3)

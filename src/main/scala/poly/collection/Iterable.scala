@@ -389,13 +389,14 @@ trait Iterable[+T] extends Traversable[T] { self =>
     }
   }
 
+  def chunk(chunkSize: Int) = ???
+
   /**
-    * Groups elements in fixed size blocks by passing a sliding window over them.
-   *
+   * Groups elements in fixed size blocks by passing a sliding window over them.
    * @param windowSize The size of the sliding window
-    * @param step Step size. The default value is 1.
-    * @example {{{(1, 2, 3, 4).sliding(2) == ((1, 2), (2, 3), (3, 4))}}}
-    */
+   * @param step Step size. The default value is 1.
+   * @example {{{(1, 2, 3, 4).sliding(2) == ((1, 2), (2, 3), (3, 4))}}}
+   */
   def sliding(windowSize: Int, step: Int = 1) = ofIterator {
     new Iterator[IndexedSeq[T]] {
       val it = self.newIterator

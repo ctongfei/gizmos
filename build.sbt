@@ -12,6 +12,7 @@ libraryDependencies += "org.scalatest"     %% "scalatest"       % "2.2.6"       
 libraryDependencies += "com.storm-enroute" %% "scalameter-core" % "0.7"             % Test
 
 //scalacOptions += "-Ymacro-debug-lite"
+scalacOptions ++= Seq("-deprecation", "-feature")
 scalacOptions in (Compile, doc) ++= Seq("-diagrams", "-Ymacro-debug-lite")
 
 publishMavenStyle := true

@@ -34,6 +34,15 @@ object RangeBenchmark extends App {
     }
     println(s"Poly-collection range: $tPoly")
 
+    val tPolyFast = conf measure {
+      val l1 = Array.ofDim[Int](n)
+      for (i ← (0 ~~< n).fast)
+        l1(i) = i * 2
+      //print(l1.head)
+    }
+    println(s"Poly-collection fast range: $tPolyFast")
+
+
     val tScala = conf measure {
       val l2 = Array.ofDim[Int](n)
       for (i ← 0 until n)

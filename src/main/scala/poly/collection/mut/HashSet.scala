@@ -40,6 +40,6 @@ object HashSet extends BuilderFactoryEv[HashSet, Hashing] {
     private[this] val s = new OpenHashTable[T, Entry[T]]()
     def addInplace(x: T) = s.addEntry(new Entry(x))
     def result = new HashSet[T](s)
-    def sizeHint(n: Int) = s.grow(n)
+    override def sizeHint(n: Int) = s.grow(n)
   }
 }

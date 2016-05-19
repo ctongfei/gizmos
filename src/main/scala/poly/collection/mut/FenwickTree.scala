@@ -85,7 +85,7 @@ object FenwickTree extends BuilderFactoryEv[FenwickTree, AdditiveGroup] {
       }
       data.appendInplace(sum)
     }
-    def sizeHint(n: Int) = data.ensureCapacity(n)
+    override def sizeHint(n: Int) = data.ensureCapacity(n)
     def result = new FenwickTree[T](data)
   }
 }

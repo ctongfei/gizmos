@@ -94,7 +94,7 @@ trait Graph[@sp(Int) K, +V, +E] extends KeyedLike[K, Graph[K, V, E]] with StateS
    * @return A subgraph with only the nodes selected. An edge will be selected iff both its ends are selected
    *         by the predicate.
    */
-  def filterKeys(f: K => Boolean): Graph[K, V, E] = new AbstractGraph[K, V, E] {
+  override def filterKeys(f: K => Boolean): Graph[K, V, E] = new AbstractGraph[K, V, E] {
     def apply(i: K) = self(i)
     def containsArc(i: K, j: K) = self.containsArc(i, j) && f(i) && f(j)
     def apply(i: K, j: K) = self(i, j)

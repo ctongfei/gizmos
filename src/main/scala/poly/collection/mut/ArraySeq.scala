@@ -35,7 +35,7 @@ object ArraySeq extends SeqFactory[ArraySeq] {
 
   implicit def newBuilder[T]: Builder[T, ArraySeq[T]] = new Builder[T, ArraySeq[T]] {
     val a = new ResizableSeq[T]()
-    def sizeHint(n: Int) = a.ensureCapacity(n)
+    override def sizeHint(n: Int) = a.ensureCapacity(n)
     def addInplace(x: T) = a.appendInplace(x)
     def result = new ArraySeq[T](a)
   }

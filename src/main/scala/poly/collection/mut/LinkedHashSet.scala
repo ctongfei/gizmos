@@ -63,7 +63,7 @@ object LinkedHashSet extends BuilderFactoryEv[LinkedHashSet, Hashing] {
     private[this] val s = new LinkedHashSet[T](new OpenHashTable[T, Entry[T]]())
     def addInplace(x: T) = s.addInplace(x)
     def result = s
-    def sizeHint(n: Int) = s.data.grow(n)
+    override def sizeHint(n: Int) = s.data.grow(n)
   }
 
 }
