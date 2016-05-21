@@ -51,9 +51,10 @@ object HashMap extends BuilderFactory2Ev[HashMap, Hashing] {
   private[poly] class Entry[K, V](val key: K, var value: V) extends OpenHashEntryLike[K, Entry[K, V]]
 
   implicit def newBuilder[K: Hashing, V]: Builder[(K, V), HashMap[K, V]] = new Builder[(K, V), HashMap[K, V]] {
-    private val data = new OpenHashTable[K, Entry[K, V]]()
-    override def sizeHint(n: Int) = data.grow(n)
-    def addInplace(x: (K, V)) = data.addEntry(new Entry(x._1, x._2))
-    def result = new HashMap[K, V](data)
+    private[this] val ht = new OpenHashTable[K, Entry[K, V]]()
+    private[this] val m = new HashMap(ht)
+    override def sizeHint(n: Int) = ht.grow(n)
+    def addInplace(x: (K, V)) = m.addInplace(x)
+    def result = m
   }
 }

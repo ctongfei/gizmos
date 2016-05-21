@@ -73,7 +73,7 @@ object Permutation {
       bs(xs(i)) = true
     }
     // Requires that this is essentially a true bijection: all bits should be set as true
-    require(bs.forall(x => x))
+    require(bs forall {x => x})
     new Permutation(xs.clone, ys)
   }
 
@@ -96,7 +96,7 @@ object Permutation {
     new Permutation(a, a)
   }
 
-  implicit def GroupAction[T]: Action[IndexedSeq[T], Permutation] = new Action[IndexedSeq[T], Permutation] {
+  def GroupAction[T]: Action[IndexedSeq[T], Permutation] = new Action[IndexedSeq[T], Permutation] {
     def act(x: IndexedSeq[T], p: Permutation) = x permuteBy p
   }
 

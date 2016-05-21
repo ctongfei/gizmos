@@ -39,7 +39,7 @@ trait Table[+T] extends Map[(Int, Int), T] { self =>
   def triples: IndexedSeq[(Int, Int, T)] = new AbstractIndexedSeq[(Int, Int, T)] {
     def fastApply(idx: Int) = {
       val i = idx / numRows
-      val j = idx / numCols
+      val j = idx % numCols
       (i, j, self(i, j))
     }
     def fastLength = self.size

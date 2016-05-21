@@ -69,7 +69,7 @@ object Range {
   ) extends Range { require(step > 0)
 
     class FastTraversable(r: Range.Ascending) {
-      def foreach[U](f: Int => U) = macro ascendingForeachMacroImpl[U]
+      def foreach[U](f: Int => U): Unit = macro ascendingForeachMacroImpl[U]
     }
 
     def fast = new FastTraversable(this)
@@ -86,7 +86,7 @@ object Range {
   ) extends Range { require(step < 0)
 
     class FastTraversable(r: Range.Descending) {
-      def foreach[U](f: Int => U) = macro descendingForeachMacroImpl[U]
+      def foreach[U](f: Int => U): Unit = macro descendingForeachMacroImpl[U]
     }
 
     def fast = new FastTraversable(this)

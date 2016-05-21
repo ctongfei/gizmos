@@ -54,10 +54,8 @@ trait Iterator[@sp(Int, Long, Double, Char) +T] { self =>
 
   def readToArray(a: Array[T @uv]): Unit = readToArray(a, 0, a.length)
 
-  override def toString = try {
-    s"⋯ $current ⋯"
-  } catch {
-    case _: Exception => "<invalid position>"
+  override def toString = try { s"⋯ $current ⋯" } catch {
+    case ex: Exception => "<invalid position>"
   }
 
 }

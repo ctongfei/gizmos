@@ -2,13 +2,12 @@ import poly.collection._
 import poly.algebra._
 import poly.algebra.implicits._
 import poly.collection.mut._
-import poly.collection.ops._
 
 val e = Iterable.iterate(0)(_ + 1).take(5)
 val f = Iterable.iterate(0)(x => 0).take(10)
 val em = Iterable.empty
 
-e.splitBy(_ == 2)
+e.split(2)
 
 e.distinct
 f.distinct
@@ -49,9 +48,9 @@ e.cycle.take(11)
 e.reduceLeft(_+_)
 
 
-e.to[ArraySeq]
-e.to[ListSeq]
-e.to[ListBiSeq]
+e.to(ArraySeq)
+e.to(ListSeq)
+e.to(ListBiSeq)
 e.reverse
 e
 e.map(_ + 1)
@@ -59,12 +58,12 @@ e.flatMap((i: Int) => ListSeq.fill(i)(i))
 e.prepend(-1).map(_ * 2).filter(_ >= 0)
 e.append(19)
 val gg = ArraySeq(1, 2, 3)
-val g = e.to[ListSeq]
+val g = e.to(ListSeq)
 g.filter(_ > 2)
 g.filter(_ < 4)
 g.map(_ * 3)
 gg.map(_ * 3)
-gg.sort(WeakOrder[Int].reverse)
+gg.sort(Order[Int].reverse)
 g product gg
 
 e.sliding(2)
@@ -72,7 +71,7 @@ e.sliding(2)
 e.tail
 e.init
 
-0.cycle.take(10)
+0.infinite.take(10)
 
 0.repeat(10)
 e.repeat(4)
@@ -82,5 +81,5 @@ e.cycle.take(12)
 e zip f
 e interleave e.init
 
-Iterable.zipN(e, e, e, e)
+Iterable.zipMany(e, e, e, e)
 

@@ -7,7 +7,7 @@ import poly.collection.factory._
 import poly.collection.impl._
 
 /**
- * An array-backed circular queue that supports amortized O(1) time for both insertion and deletion.
+ * An array-backed circular queue that supports amortized O(1) time for both pushing and popping.
  * @author Tongfei Chen
  * @since 0.1.0
  */

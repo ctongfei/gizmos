@@ -41,7 +41,7 @@ class PairMultiset[K, R: OrderedRing] private(private val data: KeyMutableMap[K,
 
 object PairMultiset extends BuilderFactoryEv2[PairMultiset, Eq, OrderedRing] {
 
-  /** Creates a factory of PairMultisets given the type on counts. Normally [[R]] should be [[scala.Int]]. */
+  /** Creates a factory of [[PairMultiset]]s given the type on counts. Normally [[R]] should be [[scala.Int]]. */
   def of[R: OrderedRing]: BuilderFactoryEv[({type λ[K] = PairMultiset[K, R]})#λ, Eq] = new BuilderFactoryEv[({type λ[K] = PairMultiset[K, R]})#λ, Eq] {
     implicit def newBuilder[K: Eq] = PairMultiset.newBuilder[K, R]
   }

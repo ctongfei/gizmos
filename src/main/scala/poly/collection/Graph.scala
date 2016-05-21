@@ -54,7 +54,11 @@ trait Graph[@sp(Int) K, +V, +E] extends KeyedLike[K, Graph[K, V, E]] with StateS
   /** Returns an iterable collection of the vertices in this graph. */
   def nodes: Iterable[Node[K, V]] = keys.map(node)
 
-  //def arcMap: Map[(K, K), E] = ???
+  def arcMap: Map[(K, K), E] = (keySet product keySet) createMapByOptional {
+    case (i, j) if containsArc(i, j) => Some(apply(i, j))
+    case _ => None // TODO: Under this implementation, traversing over all arcs is O(n^2).
+  }
+
   def arcs: Iterable[Arc[K, E]] = for (i ← keys; j ← outgoingKeysOf(i)) yield arc(i, j)
 
   final def containsKey(i: K) = keySet.contains(i)
@@ -156,7 +160,7 @@ object Graph {
     override def equals(that: Any) = that match {
       case that: Node[K, V] => (this.graph eq that.graph) && (this.key === that.key)
     }
-    //TODO: hashing
+    override def hashCode = graph.## + key.## //TODO: ???
   }
 
 
@@ -181,4 +185,4 @@ object Graph {
 
 }
 
-abstract class AbstractGraph[@sp(Int) K, +V, +E] extends Graph[K, V, E]
+abstract class AbstractGraph[@sp(Int) K, +V, +E] extends AbstractStateSpace[K] with Graph[K, V, E]

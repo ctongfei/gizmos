@@ -50,9 +50,4 @@ trait BinarySearchTree[K, N >: Null <: BinarySearchTreeNodeLike[K, N]] {
     else p.right = c
   }
 
-
-
-
-
-
 }

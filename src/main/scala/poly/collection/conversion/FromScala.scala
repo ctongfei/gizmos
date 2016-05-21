@@ -43,7 +43,7 @@ object FromScala {
         new WrappedNode(t, t.isEmpty)
       }
     }
-    override def newIterator = scalaIteratorAsPoly[T](xs.iterator)
+    override def newIterator = xs.iterator
     def headNode = new WrappedNode(xs, xs.isEmpty)
     override def apply(i: Int) = xs(i)
     override def length = xs.length

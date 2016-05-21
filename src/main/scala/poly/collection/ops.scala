@@ -48,7 +48,7 @@ trait ImplicitOperators {
   }
 
 
-  implicit class withCollectionOps[T](val x: T) {
+  implicit class withCollectionOps[T](x: => T) { // call-by-name
 
     /** Checks if this element belongs to the specific set. */
     def in[U >: T](set: Set[U]) = set contains x
@@ -78,15 +78,15 @@ trait ImplicitOperators {
     /**
      * Constructs a lazy sequence that repeats the specific element infinitely.
      * @return An infinite sequence
-     * @example {{{2.cycle == (2, 2, 2, 2, 2, ...)}}}
+     * @example {{{2.infinite == (2, 2, 2, 2, 2, ...)}}}
      */
-    def cycle = Iterable.infinite(x)
+    def infinite = Iterable.infinite(x)
 
     /**
      * Constructs a lazy sequence that repeats the specific element for the given number of times.
      * @example {{{4.repeat(5) == (4, 4, 4, 4, 4)}}}
      */
-    def repeat(n: Int) = IndexedSeq.fill(n)(x)
+    def repeat(n: Int) = IndexedSeq.fill(n)(x) // TODO: consider name change
 
     /**
      * Constructs a lazy infinite sequence by iteratively applying a function from a starting element.

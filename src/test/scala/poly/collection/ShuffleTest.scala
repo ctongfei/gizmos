@@ -14,7 +14,7 @@ object ShuffleTest extends App {
 
   val a = ArraySeq(1, 2, 3, 4)
 
-  val b = Iterable.infinite(a.shuffle).take(240000).to(PairMultiset.of[Int])
+  val b = a.shuffle.infinite take 240000 to PairMultiset.of[Int]
 
   val bp = 0
 

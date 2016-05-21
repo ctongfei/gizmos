@@ -28,7 +28,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
     while (i.advance()) f(i.current)
   }
 
-  final def ringOnWeight = OrderedRing[Int]
+ // final def ringOnWeight = OrderedRing[Int]
 
   //region HELPER FUNCTIONS
 
@@ -389,7 +389,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
     }
   }
 
-  def chunk(chunkSize: Int) = ???
+  //def chunk(chunkSize: Int) =
 
   /**
    * Groups elements in fixed size blocks by passing a sliding window over them.
@@ -397,7 +397,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
    * @param step Step size. The default value is 1.
    * @example {{{(1, 2, 3, 4).sliding(2) == ((1, 2), (2, 3), (3, 4))}}}
    */
-  def sliding(windowSize: Int, step: Int = 1) = ofIterator {
+  def sliding(windowSize: Int, step: Int = 1) = ofIterator { //TODO: not working when step > 1
     new Iterator[IndexedSeq[T]] {
       val it = self.newIterator
       private[this] var window = ArraySeq.withSizeHint[T](windowSize)
@@ -492,7 +492,7 @@ object Iterable {
   def single[T](x: T) = ofIterator {
     new Iterator[T] {
       private[this] var curr: T = _
-      private[this] var first = false
+      private[this] var first = true
       def advance() = {
         if (first) {
           curr = x

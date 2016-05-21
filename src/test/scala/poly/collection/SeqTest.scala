@@ -1,5 +1,6 @@
 package poly.collection
 
+import poly.algebra.syntax._
 import poly.collection.mut._
 /**
   * @author Tongfei Chen (ctongfei@gmail.com).
@@ -16,7 +17,9 @@ object SeqTest extends App {
   a appendInplace 4
 
 
+
   val b = ArraySeq(5, 6, 7)
+
 
   val t0 = a map { i => i * 2 }
   val t1 = a flatMap { i: Int => ArraySeq.fill(i)(i) }

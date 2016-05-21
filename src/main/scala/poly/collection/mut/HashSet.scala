@@ -17,7 +17,7 @@ class HashSet[T: Hashing] private(val data: OpenHashTable[T, HashSet.Entry[T]]) 
 
   def eqOnKeys = implicitly[Hashing[T]]
 
-  def addInplace(x: T) = data.addEntry(new Entry(x))
+  def addInplace(x: T) = if (!contains(x)) data.addEntry(new Entry(x)) // TODO: calculate hash function only once?
 
   def removeInplace(x: T) = data.removeEntry(x)
 
@@ -37,9 +37,10 @@ object HashSet extends BuilderFactoryEv[HashSet, Hashing] {
   private[poly] class Entry[K](val key: K) extends OpenHashEntryLike[K, Entry[K]]
 
   implicit def newBuilder[T: Hashing]: Builder[T, HashSet[T]] = new Builder[T, HashSet[T]] {
-    private[this] val s = new OpenHashTable[T, Entry[T]]()
-    def addInplace(x: T) = s.addEntry(new Entry(x))
-    def result = new HashSet[T](s)
-    override def sizeHint(n: Int) = s.grow(n)
+    private[this] val ht = new OpenHashTable[T, Entry[T]]()
+    private[this] val s = new HashSet[T](ht)
+    def addInplace(x: T) = s.addInplace(x)
+    def result = s
+    override def sizeHint(n: Int) = ht.grow(n)
   }
 }

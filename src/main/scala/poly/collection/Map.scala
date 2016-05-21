@@ -22,10 +22,7 @@ import scala.language.reflectiveCalls
  */
 trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K, V] { self =>
 
-  /**
-   * Returns all key-value pairs stored in this map.
-   * @return An iterable sequence of key-value pairs.
-   */
+  /** Returns all key-value pairs stored in this map. */
   def pairs: Iterable[(K, V)]
 
   /**
@@ -49,11 +46,7 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
   /** Returns the number of (key, value) pairs this map contains. */
   def size: Int = pairs.size
 
-  /**
-   * Checks if the specified key is present in this map.
-   *
-   * @return Whether the key exists in this map
-   */
+  /** Checks if the specified key is present in this map. */
   def containsKey(x: K): Boolean
 
   /**
@@ -215,7 +208,6 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
    *   K => V              J <=> K          J => V
    *    self  . contramap  ( that )    ==   result
    * }}}
- *
    * @example {{{
    *   {1 -> 'A', 2 -> 'B'} contramap {'a' <-> 1, 'b' <-> 2}
    *   == {'a' -> 'A', 'b' -> 'B'}
@@ -226,7 +218,6 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
     def containsKey(x: J) = self containsKey f(x)
     def apply(k: J) = self apply f(k)
     def ?(k: J) = self ? f(k)
-
     implicit def eqOnKeys = self.eqOnKeys contramap f
   }
 
@@ -243,7 +234,7 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
     def apply(k: K) = self.apply(k)
     def ?(k: K) = self ? k
 
-    implicit def eqOnKeys = self.eqOnKeys
+    def eqOnKeys = self.eqOnKeys
     def pairs = self.pairs
     def containsKey(x: K) = self.containsKey(x)
   }
@@ -282,6 +273,29 @@ object Map extends Factory2Ev[Map, Eq] with MapLowPriorityTypeclassInstances {
     def containsKey(x: K) = false
   }
 
+  // IMPLICIT CONVERSIONS
+  implicit class MapOfKeyPairOps[K1, K2, V](val m: Map[(K1, K2), V]) extends AnyVal {
+    /**
+     * Returns the curried version of a map whose key is a pair.
+     * {{{
+     *   Map[(K1, K2), V] . curried == Map[K1, Map[K2, V]]
+     *                      ANALOGOUS TO
+     *    (K1, K2) => V   . curried ==  K1 => (K2 => V)
+     * }}}
+     * @note The user should guarantee that the implicit equivalence relation of K1 and K2
+     *       conforms to the equivalence relation on pair (K1, K2) stored in this map.
+     */
+    def curried(implicit K1: Eq[K1], K2: Eq[K2]): Map[K1, Map[K2, V]] = new AbstractMap[K1, Map[K2, V]] {
+      private[this] val k1domain = m.keys map firstOfPair to Set
+      private[this] val k2domain = m.keys map secondOfPair to Set
+      def ?(k1: K1) = if (k1domain contains k1) Some(apply(k1)) else None
+      def pairs = k1domain.elements map { k1 => (k1, apply(k1)) }
+      def containsKey(k1: K1) = k1domain contains k1
+      def apply(k1: K1) = k2domain createMapByOptional { k2 => m ? (k1, k2) }
+      def eqOnKeys = k1domain.eqOnKeys
+    }
+  }
+
   // TYPECLASS INSTANCES
 
   //TODO: dynamic resolution of implicit Eq based on runtime type
@@ -309,14 +323,13 @@ object Map extends Factory2Ev[Map, Eq] with MapLowPriorityTypeclassInstances {
 
   /** Returns the vector space on maps given the value set of the map forms a field. */
   implicit def VectorSpace[K: Eq, F: Field]: VectorSpace[Map[K, F], F] = new VectorSpace[Map[K, F], F] {
-    private[this] val F = Field[F]
-    def fieldOnScalar = F
+    def fieldOnScalar = Field[F]
     def scale(x: Map[K, F], k: F) = x map (_ * k)
     def add(x: Map[K, F], y: Map[K, F]) = (x fullOuterJoin y) map {
       case (Some(a), Some(b)) => a + b
       case (Some(a), None) => a
       case (None, Some(b)) => b
-      case _ => F.zero
+      case _ => function.zero[F]
     }
     def zero = Map.empty[K]
   }

@@ -1,6 +1,8 @@
 package poly.collection.conversion
 
+import poly.algebra.conversion.ToScala._
 import poly.collection._
+import poly.collection.mut._
 import scala.{collection => sc}
 
 /**
@@ -80,7 +82,7 @@ object ToScala {
     /** Converts a Poly-collection set to a Scala set. */
     def asScalaSet: sc.Set[T] = new sc.AbstractSet[T] {
       def contains(elem: T) = xs contains elem
-      def +(elem: T) = ???
+      def +(elem: T) = AutoSet.from(xs.elements :+ elem)(xs.eqOnKeys).asScalaSet // TODO??
       def -(elem: T) = ???
       def iterator = xs.elements.newIterator.asScalaIterator
     }
@@ -93,6 +95,18 @@ object ToScala {
     def asScalaMap: sc.Map[K, V] = new sc.DefaultMap[K, V] {
       def get(key: K): Option[V] = xs ? key
       def iterator: sc.Iterator[(K, V)] = xs.pairs.newIterator.asScalaIterator
+    }
+  }
+
+  implicit class PolySortedSetAsScala[T](val xs: SortedSet[T]) extends AnyVal {
+    def asScalaSortedSet: sc.SortedSet[T] = new sc.AbstractSet[T] with sc.SortedSet[T] {
+      implicit def ordering = xs.orderOnKeys.asScalaOrdering
+      def rangeImpl(from: Option[T], until: Option[T]) = ???
+      def +(elem: T) = ???
+      def contains(elem: T) = xs.contains(elem)
+      def -(elem: T) = ???
+      def keysIteratorFrom(start: T) = ???
+      def iterator = xs.elements.newIterator.asScalaIterator
     }
   }
 

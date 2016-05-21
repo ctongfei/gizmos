@@ -26,6 +26,12 @@ trait SortedSet[T] extends Set[T] { self =>
   /** Returns the maximum element of this sorted set under the inherent order of this sorted set. */
   def max = keys.last
 
+  def subsetBetween(lowerBound: T, upperBound: T): SortedSet[T] = ???
+
+  def subsetFrom(lowerBound: T): SortedSet[T] = ???
+
+  def subsetUpTo(upperbound: T): SortedSet[T] = ???
+
   override def createMapBy[V](f: T => V): SortedMap[T, V] = new SortedMap[T, V] {
     def apply(k: T) = f(k)
     def ?(k: T) = if (self contains k) Some(f(k)) else None

@@ -3,7 +3,6 @@ package poly.collection
 import poly.algebra._
 import poly.algebra.syntax._
 import poly.algebra.specgroup._
-import poly.collection.conversion.FromScala._
 import poly.collection.factory._
 import poly.collection.impl._
 import poly.collection.mut._
@@ -96,7 +95,6 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
   def createMapBy[V](f: T => V): Map[T, V] = new AbstractMap[T, V] {
     def apply(k: T) = f(k)
     def ?(k: T) = if (self contains k) Some(f(k)) else None
-
     def eqOnKeys = self.eqOnKeys
     def pairs = self.keys.map(k => k → f(k))
     override def size = self.size
@@ -106,7 +104,6 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
   def createMapByOptional[V](f: T => Option[V]): Map[T, V] = new AbstractMap[T, V] {
     def apply(k: T) = f(k).get
     def ?(k: T) = if (self contains k) f(k) else None
-
     def eqOnKeys = self.eqOnKeys
     def pairs = for (k ← self.keys; v ← f(k)) yield (k, v)
     def containsKey(x: T) = (self contains x) && f(x).isDefined
@@ -229,7 +226,7 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
   override def toString = "{" + elements.buildString(", ") + "}"
 
   override def equals(that: Any) = that match {
-    case that: Set[T] => (this ⊆ that) && (this ⊇ that)
+    case that: Set[T] => (this subsetOf that) && (this supersetOf that)
     case _ => false
   }
 

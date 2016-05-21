@@ -3,6 +3,8 @@ package poly.collection.benchmark
 import org.scalameter.Measurer._
 import org.scalameter._
 import poly.collection._
+import poly.macroutil._
+
 import scala.collection.mutable._
 
 /**
@@ -36,8 +38,9 @@ object RangeBenchmark extends App {
 
     val tPolyFast = conf measure {
       val l1 = Array.ofDim[Int](n)
-      for (i ← (0 ~~< n).fast)
+      for (i ← (0 ~~< n).fast) {
         l1(i) = i * 2
+      }
       //print(l1.head)
     }
     println(s"Poly-collection fast range: $tPolyFast")

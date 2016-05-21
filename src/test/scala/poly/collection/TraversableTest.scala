@@ -30,7 +30,6 @@ class TraversableTest extends FunSuite {
   test("Equality") {
     for (i ← 0 until n) {
       val (s, p) = genVal
-      (p intersect p) foreach println
       s traversable_=== p
     }
   }
