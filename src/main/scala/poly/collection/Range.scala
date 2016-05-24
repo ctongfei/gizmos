@@ -4,17 +4,11 @@ import poly.algebra._
 import poly.algebra.specgroup._
 import poly.algebra.syntax._
 import poly.macroutil._
-
 import scala.reflect.macros.blackbox._
 import scala.language.experimental.macros
 
 /**
  * Represents an immutable integer range.
- *
- * The difference between this class and [[scala.collection.immutable.Range]] is that
- * [[poly.collection.Range]] will attempt to inline the loop body when iterating over
- * the range using macros, which potentially makes it more efficient.
- *
  * @author Tongfei Chen
  * @since 0.1.0
  */
@@ -41,18 +35,17 @@ sealed trait Range extends SortedIndexedSeq[Int] { self =>
 
   @inline final override def foreach[@sp(Unit) V](f: Int => V): Unit = {
     var i = left
-    while (true) {
+    while (i <= last) {
       f(i)
-      if (i == last) return
       i += step
     }
   }
 
   def sum = (head + last) * length / 2
 
-  def asSet: Set[Int] = new AbstractSet[Int] {
+  def asSet: SortedSet[Int] = new AbstractSortedSet[Int] {
     override def size = self.fastLength
-    def eqOnKeys = self.orderOnElements
+    def orderOnKeys = self.orderOnElements
     def keys = self
     def contains(x: Int) =
       if (step > 0) x >= left && x < right && (x - left) % step == 0
@@ -74,6 +67,20 @@ object Range {
 
     def fast = new FastTraversable(this)
 
+    def intersect(that: Range.Ascending) = {
+      val right = function.min(this.right, that.right)
+      val step = lcm(this.step, that.step)
+      if ((this.left - that.left) % gcd(this.step, that.step) != 0)
+        new Range.Ascending(this.right, that.right, step) // empty range if (this.left != that.left) mod gcd
+      else {
+        val r1 = if (this.left < that.left) that else this
+        val r0 = if (this.left < that.left) this else that
+        var left = r1.left
+        while ((left - r0.left) % r0.step != 0) left += r1.step // find one special solution for the Diophantine equation
+        new Range.Ascending(left, right, step)
+      }
+    }
+
     def orderOnElements = Order[Int]
     override def tail = new Range.Ascending(left + step, right, step)
     override def reverse = new Range.Descending(left + step * (length - 1), left - math.signum(step), -step)
@@ -91,6 +98,7 @@ object Range {
 
     def fast = new FastTraversable(this)
     def orderOnElements = Order[Int].reverse
+    def intersect(that: Range.Descending) = (this.reverse intersect that.reverse).reverse
     override def tail = new Range.Descending(left + step, right, step)
     override def reverse = new Range.Ascending(left + step * (length - 1), left - math.signum(step), -step)
   }

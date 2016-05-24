@@ -9,6 +9,9 @@ object SeqTest extends App {
 
   for (i ← 0 ~~< 4) println(i)
 
+  val aa = new Range.Ascending(1, 22, 4)
+  val bb = new Range.Ascending(2, 15, 3)
+  val cc = aa intersect bb
 
   val a = ListSeq[Int](3, 3, 2)
   a appendInplace 0

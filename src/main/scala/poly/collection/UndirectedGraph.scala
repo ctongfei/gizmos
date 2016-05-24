@@ -18,15 +18,17 @@ trait UndirectedGraph[@sp(Int) K, +V, +E] extends BiGraph[K, V, E] { self =>
 
   def edge(i: K, j: K) = new UndirectedEdge(self, i, j)
 
-  def adjacentKeysOf(i: K): Iterable[K]
+  def adjacentMapOf(i: K): Map[K, E]
+
+  def adjacentKeysOf(i: K) = adjacentMapOf(i).keys
   def adjacentNodesOf(i: K) = adjacentKeysOf(i).map(j => node(j))
   def adjacentEdgesOf(i: K) = adjacentKeysOf(i).map(j => arc(i, j))
 
-  def outgoingKeysOf(v: K): Iterable[K] = adjacentKeysOf(v)
+  def outgoingMapOf(v: K) = adjacentMapOf(v)
   override def outgoingNodesOf(v: K) = adjacentNodesOf(v)
   override def outgoingArcsOf(v: K) = adjacentEdgesOf(v)
 
-  def incomingKeysOf(v: K): Iterable[K] = adjacentKeysOf(v)
+  def incomingMapOf(v: K) = adjacentMapOf(v)
   override def incomingNodesOf(v: K) = adjacentNodesOf(v)
   override def incomingArcsOf(v: K) = adjacentEdgesOf(v)
 

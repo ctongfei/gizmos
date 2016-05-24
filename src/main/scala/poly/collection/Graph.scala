@@ -5,8 +5,11 @@ import poly.algebra.syntax._
 import poly.algebra.specgroup._
 import poly.collection.builder._
 import poly.collection.exception._
+import poly.collection.factory._
+import poly.collection.mut._
 import poly.collection.node._
 import poly.collection.search._
+
 import scala.language.higherKinds
 import scala.annotation.unchecked.{uncheckedVariance => uv}
 
@@ -54,18 +57,17 @@ trait Graph[@sp(Int) K, +V, +E] extends KeyedLike[K, Graph[K, V, E]] with StateS
   /** Returns an iterable collection of the vertices in this graph. */
   def nodes: Iterable[Node[K, V]] = keys.map(node)
 
-  def arcMap: Map[(K, K), E] = (keySet product keySet) createMapByOptional {
-    case (i, j) if containsArc(i, j) => Some(apply(i, j))
-    case _ => None // TODO: Under this implementation, traversing over all arcs is O(n^2).
-  }
+  def arcMap: Map[(K, K), E] = (keySet createMapBy outgoingMapOf).uncurry
 
   def arcs: Iterable[Arc[K, E]] = for (i ← keys; j ← outgoingKeysOf(i)) yield arc(i, j)
 
-  final def containsKey(i: K) = keySet.contains(i)
+  def containsKey(i: K) = keySet.contains(i)
   def containsNode(i: K) = keySet.contains(i)
-  def containsArc(i: K, j: K): Boolean
+  def containsArc(i: K, j: K) = outgoingMapOf(i).containsKey(j)
 
-  def outgoingKeysOf(i: K): Iterable[K]
+  def outgoingMapOf(i: K): Map[K, E]
+
+  def outgoingKeysOf(i: K) = outgoingMapOf(i).keys
   def outgoingNodesOf(i: K) = outgoingKeysOf(i).map(j => node(j))
   def outgoingArcsOf(i: K) = outgoingKeysOf(i).map(j => arc(i, j))
   def outDegree(i: K) = outgoingKeysOf(i).size
@@ -77,19 +79,17 @@ trait Graph[@sp(Int) K, +V, +E] extends KeyedLike[K, Graph[K, V, E]] with StateS
   // HELPER FUNCTIONS
 
   def mapNodes[W](f: V => W): Graph[K, W, E] = new AbstractGraph[K, W, E] {
-    def apply(i: K): W = f(self(i))
-    def containsArc(i: K, j: K): Boolean = self.containsArc(i, j)
-    def keySet: Set[K] = self.keySet
-    def apply(i: K, j: K): E = self.apply(i, j)
-    def outgoingKeysOf(i: K): Iterable[K] = self.outgoingKeysOf(i)
+    def apply(i: K) = f(self(i))
+    def keySet = self.keySet
+    def apply(i: K, j: K) = self.apply(i, j)
+    def outgoingMapOf(i: K) = self.outgoingMapOf(i)
   }
 
-  def numArcs[F](f: E => F): Graph[K, V, F] = new AbstractGraph[K, V, F] {
-    def apply(i: K): V = self(i)
-    def containsArc(i: K, j: K): Boolean = self.containsArc(i, j)
-    def keySet: Set[K] = self.keySet
-    def apply(i: K, j: K): F = f(self.apply(i, j))
-    def outgoingKeysOf(i: K): Iterable[K] = self.outgoingKeysOf(i)
+  def mapArcs[F](f: E => F): Graph[K, V, F] = new AbstractGraph[K, V, F] {
+    def apply(i: K) = self(i)
+    def keySet = self.keySet
+    def apply(i: K, j: K) = f(self.apply(i, j))
+    def outgoingMapOf(i: K) = self.outgoingMapOf(i).map(f)
   }
 
   /**
@@ -100,50 +100,42 @@ trait Graph[@sp(Int) K, +V, +E] extends KeyedLike[K, Graph[K, V, E]] with StateS
    */
   override def filterKeys(f: K => Boolean): Graph[K, V, E] = new AbstractGraph[K, V, E] {
     def apply(i: K) = self(i)
-    def containsArc(i: K, j: K) = self.containsArc(i, j) && f(i) && f(j)
+    override def containsArc(i: K, j: K) = self.containsArc(i, j) && f(i) && f(j)
     def apply(i: K, j: K) = self(i, j)
-    def outgoingKeysOf(i: K) = if (f(i)) self.outgoingKeysOf(i).filter(f) else Iterable.empty
+    def outgoingMapOf(i: K) = if (f(i)) self.outgoingMapOf(i).filterKeys(f) else Map.empty[K]
     def keySet = self.keySet.filterKeys(f)
   }
 
-  def filterNodes(f: V => Boolean): Graph[K, V, E] = new AbstractGraph[K, V, E] {
-    def apply(i: K): V = {
-      if (f(self(i))) self(i)
-      else throw new KeyNotFoundException(i)
-    }
-    def containsArc(i: K, j: K): Boolean = f(self(i)) && f(self(j)) && self.containsArc(i, j)
-    def apply(i: K, j: K): E = if (containsArc(i, j)) self(i, j) else throw new KeyNotFoundException(i, j)
-    def outgoingKeysOf(i: K): Iterable[K] = self.outgoingKeysOf(i).filter(k => f(self(k)))
-    def keySet: Set[K] = keySet.filterKeys(k => f(self(k)))
-  }
 
   def zip[W, F](that: Graph[K, W, F]): Graph[K, (V, W), (E, F)] = new AbstractGraph[K, (V, W), (E, F)] {
     def apply(i: K) = (self(i), that(i))
-    def containsArc(i: K, j: K) = self.containsArc(i, j) && that.containsArc(i, j)
+    override def containsArc(i: K, j: K) = self.containsArc(i, j) && that.containsArc(i, j)
     def apply(i: K, j: K) = (self(i, j), that(i, j))
-    def outgoingKeysOf(i: K) = self.outgoingKeysOf(i) intersect that.outgoingKeysOf(i)
+    def outgoingMapOf(i: K) = self.outgoingMapOf(i) zip that.outgoingMapOf(i)
     def keySet = self.keySet & that.keySet
   }
 
-  def contramap[J](f: Bijection[J, K]): Graph[J, V, E] = new AbstractGraph[J, V, E] {
+  def contramap[J](f: J <=> K): Graph[J, V, E] = new AbstractGraph[J, V, E] {
     def apply(i: J) = self.apply(f(i))
-    def containsArc(i: J, j: J) = self.containsArc(f(i), f(j))
+    override def containsArc(i: J, j: J) = self.containsArc(f(i), f(j))
     def apply(i: J, j: J) = self.apply(f(i), f(j))
-    def outgoingKeysOf(i: J) = self.outgoingKeysOf(f(i)).map(f.invert)
-    def keySet = self.keySet.contramap(f)
+    def outgoingMapOf(i: J) = self.outgoingMapOf(f(i)) contramap f
+    def keySet = self.keySet contramap f
   }
 
   /**
    * Returns the reverse/transpose graph of the original graph.
    * @return The reverse graph, in which every edge is reversed
    */
-  def reverse: BiGraph[K, V, E] = ???
+  def reverse: BiGraph[K, V, E] = {
+    ???
+  }
 
-  def to[G[_, _, _]](implicit builder: GraphBuilder[K, V@uv, E@uv, G[K, V@uv, E@uv]]): G[K, V@uv, E@uv] = {
-    val b = builder
+  def to[G[_, _, _], W >: V, F >: E](factory: GraphFactory[G]): G[K, W, F] = {
+    val b = factory.newBuilder[K, W, F]
     b.numNodesHint(self.numNodes)
     b.addNodes(self.nodes.map(v => (v.key, v.data)))
-    b.addEdges(self.arcs.map(e => (e.key1, e.key2, e.data)))
+    b.addEdges(self.arcs.map(e => (e.source, e.target, e.data)))
     b.result
   }
 
@@ -164,21 +156,21 @@ object Graph {
   }
 
 
-  class Arc[K, +E](val graph: Graph[K, _, E], val key1: K, val key2: K) {
+  class Arc[K, +E](val graph: Graph[K, _, E], val source: K, val target: K) {
 
-    def data = graph.apply(key1, key2)
+    def data = graph.apply(source, target)
 
     implicit def equivOnKey = graph.eqOnKeys
 
     override def equals(that: Any) = that match {
-      case that: Arc[K, E] => (this.graph eq that.graph) && (this.key1 === that.key1) && (this.key2 === that.key2)
+      case that: Arc[K, E] => (this.graph eq that.graph) && (this.source === that.source) && (this.target === that.target)
     }
     //TODO: hashing
   }
 
   implicit class AsWeightedStateSpace[K, E](g: Graph[K, _, E])(implicit E: OrderedAdditiveGroup[E]) extends WeightedStateSpace[K, E] {
     implicit def groupOnCost = E
-    def succWithCost(x: K) = g.outgoingArcsOf(x).map(e => (e.key2, e.data))
+    def succWithCost(x: K) = g.outgoingArcsOf(x).map(e => (e.target, e.data))
 
     def eqOnKeys = g.eqOnKeys
   }

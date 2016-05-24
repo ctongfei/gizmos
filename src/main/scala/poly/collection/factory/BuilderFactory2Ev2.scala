@@ -10,7 +10,7 @@ import scala.language.higherKinds
  * For factories that builds on a stream of A, but requiring evidences of type A and B.
  * @author Tongfei Chen
  */
-trait BuilderFactoryEv2[+C[_, _], EvA[_], EvB[_]] {
+trait BuilderFactory2Ev2[+C[_, _], EvA[_], EvB[_]] {
   /** Returns a new builder of this collection type. */
   implicit def newBuilder[A: EvA, B: EvB]: Builder[A, C[A, B]]
 

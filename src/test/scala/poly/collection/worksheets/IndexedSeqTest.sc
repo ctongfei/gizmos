@@ -9,6 +9,6 @@ a
 
 val b = ArraySeq(0, 1, 2)
 val c = (b cartesianProduct b).asMap.map{case (x, y) => x + y}
-val d = c.curried
+val d = c.curry
 d(0)
 

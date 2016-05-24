@@ -42,8 +42,9 @@ trait Builder[-T, +C] { self =>
    */
   def result: C
 
-  final def +=(x: T) = addInplace(x)
-  final def ++=(xs: Traversable[T]) = xs foreach addInplace
+  @inline final def +=(x: T) = addInplace(x)
+
+  @inline final def ++=(xs: Traversable[T]) = xs foreach addInplace
 
   /**
    * Returns a new builder which wraps around this builder. The difference

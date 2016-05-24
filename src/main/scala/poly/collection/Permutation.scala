@@ -21,7 +21,7 @@ class Permutation private(private val a1: Array[Int], private val a2: Array[Int]
   def fastApply(x: Int) = a1(x)
   def invert(y: Int) = a2(y)
 
-  def eqOnValues = Eq[Int]
+  def eqOnValues = Hashing[Int]
 
   def containsValue(y: Int) = containsKey(y)
 
@@ -77,6 +77,14 @@ object Permutation {
     new Permutation(xs.clone, ys)
   }
 
+  private[poly] def unchecked(xs: Array[Int]) = {
+    val ys = Array.ofDim[Int](xs.length)
+    FastLoop.ascending(0, xs.length, 1) { i =>
+      ys(xs(i)) = i
+    }
+    new Permutation(xs.clone, ys)
+  }
+
   /** Generates a random permutation of the given length. */
   def random(n: Int) = {
     val a = Array.tabulate(n)(i => i)
@@ -115,7 +123,7 @@ object Permutation {
       new Iterator[Permutation] {
         private[this] var p: Array[Int] = null
 
-        def current = Permutation(p)
+        def current = Permutation.unchecked(p)
 
         // Generate permutations under lexicographic order.
         def advance(): Boolean = {

@@ -4,14 +4,6 @@ import poly.collection.mut._
 import poly.collection.builder._
 import scala.language.implicitConversions
 
-private[poly] trait ImplicitWrappers {
-  implicit def arrayAsPoly[T](a: Array[T]): IndexedSeq[T] = new ArrayAsIndexedSeq[T](a)
-  implicit def stringAsPoly(s: String): IndexedSeq[Char] = new StringAsIndexedSeq(s)
-  implicit def booleanFunctionAsPoly[T](f: T => Boolean): Predicate[T] = new BooleanFunctionAsPredicate[T](f)
-  implicit def stringBuilderAsPoly(sb: StringBuilder): Builder[Char, String] = new StringBuilderAsBuilder(sb)
-  implicit def javaStringBuilderAsPoly(sb: java.lang.StringBuilder): Builder[Char, String] = new JavaStringBuilderAsBuilder(sb)
-}
-
 private[collection]
 class ArrayAsIndexedSeq[T](val underlying: Array[T]) extends ValueMutableIndexedSeq[T] {
   def fastLength = underlying.length

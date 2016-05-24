@@ -2,10 +2,12 @@ package poly.collection
 
 import poly.algebra._
 import poly.algebra.syntax._
+import poly.collection.node._
 import poly.macroutil._
 
 /**
  * Represents a table, which is a rectangular (not jagged) indexed 2-D array.
+ *
  * @author Tongfei Chen
  * @since 0.1.0
  */
@@ -29,6 +31,7 @@ trait Table[+T] extends Map[(Int, Int), T] { self =>
 
   /**
    * Returns all the (row, col, elem) triples in this table.
+   *
    * @example {{{
    *    ┌      ┐
    *    │ 1  2 │
@@ -45,27 +48,12 @@ trait Table[+T] extends Map[(Int, Int), T] { self =>
     def fastLength = self.size
   }
 
-  def elements = Iterable.ofIterator {
-    new Iterator[T] {
-      private[this] var i = 0
-      private[this] var j = 0
-      def advance() = {
-        if (i < numRows) {
-          if (j < numCols)
-            j += 1
-          else {
-            i += 1
-            j = 0
-          }
-          true
-        }
-        else false
-      }
-      def current = self.apply(i, j)
-    }
-  }
+  def elements = triples map thirdOfTriple
 
   override def size = numRows * numCols
+
+  def topLeftNode = new Table.NodeProxy(self, 0, 0)
+  def bottomRightNode = new Table.NodeProxy(self, numRows - 1, numCols - 1)
 
   def containsKey(x: (Int, Int)): Boolean = {
     val (i, j) = x
@@ -79,6 +67,8 @@ trait Table[+T] extends Map[(Int, Int), T] { self =>
   def rows: IndexedSeq[IndexedSeq[T]] = Range(numRows) map row
 
   def cols: IndexedSeq[IndexedSeq[T]] = Range(numCols) map col
+
+  def curry = rows
 
   override def map[U](f: T => U): Table[U] = new AbstractTable[U] {
     def numCols = self.numCols
@@ -95,29 +85,48 @@ trait Table[+T] extends Map[(Int, Int), T] { self =>
   }
 
   def zip[U](that: Table[U]): Table[(T, U)] = new AbstractTable[(T, U)] {
-    def numRows = math.min(self.numRows, that.numRows)
-    def numCols = math.min(self.numRows, that.numRows)
+    def numRows = min(self.numRows, that.numRows)
+    def numCols = min(self.numRows, that.numRows)
     def apply(i: Int, j: Int) = (self(i, j), that(i, j))
   }
 
   def sliding(i: Int, j: Int, rowStep: Int = 1, colStep: Int = 1): Table[Table[T]] = ???
 
+  // OVERRIDING JAVA METHODS
+
   override def equals(that: Any) = that match {
-    case other: Table[T] => Table.Eq[T](Eq.default[T]).eq(self, other)
+    case that: Table[T] => Table.Eq[T](Eq.default[T]).eq(self, that)
     case _ => false
   }
 
-  override def toString() = ???
+  override def toString = {
+    val s = self map { _.toString }
+    val l = s.elements.map(_.length).max
+    val r0 =                          "┌ " + " " * (numCols * (l + 2) - 2)             + " ┐"
+    val lines = s.rows.map { xs =>    "│ " + xs.map(_.padTo(l, ' ')).buildString("  ") + " │" }
+    val rn =                          "└ " + " " * (numCols * (l + 2) - 2)             + " ┘"
+    "\n" + r0 + "\n" + lines.buildString("\n") + "\n" + rn + "\n"
+  }
 
 }
 
 object Table {
 
+  class NodeProxy[+T](val table: Table[T], val i: Int, val j: Int) extends BiNode[T] {
+    def right = new NodeProxy(table, i, j + 1)
+    def left = new NodeProxy(table, i, j - 1)
+    def up = new NodeProxy(table, i - 1, j)
+    def down = new NodeProxy(table, i + 1, j)
+    def succ = Seq(right, down)
+    def pred = Seq(left, up)
+    def data = table(i, j)
+    def isDummy = (i < 0) || (i >= table.numRows) || (j < 0) || (j >= table.numCols)
+  }
+
   def fill[T](nr: Int, nc: Int)(x: => T): Table[T] = new AbstractTable[T] {
     def numRows: Int = nr
     def numCols: Int = nc
     def apply(i: Int, j: Int): T = x
-
   }
 
   def tabulate[T](nr: Int, nc: Int)(f: (Int, Int) => T): Table[T] = new AbstractTable[T] {
@@ -131,7 +140,7 @@ object Table {
       if (x.numRows != y.numRows) return false
       if (x.numCols != y.numCols) return false
       FastLoop.ascending(0, x.numRows, 1) { i =>
-        FastLoop.descending(0, x.numCols, 1) { j =>
+        FastLoop.ascending(0, x.numCols, 1) { j =>
           if (x(i, j) !== y(i, j)) return false
         }
       }

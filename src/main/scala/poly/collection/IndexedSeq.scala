@@ -108,9 +108,9 @@ trait IndexedSeq[+T] extends BiSeq[T] { self =>
 
   override def init = self.take(length - 1)
 
-  override def suffixes = (0 ~~< length) map skip
+  override def suffixes = Range(length) map skip
 
-  override def prefixes = (length ~~> 0) map take
+  override def prefixes = Range(length).reverse map take
 
   override def take(n: Int) = slice(0, n)
 
@@ -185,6 +185,9 @@ trait IndexedSeq[+T] extends BiSeq[T] { self =>
     def fastApply(i: Int) = self.fastApply(i)
     def fastLength = self.fastLength
   }
+
+  // SYMBOLIC ALIASES
+  def ×[U](that: IndexedSeq[U]) = self cartesianProduct that
 
 }
 

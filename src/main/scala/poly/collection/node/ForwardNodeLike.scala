@@ -1,6 +1,7 @@
 package poly.collection.node
 
 import poly.algebra._
+import poly.algebra.syntax._
 import poly.collection._
 import poly.collection.search._
 
@@ -26,12 +27,14 @@ trait ForwardNodeLike[+T, +N <: ForwardNodeLike[T, N]] extends NodeLike[T, N] { 
   def depthFirstTraversal = StateSpace[T, N].depthFirstTraversal(self)
   def breadthFirstTraversal = StateSpace[T, N].breadthFirstTraversal(self)
 
-  def depthFirstSearch(goal: T => Boolean) = StateSpace[T, N].depthFirstSearch(self, x => goal(x.data))
-  def breadthFirstSearch(goal: T => Boolean) = StateSpace[T, N].breadthFirstSearch(self, x => goal(x.data))
+  def depthFirstSearch(goal: T => Boolean): BiSeq[N] = StateSpace[T, N].depthFirstSearch(self)(x => goal(x.data))
+  def breadthFirstSearch(goal: T => Boolean): BiSeq[N] = StateSpace[T, N].breadthFirstSearch(self)(x => goal(x.data))
+  def depthFirstSearch[U >: T : Eq](goal: U): BiSeq[N] = depthFirstSearch(goal === _)
+  def breadthFirstSearch[U >: T : Eq](goal: U): BiSeq[N] = breadthFirstSearch(goal === _)
 }
 
 object ForwardNodeLike {
-  implicit def StateSpace[T, N <: ForwardNodeLike[T, N]]: StateSpace[N] = new StateSpace[N] {
+  implicit def StateSpace[T, N <: ForwardNodeLike[T, N]]: StateSpace[N] = new AbstractStateSpace[N] {
     def eqOnKeys = Eq.default[N]
     def succ(x: N) = x.succ
   }

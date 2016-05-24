@@ -145,6 +145,9 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
     def containsKey(x: K) = self.containsKey(x) && that.containsKey(x)
   }
 
+  /**
+   * @note `(a zipWith b)(f)` is equivalent to `a zip b map f` but may be faster.
+   */
   def zipWith[W, X](that: Map[K, W])(f: (V, W) => X): Map[K, X] = new AbstractMap[K, X] {
     def ?(k: K) = for (v ← self ? k; w ← that ? k) yield f(v, w)
     def pairs = self.pairs filter { case (k, v) => that containsKey k } map { case (k, v) => (k, f(v, that(k))) }
@@ -166,7 +169,6 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
   def leftOuterJoin[W](that: Map[K, W]): Map[K, (V, Option[W])] = new AbstractMap[K, (V, Option[W])] {
     def apply(k: K) = (self(k), that ? k)
     def ?(k: K) = for (v ← self ? k) yield (v, that ? k)
-
     def eqOnKeys = self.eqOnKeys
     def pairs = self.pairs map { case (k, v) => (k, (v, that ? k)) }
     def containsKey(x: K) = self containsKey x
@@ -179,7 +181,6 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
   def rightOuterJoin[W](that: Map[K, W]): Map[K, (Option[V], W)] = new AbstractMap[K, (Option[V], W)] {
     def apply(k: K) = (self ? k, that(k))
     def ?(k: K) = for (w ← that ? k) yield (self ? k, w)
-
     def eqOnKeys = that.eqOnKeys
     def pairs = that.pairs map { case (k, w) => (k, (self ? k, w)) }
     def containsKey(x: K) = that containsKey x
@@ -213,7 +214,7 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
    *   == {'a' -> 'A', 'b' -> 'B'}
    * }}}
    */
-  def contramap[J](f: Bijection[J, K]): Map[J, V] = new AbstractMap[J, V] {
+  def contramap[J](f: J <=> K): Map[J, V] = new AbstractMap[J, V] {
     def pairs = self.pairs.map { case (k, v) => (f.invert(k), v) }
     def containsKey(x: J) = self containsKey f(x)
     def apply(k: J) = self apply f(k)
@@ -241,6 +242,7 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
 
   // SYMBOLIC ALIASES
   def |~|[W](that: Map[K, W]) = self zip that
+  def ×[L, W](that: Map[L, W]) = self cartesianProduct that
 
   def ⋈[W](that: Map[K, W]) = self innerJoin that
   def ⟕[W](that: Map[K, W]) = self leftOuterJoin that
@@ -274,25 +276,51 @@ object Map extends Factory2Ev[Map, Eq] with MapLowPriorityTypeclassInstances {
   }
 
   // IMPLICIT CONVERSIONS
-  implicit class MapOfKeyPairOps[K1, K2, V](val m: Map[(K1, K2), V]) extends AnyVal {
+  implicit class MapWhoseKeysArePairsOps[K, L, V](val m: Map[(K, L), V]) extends AnyVal {
     /**
      * Returns the curried version of a map whose key is a pair.
      * {{{
-     *   Map[(K1, K2), V] . curried == Map[K1, Map[K2, V]]
-     *                      ANALOGOUS TO
-     *    (K1, K2) => V   . curried ==  K1 => (K2 => V)
+     *   Map[(K, L), V] . curry == Map[K, Map[L, V]]
+     *                  ANALOGOUS TO
+     *    (K, L) => V   . curry ==  K => (L => V)
      * }}}
-     * @note The user should guarantee that the implicit equivalence relation of K1 and K2
-     *       conforms to the equivalence relation on pair (K1, K2) stored in this map.
+     * @note The user should guarantee that the implicit equivalence relation of K and L
+     *       conforms to the equivalence relation on pair (K, L) stored in this map.
+     * @note This function incurs some overhead (traversing through the key set).
      */
-    def curried(implicit K1: Eq[K1], K2: Eq[K2]): Map[K1, Map[K2, V]] = new AbstractMap[K1, Map[K2, V]] {
-      private[this] val k1domain = m.keys map firstOfPair to Set
-      private[this] val k2domain = m.keys map secondOfPair to Set
-      def ?(k1: K1) = if (k1domain contains k1) Some(apply(k1)) else None
-      def pairs = k1domain.elements map { k1 => (k1, apply(k1)) }
-      def containsKey(k1: K1) = k1domain contains k1
-      def apply(k1: K1) = k2domain createMapByOptional { k2 => m ? (k1, k2) }
-      def eqOnKeys = k1domain.eqOnKeys
+    def curry(implicit K: Eq[K], L: Eq[L]): Map[K, Map[L, V]] = new AbstractMap[K, Map[L, V]] {
+      private[this] val domK = AutoSet[K]()
+      private[this] val domL = AutoSet[L]()
+      for ((k, l) ← m.keys) {
+        domK += k
+        domL += l
+      }
+
+      def ?(k: K) = if (domK contains k) Some(apply(k)) else None
+      def pairs = domK.elements map { k => (k, apply(k)) }
+      def containsKey(k: K) = domK contains k
+      def apply(k: K) = domL createMapByOptional { l => m ? (k, l) }
+      def eqOnKeys = domK.eqOnKeys
+    }
+  }
+
+  implicit class MapWhoseValuesAreMapsOps[K, L, V](val m: Map[K, Map[L, V]]) extends AnyVal {
+    /**
+     * Returns the uncurried version of a map whose value is also a map.
+     * {{{
+     *   Map[K, Map[L, V]] . uncurry == Map[(K, L), V]
+     *                     ANALOGOUS TO
+     *     K => (L => V)   . uncurry ==  (K, L) => V
+     * }}}
+     * @note The user should guarantee that the implicit equivalence relation on L
+     *       conforms with every inner map (of type `Map[L, V]`) of the curried map.
+     */
+    def uncurry(implicit L: Eq[L]): Map[(K, L), V] = new AbstractMap[(K, L), V] {
+      def ?(kl: (K, L)) = for (ml ← m ? kl._1) yield ml(kl._2)
+      def pairs = for ((k, ml) ← m.pairs; (l, v) ← ml.pairs) yield ((k, l), v)
+      def containsKey(kl: (K, L)) = m.containsKey(kl._1) && m(kl._1).containsKey(kl._2)
+      def apply(kl: (K, L)) = m(kl._1)(kl._2)
+      def eqOnKeys = m.eqOnKeys product L
     }
   }
 
@@ -309,7 +337,7 @@ object Map extends Factory2Ev[Map, Eq] with MapLowPriorityTypeclassInstances {
     }
   }
 
-  //TODO: should be implicit, but results in ambiguous implicits because of contravariant typeclass
+  //TODO: should be implicit, but contravariant typeclass implicit resolution is buggy
   /** Returns the equivalence relation on maps as long as there is an equivalence relation on the value type. */
   def Eq[K, V: Eq]: Eq[Map[K, V]] = new Eq[Map[K, V]] {
     def eq(x: Map[K, V], y: Map[K, V]) =

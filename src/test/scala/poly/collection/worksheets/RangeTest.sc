@@ -1,5 +1,4 @@
 import poly.collection._
-import poly.collection.ops._
 import poly.algebra.syntax._
 
 Range(0, 10).sum
@@ -11,6 +10,10 @@ Range(0, 10).sum
 4 >~~ 0
 0 <~~ 4
 4 ~~> 0
+
+val a = new Range.Ascending(1, 22, 4)
+val b = new Range.Ascending(2, 15, 1)
+a intersect b
 
 
 Range(0, 10)

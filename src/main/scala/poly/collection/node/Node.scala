@@ -12,9 +12,9 @@ trait NodeLike[+T, +N <: NodeLike[T, N]] { self: N =>
   def isDummy: Boolean
 
   /** Tests if this node is not a dummy node. */
-  final def notDummy = !isDummy
+  @inline final def notDummy = !isDummy
 
-  override def toString = if (notDummy) s"Node($data)" else "<dummy>"
+  override def toString = if (notDummy) s"<$data>" else "<dummy>"
 }
 
 

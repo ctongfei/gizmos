@@ -30,7 +30,7 @@ trait SortedSet[T] extends Set[T] { self =>
 
   def subsetFrom(lowerBound: T): SortedSet[T] = ???
 
-  def subsetUpTo(upperbound: T): SortedSet[T] = ???
+  def subsetUpTo(upperBound: T): SortedSet[T] = ???
 
   override def createMapBy[V](f: T => V): SortedMap[T, V] = new SortedMap[T, V] {
     def apply(k: T) = f(k)

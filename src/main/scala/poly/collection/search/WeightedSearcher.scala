@@ -7,7 +7,7 @@ import poly.collection.search.node._
 import poly.collection.search.ops._
 
 /**
-  * An extremely generic iterator that executes a weighted search algorithm.
+  * An extremely generic search iterator that executes a weighted search algorithm.
   *
   * @tparam S Type of state
   * @tparam N Type of search node

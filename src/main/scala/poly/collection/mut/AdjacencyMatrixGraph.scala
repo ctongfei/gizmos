@@ -9,19 +9,18 @@ import poly.collection.impl.specialized._
  * @since 0.1.0
  */
 class AdjacencyMatrixGraph[V, E] private(
-  private val n: Int,
+  override val numNodes: Int,
   private val nodeData: ValueMutableSeq[V],
   private val edgeExists: SpArrayTable[Boolean],
   private val edgeData: ValueMutableTable[E]
 ) extends AbstractBiGraph[Int, V, E] with ValueMutableGraph[Int, V, E] {
 
-  override def numNodes = n
 
-  def incomingKeysOf(j: Int) = Range(n).filter(i => edgeExists(i, j))
+  def incomingMapOf(j: Int) = Range(numNodes).asSet.createMapByOptional(i => if (edgeExists(i, j)) Some(edgeData(i, j)) else None)
 
-  def outgoingKeysOf(i: Int) = Range(n).filter(j => edgeExists(i, j))
+  def outgoingMapOf(i: Int) = Range(numNodes).asSet.createMapByOptional(j => if (edgeExists(i, j)) Some(edgeData(i, j)) else None)
 
-  def containsArc(i: Int, j: Int) = edgeExists(i, j)
+  override def containsArc(i: Int, j: Int) = edgeExists(i, j)
 
   /** Gets the data on the node indexed by the specific key. */
   def apply(i: Int) = nodeData(i)
@@ -29,7 +28,7 @@ class AdjacencyMatrixGraph[V, E] private(
   /** Gets the data on the edge indexed by the specific two keys. */
   def apply(i: Int, j: Int) = edgeData(i, j)
 
-  def keySet = Range(n).asSet
+  def keySet = Range(numNodes).asSet
 
   def update(i: Int, j: Int, e: E) = {
     edgeExists(i, j) = true
@@ -38,6 +37,12 @@ class AdjacencyMatrixGraph[V, E] private(
 
   def update(i: Int, v: V) = {
     nodeData(i) = v
+  }
+
+  def adjacencyMatrix: Table[Option[E]] = new AbstractTable[Option[E]] {
+    def apply(i: Int, j: Int) = if (edgeExists(i, j)) Some(edgeData(i, j)) else None
+    def numRows = numNodes
+    def numCols = numNodes
   }
 
 }

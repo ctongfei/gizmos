@@ -1,6 +1,7 @@
 package poly.collection.impl
 
 import org.scalatest._
+import poly.algebra.syntax._
 import poly.collection._
 import poly.collection.mut._
 
@@ -37,7 +38,7 @@ object LinkedBinaryTreeTest extends App {
     val o2 = T.inOrder
     val o3 = T.postOrder
 
-    T.rootNode.depthFirstSearch(_ == 9) foreach println
+    T.rootNode.depthFirstSearch(9) foreach println
 
 
     val breakpoint = 0

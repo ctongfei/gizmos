@@ -45,6 +45,7 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
 
   /**
    * Returns the ''i''-th element of this sequence. $On
+   *
    * @param i Index
    * @return The ''i''-th element of this sequence
    */
@@ -88,7 +89,8 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
 
   /**
     * Pairs each element with its index. $LAZY
-    * @example {{{('a', 'b', 'c').pairs == ((0, 'a'), (1, 'b'), (2, 'c'))}}}
+   *
+   * @example {{{('a', 'b', 'c').pairs == ((0, 'a'), (1, 'b'), (2, 'c'))}}}
     * @return A sequence of index-element pairs.
     */
   def pairs: SortedSeq[(Int, T @uv)] = {
@@ -100,7 +102,15 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
     ofHeadNode(new SeqNodeWithIndex(headNode, 0)).asIfSorted(Order by firstOfPair)
   }
 
-  override def keys = pairs map firstOfPair
+  override def keys: SortedSeq[Int] = new AbstractSortedSeq[Int] {
+    class IndexNode(val outer: SeqNode[T], val i: Int) extends SeqNode[Int] {
+      def next = new IndexNode(outer.next, i + 1)
+      def data = i
+      def isDummy = outer.isDummy
+    }
+    def headNode = new IndexNode(self.headNode, 0)
+    def orderOnElements = Order[Int]
+  }
 
   // HELPER FUNCTIONS
 
@@ -139,7 +149,7 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
 
   override def filter(f: T => Boolean): Seq[T] = {
     class FilteredSeqNode(val node: SeqNode[T]) extends SeqNode[T] {
-      override def isDummy = node.isDummy
+      def isDummy = node.isDummy
       def data = node.data
       def next = {
         var nextNode = node.next
@@ -150,11 +160,24 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
     ofDummyNode(new FilteredSeqNode(dummy))
   }
 
+  override def collect[U](pf: PartialFunction[T, U]): Seq[U] = {
+    class CollectedNode(val node: SeqNode[T], val data: U) extends SeqNode[U] {
+      def next = {
+        var nextNode = node.next
+        var u = default[U]
+        while (nextNode.notDummy && !(pf runWith { u = _ })(nextNode.data)) nextNode = nextNode.next
+        new CollectedNode(nextNode, u)
+      }
+      def isDummy = node.isDummy
+    }
+    ofDummyNode(new CollectedNode(dummy, default[U]))
+  }
+
   override def filterNot(f: T => Boolean) = filter(x => !f(x))
 
   def concat[U >: T](that: Seq[U]): Seq[U] = {
     class ConcatenatedSeqNode(val first: Boolean, val node: SeqNode[U]) extends SeqNode[U] {
-      override def isDummy = !first && node.isDummy
+      def isDummy = !first && node.isDummy
       def data = node.data
       def next = {
         if (!first) new ConcatenatedSeqNode(false, node.next)
@@ -215,7 +238,8 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
 
   /**
     * Returns the list of tails of this sequence. $LAZY
-    * @example {{{(1, 2, 3).suffixes == ((1, 2, 3), (2, 3), (3))}}}
+   *
+   * @example {{{(1, 2, 3).suffixes == ((1, 2, 3), (2, 3), (3))}}}
     */
   override def suffixes = {
     class TailsNode(val outer: SeqNode[T]) extends SeqNode[Seq[T]] {
@@ -235,21 +259,21 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
     ofDummyNode(new InitNode(self.dummy, self.headNode))
   }
 
-  override def skip(n: Int) = {
+  override def skip(n: Int) = ofHeadNode {
     var node = self.headNode
     var i = 0
     while (node.notDummy && i < n) {
       node = node.next
       i += 1
     }
-    ofHeadNode(node)
+    node
   }
 
-  override def skipWhile(f: T => Boolean) = {
+  override def skipWhile(f: T => Boolean) = ofHeadNode {
     var node = self.headNode
     while (node.notDummy && f(node.data))
       node = node.next
-    ofHeadNode(node)
+    node
   }
 
   override def take(n: Int) = {
@@ -290,7 +314,7 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
         var n = outer.next
         while (n.notDummy) {
           if (set notContains n.data) {
-            set addInplace n.data
+            set += n.data
             return new DistinctNode(n)
           }
           n = n.next
@@ -380,28 +404,13 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
 
   // INDEXING OPERATIONS
 
-  def firstIndexOf[U >: T: Eq](x: U): Int = {
-    var i = 0
-    for (y ← this) {
-      if (x === y) return i
-      i += 1
-    }
-    -1
-  }
+  def firstIndexOf[U >: T: Eq](x: U) = firstIndexWhere(x === _)
 
-  def lastIndexOf[U >: T : Eq](x: U): Int = {
-    var i = 0
-    var k = -1
-    for (y ← this) {
-      if (x === y) k = i
-      i += 1
-    }
-    k
-  }
+  def lastIndexOf[U >: T : Eq](x: U) = lastIndexWhere(x === _)
 
   def firstIndexWhere(f: T => Boolean): Int = {
     var i = 0
-    for (y ← this) {
+    for (y ← self) {
       if (f(y)) return i
       i += 1
     }
@@ -411,7 +420,7 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
   def lastIndexWhere(f: T => Boolean): Int = {
     var i = 0
     var k = -1
-    for (y ← this) {
+    for (y ← self) {
       if (f(y)) k = i
       i += 1
     }
@@ -420,6 +429,7 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
 
   /**
    * Tests if this sequence starts with the pattern sequence under an implicit equivalence relation.
+   *
    * @example {{{
    *   (1, 2, 3, 4) startsWith (1, 2) == true
    * }}}
@@ -441,20 +451,21 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
 
   /**
    * Tests if this sequence ends with the pattern sequence under an implicit equivalence relation.
+   *
    * @example {{{
    *   (1, 2, 3, 4) endsWith (3, 4) == true
    * }}}
    */
   def endsWith[U >: T : Eq](pattern: Seq[U]) = self.reverse startsWith pattern.reverse
 
-  def asSeq: Seq[T] = ofDummyNode(dummy)
+  def asSeq: Seq[T] = ofHeadNode(headNode)
 
   // SYMBOLIC ALIASES
 
   override def +:[U >: T](u: U): Seq[U] = this prepend u
   override def :+[U >: T](u: U): Seq[U] = this append u
   def ++[U >: T](that: Seq[U]) = this concat that
-  override def *(n: Int) = this repeat n
+ // override def *(n: Int) = this repeat n
   def |*|[U](that: Seq[U]) = this product that
   def |~|[U](that: Seq[U]) = this zip that
 
@@ -483,7 +494,8 @@ object Seq extends Factory[Seq] {
 
   // CONSTRUCTORS
 
-  override def apply[T](xs: T*) = arrayAsPoly(getArrayFromVarargs(xs))
+  override def apply[T](xs: T*) =
+    arrayAsPoly(getArrayFromVarargs(xs)) // directly wraps the inner Scala array without element copying
 
   def from[T](xs: Traversable[T]) = xs to ArraySeq
 
@@ -515,7 +527,7 @@ object Seq extends Factory[Seq] {
       def data = x
       def isDummy = false
     }
-    ofDummyNode(new InfiniteSeqNode)
+    ofHeadNode(new InfiniteSeqNode)
   }
 
   // TYPECLASS INSTANCES

@@ -92,6 +92,13 @@ trait Traversable[+T] { self =>
     }
   }
 
+  def collect[U](pf: PartialFunction[T, U]): Traversable[U] = new AbstractTraversable[U] {
+    def foreach[V](f: U => V) = {
+      for (x ← self)
+        (pf runWith f)(x)
+    }
+  }
+
   /** Tests if this collection contains the given element. $On */
   def contains[U >: T : Eq](u: U): Boolean = {
     for (x ← self)
@@ -109,12 +116,15 @@ trait Traversable[+T] { self =>
   def partition(f: T => Boolean): (Seq[T], Seq[T]) = {
     val l, r = ArraySeq.newBuilder[T]
     for (x ← self)
-      if (f(x)) l addInplace x else r addInplace x
+      if (f(x)) l += x else r += x
     (l.result, r.result)
   }
 
-  /**
-   * Puts each element in this collection into multiple bins, where each bin is specified by a predicate. $EAGER
+  /** Puts each element in this collection into multiple bins, where each bin is specified by a predicate. $EAGER
+   * @example {{{
+   *   (0, 1, 2, 3, 4, 5).filterMany(_ % 2 == 1, _ % 3 == 1)
+   *   == ((1, 3, 5), (1, 4))
+   * }}}
    */
   def filterMany(fs: (T => Boolean)*): IndexedSeq[Iterable[T]] = {
     val l = ArraySeq.fill(fs.length)(ArraySeq[T]())
@@ -194,14 +204,14 @@ trait Traversable[+T] { self =>
     case None => true
   }
 
-  /** $On */
+  /** Checks if the given predicate holds for at least one element in this collection. $On */
   def exists(f: T => Boolean): Boolean = {
     for (x ← self)
       if (f(x)) return true
     false
   }
 
-  /** $On */
+  /** Checks if the given predicate holds for all elements in this collection. $On */
   def forall(f: T => Boolean): Boolean = {
     for (x ← self)
       if (!f(x)) return false

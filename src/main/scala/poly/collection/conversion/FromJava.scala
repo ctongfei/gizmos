@@ -136,17 +136,16 @@ object FromJava {
 
   implicit class javaMapAsPoly[K, V](jm: ju.Map[K, V]) extends AbstractMap[K, V] with KeyMutableMap[K, V] {
     def eqOnKeys = Eq.default[K]
-    def addInplace(x: K, y: V): Unit = jm.put(x, y)
-    def clear(): Unit = jm.clear()
-    def removeInplace(x: K): Unit = jm.remove(x)
-    def update(x: K, y: V): Unit = jm.put(x, y)
-    def ?(x: K): Option[V] = Option(jm.get(x))
-    def pairs: Iterable[(K, V)] = jm.entrySet().elements.map(e => e.getKey → e.getValue)
+    def addInplace(x: K, y: V) = jm.put(x, y)
+    def clear() = jm.clear()
+    def removeInplace(x: K) = jm.remove(x)
+    def update(x: K, y: V) = jm.put(x, y)
+    def ?(x: K) = Option(jm.get(x))
+    def pairs = jm.entrySet().elements.map(e => e.getKey → e.getValue)
     override def size = jm.size
-    def apply(x: K): V = jm.get(x)
-    def containsKey(x: K): Boolean = jm.containsKey(x)
+    def apply(x: K) = jm.get(x)
+    def containsKey(x: K) = jm.containsKey(x)
   }
-
 
   // java.io
 
@@ -176,14 +175,14 @@ object FromJava {
 
   implicit class javaOutputStreamAsPoly(jos: ji.OutputStream) extends Observer[Byte] {
     def onCompleted() = jos.close()
-    def onError(error: Throwable) = {}
+    def onError(error: Throwable) = throw error
     def onNext(x: Byte) = jos.write(x)
     override def writeFromArray(a: Array[Byte], off: Int, len: Int) = jos.write(a, off, len)
   }
 
   implicit class javaWriterAsPoly(jw: ji.Writer) extends Observer[Char] {
     def onCompleted() = jw.close()
-    def onError(error: Throwable) = {}
+    def onError(error: Throwable) = throw error
     def onNext(x: Char) = jw.write(x)
     override def writeFromArray(a: Array[Char], off: Int, len: Int) = jw.write(a, off, len)
   }

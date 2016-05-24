@@ -17,7 +17,7 @@ import scala.language.implicitConversions
 object FromScala {
 
   implicit class scalaTraversableAsPoly[T](xs: sc.Traversable[T]) extends AbstractTraversable[T] {
-    def foreach[U](f: T => U) = xs.foreach(f)
+    def foreach[U](f: T => U) = xs foreach f
   }
 
   implicit class scalaIteratorAsPoly[T](xs: sc.Iterator[T]) extends Iterator[T] {
@@ -32,7 +32,7 @@ object FromScala {
   }
 
   implicit class scalaIterableAsPoly[T](xs: sc.Iterable[T]) extends AbstractIterable[T] {
-    def newIterator = scalaIteratorAsPoly[T](xs.iterator)
+    def newIterator = xs.iterator
   }
 
   implicit class scalaLinearSeqAsPoly[T](xs: sc.LinearSeq[T]) extends AbstractSeq[T] {

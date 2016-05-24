@@ -9,6 +9,8 @@ val em = Iterable.empty
 
 e.split(2)
 
+e collect { case x if x > 2 => x * x }
+
 e.distinct
 f.distinct
 e union f
@@ -71,7 +73,7 @@ e.sliding(2)
 e.tail
 e.init
 
-0.infinite.take(10)
+0.infinitely.take(10)
 
 0.repeat(10)
 e.repeat(4)

@@ -24,3 +24,5 @@ trait SortedSeq[T] extends Seq[T] with SortedIterable[T] { self =>
 
   //TODO: thenSortBy
 }
+
+abstract class AbstractSortedSeq[T] extends AbstractSeq[T] with SortedSeq[T]

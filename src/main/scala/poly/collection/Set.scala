@@ -69,6 +69,13 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
     def keys = self.keys.filter(that.notContains)
   }
 
+  /** Returns the symmetric difference of two sets. */
+  def symmetricDiff(that: Set[T]): Set[T] = new AbstractSet[T] {
+    def keys = ???
+    def contains(x: T) = self.contains(x) ^ that.contains(x)
+    implicit def eqOnKeys = self.eqOnKeys
+  }
+
   /** Tests if this set is a subset of another set. */
   def subsetOf(that: Set[T]): Boolean = this forall that
 
@@ -111,9 +118,9 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
 
   def createGraphBy[V, E](fv: T => V)(fe: (T, T) => Option[E]): Graph[T, V, E] = new AbstractGraph[T, V, E] {
     def apply(i: T) = fv(i)
-    def containsArc(i: T, j: T) = self.contains(i) && self.contains(j) && fe(i, j).isDefined
+    //def containsArc(i: T, j: T) = self.contains(i) && self.contains(j) && fe(i, j).isDefined
     def apply(i: T, j: T) = fe(i, j).get
-    def outgoingKeysOf(i: T) = self.elements.filter(j => fe(i, j).isDefined)
+    def outgoingMapOf(i: T) = self createMapByOptional (j => fe(i, j))
     def keySet = self
   }
 
@@ -135,7 +142,7 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
     elements flatMap { x: T => f(x).elements } to AutoSet
   }
 
-  def zip(that: Set[T]): Set[T] = this & that
+  def zip(that: Set[T]): Set[T] = this intersect that
 
   //TODO: !
 //  def quotient(coarser: Eq[T]): Set[Set[T]] = new AbstractSet[Set[T]] {

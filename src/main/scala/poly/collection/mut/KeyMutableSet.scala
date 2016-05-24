@@ -24,17 +24,21 @@ trait KeyMutableSet[@sp(Int) T] extends Set[T] {
 
   def intersectInplace(xs: Set[T]) = this.elements filter xs.notContains foreach removeInplace
 
-  final def +=(x: T) = addInplace(x)
+  @inline final def +=(x: T) = addInplace(x)
 
-  final def -=(x: T) = removeInplace(x)
+  @inline final def -=(x: T) = removeInplace(x)
 
-  final def ++=(xs: Traversable[T]) = addAllInplace(xs)
+  @inline final def ++=(xs: Traversable[T]) = addAllInplace(xs)
 
-  final def --=(xs: Traversable[T]) = removeAllInplace(xs)
+  @inline final def --=(xs: Traversable[T]) = removeAllInplace(xs)
 
-  final def |=(xs: Set[T]) = unionInplace(xs)
+  @inline final def |=(xs: Set[T]) = unionInplace(xs)
 
-  final def &=(xs: Set[T]) = intersectInplace(xs)
+  @inline final def &=(xs: Set[T]) = intersectInplace(xs)
+
+  @inline final def ∪=(xs: Set[T]) = unionInplace(xs)
+  
+  @inline final def ∩=(xs: Set[T]) = intersectInplace(xs)
 
 
 }

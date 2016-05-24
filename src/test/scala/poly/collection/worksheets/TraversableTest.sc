@@ -10,11 +10,10 @@ val f = (x: Int) => ArraySeq(x, x).asTraversable
 
 a.cycle.take(20)
 
-
-a |> {_ * 2}
-a ||> {(x: Int) => ArraySeq.fill(x)(x)}
-a |×| b
-a |×| c
+a map {_ * 2}
+a flatMap {(x: Int) => ArraySeq.fill(x)(x)}
+a product b
+a product c
 
 a.isEmpty
 b.isEmpty
@@ -73,7 +72,7 @@ a.slice(3, 4)
 a.rotate(3)
 a.reverse
 a.sort
-a.sort(TotalOrder[Int].reverse)
+a.sort(Order[Int].reverse)
 a.forall(_ >= 0)
 a.forall(_ >= 3)
 a.exists(_ >= 3)

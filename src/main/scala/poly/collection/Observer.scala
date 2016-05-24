@@ -7,7 +7,7 @@ import scala.annotation.unchecked.{uncheckedVariance => uv}
 
 /**
  * Represents an observer, which is a mechanism for receiving push-based streams.
- * Observers are the categorical dual of an [[Iterator]].
+ * Observers are the categorical dual of [[Iterator]]s.
  *
  * @author Tongfei Chen
  * @since 0.1.0
