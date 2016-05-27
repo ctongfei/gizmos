@@ -120,7 +120,7 @@ object Permutation {
     def contains(x: Permutation) = x.size == n
 
     def keys: Iterable[Permutation] = Iterable.ofIterator {
-      new Iterator[Permutation] {
+      new AbstractIterator[Permutation] {
         private[this] var p: Array[Int] = null
 
         def current = Permutation.unchecked(p)

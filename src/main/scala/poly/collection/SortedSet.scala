@@ -36,7 +36,7 @@ trait SortedSet[T] extends Set[T] { self =>
     def apply(k: T) = f(k)
     def ?(k: T) = if (self contains k) Some(f(k)) else None
     def orderOnKeys = self.orderOnKeys
-    def pairs = self.keys.map(k => k → f(k)).asIfSorted(eqOnKeys contramap firstOfPair[T, V])
+    def pairs = self.keys.map(k => k → f(k)).asIfSorted(eqOnKeys contramap first[T, V])
     override def size = self.size
     def containsKey(x: T) = self.contains(x)
   }

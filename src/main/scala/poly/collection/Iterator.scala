@@ -68,3 +68,5 @@ object Iterator {
     def current = throw new InvalidIteratorPositionException
   }
 }
+
+abstract class AbstractIterator[@sp(Int, Long, Double, Char) +T] extends Iterator[T]

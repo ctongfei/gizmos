@@ -30,6 +30,7 @@ trait Traversable[+T] { self =>
 
   /**
    * Applies a specific function to each element in this collection.
+ *
    * @param f The function to be applied. Return values are discarded.
    */
   def foreach[V](f: T => V): Unit
@@ -41,6 +42,7 @@ trait Traversable[+T] { self =>
 
   /**
    * Returns a new collection by applying a function to all elements in this collection. $LAZY
+ *
    * @example {{{(1, 2, 3) map { _ + 1 } == (2, 3, 4)}}}
    */
   def map[U](f: T => U): Traversable[U] = new AbstractTraversable[U] {
@@ -68,9 +70,10 @@ trait Traversable[+T] { self =>
 
   /**
    * Returns the Cartesian product of two traversable sequences. $LAZY
+   *
    * @example {{{(1, 2) cartesianProduct (1, 2) == ((1, 1), (1, 2), (2, 1), (2, 2))}}}
    */
-  def product[U](that: Traversable[U]): Traversable[(T, U)] =
+  def monadicProduct[U](that: Traversable[U]): Traversable[(T, U)] =
     self flatMap (x => that map (y => (x, y)))
 
   /** Counts the number of elements in this collection that satisfy the specified predicate. $On */
@@ -83,6 +86,7 @@ trait Traversable[+T] { self =>
 
   /**
    * Selects only the elements that satisfy the specified predicate. $LAZY
+   *
    * @example {{{(1, 2, 3, 4) filter { _ > 2 } == (3, 4)}}}
    */
   def filter(f: T => Boolean): Traversable[T] = new AbstractTraversable[T] {
@@ -111,6 +115,7 @@ trait Traversable[+T] { self =>
 
   /**
    * Partitions this collection to two collections according to a predicate. $EAGER
+ *
    * @return A pair of collections: ( {x|f(x)} , {x|!f(x)} )
    */
   def partition(f: T => Boolean): (Seq[T], Seq[T]) = {
@@ -121,6 +126,7 @@ trait Traversable[+T] { self =>
   }
 
   /** Puts each element in this collection into multiple bins, where each bin is specified by a predicate. $EAGER
+ *
    * @example {{{
    *   (0, 1, 2, 3, 4, 5).filterMany(_ % 2 == 1, _ % 3 == 1)
    *   == ((1, 3, 5), (1, 4))
@@ -160,6 +166,7 @@ trait Traversable[+T] { self =>
   //region Concatenation (concat, prepend, append)
   /**
    * Concatenates two traversable collections into one. $LAZY
+ *
    * @example {{{(1, 2, 3) ++ (4, 5) == (1, 2, 3, 4, 5)}}}
    */
   def concat[U >: T](that: Traversable[U]): Traversable[U] = new AbstractTraversable[U] {
@@ -190,6 +197,7 @@ trait Traversable[+T] { self =>
 
   /**
    * Returns the number of elements in this collection. $On
+ *
    * @return The size of this collection
    */
   def size: Int = {
@@ -203,6 +211,8 @@ trait Traversable[+T] { self =>
     case Some(e) => false
     case None => true
   }
+
+  final def notEmpty = !isEmpty
 
   /** Checks if the given predicate holds for at least one element in this collection. $On */
   def exists(f: T => Boolean): Boolean = {
@@ -467,6 +477,7 @@ trait Traversable[+T] { self =>
 
   /**
    * Sorts this collection in ascending order using the implicitly provided order. $EAGER
+ *
    * @example {{{
    *   (3, 2, 4, 1).sort == (1, 2, 3, 4)
    *   (3, 2, 4, 1).sort(Order[Int].reverse) == (4, 3, 2, 1)
@@ -563,6 +574,7 @@ trait Traversable[+T] { self =>
   /** Returns the minimum element in this collection. */
   def min(implicit T: Order[T]): T = reduce(T.min[T])
 
+
   /** Returns the maximum element in this collection. */
   def max(implicit T: Order[T]): T = reduce(T.max[T])
 
@@ -576,13 +588,14 @@ trait Traversable[+T] { self =>
   }
 
   def topBy[U: Order](f: T => U)(k: Int) = {
-    val beam = Beam.ofWidth(k)((Order by secondOfPair[T, U]).reverse)
+    val beam = Beam.ofWidth(k)((Order by second[T, U]).reverse)
     for (x ← self) beam.push(x → f(x))
-    beam.elements map firstOfPair
+    beam.elements map first
   }
 
   /**
    * Returns the first element in this collection that makes the specific function least.
+ *
    * @example {{{
    *   (1, 2, 3, 4, 5) argmin { _ % 4 } == 4
    * }}}
@@ -593,6 +606,7 @@ trait Traversable[+T] { self =>
 
   /**
    * Returns the first element in this collection that makes the specific function greatest.
+ *
    * @example {{{
    *   (1, 2, 3, 4, 5) argmax { _ % 4 } == 3
    * }}}
@@ -657,12 +671,14 @@ trait Traversable[+T] { self =>
   //region Building (to, buildString)
   /**
    * Converts this traversable sequence to any collection type given a factory.
+ *
    * @example {{{ xs to ArraySeq }}}
    */
   def to[U >: T, C[_]](factory: Factory[C]): C[U] = factory from self
 
   /**
    * Converts this traversable sequence to any collection type given a factory that requires an additional evidence.
+ *
    * @example {{{
    *         (1) xs to AutoSet
    *         (2) xs to PairMultiset.of[Int] }}}
@@ -674,6 +690,7 @@ trait Traversable[+T] { self =>
 
   /**
    * Converts this traversable sequence to an array.
+ *
    * @example {{{ xs.toArray }}}
    */
   def toArray[U >: T : ClassTag]: Array[U] = {
@@ -689,6 +706,7 @@ trait Traversable[+T] { self =>
 
   /**
    * Builds a structure based on this traversable sequence given an implicit builder.
+ *
    * @param builder An implicit builder
    * @tparam S Type of the structure to be built
    * @return A new structure of type `S`
@@ -728,7 +746,7 @@ trait Traversable[+T] { self =>
   def :+[U >: T](x: U) = this append x
   def +:[U >: T](x: U) = this prepend x
   def ++[U >: T](that: Traversable[U]) = this concat that
-  def |*|[U](that: Traversable[U]) = this product that
+  def |*|[U](that: Traversable[U]) = this monadicProduct that
 
   //endregion
   //endregion
@@ -737,7 +755,15 @@ trait Traversable[+T] { self =>
     def foreach[V](f: T => V) = self.foreach(f)
   }
 
-  override def toString = "(" + buildString(", ") + ")"
+  override def toString = {
+    val sb = new StringBuilder
+    sb.append('(')
+    var i = 0
+    sb.append(self.take(Settings.MaxElementsToString).buildString(", "))
+    if (self.skip(Settings.MaxElementsToString).notEmpty) sb.append(", ⋯")
+    sb.append(')')
+    sb.result()
+  }
   // hashCode/equals: by reference
 
 }
@@ -768,6 +794,7 @@ object Traversable {
   implicit class TraversableOfTraversablesOps[T](val underlying: Traversable[Traversable[T]]) extends AnyVal {
     /**
      * "Flattens" this collection of collection into one collection.
+     *
      * @example {{{((1, 2, 3), (), (7)).flatten == (1, 2, 3, 7)}}}
      */
     def flatten: Traversable[T] = underlying.flatMap(x => x)
@@ -777,9 +804,10 @@ object Traversable {
 
     /**
      * Lazily unzips a traversable sequence of pairs.
+     *
      * @example {{{((1, 'a'), (2, 'b'), (3, 'c')).unzip == ((1, 2, 3), ('a', 'b', 'c'))}}}
      */
-    def unzip: (Traversable[A], Traversable[B]) = (underlying map firstOfPair, underlying map secondOfPair)
+    def unzip: (Traversable[A], Traversable[B]) = (underlying map first, underlying map second)
 
     /** Eagerly unzips a traversable sequence of pairs. This method only traverses through the collection once. */
     def unzipEagerly: (IndexedSeq[A], IndexedSeq[B]) = {

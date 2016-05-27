@@ -11,14 +11,14 @@ class IterableTest extends FunSuite {
   import TestUtil._
 
   val n = 1000
-  val s = scala.Iterable.iterate(1, n)(i => (i + 10000) % 997)
-  val p = Iterable.iterate(1)(i => (i + 10000) % 997).take(n)
+  val s = scala.collection.Iterable.iterate(1, n)(i => (i + 10000) % 997)
+  val p = poly.collection.Iterable.iterate(1)(i => (i + 10000) % 997).take(n)
 
   test("Iterable equality") { s iterable_=== p }
 
   test("Iterable.map") { s.map(_ * 2) iterable_=== p.map(_ * 2) }
   test("Iterable.flatMap") { s.flatMap(x => scala.Iterable.tabulate(x)(i => x)) iterable_=== p.flatMap(x => x.repeat(x)) }
-  test("Iterable.product") { (for (x ← s; y ← s) yield (x, y)) iterable_=== (p product p) }
+  test("Iterable.product") { (for (x ← s; y ← s) yield (x, y)) iterable_=== (p monadicProduct p) }
 
   test("Iterable.filter") { s.filter(_ < 400) iterable_=== p.filter(_ < 400) }
   test("Iterable.filterNot") { s.filterNot(_ % 3 == 0) iterable_=== p.filterNot(_ % 3 == 0) }

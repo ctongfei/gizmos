@@ -66,6 +66,6 @@ object DisjointSets {
   }
 
   def apply[T: Eq](xs: T*): DisjointSets[T] =
-    new DisjointSets[T](AutoMap from xs.map(t => t → new Node()))
+    new DisjointSets[T](AutoMap from xs.map(t ⇒ t → new Node()))
 
 }

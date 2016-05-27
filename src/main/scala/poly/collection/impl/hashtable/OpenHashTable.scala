@@ -66,7 +66,7 @@ class OpenHashTable[K: Hashing, E >: Null <: OpenHashEntryLike[K, E]](initialSiz
     }
   }
 
-  def entryIterator: Iterator[E] = new Iterator[E] {
+  def entryIterator: Iterator[E] = new AbstractIterator[E] {
     private[this] var i = -1
     private[this] var e: E = null
     def current = e

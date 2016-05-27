@@ -131,7 +131,7 @@ class ListSeq[T] private() extends AbstractSeq[T] with KeyMutableSeq[T] {
 
   def inplaceReverse() = ???
 
-  override def newIterator = new Iterator[T] {
+  override def newIterator = new AbstractIterator[T] {
     var node = dummy
 
     def advance(): Boolean = {

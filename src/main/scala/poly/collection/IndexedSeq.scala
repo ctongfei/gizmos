@@ -30,7 +30,7 @@ trait IndexedSeq[+T] extends BiSeq[T] { self =>
   @inline final override def apply(i: Int) = fastApply(i)
 
   // Overridden newIterator method for performance.
-  override def newIterator: Iterator[T] = new Iterator[T] {
+  override def newIterator: Iterator[T] = new AbstractIterator[T] {
     private[this] var i: Int = -1
     def current = self(i)
     def advance(): Boolean = {
@@ -51,7 +51,7 @@ trait IndexedSeq[+T] extends BiSeq[T] { self =>
   override def sizeKnown = true
 
   override def pairs: SortedIndexedSeq[(Int, T @uv)] =
-    IndexedSeq.tabulate(length)(i => i → self(i)).asIfSorted(Order by firstOfPair)
+    IndexedSeq.tabulate(length)(i => i → self(i)).asIfSorted(Order by first)
 
   override def keys = Range(length)
 
@@ -231,6 +231,8 @@ object IndexedSeq {
       case that: NodeProxy[T] => (this.seq eq that.seq) && (this.i == that.i)
       case _ => false
     }
+
+    override def hashCode = poly.algebra.Hashing.byRef.hash(seq) + i
   }
 }
 

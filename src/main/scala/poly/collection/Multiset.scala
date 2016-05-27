@@ -100,7 +100,7 @@ trait Multiset[@sp(Int) K, @sp(Int, Double) R] extends KeyedLike[K, Multiset[K, 
     def eqOnKeys = Eq.product(self.eqOnKeys, that.eqOnKeys)
     implicit def ringOnWeight = self.ringOnWeight
     def weight(k: (K, L)) = self.weight(k._1) * that.weight(k._2)
-    def keys = self.keys product that.keys
+    def keys = self.keys monadicProduct that.keys
     def contains(k: (K, L)) = self.contains(k._1) && that.contains(k._2)
   }
 
@@ -147,6 +147,7 @@ trait Multiset[@sp(Int) K, @sp(Int, Double) R] extends KeyedLike[K, Multiset[K, 
   def ⊇(that: Multiset[K, R]) = this supersetOf that
   def ∩(that: Multiset[K, R]) = this intersect that
   def ∪(that: Multiset[K, R]) = this union that
+  def ⊎(that: Multiset[K, R]) = this multisetAdd that
 
   override def toString = "{" + keyWeightPairs.map { case (k, w) => s"$k: $w"}.buildString(", ") + "}"
 

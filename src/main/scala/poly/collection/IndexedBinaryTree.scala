@@ -34,6 +34,8 @@ object IndexedBinaryTree {
       case that: NodeProxy[T] => (this.tree eq that.tree) && (this.i == that.i)
       case _ => false
     }
+
+    override def hashCode = poly.algebra.Hashing.byRef.hash(tree) + i
   }
 
 }

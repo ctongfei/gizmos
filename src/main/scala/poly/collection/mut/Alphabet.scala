@@ -1,6 +1,7 @@
 package poly.collection.mut
 
 import poly.algebra._
+import poly.algebra.syntax._
 import poly.collection._
 import scala.language.higherKinds
 
@@ -15,8 +16,8 @@ class Alphabet[T: Eq] private(
   extends BijectiveMap[T, Int]
 {
 
-  def eqOnKeys = implicitly[Eq[T]]
-  def eqOnValues = Eq.default[Int]
+  def eqOnKeys = Eq[T]
+  def eqOnValues = Eq[Int]
 
   def apply(x: T): Int = w2i ? x match {
     case Some(i) => i
@@ -53,8 +54,7 @@ object Alphabet {
   /**
    * Creates an alphabet with a `nil` element. This element will be mapped to index `0`.
    */
-  def withNil[T: Eq](nil: T) = {
+  def withNil[T: Eq](nil: T) =
     new Alphabet[T](AutoMap[T, Int](nil → 0), ArraySeq(nil))
-  }
 
 }

@@ -116,7 +116,13 @@ class SinglyLinkedList[T] extends Seq[T] with KeyMutableSeq[T] {
     len -= 1
   }
 
-  override def mapInplace(f: (T) => T): Unit = ???
+  override def mapInplace(f: T => T): Unit = {
+    var n = dummy.next
+    while (n.notDummy) {
+      n.data = f(n.data)
+      n = n.next
+    }
+  }
 }
 
 object SinglyLinkedList {

@@ -37,7 +37,7 @@ class BitSet private(private final var data: LongResizableArray)
   }
 
   def keys = Iterable.ofIterator {
-    new Iterator[Int] {
+    new AbstractIterator[Int] {
       private[this] var idx = 0
       private[this] var bitMask = 1l
       private[this] var k = 0
@@ -87,6 +87,6 @@ object BitSet {
   private[poly] final val LongBits = 6 // 2^6 = 64
   private[poly] final val LongSize = 64
 
-  def apply() = new BitSet(new LongResizableArray(8))
+  def apply() = new BitSet(new LongResizableArray(Settings.ArrayInitialSize))
 
 }

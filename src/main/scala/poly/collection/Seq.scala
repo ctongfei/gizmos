@@ -72,7 +72,7 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
     }
   }
 
-  def newIterator: Iterator[T] = new Iterator[T] {
+  def newIterator: Iterator[T] = new AbstractIterator[T] {
     private[this] var node: SeqNode[T] = self.dummy
     def advance() = {
       node = node.next
@@ -99,7 +99,7 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
       def next = new SeqNodeWithIndex(outer.next, i + 1)
       def isDummy = outer.isDummy
     }
-    ofHeadNode(new SeqNodeWithIndex(headNode, 0)).asIfSorted(Order by firstOfPair)
+    ofHeadNode(new SeqNodeWithIndex(headNode, 0)).asIfSorted(Order by first)
   }
 
   override def keys: SortedSeq[Int] = new AbstractSortedSeq[Int] {
@@ -145,7 +145,7 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
     ofDummyNode(new FlatMappedSeqNode(dummy, SeqNode.dummy))
   }
 
-  def product[U](that: Seq[U]): Seq[(T, U)] = this.flatMap(t => that.map(u => (t, u)))
+  def monadicProduct[U](that: Seq[U]): Seq[(T, U)] = this.flatMap(t => that.map(u => (t, u)))
 
   override def filter(f: T => Boolean): Seq[T] = {
     class FilteredSeqNode(val node: SeqNode[T]) extends SeqNode[T] {

@@ -5,6 +5,9 @@ import poly.collection.impl.specialized._
 
 /**
  * Represents a graph whose underlying representation is an adjacency matrix.
+ *
+ * The keys of an adjacency matrix graph is restricted to the integer set '''Z''',,''n'',, = {0, 1, ..., ''n''-1}
+ * where ''n'' is the number of nodes in this graph.
  * @author Tongfei Chen
  * @since 0.1.0
  */

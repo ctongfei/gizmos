@@ -16,8 +16,8 @@ a intersect c
 
 a flatMap { i => i.repeat(i) }
 b flatMap { s => s.split(' ') }
-a product b
-a product e
+a monadicProduct b
+a monadicProduct e
 a.isEmpty
 b.isEmpty
 e.isEmpty

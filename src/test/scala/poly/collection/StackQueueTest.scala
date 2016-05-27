@@ -8,6 +8,7 @@ import poly.collection.mut._
 object StackQueueTest extends App {
 
   val q = ArrayQueue[Int]()
+  val t = Iterable.iterate(0)(_ + 1)
   q += 0
   q += 1
   q += 2

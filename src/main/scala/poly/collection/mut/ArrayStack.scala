@@ -7,7 +7,7 @@ import poly.collection.factory._
 import poly.collection.impl._
 
 /**
- * An array-backed stack.
+ * An array-backed mutable stack.
  * @author Tongfei Chen
  * @since 0.1.0
  */

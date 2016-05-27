@@ -9,18 +9,18 @@ package object collection extends ImplicitOperators {
   type =:>[K, +V] = Map[K, V]
 
   /** Returns the first element of two elements. */
-  @inline def first[@sp(fdi) α, @sp(fdi) β](a: α, b: β) = a
+  //@inline def first[@sp(di) α, @sp(di) β](a: α, b: β) = a
 
   /** Returns the second element of two elements. */
-  @inline def second[@sp(fdi) α, @sp(fdi) β](a: α, b: β) = b
+  //@inline def second[@sp(di) α, @sp(di) β](a: α, b: β) = b
 
   /** Returns the first element of a pair. */
-  @inline def firstOfPair[@sp(fdi) α, @sp(fdi) β](pair: (α, β)) = pair._1
+  @inline def first[@sp(dil) α, @sp(dil) β](pair: (α, β)) = pair._1
 
   /** Returns the second element of a pair. */
-  @inline def secondOfPair[@sp(fdi) α, @sp(fdi) β](pair: (α, β)) = pair._2
+  @inline def second[@sp(dil) α, @sp(dil) β](pair: (α, β)) = pair._2
 
-  @inline def thirdOfTriple[γ](triple: (_, _, γ)) = triple._3
+  @inline def third[γ](triple: (_, _, γ)) = triple._3
 
   @inline private[poly] def default[T]: T = {
     class Default {

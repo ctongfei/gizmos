@@ -21,6 +21,11 @@ final class ResizableArray[T]
     }
   }
 
+  def moveInplace(i: Int, j: Int, k: Int): Unit = {
+    System.arraycopy(data, i, data, k, j - i)
+  }
+
+
   def apply(i: Int) = data(i).asInstanceOf[T]
 
   def capacity = cap

@@ -23,7 +23,6 @@ class SinglyLinkedList[T, N >: Null <: SinglyLinkedNodeLike[T, N]] {
   private[poly] var len: Int = 0
   private[poly] var lastNode = dummy
 
-
   def length = len
 
   /**
@@ -91,7 +90,7 @@ class SinglyLinkedList[T, N >: Null <: SinglyLinkedNodeLike[T, N]] {
     len -= 1
   }
 
-  def entriesIterator: Iterator[N] = new Iterator[N] {
+  def entriesIterator: Iterator[N] = new AbstractIterator[N] {
     private[this] var c = dummy
     def advance() = {
       if (c.next != dummy) {

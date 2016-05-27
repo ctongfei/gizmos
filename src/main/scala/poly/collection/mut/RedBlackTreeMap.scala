@@ -26,7 +26,7 @@ class RedBlackTreeMap[K, V] private(private val data: java.util.TreeMap[K, V])
   def removeInplace(x: K) = data.remove(x)
 
   def pairs: SortedIterable[(K, V)] = new AbstractSortedIterable[(K, V)] {
-    def orderOnElements = orderOnKeys contramap firstOfPair
+    def orderOnElements = orderOnKeys contramap first
     def newIterator = data.entrySet().elements.map(e => (e.getKey, e.getValue)).newIterator
   }
 

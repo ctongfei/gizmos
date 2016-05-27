@@ -7,6 +7,8 @@ private[poly] object Settings {
 
   final val MaxElementsToString = 100
 
+  final val MaxFinalElementsToString = 50
+
   final val MaxElementsToHash = 20
 
   final val ArrayInitialSize = 8

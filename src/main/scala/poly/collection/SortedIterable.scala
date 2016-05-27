@@ -32,7 +32,7 @@ trait SortedIterable[T] extends Iterable[T] { self =>
    */
   def merge(that: SortedIterable[T]): SortedIterable[T] = new SortedIterable[T] {
     implicit def orderOnElements: Order[T] = self.orderOnElements
-    def newIterator: Iterator[T] = new Iterator[T] {
+    def newIterator: Iterator[T] = new AbstractIterator[T] {
       private[this] val ai = self.newIterator
       private[this] val bi = that.newIterator
       private[this] var curr: T = _

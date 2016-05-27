@@ -48,7 +48,7 @@ trait Table[+T] extends Map[(Int, Int), T] { self =>
     def fastLength = self.size
   }
 
-  def elements = triples map thirdOfTriple
+  def elements = triples map third
 
   override def size = numRows * numCols
 

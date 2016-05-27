@@ -25,7 +25,7 @@ trait BinaryTreeNodeLike[+T, +N <: BinaryTreeNodeLike[T, N]] extends ForwardNode
    * @return A non-strict sequence of the pre-order traversal.
    */
   def preOrder: Iterable[N] = Iterable.ofIterator {
-    new Iterator[N] {
+    new AbstractIterator[N] {
       private val s = ArrayStack[N](self)
       private var curr: N = default[N]
       def advance(): Boolean = {
@@ -99,7 +99,7 @@ trait BinaryTreeNodeLike[+T, +N <: BinaryTreeNodeLike[T, N]] extends ForwardNode
    * @return A non-strict sequence of the post-order traversal.
    */
   def postOrder: Iterable[N] = Iterable.ofIterator {
-    new Iterator[N] {
+    new AbstractIterator[N] {
       private[this] val s = ArrayStack[N]()
       private[this] var v: N = default[N]
       private[this] var curr: N = default[N]

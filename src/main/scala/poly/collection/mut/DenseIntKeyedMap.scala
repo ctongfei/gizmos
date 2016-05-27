@@ -59,3 +59,6 @@ class DenseIntKeyedMap[T] private(
 
 }
 
+object DenseIntKeyedMap {
+
+}

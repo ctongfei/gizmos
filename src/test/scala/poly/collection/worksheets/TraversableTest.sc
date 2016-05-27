@@ -12,8 +12,8 @@ a.cycle.take(20)
 
 a map {_ * 2}
 a flatMap {(x: Int) => ArraySeq.fill(x)(x)}
-a product b
-a product c
+a monadicProduct b
+a monadicProduct c
 
 a.isEmpty
 b.isEmpty
