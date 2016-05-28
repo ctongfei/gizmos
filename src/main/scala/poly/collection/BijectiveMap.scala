@@ -8,7 +8,7 @@ import poly.algebra._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait BijectiveMap[K, V] extends Map[K, V] with Bijection[K, V] { self =>
+trait BijectiveMap[K, V] extends Map[K, V] with Bijection[K, V] { self ⇒
 
   /** Returns the equivalence relation on the value set of this bijective map. */
   def eqOnValues: Eq[V]
@@ -70,7 +70,7 @@ trait BijectiveMap[K, V] extends Map[K, V] with Bijection[K, V] { self =>
   def |>[W](that: BijectiveMap[V, W]) = this andThen that
   def |<[J](that: BijectiveMap[J, K]) = this compose that
 
-  override def toString = "{" + pairs.map { case (k, v) => s"$k ↔︎ $v" }.buildString(", ") + "}"
+  override def toString = "{" + pairs.map { case (k, v) ⇒ s"$k ↔︎ $v" }.buildString(", ") + "}"
 }
 
 abstract class AbstractBijectiveMap[K, V] extends AbstractMap[K, V] with BijectiveMap[K, V]

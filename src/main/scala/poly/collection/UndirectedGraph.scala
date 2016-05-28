@@ -11,7 +11,7 @@ import poly.collection.node._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait UndirectedGraph[@sp(Int) K, +E] extends BiGraph[K, E] { self =>
+trait UndirectedGraph[@sp(Int) K, +E] extends BiGraph[K, E] { self ⇒
 
   import UndirectedGraph._
 
@@ -25,6 +25,14 @@ trait UndirectedGraph[@sp(Int) K, +E] extends BiGraph[K, E] { self =>
     }
   }
 
+  def edgeMap: Map[UPair[K], E] = new AbstractMap[UPair[K], E] {
+    def ?(k: UPair[K]) = self ? (k._1, k._2)
+    def pairs = edges map { e ⇒ UPair(e.key1, e.key2) → e.data }
+    def containsKey(k: UPair[K]) = self.containsArc(k._1, k._2)
+    def apply(k: UPair[K]) = self(k._1, k._2)
+    def eqOnKeys = UPair.Eq(self.eqOnKeys)
+  }
+
   def adjacentKeySet(i: K): Set[K]
 
   def adjacentMap(i: K) = adjacentKeySet(i) createMapBy { j ⇒ apply(i, j) }
@@ -35,22 +43,23 @@ trait UndirectedGraph[@sp(Int) K, +E] extends BiGraph[K, E] { self =>
   override def reverse = self
 
   //TODO: map, zip, ...
-
+  override def toString = edgeMap.toString
 }
 
 object UndirectedGraph {
 
   class EdgeProxy[K, +E](val graph: UndirectedGraph[K, E], val key1: K, val key2: K) extends GraphEdge[K, E] {
     override def equals(that: Any) = that match {
-        case that: UndirectedGraph.EdgeProxy[K, E] =>
+        case that: UndirectedGraph.EdgeProxy[K, E] ⇒
           (this.graph eq that.graph) &&
           ((this.key1 == that.key1 && this.key2 == that.key2) ||
             (this.key1 == that.key2 && this.key2 == that.key1))
-        case _ => false
+        case _ ⇒ false
       }
     def data = graph(key1, key2)
     def node1 = graph.node(key1)
     def node2 = graph.node(key2)
+    override def toString = s"{$key1, $key2}"
     override def hashCode = poly.algebra.Hashing.byRef.hash(graph) + (key1.## ^ key2.##)
     def contains(x: K) = x == key1 || x == key2
     def keys = ListSeq(key1, key2)

@@ -10,7 +10,7 @@ import poly.collection.node._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait BiSeq[+T] extends Seq[T] with BiIterable[T] { self =>
+trait BiSeq[+T] extends Seq[T] with BiIterable[T] { self ⇒
 
   import BiSeq._
 
@@ -33,9 +33,9 @@ trait BiSeq[+T] extends Seq[T] with BiIterable[T] { self =>
 
   //region HELPER FUNCTIONS
 
-  override def map[U](f: T => U): BiSeq[U] = ofDummyNode(dummy map f)
+  override def map[U](f: T ⇒ U): BiSeq[U] = ofDummyNode(dummy map f)
 
-  override def consecutive[U](f: (T, T) => U): BiSeq[U] = {
+  override def consecutive[U](f: (T, T) ⇒ U): BiSeq[U] = {
     class ConsecutiveNode(val n0: BiSeqNode[T], val n1: BiSeqNode[T]) extends BiSeqNode[U] {
       def data = f(n1.data, n0.data)
       def next = new ConsecutiveNode(n1, n1.next)

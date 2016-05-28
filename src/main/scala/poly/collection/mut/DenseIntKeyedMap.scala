@@ -34,7 +34,7 @@ class DenseIntKeyedMap[T] private(
 
   def ?(x: Int): Option[T] = if (state(x)) Some(data(x)) else None
 
-  def pairs = state.createMapBy(i => data(i)).pairs
+  def pairs = state.createMapBy(i ⇒ data(i)).pairs
 
   override def size: Int = n
 

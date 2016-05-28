@@ -27,7 +27,7 @@ class RedBlackTreeMap[K, V] private(private val data: java.util.TreeMap[K, V])
 
   def pairs: SortedIterable[(K, V)] = new AbstractSortedIterable[(K, V)] {
     def orderOnElements = orderOnKeys contramap first
-    def newIterator = data.entrySet().elements.map(e => (e.getKey, e.getValue)).newIterator
+    def newIterator = data.entrySet().elements.map(e ⇒ (e.getKey, e.getValue)).newIterator
   }
 
   def orderOnKeys: Order[K] = data.comparator()

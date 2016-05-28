@@ -11,7 +11,7 @@ import poly.macroutil._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait Table[+T] extends Map[(Int, Int), T] { self =>
+trait Table[+T] extends Map[(Int, Int), T] { self ⇒
 
   /** Returns the element at the ''i''-th row and ''j''-th column in this table. */
   def apply(i: Int, j: Int): T
@@ -27,7 +27,7 @@ trait Table[+T] extends Map[(Int, Int), T] { self =>
 
   def eqOnKeys = Eq.default[(Int, Int)]
 
-  def pairs = triples map { case (i, j, e) => ((i, j), e) }
+  def pairs = triples map { case (i, j, e) ⇒ ((i, j), e) }
 
   /**
    * Returns all the (row, col, elem) triples in this table.
@@ -60,9 +60,9 @@ trait Table[+T] extends Map[(Int, Int), T] { self =>
     i >= 0 && i < numRows && j >= 0 && j < numCols
   }
 
-  def row(i: Int): IndexedSeq[T] = Range(numCols) map (j => self(i, j))
+  def row(i: Int): IndexedSeq[T] = Range(numCols) map (j ⇒ self(i, j))
 
-  def col(j: Int): IndexedSeq[T] = Range(numRows) map (i => self(i, j))
+  def col(j: Int): IndexedSeq[T] = Range(numRows) map (i ⇒ self(i, j))
 
   def rows: IndexedSeq[IndexedSeq[T]] = Range(numRows) map row
 
@@ -70,7 +70,7 @@ trait Table[+T] extends Map[(Int, Int), T] { self =>
 
   def curry = rows
 
-  override def map[U](f: T => U): Table[U] = new AbstractTable[U] {
+  override def map[U](f: T ⇒ U): Table[U] = new AbstractTable[U] {
     def numCols = self.numCols
     def numRows = self.numCols
     def apply(i: Int, j: Int) = f(self(i, j))
@@ -95,15 +95,15 @@ trait Table[+T] extends Map[(Int, Int), T] { self =>
   // OVERRIDING JAVA METHODS
 
   override def equals(that: Any) = that match {
-    case that: Table[T] => Table.Eq[T](Eq.default[T]).eq(self, that)
-    case _ => false
+    case that: Table[T] ⇒ Table.Eq[T](Eq.default[T]).eq(self, that)
+    case _ ⇒ false
   }
 
   override def toString = {
     val s = self map { _.toString }
     val l = s.elements.map(_.length).max
     val r0 =                          "┌ " + " " * (numCols * (l + 2) - 2)             + " ┐"
-    val lines = s.rows.map { xs =>    "│ " + xs.map(_.padTo(l, ' ')).buildString("  ") + " │" }
+    val lines = s.rows.map { xs ⇒    "│ " + xs.map(_.padTo(l, ' ')).buildString("  ") + " │" }
     val rn =                          "└ " + " " * (numCols * (l + 2) - 2)             + " ┘"
     "\n" + r0 + "\n" + lines.buildString("\n") + "\n" + rn + "\n"
   }
@@ -123,13 +123,13 @@ object Table {
     def isDummy = (i < 0) || (i >= table.numRows) || (j < 0) || (j >= table.numCols)
   }
 
-  def fill[T](nr: Int, nc: Int)(x: => T): Table[T] = new AbstractTable[T] {
+  def fill[T](nr: Int, nc: Int)(x: ⇒ T): Table[T] = new AbstractTable[T] {
     def numRows: Int = nr
     def numCols: Int = nc
     def apply(i: Int, j: Int): T = x
   }
 
-  def tabulate[T](nr: Int, nc: Int)(f: (Int, Int) => T): Table[T] = new AbstractTable[T] {
+  def tabulate[T](nr: Int, nc: Int)(f: (Int, Int) ⇒ T): Table[T] = new AbstractTable[T] {
     def apply(i: Int, j: Int) = f(i, j)
     def numRows = nr
     def numCols = nc
@@ -139,8 +139,8 @@ object Table {
     def eq(x: Table[T], y: Table[T]): Boolean = {
       if (x.numRows != y.numRows) return false
       if (x.numCols != y.numCols) return false
-      FastLoop.ascending(0, x.numRows, 1) { i =>
-        FastLoop.ascending(0, x.numCols, 1) { j =>
+      FastLoop.ascending(0, x.numRows, 1) { i ⇒
+        FastLoop.ascending(0, x.numCols, 1) { j ⇒
           if (x(i, j) !== y(i, j)) return false
         }
       }

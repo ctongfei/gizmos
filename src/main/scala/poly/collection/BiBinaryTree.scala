@@ -7,7 +7,7 @@ import poly.collection.node._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait BiBinaryTree[+T] extends BinaryTree[T] { self =>
+trait BiBinaryTree[+T] extends BinaryTree[T] { self ⇒
 
   def rootNode: BiBinaryTreeNode[T]
 

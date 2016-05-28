@@ -4,7 +4,7 @@ import poly.algebra._
 import poly.algebra.syntax._
 import poly.collection.node._
 import poly.macroutil._
-import scala.annotation.unchecked.{uncheckedVariance => uv}
+import scala.annotation.unchecked.{uncheckedVariance ⇒ uv}
 import scala.language.implicitConversions
 
 /**
@@ -14,7 +14,7 @@ import scala.language.implicitConversions
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait IndexedSeq[+T] extends BiSeq[T] { self =>
+trait IndexedSeq[+T] extends BiSeq[T] { self ⇒
 
   import IndexedSeq._
 
@@ -40,8 +40,8 @@ trait IndexedSeq[+T] extends BiSeq[T] { self =>
   }
 
   // Overridden foreach method for performance.
-  override def foreach[V](f: T => V): Unit = {
-    FastLoop.ascending(0, length, 1) { i => f(apply(i)) }
+  override def foreach[V](f: T ⇒ V): Unit = {
+    FastLoop.ascending(0, length, 1) { i ⇒ f(apply(i)) }
   }
 
 
@@ -51,13 +51,13 @@ trait IndexedSeq[+T] extends BiSeq[T] { self =>
   override def sizeKnown = true
 
   override def pairs: SortedIndexedSeq[(Int, T @uv)] =
-    IndexedSeq.tabulate(length)(i => i → self(i)).asIfSorted(Order by first)
+    IndexedSeq.tabulate(length)(i ⇒ i → self(i)).asIfSorted(Order by first)
 
   override def keys = Range(length)
 
   // HELPER FUNCTIONS
 
-  override def map[U](f: T => U): IndexedSeq[U] = new AbstractIndexedSeq[U] {
+  override def map[U](f: T ⇒ U): IndexedSeq[U] = new AbstractIndexedSeq[U] {
     def fastLength = self.length
     def fastApply(i: Int) = f(self(i))
   }
@@ -92,12 +92,12 @@ trait IndexedSeq[+T] extends BiSeq[T] { self =>
     def fastApply(i: Int) = if (i == self.length) x else self(i)
   }
 
-  override def reduce[U >: T](f: (U, U) => U): U = {
-    MapReduceOps.bySemigroup[U](length, x => self(x): U, f) // optimize through macros
+  override def reduce[U >: T](f: (U, U) ⇒ U): U = {
+    MapReduceOps.bySemigroup[U](length, x ⇒ self(x): U, f) // optimize through macros
   }
 
-  override def fold[U >: T](z: U)(f: (U, U) => U): U = {
-    MapReduceOps.byMonoid[U](length, x => self(x): U, z, f) // optimize through macros
+  override def fold[U >: T](z: U)(f: (U, U) ⇒ U): U = {
+    MapReduceOps.byMonoid[U](length, x ⇒ self(x): U, z, f) // optimize through macros
   }
 
   override def head = self(0)
@@ -152,7 +152,7 @@ trait IndexedSeq[+T] extends BiSeq[T] { self =>
     def fastLength = math.min(self.length, that.length)
   }
 
-  def zipWith[U, V](that: IndexedSeq[U])(f: (T, U) => V): IndexedSeq[V] = new AbstractIndexedSeq[V] {
+  def zipWith[U, V](that: IndexedSeq[U])(f: (T, U) ⇒ V): IndexedSeq[V] = new AbstractIndexedSeq[V] {
     def fastApply(i: Int) = f(self(i), that(i))
     def fastLength = math.min(self.length, that.length)
   }
@@ -198,12 +198,12 @@ object IndexedSeq {
     def fastLength: Int = 0
   }
 
-  def fill[T](n: Int)(x: => T): IndexedSeq[T] = new AbstractIndexedSeq[T] {
+  def fill[T](n: Int)(x: ⇒ T): IndexedSeq[T] = new AbstractIndexedSeq[T] {
     def fastLength = n
     def fastApply(i: Int) = x
   }
 
-  def tabulate[T](n: Int)(f: Int => T): IndexedSeq[T] = new AbstractIndexedSeq[T] {
+  def tabulate[T](n: Int)(f: Int ⇒ T): IndexedSeq[T] = new AbstractIndexedSeq[T] {
     def fastLength: Int = n
     def fastApply(i: Int): T = f(i)
   }
@@ -213,7 +213,7 @@ object IndexedSeq {
     def eq(x: IndexedSeq[T], y: IndexedSeq[T]): Boolean = {
       if (x.fastLength != y.fastLength) false
       else {
-        FastLoop.ascending(0, x.fastLength, 1) { i =>
+        FastLoop.ascending(0, x.fastLength, 1) { i ⇒
           if (x(i) !== y(i)) return false
         }
         true
@@ -228,8 +228,8 @@ object IndexedSeq {
     def prev = if (i <= 0) BiSeqNode.dummy else new NodeProxy(seq, i - 1)
 
     override def equals(that: Any) = that match {
-      case that: NodeProxy[T] => (this.seq eq that.seq) && (this.i == that.i)
-      case _ => false
+      case that: NodeProxy[T] ⇒ (this.seq eq that.seq) && (this.i == that.i)
+      case _ ⇒ false
     }
 
     override def hashCode = poly.algebra.Hashing.byRef.hash(seq) + i

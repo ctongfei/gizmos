@@ -97,7 +97,7 @@ class ListBiSeq[T] private() extends AbstractBiSeq[T] with KeyMutableSeq[T] {
     ???
   }
 
-  override def mapInplace(f: T => T): Unit = {
+  override def mapInplace(f: T ⇒ T): Unit = {
     ???
   }
 }

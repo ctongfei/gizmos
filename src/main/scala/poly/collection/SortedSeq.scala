@@ -5,9 +5,9 @@ import poly.collection.node._
 /**
  * @author Tongfei Chen
  */
-trait SortedSeq[T] extends Seq[T] with SortedIterable[T] { self =>
+trait SortedSeq[T] extends Seq[T] with SortedIterable[T] { self ⇒
 
-  override def filter(f: T => Boolean): SortedSeq[T] = {
+  override def filter(f: T ⇒ Boolean): SortedSeq[T] = {
     class FilteredSeqNode(val node: SeqNode[T]) extends SeqNode[T] {
       override def isDummy = node.isDummy
       def data = node.data
@@ -20,7 +20,7 @@ trait SortedSeq[T] extends Seq[T] with SortedIterable[T] { self =>
     Seq.ofDummyNode(new FilteredSeqNode(dummy)).asIfSorted(orderOnElements)
   }
 
-  override def filterNot(f: T => Boolean) = filter(x => !f(x))
+  override def filterNot(f: T ⇒ Boolean) = filter(x ⇒ !f(x))
 
   //TODO: thenSortBy
 }

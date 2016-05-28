@@ -12,7 +12,7 @@ import scala.language.experimental.macros
  * @author Tongfei Chen
  * @since 0.1.0
  */
-sealed trait Range extends SortedIndexedSeq[Int] { self =>
+sealed trait Range extends SortedIndexedSeq[Int] { self ⇒
 
   def left: Int
 
@@ -33,7 +33,7 @@ sealed trait Range extends SortedIndexedSeq[Int] { self =>
 
   // HELPER FUNCTIONS
 
-  @inline final override def foreach[@sp(Unit) V](f: Int => V): Unit = {
+  @inline final override def foreach[@sp(Unit) V](f: Int ⇒ V): Unit = {
     var i = left
     while (i <= last) {
       f(i)
@@ -62,7 +62,7 @@ object Range {
   ) extends Range { require(step > 0)
 
     class FastTraversable(r: Range.Ascending) {
-      def foreach[U](f: Int => U): Unit = macro ascendingForeachMacroImpl[U]
+      def foreach[U](f: Int ⇒ U): Unit = macro ascendingForeachMacroImpl[U]
     }
 
     def fast = new FastTraversable(this)
@@ -93,7 +93,7 @@ object Range {
   ) extends Range { require(step < 0)
 
     class FastTraversable(r: Range.Descending) {
-      def foreach[U](f: Int => U): Unit = macro descendingForeachMacroImpl[U]
+      def foreach[U](f: Int ⇒ U): Unit = macro descendingForeachMacroImpl[U]
     }
 
     def fast = new FastTraversable(this)
@@ -127,14 +127,14 @@ object Range {
     else new Range.Descending(l, r + math.signum(step), step)
   }
 
-  def ascendingForeachMacroImpl[V](c: Context)(f: c.Expr[Int => V]): c.Expr[Unit] = {
+  def ascendingForeachMacroImpl[V](c: Context)(f: c.Expr[Int ⇒ V]): c.Expr[Unit] = {
     import c.universe._
     val i = TermName(c.freshName("i"))
     val range = TermName(c.freshName("range"))
     val limit = TermName(c.freshName("limit"))
     val step = TermName(c.freshName("step"))
     val tree = c.macroApplication match {
-      case q"$r.fast.foreach[$ty]($f)" =>
+      case q"$r.fast.foreach[$ty]($f)" ⇒
         q"""
           val $range = $r
           var $i = $range.left
@@ -149,14 +149,14 @@ object Range {
     new InlineUtil[c.type](c).inlineAndReset[Unit](tree)
   }
 
-  def descendingForeachMacroImpl[V](c: Context)(f: c.Expr[Int => V]): c.Expr[Unit] = {
+  def descendingForeachMacroImpl[V](c: Context)(f: c.Expr[Int ⇒ V]): c.Expr[Unit] = {
     import c.universe._
     val i = TermName(c.freshName("i"))
     val range = TermName(c.freshName("range"))
     val limit = TermName(c.freshName("limit"))
     val step = TermName(c.freshName("step"))
     val tree = c.macroApplication match {
-      case q"$r.fast.foreach[$ty]($f)" =>
+      case q"$r.fast.foreach[$ty]($f)" ⇒
         q"""
           val $range = $r
           var $i = $range.left

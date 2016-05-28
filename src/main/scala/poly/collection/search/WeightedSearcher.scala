@@ -42,7 +42,7 @@ abstract class WeightedSearcher[S, N, C] extends SearchIterator[N, S] {
     if (fringe.notEmpty) {
       curr = fringe.pop()
       if (!prune(curr))
-        fringe ++= curr.state.succWithCost.map { case (next, cost) =>
+        fringe ++= curr.state.succWithCost.map { case (next, cost) ⇒
           curr.next(next, cost)
         }
       true
@@ -59,7 +59,7 @@ class UniformCostIterator[S, C: OrderedAdditiveGroup](val stateSpace: WeightedSt
   def prune(n: WithCost[S, C]) = false
 }
 
-class GreedyBestFirstIterator[S, C: OrderedAdditiveGroup](val stateSpace: WeightedStateSpace[S, C], val start: S, val heuristic: S => C)
+class GreedyBestFirstIterator[S, C: OrderedAdditiveGroup](val stateSpace: WeightedStateSpace[S, C], val start: S, val heuristic: S ⇒ C)
   extends WeightedSearcher[S, WithHeuristic[S, C], C]
 {
   val fringe = DistinctPriorityQueue[BinaryHeap, WithHeuristic[S, C]]()
@@ -67,7 +67,7 @@ class GreedyBestFirstIterator[S, C: OrderedAdditiveGroup](val stateSpace: Weight
   def prune(n: WithHeuristic[S, C]) = false
 }
 
-class AStarIterator[S, C: OrderedAdditiveGroup](val stateSpace: WeightedStateSpace[S, C], val start: S, val heuristic: S => C)
+class AStarIterator[S, C: OrderedAdditiveGroup](val stateSpace: WeightedStateSpace[S, C], val start: S, val heuristic: S ⇒ C)
   extends WeightedSearcher[S, WithCostAndHeuristic[S, C], C] {
   val fringe = DistinctPriorityQueue[BinaryHeap, WithCostAndHeuristic[S, C]]()(Eq.byRef, BinaryHeap.newBuilder[WithCostAndHeuristic[S, C]](WithCostAndHeuristic.order))
   def searchNodeInfo = WithCostAndHeuristic.WeightedSearchNodeInfo(heuristic)

@@ -35,8 +35,8 @@ class LinkedBinaryTree[T] extends BinaryTree[T] {
     var depth = 1
     while (depth <= x) {
       x / depth match {
-        case 0 => curr = curr.left
-        case 1 => curr = curr.right
+        case 0 ⇒ curr = curr.left
+        case 1 ⇒ curr = curr.right
       }
       x %= depth
       depth <<= 1
@@ -66,7 +66,7 @@ class LinkedBinaryTree[T] extends BinaryTree[T] {
    * {{{
    *     p             l
    *    / \           / \
-   *   l   r   =>    a   p
+   *   l   r   ⇒    a   p
    *  / \               / \
    * a  b              b   r
    * }}}
@@ -92,7 +92,7 @@ class LinkedBinaryTree[T] extends BinaryTree[T] {
     * {{{
     *     p              r
     *    / \            / \
-    *   l   r    =>    p   b
+    *   l   r    ⇒    p   b
     *      / \        / \
     *     a   b      l   a
     * }}}

@@ -12,7 +12,7 @@ import poly.collection.node._
 class ArrayBinaryTree[T] private(
   private[poly] val data: ResizableSeq[T],
   private[poly] val state: SpResizableArray[Boolean]
-) extends AbstractIndexedBinaryTree[T] { self =>
+) extends AbstractIndexedBinaryTree[T] { self ⇒
 
   def fastApply(i: Int) = data(i)
 

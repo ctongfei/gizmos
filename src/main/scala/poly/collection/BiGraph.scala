@@ -10,7 +10,7 @@ import poly.algebra.specgroup._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait BiGraph[@sp(Int) K, +E] extends Graph[K, E] { self =>
+trait BiGraph[@sp(Int) K, +E] extends Graph[K, E] { self ⇒
 
   import BiGraph._
 
@@ -52,6 +52,7 @@ private[poly] object BiGraphT {
     def outgoingKeySet(i: K) = self.incomingKeySet(i)
     def incomingKeySet(i: K) = self.outgoingKeySet(i)
     def keys = self.keys
+    def ?(i: K, j: K) = self ? (j, i)
     def containsKey(i: K) = self.containsKey(i)
     def containsArc(i: K, j: K) = self.containsArc(i, j)
     def apply(i: K, j: K) = self.apply(i, j)

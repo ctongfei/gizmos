@@ -5,7 +5,7 @@ import poly.collection.node._
 /**
  * @author Tongfei Chen
  */
-trait BinarySearchTreeNodeLike[K, N <: BinarySearchTreeNodeLike[K, N]] extends BiBinaryTreeNodeLike[K, N] { self: N =>
+trait BinarySearchTreeNodeLike[K, N <: BinarySearchTreeNodeLike[K, N]] extends BiBinaryTreeNodeLike[K, N] { self: N ⇒
 
   var left: N = _
 

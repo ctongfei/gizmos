@@ -9,7 +9,7 @@ trait Observable[+T] extends Traversable[T] {
 
   def subscribe(o: Observer[T])
 
-  def foreach[V](f: T => V) = subscribe {
+  def foreach[V](f: T ⇒ V) = subscribe {
     new Observer[T] {
       def onError(error: Throwable) = {}
       def onCompleted() = {}

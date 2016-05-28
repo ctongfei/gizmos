@@ -7,7 +7,7 @@ import poly.collection.mut._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait BinaryTreeNodeLike[+T, +N <: BinaryTreeNodeLike[T, N]] extends ForwardNodeLike[T, N] { self: N =>
+trait BinaryTreeNodeLike[+T, +N <: BinaryTreeNodeLike[T, N]] extends ForwardNodeLike[T, N] { self: N ⇒
 
   def left: N
   def right: N
@@ -128,7 +128,7 @@ trait BinaryTreeNodeLike[+T, +N <: BinaryTreeNodeLike[T, N]] extends ForwardNode
 
 }
 
-trait BinaryTreeNode[+T] extends BinaryTreeNodeLike[T, BinaryTreeNode[T]] { self =>
+trait BinaryTreeNode[+T] extends BinaryTreeNodeLike[T, BinaryTreeNode[T]] { self ⇒
   def data: T
   def left: BinaryTreeNode[T]
   def right: BinaryTreeNode[T]
@@ -139,7 +139,7 @@ trait BinaryTreeNode[+T] extends BinaryTreeNodeLike[T, BinaryTreeNode[T]] { self
    * @tparam U
    * @return
    */
-  def map[U](f: T => U): BinaryTreeNode[U] = new BinaryTreeNode[U] {
+  def map[U](f: T ⇒ U): BinaryTreeNode[U] = new BinaryTreeNode[U] {
     def left = self.left.map(f)
     def right = self.right.map(f)
     def data = f(self.data)

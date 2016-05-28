@@ -11,7 +11,7 @@ import poly.macroutil._
  * @since 0.1.0
  */
 class BitSet private(private final var data: LongResizableArray)
-  extends AbstractSet[Int] with SortedSet[Int] with KeyMutableSet[Int] { self =>
+  extends AbstractSet[Int] with SortedSet[Int] with KeyMutableSet[Int] { self ⇒
 
   import BitSet._
 
@@ -64,8 +64,8 @@ class BitSet private(private final var data: LongResizableArray)
     }
   }.asIfSorted
 
-  override def foreach[U](f: Int => U) = {
-    FastLoop.ascending(0, data.capacity, 1) { i =>
+  override def foreach[U](f: Int ⇒ U) = {
+    FastLoop.ascending(0, data.capacity, 1) { i ⇒
       var w = data(i)
       var j = i * LongSize
       while (w != 0l) {

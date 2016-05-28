@@ -32,8 +32,8 @@ trait ValueMutableIndexedSeq[T] extends ValueMutableSeq[T] with IndexedSeq[T] {
   }
 
   /** Transforms this sequence in-place given a function. */
-  override def mapInplace(f: T => T): Unit = {
-    FastLoop.ascending(0, length, 1) { i =>
+  override def mapInplace(f: T ⇒ T): Unit = {
+    FastLoop.ascending(0, length, 1) { i ⇒
       this(i) = f(this(i))
     }
   }
@@ -41,7 +41,7 @@ trait ValueMutableIndexedSeq[T] extends ValueMutableSeq[T] with IndexedSeq[T] {
   /** Randomly shuffles this sequence in-place using the Fisher-Yates shuffling algorithm. */
   def shuffleInplace(): Unit = {
     val r = new java.util.Random()
-    FastLoop.descending(length - 1, 0, -1) { i =>
+    FastLoop.descending(length - 1, 0, -1) { i ⇒
       val j = r.nextInt(i + 1)
       swapInplace(i, j)
     }

@@ -10,7 +10,7 @@ import poly.collection.node._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait Tree[+T] { self =>
+trait Tree[+T] { self ⇒
 
   import Tree._
 
@@ -26,7 +26,7 @@ trait Tree[+T] { self =>
    * Folds a tree bottom-up using the specific function.
    */
   //TODO: a non-recursive faster implementation?
-  def foldBottomUp[U](z: U)(f: (T, Seq[U]) => U): U =
+  def foldBottomUp[U](z: U)(f: (T, Seq[U]) ⇒ U): U =
     f(self.root, self.children.map(_.foldBottomUp(z)(f)))
 
   /**
@@ -57,7 +57,7 @@ trait Tree[+T] { self =>
   // Comonadic operation
   def subtrees: Tree[Tree[T]] = {
     class TreeOfTreeNode(n: TreeNode[T]) extends TreeNode[Tree[T]] {
-      def children: Seq[TreeNode[Tree[T]]] = n.children.map(tn => new TreeOfTreeNode(tn))
+      def children: Seq[TreeNode[Tree[T]]] = n.children.map(tn ⇒ new TreeOfTreeNode(tn))
       def data: Tree[T] = ofRootNode(n)
       def isDummy: Boolean = n.isDummy
     }
@@ -125,7 +125,7 @@ object Tree {
 
   implicit object Comonad extends Comonad[Tree] {
     def id[X](u: Tree[X]): X = u.root
-    def extend[X, Y](wx: Tree[X])(f: Tree[X] => Y): Tree[Y] = ???
+    def extend[X, Y](wx: Tree[X])(f: Tree[X] ⇒ Y): Tree[Y] = ???
   }
 
 }

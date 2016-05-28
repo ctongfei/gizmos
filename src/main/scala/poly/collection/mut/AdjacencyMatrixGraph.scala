@@ -24,6 +24,8 @@ class AdjacencyMatrixGraph[E] private(
 
   def keys = Range(numNodes)
 
+  def ?(i: Int, j: Int) = if (edgeExists(i, j)) Some(edgeData(i, j)) else None
+
   override def keySet = Range(numNodes).asSet
 
   def containsKey(i: Int) = 0 <= i && i < numNodes

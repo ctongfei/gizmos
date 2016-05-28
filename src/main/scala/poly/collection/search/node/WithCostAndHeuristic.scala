@@ -41,7 +41,7 @@ object WithCostAndHeuristic {
     def isDummy = true
   }
 
-  def WeightedSearchNodeInfo[S, C: OrderedAdditiveGroup](heuristic: S => C): WeightedSearchNodeInfo[WithCostAndHeuristic[S, C], S, C]
+  def WeightedSearchNodeInfo[S, C: OrderedAdditiveGroup](heuristic: S ⇒ C): WeightedSearchNodeInfo[WithCostAndHeuristic[S, C], S, C]
     = new WeightedSearchNodeInfo[WithCostAndHeuristic[S, C], S, C] {
     def startNode(s: S) = WithCostAndHeuristic(s, 0, zero[C], heuristic(s), dummy[S, C])
     def state(n: WithCostAndHeuristic[S, C]) = n.state

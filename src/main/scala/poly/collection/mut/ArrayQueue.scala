@@ -44,7 +44,7 @@ class ArrayQueue[T] private(private val data: ResizableArray[T]) extends Queue[T
     else backPtr - frontPtr + data.capacity
   }
 
-  def elements = IndexedSeq.tabulate(size)(i => data((frontPtr + i) % data.capacity))
+  def elements = IndexedSeq.tabulate(size)(i ⇒ data((frontPtr + i) % data.capacity))
 
   def top = {
     if (isEmpty) throw new QueueEmptyException

@@ -7,7 +7,7 @@ import poly.collection._
  * @since 0.1.0
  * @author Tongfei Chen
  */
-trait ValueMutableSeq[T] extends Seq[T] with ValueMutableMap[Int, T] { self =>
+trait ValueMutableSeq[T] extends Seq[T] with ValueMutableMap[Int, T] { self ⇒
 
   /**
    * Updates the element at the specific location.

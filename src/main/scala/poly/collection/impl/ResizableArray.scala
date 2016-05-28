@@ -7,7 +7,7 @@ import poly.macroutil._
  * @author Tongfei Chen
  */
 final class ResizableArray[T]
-(private[this] var cap: Int = Settings.ArrayInitialSize) { self =>
+(private[this] var cap: Int = Settings.ArrayInitialSize) { self ⇒
 
   private[this] var data: Array[AnyRef] = Array.ofDim[AnyRef](math.max(nextPowerOfTwo(cap), Settings.ArrayInitialSize))
 
@@ -35,7 +35,7 @@ final class ResizableArray[T]
     data(i) = x.asInstanceOf[AnyRef]
   }
 
-  def fillInplace(x: T) = FastLoop.ascending(0, capacity, 1) { i =>
+  def fillInplace(x: T) = FastLoop.ascending(0, capacity, 1) { i ⇒
     data(i) = x.asInstanceOf[AnyRef]
   }
 

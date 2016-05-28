@@ -11,7 +11,7 @@ import poly.collection.node._
 import poly.collection.search._
 
 import scala.language.higherKinds
-import scala.annotation.unchecked.{uncheckedVariance => uv}
+import scala.annotation.unchecked.{uncheckedVariance ⇒ uv}
 
 /**
  * Represents a directed graph in which each node's successors can be efficiently retrieved.
@@ -21,7 +21,7 @@ import scala.annotation.unchecked.{uncheckedVariance => uv}
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait Graph[@sp(Int) K, +E] extends KeyedLike[K, Graph[K, E]] with StateSpace[K] { self =>
+trait Graph[@sp(Int) K, +E] extends KeyedLike[K, Graph[K, E]] with StateSpace[K] { self ⇒
 
   import Graph._
 
@@ -31,6 +31,8 @@ trait Graph[@sp(Int) K, +E] extends KeyedLike[K, Graph[K, E]] with StateSpace[K]
   /** Gets the data on the edge indexed by the specific two keys. */
   def apply(i: K, j: K): E
 
+  def ?(i: K, j: K): Option[E]
+
   /** Returns an iterable collection of the keys in this graph. */
   def keys: Iterable[K]
 
@@ -39,6 +41,8 @@ trait Graph[@sp(Int) K, +E] extends KeyedLike[K, Graph[K, E]] with StateSpace[K]
 
   /** Returns whether an arc is present between the two given keys in this graph. */
   def containsArc(i: K, j: K): Boolean
+
+  final def notContainsArc(i: K, j: K) = !containsArc(i, j)
 
   /** Returns the outgoing set of keys of a given key. */
   def outgoingKeySet(i: K): Set[K]
@@ -77,7 +81,7 @@ trait Graph[@sp(Int) K, +E] extends KeyedLike[K, Graph[K, E]] with StateSpace[K]
   def outgoingMap(i: K) = outgoingKeySet(i) createMapBy { j ⇒ apply(i, j) }
   def outgoingKeys(i: K) = outgoingKeySet(i).elements
   def outgoingNodes(i: K) = outgoingKeys(i) map node
-  def outgoingArcs(i: K) = outgoingKeys(i) map { j => arc(i, j) }
+  def outgoingArcs(i: K) = outgoingKeys(i) map { j ⇒ arc(i, j) }
 
   def outDegree(i: K) = outgoingKeySet(i).size
 
@@ -85,11 +89,11 @@ trait Graph[@sp(Int) K, +E] extends KeyedLike[K, Graph[K, E]] with StateSpace[K]
 
   // HELPER FUNCTIONS
 
-  def mapArcs[F](f: E => F): Graph[K, F] = new GraphT.ArcMapped(self, f)
+  def map[F](f: E ⇒ F): Graph[K, F] = new GraphT.Mapped(self, f)
 
-  def mapArcsWithKeys[F](f: GraphArc[K, E] ⇒ F): Graph[K, F] = new GraphT.ArcMappedWithKeys(self, f)
+  def mapWithKeys[F](f: GraphArc[K, E] ⇒ F): Graph[K, F] = new GraphT.MappedWithKeys(self, f)
 
-  override def filterKeys(f: K => Boolean): Graph[K, E] = new GraphT.KeyFiltered(self, f)
+  override def filterKeys(f: K ⇒ Boolean): Graph[K, E] = new GraphT.KeyFiltered(self, f)
 
   def zip[F](that: Graph[K, F]): Graph[K, (E, F)] = zipWith(that)((e, f) ⇒ (e, f))
 
@@ -99,7 +103,7 @@ trait Graph[@sp(Int) K, +E] extends KeyedLike[K, Graph[K, E]] with StateSpace[K]
 
   /**
    * Returns the reverse/transpose graph of the original graph.
-   *
+ *
    * @return The reverse graph, in which every edge is reversed
    */
   def reverse: BiGraph[K, E] = ???
@@ -119,7 +123,7 @@ object Graph {
     def outgoingKeySet = graph.outgoingKeySet(key)
 
     override def equals(that: Any) = that match {
-      case that: NodeProxy[K, E] => (this.graph eq that.graph) && (this.key == that.key)
+      case that: NodeProxy[K, E] ⇒ (this.graph eq that.graph) && (this.key == that.key)
       case _ ⇒ false
     }
     override def hashCode = graph.## + key.##
@@ -144,7 +148,7 @@ object Graph {
     def targetNode = graph.node(target)
 
     override def equals(that: Any) = that match {
-      case that: ArcProxy[K, E] => (this.graph eq that.graph) && (this.source == that.source) && (this.target == that.target)
+      case that: ArcProxy[K, E] ⇒ (this.graph eq that.graph) && (this.source == that.source) && (this.target == that.target)
       case _ ⇒ false
     }
 
@@ -153,7 +157,7 @@ object Graph {
 
   implicit class AsWeightedStateSpace[K, E](g: Graph[K, E])(implicit E: OrderedAdditiveGroup[E]) extends WeightedStateSpace[K, E] {
     implicit def groupOnCost = E
-    def succWithCost(x: K) = g.outgoingArcs(x).map(e => (e.target, e.data))
+    def succWithCost(x: K) = g.outgoingArcs(x).map(e ⇒ (e.target, e.data))
     def eqOnKeys = g.eqOnKeys
   }
 
@@ -163,8 +167,9 @@ abstract class AbstractGraph[@sp(Int) K, +E] extends AbstractStateSpace[K] with 
 
 private[poly] object GraphT {
 
-  class ArcMapped[K, E, F](self: Graph[K, E], f: E ⇒ F) extends AbstractGraph[K, F] {
+  class Mapped[K, E, F](self: Graph[K, E], f: E ⇒ F) extends AbstractGraph[K, F] {
     def apply(i: K, j: K) = f(self(i, j))
+    def ?(i: K, j: K) = (self ? (i, j)) map f
     def keys = self.keys
     def containsKey(i: K) = self.containsKey(i)
     def containsArc(i: K, j: K) = self.containsArc(i, j)
@@ -172,8 +177,9 @@ private[poly] object GraphT {
     def outgoingKeySet(i: K) = self.outgoingKeySet(i)
   }
 
-  class ArcMappedWithKeys[K, E, F](self: Graph[K, E], f: GraphArc[K, E] ⇒ F) extends AbstractGraph[K, F] {
+  class MappedWithKeys[K, E, F](self: Graph[K, E], f: GraphArc[K, E] ⇒ F) extends AbstractGraph[K, F] {
     def apply(i: K, j: K) = f(self.arc(i, j))
+    def ?(i: K, j: K) = if (self.containsArc(i, j)) Some(f(self.arc(i, j))) else None
     def keys = self.keys
     def containsKey(i: K) = self.containsKey(i)
     def containsArc(i: K, j: K) = self.containsArc(i, j)
@@ -183,6 +189,7 @@ private[poly] object GraphT {
 
   class KeyFiltered[K, E](self: Graph[K, E], f: K ⇒ Boolean) extends AbstractGraph[K, E] {
     def apply(i: K, j: K) = self(i, j)
+    def ?(i: K, j: K) = if (f(i) && f(j)) self ? (i, j) else None
     def keys = self.keys filter f
     def containsKey(i: K) = self.containsKey(i) && f(i)
     def containsArc(i: K, j: K) = self.containsArc(i, j) && f(i) && f(j)
@@ -192,6 +199,7 @@ private[poly] object GraphT {
 
   class ZippedWith[K, E, F, X](self: Graph[K, E], that: Graph[K, F], f: (E, F) ⇒ X) extends AbstractGraph[K, X] {
     def apply(i: K, j: K) = f(self(i, j), that(i, j))
+    def ?(i: K, j: K) = for (a ← self ? (i, j); b ← that ? (i, j)) yield f(a, b)
     def keys = (self.keySet intersect that.keySet).keys
     def containsKey(i: K) = self.containsKey(i) && that.containsKey(i)
     def containsArc(i: K, j: K) = self.containsArc(i, j) && that.containsArc(i, j)
@@ -201,6 +209,7 @@ private[poly] object GraphT {
 
   class Contramapped[K, E, J](self: Graph[K, E], f: Bijection[J, K]) extends AbstractGraph[J, E] {
     def apply(i: J, j: J) = self(f(i), f(j))
+    def ?(i: J, j: J) = self ? (f(i), f(j))
     def keys = self.keys map f.invert
     def containsKey(i: J) = self.containsKey(f(i))
     def containsArc(i: J, j: J) = self.containsArc(f(i), f(j))

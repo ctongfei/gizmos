@@ -16,7 +16,7 @@ import poly.algebra.specgroup._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait Multiset[@sp(Int) K, @sp(Int, Double) R] extends KeyedLike[K, Multiset[K, R]] { self =>
+trait Multiset[@sp(Int) K, @sp(Int, Double) R] extends KeyedLike[K, Multiset[K, R]] { self ⇒
 
   implicit def eqOnKeys: Eq[K]
 
@@ -34,7 +34,7 @@ trait Multiset[@sp(Int) K, @sp(Int, Double) R] extends KeyedLike[K, Multiset[K, 
 
   def keys: Iterable[K]
 
-  def keyWeightPairs = keys.map(k => k → weight(k))
+  def keyWeightPairs = keys.map(k ⇒ k → weight(k))
 
   // HELPER FUNCTIONS
 
@@ -48,9 +48,9 @@ trait Multiset[@sp(Int) K, @sp(Int, Double) R] extends KeyedLike[K, Multiset[K, 
     def eqOnKeys = self.eqOnKeys
   }
 
-  def filterKeys(f: K => Boolean): Multiset[K, R] = new AbstractMultiset[K, R] {
+  def filterKeys(f: K ⇒ Boolean): Multiset[K, R] = new AbstractMultiset[K, R] {
     def eqOnKeys = self.eqOnKeys
-    override def keyWeightPairs  = self.keyWeightPairs.filter { case (k, r) => f(k) }
+    override def keyWeightPairs  = self.keyWeightPairs.filter { case (k, r) ⇒ f(k) }
     def weight(k: K) = if (f(k)) self.weight(k) else zero[R]
     implicit def ringOnWeight = self.ringOnWeight
     def keys = self.keys.filter(f)
@@ -66,7 +66,7 @@ trait Multiset[@sp(Int) K, @sp(Int, Double) R] extends KeyedLike[K, Multiset[K, 
   def scale(w: R): Multiset[K, R] = new AbstractMultiset[K, R] {
     def eqOnKeys = self.eqOnKeys
     implicit def ringOnWeight = self.ringOnWeight
-    override def keyWeightPairs = self.keyWeightPairs.map { case (k, r) => k → (r * w) }
+    override def keyWeightPairs = self.keyWeightPairs.map { case (k, r) ⇒ k → (r * w) }
     def weight(k: K) = self.weight(k) * w
     def keys = self.keys
     def contains(k: K) = self.contains(k)
@@ -112,11 +112,11 @@ trait Multiset[@sp(Int) K, @sp(Int, Double) R] extends KeyedLike[K, Multiset[K, 
     def contains(k: K) = self.contains(k) || that.contains(k)
   }
 
-  def subsetOf(that: Multiset[K, R]) = this.keys forall { k => this.weight(k) <= that.weight(k) }
+  def subsetOf(that: Multiset[K, R]) = this.keys forall { k ⇒ this.weight(k) <= that.weight(k) }
 
   def supersetOf(that: Multiset[K, R]) = that subsetOf this
 
-  def properSubsetOf(that: Multiset[K, R]) = (this subsetOf that) && (that.keys exists { k => that.weight(k) > this.weight(k) } )
+  def properSubsetOf(that: Multiset[K, R]) = (this subsetOf that) && (that.keys exists { k ⇒ that.weight(k) > this.weight(k) } )
 
   def properSupersetOf(that: Multiset[K, R]) = that properSubsetOf this
 
@@ -125,17 +125,17 @@ trait Multiset[@sp(Int) K, @sp(Int, Double) R] extends KeyedLike[K, Multiset[K, 
 
   // FOLDING
 
-  def sum[L >: K](implicit m: Module[L, R]) = keyWeightPairs.map { case (k, w) => m.scale(k, w) }.sum(m)
+  def sum[L >: K](implicit m: Module[L, R]) = keyWeightPairs.map { case (k, w) ⇒ m.scale(k, w) }.sum(m)
 
-  def forall(f: K => Boolean) = keys forall f
-  def exists(f: K => Boolean) = keys exists f
+  def forall(f: K ⇒ Boolean) = keys forall f
+  def exists(f: K ⇒ Boolean) = keys exists f
   def max(implicit K: Order[K]) = keys.max
   def min(implicit K: Order[K]) = keys.min
   def minAndMax(implicit K: Order[K]) = keys.minAndMax
-  def argmax[L: Order](f: K => L) = keys.argmax(f)
-  def argmin[L: Order](f: K => L) = keys.argmin(f)
-  def minBy[L: Order](f: K => L) = argmin(f)
-  def maxBy[L: Order](f: K => L) = argmax(f)
+  def argmax[L: Order](f: K ⇒ L) = keys.argmax(f)
+  def argmin[L: Order](f: K ⇒ L) = keys.argmin(f)
+  def minBy[L: Order](f: K ⇒ L) = argmin(f)
+  def maxBy[L: Order](f: K ⇒ L) = argmax(f)
 
   //Symbolic aliases
   def &(that: Multiset[K, R]) = this intersect that
@@ -149,11 +149,11 @@ trait Multiset[@sp(Int) K, @sp(Int, Double) R] extends KeyedLike[K, Multiset[K, 
   def ∪(that: Multiset[K, R]) = this union that
   def ⊎(that: Multiset[K, R]) = this multisetAdd that
 
-  override def toString = "{" + keyWeightPairs.map { case (k, w) => s"$k: $w"}.buildString(", ") + "}"
+  override def toString = "{" + keyWeightPairs.map { case (k, w) ⇒ s"$k: $w"}.buildString(", ") + "}"
 
   override def equals(that: Any) = that match {
-    case that: Multiset[K, R] => Multiset.ContainmentOrder[K, R].eq(this, that)
-    case _ => false
+    case that: Multiset[K, R] ⇒ Multiset.ContainmentOrder[K, R].eq(this, that)
+    case _ ⇒ false
   }
 
 }

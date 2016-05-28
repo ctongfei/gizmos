@@ -20,8 +20,8 @@ class Alphabet[T: Eq] private(
   def eqOnValues = Eq[Int]
 
   def apply(x: T): Int = w2i ? x match {
-    case Some(i) => i
-    case None =>
+    case Some(i) ⇒ i
+    case None ⇒
       val newIndex = w2i.size
       w2i.addInplace(x, newIndex)
       i2w.appendInplace(x)

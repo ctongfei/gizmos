@@ -12,7 +12,7 @@ import poly.collection.mut._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
+trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self ⇒
 
   implicit def eqOnKeys: Eq[T]
 
@@ -92,17 +92,17 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
   def product[U](that: Set[U]): Set[(T, U)] = new SetT.Product(self, that)
 
   /** Using this set as the key set, construct a map by the given function. */
-  def createMapBy[V](f: T => V): Map[T, V] = new SetT.MapByFunc(self, f)
+  def createMapBy[V](f: T ⇒ V): Map[T, V] = new SetT.MapByFunc(self, f)
 
-  def createMapByOptional[V](f: T => Option[V]): Map[T, V] = new SetT.MapByOptionalFunc(self, f)
+  def createMapByOptional[V](f: T ⇒ Option[V]): Map[T, V] = new SetT.MapByOptionalFunc(self, f)
 
-  //def createGraphBy[E](f: (T, T) => Option[E]): Graph[T, E] = new SetT.GraphByOptionalFunc(self, f)
+  //def createGraphBy[E](f: (T, T) ⇒ Option[E]): Graph[T, E] = new SetT.GraphByOptionalFunc(self, f)
 
-  override def filterKeys(f: T => Boolean): Set[T] = new SetT.KeyFiltered(self, f)
+  override def filterKeys(f: T ⇒ Boolean): Set[T] = new SetT.KeyFiltered(self, f)
 
   def filter(f: T ⇒ Boolean): Set[T] = filterKeys(f)
 
-  def map[U: Eq](f: T => U): Set[U] = elements map f to AutoSet
+  def map[U: Eq](f: T ⇒ U): Set[U] = elements map f to AutoSet
 
   def map[U](f: Bijection[T, U]): Set[U] = new AbstractSet[U] {
     def eqOnKeys = self.eqOnKeys contramap f.invert
@@ -110,8 +110,8 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
     def contains(x: U) = self contains f.invert(x)
   }
 
-  def flatMap[U: Eq](f: T => Set[U]): Set[U] = {
-    elements flatMap { x: T => f(x).elements } to AutoSet
+  def flatMap[U: Eq](f: T ⇒ Set[U]): Set[U] = {
+    elements flatMap { x: T ⇒ f(x).elements } to AutoSet
   }
 
   def zip(that: Set[T]): Set[T] = this intersect that
@@ -129,7 +129,7 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
   /**
    * Wraps each element of this set with a bijective function.
    * {{{
-   *   Set[T]              S <=> T         Set[S]
+   *   Set[T]              S <⇒ T         Set[S]
    *    self  . contramap  (  f  )    ==   result
    * }}}
    * @example {{{
@@ -143,19 +143,19 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
     def contains(x: S) = self.contains(f(x))
   }
 
-  def foreach[U](f: T => U) = elements foreach f
+  def foreach[U](f: T ⇒ U) = elements foreach f
 
-  def fold[U >: T](z: U)(f: (U, U) => U) = elements.fold(z)(f)
+  def fold[U >: T](z: U)(f: (U, U) ⇒ U) = elements.fold(z)(f)
 
   def foldByMonoid[U >: T : Monoid] = elements.foldByMonoid[U]
 
-  def reduce[U >: T](f: (U, U) => U) = elements reduce f
+  def reduce[U >: T](f: (U, U) ⇒ U) = elements reduce f
 
   def reduceBySemigroup[U >: T : Semigroup] = elements.reduceBySemigroup[U]
 
-  def forall(f: T => Boolean) = elements forall f
+  def forall(f: T ⇒ Boolean) = elements forall f
 
-  def exists(f: T => Boolean) = elements exists f
+  def exists(f: T ⇒ Boolean) = elements exists f
 
   def sum[U >: T : AdditiveCMonoid] = elements.sum[U]
 
@@ -165,17 +165,17 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
 
   def minAndMax(implicit T: Order[T]) = elements.minAndMax
 
-  def argmin[U: Order](f: T => U): T = elements.argmin(f)
+  def argmin[U: Order](f: T ⇒ U): T = elements.argmin(f)
 
-  def minBy[U: Order](f: T => U) = argmin(f)
+  def minBy[U: Order](f: T ⇒ U) = argmin(f)
 
-  def argmax[U: Order](f: T => U): T = elements.argmax(f)
+  def argmax[U: Order](f: T ⇒ U): T = elements.argmax(f)
 
-  def maxBy[U: Order](f: T => U) = argmax(f)
+  def maxBy[U: Order](f: T ⇒ U) = argmax(f)
 
-  def argminWithValue[U: Order](f: T => U) = elements.argminWithValue(f)
+  def argminWithValue[U: Order](f: T ⇒ U) = elements.argminWithValue(f)
 
-  def argmaxWithValue[U: Order](f: T => U) = elements.argmaxWithValue(f)
+  def argmaxWithValue[U: Order](f: T ⇒ U) = elements.argmaxWithValue(f)
 
   /**
    * Casts this set as a multiset in which each element appears exactly once.
@@ -205,8 +205,8 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
   override def toString = s"{${elements.toString0}}"
 
   override def equals(that: Any) = that match {
-    case that: Set[T] => (this subsetOf that) && (this supersetOf that)
-    case _ => false
+    case that: Set[T] ⇒ (this subsetOf that) && (this supersetOf that)
+    case _ ⇒ false
   }
 
   override def hashCode = MurmurHash3.symmetricHash(self.elements)(Hashing.default[T])
@@ -264,7 +264,7 @@ private[poly] object SetT {
     def apply(k: T) = f(k)
     def ?(k: T) = if (self contains k) Some(f(k)) else None
     def eqOnKeys = self.eqOnKeys
-    def pairs = self.keys.map(k => k → f(k))
+    def pairs = self.keys.map(k ⇒ k → f(k))
     override def size = self.size
     def containsKey(x: T) = self.contains(x)
   }

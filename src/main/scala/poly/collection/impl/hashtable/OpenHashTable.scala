@@ -90,10 +90,10 @@ class OpenHashTable[K: Hashing, E >: Null <: OpenHashEntryLike[K, E]](initialSiz
 
   def entries = Iterable.ofIterator(entryIterator)
 
-  def foreachEntry[U](f: E => U) = {
+  def foreachEntry[U](f: E ⇒ U) = {
     var i = 0
     var e: E = null
-    FastLoop.ascending(0, table.length, 1) { i =>
+    FastLoop.ascending(0, table.length, 1) { i ⇒
       e = table(i).asInstanceOf[E]
       while (e != null) {
         f(e)
@@ -103,7 +103,7 @@ class OpenHashTable[K: Hashing, E >: Null <: OpenHashEntryLike[K, E]](initialSiz
   }
 
   def clear() = {
-    FastLoop.ascending(0, table.length, 1) { i =>
+    FastLoop.ascending(0, table.length, 1) { i ⇒
       table(i) = null
     }
     size = 0

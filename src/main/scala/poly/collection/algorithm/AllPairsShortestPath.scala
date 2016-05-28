@@ -3,21 +3,22 @@ package poly.collection.algorithm
 import poly.algebra._
 import poly.algebra.function._
 import poly.algebra.ops._
+import poly.algebra.std._
 import poly.collection._
 import poly.collection.mut._
-/*
+
 /**
  * Runs the Floyd-Warshall algorithm on a specified graph.
  * @author Tongfei Chen
  */
+//TODO: Broken
 class AllPairsShortestPath[K, E : OrderedAdditiveGroup : HasTop]
-  (val graph: Graph[K, E]) extends MetricSpace[K, E]
-{
+  (val graph: Graph[K, E]) extends MetricSpace[K, E] {
 
   private[this] val max = top[E]
 
-  private[this] val d = AutoMap[(K, K), E]()(???)
-  private[this] val mid = AutoMap[(K, K), K]()(???)
+  private[this] val d = AutoMap[(K, K), E]()(Eq.default).withDefaultUpdate(zero[E]) //TODO: Eq on tuples
+  private[this] val mid = AutoMap[(K, K), K]()(Eq.default).withDefaultUpdate(default[K])
 
   for (i ← graph.keys; j ← graph.keys) {
     if (i == j) d(i → j) = zero[E]
@@ -40,4 +41,3 @@ class AllPairsShortestPath[K, E : OrderedAdditiveGroup : HasTop]
   def dist(i: K, j: K): E = d.getOrElse(i → j, max)
   def pathBetween(i: K, j: K): Seq[K] = ???
 }
-*/

@@ -19,7 +19,7 @@ class SpArrayTable[@sp(Int, Boolean) T: ClassTag]
 
   def update(i: Int, j: Int, x: T) = data(i * numCols + j) = x
 
-  def fillInplace(x: T) = FastLoop.ascending(0, numRows * numCols, 1) { i =>
+  def fillInplace(x: T) = FastLoop.ascending(0, numRows * numCols, 1) { i ⇒
     data(i) = x
   }
 

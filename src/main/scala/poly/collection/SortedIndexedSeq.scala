@@ -7,7 +7,7 @@ import poly.algebra.syntax._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait SortedIndexedSeq[T] extends SortedSeq[T] with IndexedSeq[T] { self =>
+trait SortedIndexedSeq[T] extends SortedSeq[T] with IndexedSeq[T] { self ⇒
 
   /**
    * Finds the key in a sorted sequence using binary search. The complexity of this operation is O(log n).

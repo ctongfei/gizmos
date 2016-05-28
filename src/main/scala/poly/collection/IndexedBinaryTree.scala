@@ -10,7 +10,7 @@ import poly.collection.node._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait IndexedBinaryTree[+T] extends BiBinaryTree[T] { self =>
+trait IndexedBinaryTree[+T] extends BiBinaryTree[T] { self ⇒
   def fastApply(i: Int): T
   final override def apply(i: Int) = fastApply(i)
 
@@ -31,8 +31,8 @@ object IndexedBinaryTree {
     def right = new NodeProxy(tree, 2 * i + 2)
 
     override def equals(that: Any) = that match {
-      case that: NodeProxy[T] => (this.tree eq that.tree) && (this.i == that.i)
-      case _ => false
+      case that: NodeProxy[T] ⇒ (this.tree eq that.tree) && (this.i == that.i)
+      case _ ⇒ false
     }
 
     override def hashCode = poly.algebra.Hashing.byRef.hash(tree) + i

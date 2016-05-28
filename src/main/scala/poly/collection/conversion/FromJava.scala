@@ -1,7 +1,7 @@
 package poly.collection.conversion
 
-import java.{lang => jl, util => ju, io => ji}
-import java.util.{stream => jus}
+import java.{lang ⇒ jl, util ⇒ ju, io ⇒ ji}
+import java.util.{stream ⇒ jus}
 import poly.algebra._
 import poly.algebra.conversion.FromJava._
 import poly.collection._
@@ -141,7 +141,7 @@ object FromJava {
     def removeInplace(x: K) = jm.remove(x)
     def update(x: K, y: V) = jm.put(x, y)
     def ?(x: K) = Option(jm.get(x))
-    def pairs = jm.entrySet().elements.map(e => e.getKey → e.getValue)
+    def pairs = jm.entrySet().elements.map(e ⇒ e.getKey → e.getValue)
     override def size = jm.size
     def apply(x: K) = jm.get(x)
     def containsKey(x: K) = jm.containsKey(x)

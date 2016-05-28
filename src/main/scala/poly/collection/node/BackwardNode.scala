@@ -7,7 +7,7 @@ import poly.collection._
  * @since 0.1.0
  * @author Tongfei Chen
  */
-trait BackwardNodeLike[+T, +N <: BackwardNodeLike[T, N]] extends NodeLike[T, N] { self: N =>
+trait BackwardNodeLike[+T, +N <: BackwardNodeLike[T, N]] extends NodeLike[T, N] { self: N ⇒
 
   /** Returns the list of predecessor nodes of this node. */
   def pred: Iterable[N]
@@ -15,7 +15,7 @@ trait BackwardNodeLike[+T, +N <: BackwardNodeLike[T, N]] extends NodeLike[T, N] 
   override def toString = pred.toString + " → " + super[NodeLike].toString
 }
 
-trait BackwardNode[+T] extends Node[T] with BackwardNodeLike[T, BackwardNode[T]] { self =>
+trait BackwardNode[+T] extends Node[T] with BackwardNodeLike[T, BackwardNode[T]] { self ⇒
 
   def reverse: ForwardNode[T] = new ForwardNode[T] {
     def data = self.data
@@ -24,7 +24,7 @@ trait BackwardNode[+T] extends Node[T] with BackwardNodeLike[T, BackwardNode[T]]
     def isDummy = self.isDummy
   }
 
-  def map[U](f: T => U): BackwardNode[U] = new BackwardNode[U] {
+  def map[U](f: T ⇒ U): BackwardNode[U] = new BackwardNode[U] {
     def pred = self.pred.map(_.map(f))
     def data = f(self.data)
     def isDummy = self.isDummy
@@ -32,7 +32,7 @@ trait BackwardNode[+T] extends Node[T] with BackwardNodeLike[T, BackwardNode[T]]
 
   def zip[U](that: BackwardNode[U]): BackwardNode[(T, U)] = new BackwardNode[(T, U)] {
     def data = (self.data, that.data)
-    def pred = (self.pred zipWith that.pred) { case (a, b) => a zip b }
+    def pred = (self.pred zipWith that.pred) { case (a, b) ⇒ a zip b }
     def isDummy = self.isDummy || that.isDummy
   }
 

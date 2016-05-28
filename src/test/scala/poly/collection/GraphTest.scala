@@ -1,6 +1,7 @@
 package poly.collection
 
 import poly.algebra.syntax._
+import poly.collection.algorithm._
 import poly.collection.mut._
 
 /**
@@ -9,9 +10,18 @@ import poly.collection.mut._
 
 object GraphTest extends App {
 
-  val g = AdjacencyListGraph((0, 1, 1), (3, 2, 2), (1, 3, 1), (3, 0, 5), (2, 0, 2))
+  val g = AdjacencyListGraph(
+    (1, 2, 1),
+    (2, 3, 2),
+    (3, 4, 3),
+    (4, 5, 4),
+    (5, 2, 1),
+    (1, 5, 5)
+  )
 
-  g.breadthFirstSearch(0, 2) foreach println
+  g.breadthFirstTraversal(1) foreach println
+
+  val apsp = new AllPairsShortestPath(g)
 
   val bp = 0
 
