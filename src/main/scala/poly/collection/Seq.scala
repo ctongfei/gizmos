@@ -482,7 +482,7 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
 
 }
 
-object Seq extends Factory[Seq] {
+object Seq extends FactoryA[Seq] {
 
   // EXTRACTORS
 

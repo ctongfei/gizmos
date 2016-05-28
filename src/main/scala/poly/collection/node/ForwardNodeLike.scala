@@ -31,6 +31,8 @@ trait ForwardNodeLike[+T, +N <: ForwardNodeLike[T, N]] extends NodeLike[T, N] { 
   def breadthFirstSearch(goal: T => Boolean): BiSeq[N] = StateSpace[T, N].breadthFirstSearch(self)(x => goal(x.data))
   def depthFirstSearch[U >: T : Eq](goal: U): BiSeq[N] = depthFirstSearch(goal === _)
   def breadthFirstSearch[U >: T : Eq](goal: U): BiSeq[N] = breadthFirstSearch(goal === _)
+
+  override def toString = super[NodeLike].toString + " → " + succ.toString
 }
 
 object ForwardNodeLike {
@@ -57,7 +59,7 @@ trait ForwardNode[+T] extends Node[T] with ForwardNodeLike[T, ForwardNode[T]] { 
 
   def zip[U](that: ForwardNode[U]): ForwardNode[(T, U)] = new ForwardNode[(T, U)] {
     def data = (self.data, that.data)
-    def succ = (self.succ zip that.succ).map { case (a, b) => a zip b }
+    def succ = (self.succ zipWith that.succ) { case (a, b) => a zip b }
     def isDummy = self.isDummy || that.isDummy
   }
 

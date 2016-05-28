@@ -17,7 +17,7 @@ class HashMap[K: Hashing, V] private(private val data: OpenHashTable[K, HashMap.
 
   import HashMap._
 
-  val eqOnKeys = implicitly[Hashing[K]]
+  val eqOnKeys = Hashing[K]
 
   def apply(k: K): V = data.locate(k).value
 
@@ -42,11 +42,11 @@ class HashMap[K: Hashing, V] private(private val data: OpenHashTable[K, HashMap.
 
   override def size = data.size
 
-  def pairs = data.entries.map(e => e.key → e.value).withKnownSize(size)
+  def pairs = data.entries.map(e => e.key → e.value).asIfSizeKnown(size)
 
 }
 
-object HashMap extends BuilderFactory2Ev[HashMap, Hashing] {
+object HashMap extends BuilderFactoryAeB[HashMap, Hashing] {
 
   private[poly] class Entry[K, V](val key: K, var value: V) extends OpenHashEntryLike[K, Entry[K, V]]
 

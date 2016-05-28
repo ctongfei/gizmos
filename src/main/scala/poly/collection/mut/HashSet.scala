@@ -25,14 +25,14 @@ class HashSet[T: Hashing] private(val data: OpenHashTable[T, HashSet.Entry[T]]) 
 
   def clear() = data.clear()
 
-  def keys = Iterable.ofIterator(data.entryIterator).map(_.key).withKnownSize(size)
+  def keys = Iterable.ofIterator(data.entryIterator).map(_.key).asIfSizeKnown(size)
 
   override def foreach[U](f: T => U) = data.foreachEntry(e => f(e.key))
 
   override def size: Int = data.size
 }
 
-object HashSet extends BuilderFactoryEv[HashSet, Hashing] {
+object HashSet extends BuilderFactoryAe[HashSet, Hashing] {
 
   private[poly] class Entry[K](val key: K) extends OpenHashEntryLike[K, Entry[K]]
 

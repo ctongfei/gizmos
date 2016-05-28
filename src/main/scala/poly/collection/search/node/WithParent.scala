@@ -16,7 +16,7 @@ trait WithParent[S] extends NodeWithParent[S] {
 
 object WithParent {
 
-  def dummy[S] = new WithParent[S] {
+  def dummy[S]: WithParent[S] = new WithParent[S] {
     def state = throw new DummyNodeException
     def parent = this
     def isDummy = true

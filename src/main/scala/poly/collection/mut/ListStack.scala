@@ -28,7 +28,7 @@ class ListStack[T] private(private var data: SinglyLinkedList[T]) extends Queue[
 
 }
 
-object ListStack extends BuilderFactory[ListStack] {
+object ListStack extends BuilderFactoryA[ListStack] {
 
   implicit def newBuilder[T]: Builder[T, ListStack[T]] = new Builder[T, ListStack[T]] {
     var data: SinglyLinkedList[T] = null

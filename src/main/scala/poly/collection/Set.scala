@@ -25,9 +25,9 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
   /** Tests if an element belongs to this set. */
   def contains(x: T): Boolean
 
-  final def containsKey(x: T) = contains(x)
+  @inline final def containsKey(x: T) = contains(x)
 
-  final def notContains(x: T) = !contains(x)
+  @inline final def notContains(x: T) = !contains(x)
 
   def apply(x: T) = contains(x)
 
@@ -96,15 +96,11 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
 
   def createMapByOptional[V](f: T => Option[V]): Map[T, V] = new SetT.MapByOptionalFunc(self, f)
 
-  def createGraphBy[V, E](fv: T => V)(fe: (T, T) => Option[E]): Graph[T, V, E] = new AbstractGraph[T, V, E] {
-    def apply(i: T) = fv(i)
-    //def containsArc(i: T, j: T) = self.contains(i) && self.contains(j) && fe(i, j).isDefined
-    def apply(i: T, j: T) = fe(i, j).get
-    def outgoingMapOf(i: T) = self createMapByOptional (j => fe(i, j))
-    def keySet = self
-  }
+  //def createGraphBy[E](f: (T, T) => Option[E]): Graph[T, E] = new SetT.GraphByOptionalFunc(self, f)
 
   override def filterKeys(f: T => Boolean): Set[T] = new SetT.KeyFiltered(self, f)
+
+  def filter(f: T ⇒ Boolean): Set[T] = filterKeys(f)
 
   def map[U: Eq](f: T => U): Set[U] = elements map f to AutoSet
 
@@ -131,7 +127,7 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
 //  }
 
   /**
-   * Wraps each element of this element with a bijective function.
+   * Wraps each element of this set with a bijective function.
    * {{{
    *   Set[T]              S <=> T         Set[S]
    *    self  . contramap  (  f  )    ==   result
@@ -206,7 +202,7 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
   def ∋(x: T) = this contains x
   def ∌(x: T) = this notContains x
 
-  override def toString = "{" + elements.buildString(", ") + "}"
+  override def toString = s"{${elements.toString0}}"
 
   override def equals(that: Any) = that match {
     case that: Set[T] => (this subsetOf that) && (this supersetOf that)
@@ -216,7 +212,7 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
   override def hashCode = MurmurHash3.symmetricHash(self.elements)(Hashing.default[T])
 }
 
-object Set extends FactoryEv[Set, Eq] {
+object Set extends FactoryAe[Set, Eq] {
 
   // CONSTRUCTORS
 
@@ -280,6 +276,16 @@ private[poly] object SetT {
     def pairs = for (k ← self.keys; v ← f(k)) yield (k, v)
     def containsKey(x: T) = (self contains x) && f(x).isDefined
   }
+
+  //class GraphByOptionalFunc[T, U](self: Set[T], f: (T, T) ⇒ Option[U]) extends AbstractGraph[T, U] {
+  //  def apply(i: T, j: T) = f(i, j).get
+  //  def keys = self.keys
+  //  def containsKey(i: T) = self contains i
+  //  def containsArc(i: T, j: T) = self.contains(i) && self.contains(j) && f(i, j).isDefined
+  //  def eqOnKeys = self.eqOnKeys
+  //  def outgoingKeySet(i: T) = self filterKeys { j ⇒ f(i, j).isDefined }
+  //  override def outgoingMap(i: T) = self createMapByOptional { j ⇒ f(i, j) }
+  //}
 
   class Empty[T: Eq] extends AbstractSet[T] {
     def eqOnKeys = poly.algebra.Eq[T]

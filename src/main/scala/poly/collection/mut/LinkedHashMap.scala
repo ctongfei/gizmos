@@ -76,7 +76,7 @@ class LinkedHashMap[K: Hashing, V] private(val data: OpenHashTable[K, LinkedHash
   def eqOnKeys = Hashing[K]
 }
 
-object LinkedHashMap extends BuilderFactory2Ev[LinkedHashMap, Hashing] {
+object LinkedHashMap extends BuilderFactoryAeB[LinkedHashMap, Hashing] {
 
   private[poly] class Entry[K, V](val key: K, var value: V, var prev: Entry[K, V], var next: Entry[K, V])
     extends OpenHashEntryLike[K, Entry[K, V]] with BiSeqNode[(K, V)] {

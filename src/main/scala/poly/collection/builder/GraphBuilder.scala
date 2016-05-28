@@ -9,7 +9,7 @@ import poly.collection._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait GraphBuilder[-K, -V, -E, +G] {
+trait GraphBuilder[-K, -E, +G] {
 
   /**
    * Provides a hint to this builder about how many vertices are expected to be added.
@@ -18,11 +18,9 @@ trait GraphBuilder[-K, -V, -E, +G] {
    */
   def numNodesHint(n: Int): Unit
 
-  def addNodeInplace(i: K, v: V): Unit
+  def addNodeInplace(i: K): Unit
 
   def addEdgeInplace(i: K, j: K, e: E): Unit
-
-  def addNodes(kvs: Traversable[(K, V)]) = kvs foreach { case (i, v) => addNodeInplace(i, v) }
 
   def addEdges(kkes: Traversable[(K, K, E)]) = kkes foreach { case (i, j, e) => addEdgeInplace(i, j, e) }
 

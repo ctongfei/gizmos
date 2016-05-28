@@ -11,36 +11,26 @@ import poly.collection.factory._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-class AdjacencyListGraph[@sp(Int) K, V, E] private(private val r: KeyMutableMap[K, AdjacencyListGraph.NodeAdjacency[K, V, E]]) extends Graph[K, V, E] {
+class AdjacencyListGraph[@sp(Int) K, E] private(private val r: KeyMutableMap[K, ListMap[K, E]]) extends Graph[K, E] {
 
-  def apply(i: K): V = r(i).data
-
-  def apply(i: K, j: K): E = r(i).succ(j)
-
-  def keySet = r.keySet
-
-  def outgoingMapOf(i: K) = r(i).succ
-
+  def apply(i: K, j: K): E = r(i)(j)
+  def containsArc(i: K, j: K) = r.containsKey(i) && r(i).containsKey(j)
+  def keys = r.keys
+  def containsKey(i: K) = r.containsKey(i)
+  implicit def eqOnKeys = r.eqOnKeys
+  def outgoingKeySet(i: K) = r(i).keySet
 }
 
-object AdjacencyListGraph extends GraphFactory[AdjacencyListGraph] {
+object AdjacencyListGraph extends BuilderFactoryAAeB[AdjacencyListGraph, Eq] {
 
-  private[poly] class NodeAdjacency[K: Eq, V, E] {
-    var data: V = _
-    val succ = ListMap[K, E]()
-  }
+  implicit def newBuilder[K: Eq, E]: Builder[(K, K, E), AdjacencyListGraph[K, E]] =
+    new Builder[(K, K, E), AdjacencyListGraph[K, E]] {
+      private[this] val r = AutoMap[K, ListMap[K, E]]().withDefaultUpdate(ListMap[K, E]())
+      def addInplace(x: (K, K, E)) = {
+        val (i, j, e) = x
+        r(i) += (j, e)
+      }
+      def result = new AdjacencyListGraph(r)
+    }
 
-  implicit def newBuilder[K: Eq, V, E]: GraphBuilder[K, V, E, AdjacencyListGraph[K, V, E]] = new GraphBuilder[K, V, E, AdjacencyListGraph[K, V, E]] {
-    private val r = AutoMap[K, NodeAdjacency[K, V, E]]()
-    def numNodesHint(n: Int) = {}
-    def addEdgeInplace(i: K, j: K, e: E) = {
-      if (r notContainsKey i) r += (i, new NodeAdjacency[K, V, E])
-      r(i).succ += (j, e)
-    }
-    def addNodeInplace(i: K, v: V) = {
-      if (r notContainsKey i) r += (i, new NodeAdjacency[K, V, E])
-      r(i).data = v
-    }
-    def result = new AdjacencyListGraph(r)
-  }
 }

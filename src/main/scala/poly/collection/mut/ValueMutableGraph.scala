@@ -7,10 +7,7 @@ import poly.collection._
  * @since 0.1.0
  * @author Tongfei Chen
  */
-trait ValueMutableGraph[K, V, E] extends Graph[K, V, E] {
-
-  /** Sets the data associated with the node specified by the given key. */
-  def update(i: K, v: V): Unit
+trait ValueMutableGraph[K, E] extends Graph[K, E] {
 
   /** Sets the value associated with the arc/edge specified by the given two keys. */
   def update(i: K, j: K, e: E): Unit

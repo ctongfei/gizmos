@@ -91,7 +91,7 @@ private[poly] object KeyMutableMapT {
     def update(k: K, v: V) = self.update(k, v)
     def pairs = self.pairs
     def containsKey(x: K) = self.containsKey(x)
-    def apply(k: K) = (self ? k).get
+    def apply(k: K) = (this ? k).get
     def ?(k: K) = self ? k match {
       case Some(v) ⇒ Some(v)
       case None ⇒

@@ -17,7 +17,7 @@ import poly.collection.factory._
  * @since 0.1.0
  * @author Tongfei Chen
  */
-object AutoMap extends BuilderFactory2Ev[KeyMutableMap, Eq] {
+object AutoMap extends BuilderFactoryAeB[KeyMutableMap, Eq] {
   implicit def newBuilder[K, V](implicit K: Eq[K]): Builder[(K, V), KeyMutableMap[K, V]] = K match {
     case kh: Hashing[K] => HashMap.newBuilder[K, V](kh)
     case ko: Order[K] => RedBlackTreeMap.newBuilder[K, V](ko)

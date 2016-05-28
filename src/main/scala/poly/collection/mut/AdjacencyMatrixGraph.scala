@@ -1,5 +1,7 @@
 package poly.collection.mut
 
+import poly.algebra._
+import poly.algebra.syntax._
 import poly.collection._
 import poly.collection.impl.specialized._
 
@@ -11,36 +13,33 @@ import poly.collection.impl.specialized._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-class AdjacencyMatrixGraph[V, E] private(
+class AdjacencyMatrixGraph[E] private(
   override val numNodes: Int,
-  private val nodeData: ValueMutableSeq[V],
   private val edgeExists: SpArrayTable[Boolean],
   private val edgeData: ValueMutableTable[E]
-) extends AbstractBiGraph[Int, V, E] with ValueMutableGraph[Int, V, E] {
+) extends AbstractBiGraph[Int, E] with ValueMutableGraph[Int, E] {
 
+  def incomingKeySet(j: Int) = keySet filterKeys { i ⇒ edgeExists(i, j) }
+  def outgoingKeySet(i: Int) = keySet filterKeys { j ⇒ edgeExists(i, j) }
 
-  def incomingMapOf(j: Int) = Range(numNodes).asSet.createMapByOptional(i => if (edgeExists(i, j)) Some(edgeData(i, j)) else None)
+  def keys = Range(numNodes)
 
-  def outgoingMapOf(i: Int) = Range(numNodes).asSet.createMapByOptional(j => if (edgeExists(i, j)) Some(edgeData(i, j)) else None)
+  override def keySet = Range(numNodes).asSet
+
+  def containsKey(i: Int) = 0 <= i && i < numNodes
+
+  def eqOnKeys = Eq[Int]
 
   override def containsArc(i: Int, j: Int) = edgeExists(i, j)
 
-  /** Gets the data on the node indexed by the specific key. */
-  def apply(i: Int) = nodeData(i)
-
-  /** Gets the data on the edge indexed by the specific two keys. */
   def apply(i: Int, j: Int) = edgeData(i, j)
-
-  def keySet = Range(numNodes).asSet
 
   def update(i: Int, j: Int, e: E) = {
     edgeExists(i, j) = true
     edgeData(i, j) = e
   }
 
-  def update(i: Int, v: V) = {
-    nodeData(i) = v
-  }
+  // TODO: arcMap should be overridden
 
   def adjacencyMatrix: Table[Option[E]] = new AbstractTable[Option[E]] {
     def apply(i: Int, j: Int) = if (edgeExists(i, j)) Some(edgeData(i, j)) else None

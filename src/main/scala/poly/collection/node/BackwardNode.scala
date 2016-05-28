@@ -11,6 +11,8 @@ trait BackwardNodeLike[+T, +N <: BackwardNodeLike[T, N]] extends NodeLike[T, N] 
 
   /** Returns the list of predecessor nodes of this node. */
   def pred: Iterable[N]
+
+  override def toString = pred.toString + " → " + super[NodeLike].toString
 }
 
 trait BackwardNode[+T] extends Node[T] with BackwardNodeLike[T, BackwardNode[T]] { self =>
@@ -30,7 +32,7 @@ trait BackwardNode[+T] extends Node[T] with BackwardNodeLike[T, BackwardNode[T]]
 
   def zip[U](that: BackwardNode[U]): BackwardNode[(T, U)] = new BackwardNode[(T, U)] {
     def data = (self.data, that.data)
-    def pred = (self.pred zip that.pred).map { case (a, b) => a zip b }
+    def pred = (self.pred zipWith that.pred) { case (a, b) => a zip b }
     def isDummy = self.isDummy || that.isDummy
   }
 

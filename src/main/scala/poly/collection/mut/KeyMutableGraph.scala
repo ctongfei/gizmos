@@ -1,15 +1,13 @@
-package poly.collection.mut
-
-import poly.collection._
+package poly.collection.mut;
 
 /**
  * Represents a graph in which nodes can be added or removed.
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait KeyMutableGraph[K, V, E] extends ValueMutableGraph[K, V, E] {
+trait KeyMutableGraph[K, E] extends ValueMutableGraph[K, E] {
 
-  def addNode(i: K, v: V): Unit
+  def addNode(i: K): Unit
   def removeNode(i: K): Unit
 
   def addArc(i: K, j: K, e: E): Unit

@@ -1,59 +1,57 @@
 package poly.collection
 
+import poly.algebra._
 import poly.algebra.specgroup._
 import poly.collection.mut._
+import poly.collection.node._
 
 /**
  * Represents an undirected graph.
+ *
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait UndirectedGraph[@sp(Int) K, +V, +E] extends BiGraph[K, V, E] { self =>
+trait UndirectedGraph[@sp(Int) K, +E] extends BiGraph[K, E] { self =>
 
   import UndirectedGraph._
 
-  override def node(i: K) = new Node(self, i)
+  def edge(i: K, j: K) = new EdgeProxy(self, i, j)
 
-  override def arc(i: K, j: K) = new BiGraph.Arc(self, i, j)
+  def edges = {
+    val visited = AutoSet[K]()
+    keys flatMap { i: K ⇒
+      visited += i
+      adjacentEdges(i) filter { e ⇒ visited notContains e.key2 }
+    }
+  }
 
-  def edge(i: K, j: K) = new UndirectedEdge(self, i, j)
+  def adjacentKeySet(i: K): Set[K]
 
-  def adjacentMapOf(i: K): Map[K, E]
-
-  def adjacentKeysOf(i: K) = adjacentMapOf(i).keys
-  def adjacentNodesOf(i: K) = adjacentKeysOf(i).map(j => node(j))
-  def adjacentEdgesOf(i: K) = adjacentKeysOf(i).map(j => arc(i, j))
-
-  def outgoingMapOf(v: K) = adjacentMapOf(v)
-  override def outgoingNodesOf(v: K) = adjacentNodesOf(v)
-  override def outgoingArcsOf(v: K) = adjacentEdgesOf(v)
-
-  def incomingMapOf(v: K) = adjacentMapOf(v)
-  override def incomingNodesOf(v: K) = adjacentNodesOf(v)
-  override def incomingArcsOf(v: K) = adjacentEdgesOf(v)
+  def adjacentMap(i: K) = adjacentKeySet(i) createMapBy { j ⇒ apply(i, j) }
+  def adjacentKeys(i: K) = adjacentKeySet(i).elements
+  def adjacentNodes(i: K) = adjacentKeys(i) map node
+  def adjacentEdges(i: K) = adjacentKeys(i) map { j ⇒ edge(i, j) }
 
   override def reverse = self
 
-  override def arcs = ???
-
+  //TODO: map, zip, ...
 
 }
 
 object UndirectedGraph {
 
-  type Node[K, +V] = BiGraph.Node[K, V]
-
-  class UndirectedEdge[K, +E](val graph: UndirectedGraph[K, _, E], val key1: K, val key2: K) extends Keyed[K] {
+  class EdgeProxy[K, +E](val graph: UndirectedGraph[K, E], val key1: K, val key2: K) extends GraphEdge[K, E] {
     override def equals(that: Any) = that match {
-        case that: UndirectedGraph.UndirectedEdge[K, E] =>
-          (this.key1 == that.key1 && this.key2 == that.key2) ||
-            (this.key1 == that.key2 && this.key2 == that.key1)
+        case that: UndirectedGraph.EdgeProxy[K, E] =>
+          (this.graph eq that.graph) &&
+          ((this.key1 == that.key1 && this.key2 == that.key2) ||
+            (this.key1 == that.key2 && this.key2 == that.key1))
         case _ => false
       }
-
-    def eqOnKeys = graph.eqOnKeys
-
-    override def hashCode = key1.## ^ key2.##
+    def data = graph(key1, key2)
+    def node1 = graph.node(key1)
+    def node2 = graph.node(key2)
+    override def hashCode = poly.algebra.Hashing.byRef.hash(graph) + (key1.## ^ key2.##)
     def contains(x: K) = x == key1 || x == key2
     def keys = ListSeq(key1, key2)
   }

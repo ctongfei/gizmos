@@ -6,7 +6,7 @@ import poly.collection.builder._
 import poly.collection.conversion.FromScala._
 import scala.language.higherKinds
 
-trait Factory[+C[_]] {
+trait FactoryA[+C[_]] {
   /** Creates an empty collection. */
   def empty[T]: C[T] = from(Traversable.empty)
 
@@ -21,7 +21,7 @@ trait Factory[+C[_]] {
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait BuilderFactory[+C[_]] extends Factory[C] {
+trait BuilderFactoryA[+C[_]] extends FactoryA[C] {
 
   /** Returns a new builder of this collection type. */
   implicit def newBuilder[T]: Builder[T, C[T]]

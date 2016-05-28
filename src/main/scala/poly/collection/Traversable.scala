@@ -71,7 +71,7 @@ trait Traversable[+T] { self =>
   /**
    * Returns the Cartesian product of two traversable sequences. $LAZY
    *
-   * @example {{{(1, 2) cartesianProduct (1, 2) == ((1, 1), (1, 2), (2, 1), (2, 2))}}}
+   * @example {{{(1, 2) monadicProduct (1, 2) == ((1, 1), (1, 2), (2, 1), (2, 2))}}}
    */
   def monadicProduct[U](that: Traversable[U]): Traversable[(T, U)] =
     self flatMap (x => that map (y => (x, y)))
@@ -671,19 +671,15 @@ trait Traversable[+T] { self =>
   //region Building (to, buildString)
   /**
    * Converts this traversable sequence to any collection type given a factory.
- *
    * @example {{{ xs to ArraySeq }}}
    */
-  def to[U >: T, C[_]](factory: Factory[C]): C[U] = factory from self
+  def to[U >: T, C[_]](factory: FactoryA[C]): C[U] = factory from self
 
   /**
    * Converts this traversable sequence to any collection type given a factory that requires an additional evidence.
- *
-   * @example {{{
-   *         (1) xs to AutoSet
-   *         (2) xs to PairMultiset.of[Int] }}}
+   * @example {{{ xs to AutoSet }}}
    */
-  def to[U >: T : Ev, C[_], Ev[_]](factory: FactoryEv[C, Ev]): C[U] = factory from self
+  def to[U >: T : Ev, C[_], Ev[_]](factory: FactoryAe[C, Ev]): C[U] = factory from self
 
   // Seems not useful, type signature too complicated
   //def to[U >: T : EvU, V: EvV, C[_, _], EvU[_], EvV[_]](factory: FactoryEv2[C, EvU, EvV]): C[U, V] = build(factory.newBuilder[U, V])
@@ -718,7 +714,7 @@ trait Traversable[+T] { self =>
     b.result
   }
 
-  def buildString(delimiter: String): String = {
+  def buildString(delimiter: String): String = { //TODO: toString should be abstracted as typeclass
     val sb = new StringBuilder
     var first = true
     for (x ← this) {
@@ -734,7 +730,7 @@ trait Traversable[+T] { self =>
   }
   //endregion
 
-  def withKnownSize(s: Int): Traversable[T] = new AbstractTraversable[T] {
+  def asIfSizeKnown(s: Int): Traversable[T] = new AbstractTraversable[T] {
     def foreach[V](f: T => V) = self.foreach(f)
     override def sizeKnown = true
     override def size = s
@@ -755,15 +751,14 @@ trait Traversable[+T] { self =>
     def foreach[V](f: T => V) = self.foreach(f)
   }
 
-  override def toString = {
+  private[poly] def toString0 = {
     val sb = new StringBuilder
-    sb.append('(')
-    var i = 0
     sb.append(self.take(Settings.MaxElementsToString).buildString(", "))
     if (self.skip(Settings.MaxElementsToString).notEmpty) sb.append(", ⋯")
-    sb.append(')')
     sb.result()
   }
+
+  override def toString = s"($toString0)"
   // hashCode/equals: by reference
 
 }
@@ -820,9 +815,9 @@ object Traversable {
       (ak.result, av.result)
     }
 
-    def to[M[_, _]](factory: Factory2[M]) = factory from underlying
+    def to[M[_, _]](factory: FactoryAB[M]) = factory from underlying
 
-    def to[M[_, _], Ev[_]](factory: Factory2Ev[M, Ev])(implicit A: Ev[A]) = factory from underlying
+    def to[M[_, _], Ev[_]](factory: FactoryAeB[M, Ev])(implicit A: Ev[A]) = factory from underlying
 
   }
 

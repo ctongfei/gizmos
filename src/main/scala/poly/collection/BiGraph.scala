@@ -6,43 +6,56 @@ import poly.algebra.specgroup._
 /**
  * Represents a bidirectional graph, i.e., a graph in which each
  * node's predecessors and successors can be efficiently retrieved.
+ *
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait BiGraph[@sp(Int) K, +V, +E] extends Graph[K, V, E] { self =>
+trait BiGraph[@sp(Int) K, +E] extends Graph[K, E] { self =>
 
   import BiGraph._
 
-  override def node(i: K) = new Node(self, i)
-  override def arc(i: K, j: K) = new Arc(self, i, j)
+  def incomingKeySet(i: K): Set[K]
 
-  def incomingMapOf(i: K): Map[K, E]
+  override def node(i: K): GraphNode[K, E] = new NodeProxy(self, i)
 
-  def incomingKeysOf(i: K) = incomingMapOf(i).keys
-  def incomingNodesOf(i: K) = incomingMapOf(i).keys.map(node)
-  def incomingArcsOf(i: K) = incomingKeysOf(i).map(j => arc(j, i))
-  def inDegree(i: K) = incomingKeysOf(i).size
+  def incomingMap(i: K) = incomingKeySet(i) createMapBy { j ⇒ apply(j, i) }
+
+  def incomingKeys(i: K) = incomingKeySet(i).elements
+  def incomingNodes(i: K) = incomingKeys(i) map node
+  def incomingArcs(i: K) = incomingKeys(i) map { j ⇒ arc(j, i) }
+
+  def inDegree(i: K) = incomingKeySet(i).size
+
+  def pred(i: K) = incomingKeys(i)
 
   // HELPER FUNCTIONS
-  override def reverse: BiGraph[K, V, E] = new AbstractBiGraph[K, V, E] {
-    override def reverse = self
-    def keySet = self.keySet
-    override def containsArc(i: K, j: K) = self.containsArc(j, i)
-    def incomingMapOf(i: K) = self.outgoingMapOf(i)
-    def outgoingMapOf(i: K) = self.incomingMapOf(i)
-    def apply(i: K): V = self.apply(i)
-    def apply(i: K, j: K): E = self.apply(j, i)
-  }
+  override def reverse: BiGraph[K, E] = new BiGraphT.Reverse(self)
 
+  //TODO: mapArcs, filterKeys, zip, ...
 }
 
 object BiGraph {
-  class Node[K, +V](override val graph: BiGraph[K, V, _], override val key: K) extends Graph.Node[K, V](graph, key) with BiNodeLike[V, Node[K, V]] {
-    def pred = graph.incomingNodesOf(key)
-    override def succ = ???
+  class NodeProxy[K, +E](override val graph: BiGraph[K, E], override val key: K) extends Graph.NodeProxy[K, E](graph, key) with BiNode[K] {
+    def incomingMap = graph.incomingMap(key)
+    def pred = graph.pred(key) map { i ⇒ new NodeProxy(graph, i) }
+    override def succ = graph.succ(key) map { i ⇒ new NodeProxy(graph, i) }
+    def incomingKeySet = graph.incomingKeySet(key)
   }
 
-  type Arc[K, +E] = Graph.Arc[K, E]
 }
 
-abstract class AbstractBiGraph[K, +V, +E] extends AbstractGraph[K, V, E] with BiGraph[K, V, E]
+abstract class AbstractBiGraph[K, +E] extends AbstractGraph[K, E] with BiGraph[K, E]
+
+private[poly] object BiGraphT {
+
+  class Reverse[K, +E](self: BiGraph[K, E]) extends AbstractBiGraph[K, E] {
+    def outgoingKeySet(i: K) = self.incomingKeySet(i)
+    def incomingKeySet(i: K) = self.outgoingKeySet(i)
+    def keys = self.keys
+    def containsKey(i: K) = self.containsKey(i)
+    def containsArc(i: K, j: K) = self.containsArc(i, j)
+    def apply(i: K, j: K) = self.apply(i, j)
+    def eqOnKeys = self.eqOnKeys
+  }
+
+}

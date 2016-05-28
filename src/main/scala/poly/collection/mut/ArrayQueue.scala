@@ -64,7 +64,7 @@ class ArrayQueue[T] private(private val data: ResizableArray[T]) extends Queue[T
   }
 }
 
-object ArrayQueue extends BuilderFactory[ArrayQueue] {
+object ArrayQueue extends BuilderFactoryA[ArrayQueue] {
 
   implicit def newBuilder[T]: Builder[T, ArrayQueue[T]] = new Builder[T, ArrayQueue[T]] {
     var a = new ResizableArray[T]()

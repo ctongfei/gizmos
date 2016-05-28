@@ -8,7 +8,7 @@ import scala.language.higherKinds
 /**
  * @author Tongfei Chen
  */
-trait BuilderFactory2[+C[_, _]] extends Factory2[C] {
+trait BuilderFactoryAB[+C[_, _]] extends FactoryAB[C] {
 
   implicit def newBuilder[A, B]: Builder[(A, B), C[A, B]]
 
@@ -22,7 +22,7 @@ trait BuilderFactory2[+C[_, _]] extends Factory2[C] {
   }
 }
 
-trait Factory2[+C[_, _]] {
+trait FactoryAB[+C[_, _]] {
 
   def empty[A, B]: C[A, B] = from(Traversable.empty)
 

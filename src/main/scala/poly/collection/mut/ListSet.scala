@@ -47,7 +47,7 @@ class ListSet[T] private(private val data: SinglyLinkedList[T])(implicit val eqO
   def keys: Seq[T] = data
 }
 
-object ListSet extends BuilderFactoryEv[ListSet, Eq] {
+object ListSet extends BuilderFactoryAe[ListSet, Eq] {
 
   implicit def newBuilder[K: Eq]: Builder[K, ListSet[K]] = new Builder[K, ListSet[K]] {
     private[this] val s = new ListSet(new SinglyLinkedList[K]())

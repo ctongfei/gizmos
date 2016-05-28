@@ -5,13 +5,13 @@ import poly.algebra.function._
 import poly.algebra.ops._
 import poly.collection._
 import poly.collection.mut._
-
+/*
 /**
  * Runs the Floyd-Warshall algorithm on a specified graph.
  * @author Tongfei Chen
  */
 class AllPairsShortestPath[K, E : OrderedAdditiveGroup : HasTop]
-  (val graph: Graph[K, _, E]) extends MetricSpace[K, E]
+  (val graph: Graph[K, E]) extends MetricSpace[K, E]
 {
 
   private[this] val max = top[E]
@@ -40,3 +40,4 @@ class AllPairsShortestPath[K, E : OrderedAdditiveGroup : HasTop]
   def dist(i: K, j: K): E = d.getOrElse(i → j, max)
   def pathBetween(i: K, j: K): Seq[K] = ???
 }
+*/

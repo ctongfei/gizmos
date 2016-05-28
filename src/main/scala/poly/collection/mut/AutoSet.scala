@@ -17,7 +17,7 @@ import poly.collection.factory._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-object AutoSet extends BuilderFactoryEv[KeyMutableSet, Eq] {
+object AutoSet extends BuilderFactoryAe[KeyMutableSet, Eq] {
   implicit def newBuilder[K](implicit K: Eq[K]): Builder[K, KeyMutableSet[K]] = K match {
     case kh: Hashing[K] => HashSet.newBuilder(kh)
     case ko: Order[K] => RedBlackTreeSet.newBuilder(ko)

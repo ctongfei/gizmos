@@ -11,6 +11,7 @@ trait BiNodeLike[+T, +N <: BiNodeLike[T, N]] extends ForwardNodeLike[T, N] with 
   def pred: Iterable[N]
   def succ: Iterable[N]
 
+  override def toString = pred.toString + " → " + super[ForwardNodeLike].toString
 }
 
 trait BiNode[+T] extends ForwardNode[T] with BackwardNode[T] with BiNodeLike[T, BiNode[T]] { self =>
@@ -32,8 +33,8 @@ trait BiNode[+T] extends ForwardNode[T] with BackwardNode[T] with BiNodeLike[T, 
 
   def zip[U](that: BiNode[U]): BiNode[(T, U)] = new BiNode[(T, U)] {
     def data = (self.data, that.data)
-    def pred = (self.pred zip that.pred) map { case (a, b) => a zip b }
-    def succ = (self.succ zip that.succ) map { case (a, b) => a zip b }
+    def pred = (self.pred zipWith that.pred) { case (a, b) => a zip b }
+    def succ = (self.succ zipWith that.succ) { case (a, b) => a zip b }
     def isDummy = self.isDummy || that.isDummy
   }
 

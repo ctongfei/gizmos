@@ -303,7 +303,6 @@ trait Iterable[+T] extends Traversable[T] { self =>
 
   /**
    * Lazily splits this collection into multiple subsequences using the given delimiter predicate.
-   *
    * @param delimiter Predicate that determines whether an element is a delimiter.
    */
   def splitBy(delimiter: T => Boolean): Iterable[Seq[T]] = ofIterator {
@@ -466,7 +465,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
     }
   }
 
-  override def withKnownSize(s: Int): Iterable[T] = new AbstractIterable[T] {
+  override def asIfSizeKnown(s: Int): Iterable[T] = new AbstractIterable[T] {
     def newIterator = self.newIterator
     override def foreach[V](f: T => V) = self.foreach(f)
     override def sizeKnown = true

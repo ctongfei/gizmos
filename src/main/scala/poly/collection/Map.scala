@@ -196,7 +196,7 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
 
 }
 
-object Map extends Factory2Ev[Map, Eq] with MapLowPriorityTypeclassInstances {
+object Map extends FactoryAeB[Map, Eq] with MapLowPriorityTypeclassInstances {
 
   // CONSTRUCTORS
 
@@ -219,7 +219,6 @@ object Map extends Factory2Ev[Map, Eq] with MapLowPriorityTypeclassInstances {
      *                  ANALOGOUS TO
      *    (K, L) => V   . curry ==  K => (L => V)
      * }}}
- *
      * @note The user should guarantee that the implicit equivalence relation of K and L
      *       conforms to the equivalence relation on pair (K, L) stored in this map.
      * @note This function incurs some overhead (traversing through the key set).

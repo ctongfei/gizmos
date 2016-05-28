@@ -8,10 +8,11 @@ import scala.language.higherKinds
 /**
  * Represents a factory of higher type [[C]] that when building a structure of type C[A],
  * requires evidence of type [[Ev]][A] being endowed on the actual type of the elements.
+ *
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait BuilderFactoryEv[+C[_], Ev[_]] extends FactoryEv[C, Ev] {
+trait BuilderFactoryAe[+C[_], Ev[_]] extends FactoryAe[C, Ev] {
   /** Returns a new builder of this collection type. */
   implicit def newBuilder[T: Ev]: Builder[T, C[T]]
 
@@ -28,7 +29,7 @@ trait BuilderFactoryEv[+C[_], Ev[_]] extends FactoryEv[C, Ev] {
 
 }
 
-trait FactoryEv[+C[_], Ev[_]] {
+trait FactoryAe[+C[_], Ev[_]] {
 
   /** Creates an empty collection. */
   def empty[T: Ev]: C[T] = from(Traversable.empty)
