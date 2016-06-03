@@ -3,7 +3,7 @@ package poly.collection
 import poly.algebra.specgroup._
 import poly.macroutil._
 
-import scala.annotation.unchecked.{uncheckedVariance ⇒ uv}
+import scala.annotation.unchecked.{uncheckedVariance => uv}
 
 /**
  * Represents an observer, which is a mechanism for receiving push-based streams.
@@ -12,7 +12,7 @@ import scala.annotation.unchecked.{uncheckedVariance ⇒ uv}
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait Observer[@sp(Int, Long, Double, Char) -T] { self ⇒
+trait Observer[@sp(Int, Long, Double, Char) -T] { self =>
 
   def onNext(x: T): Unit
 
@@ -21,12 +21,12 @@ trait Observer[@sp(Int, Long, Double, Char) -T] { self ⇒
   def onCompleted(): Unit
 
   def write(x: Option[T]) = x match {
-    case Some(v) ⇒ onNext(v)
-    case None ⇒ onCompleted()
+    case Some(v) => onNext(v)
+    case None => onCompleted()
   }
 
   def writeFromArray(a: Array[T @uv], off: Int, len: Int): Unit = {
-    FastLoop.ascending(off, off + len, 1) { i ⇒
+    FastLoop.ascending(off, off + len, 1) { i =>
       self.onNext(a(i))
     }
   }

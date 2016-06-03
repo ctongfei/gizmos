@@ -5,8 +5,8 @@ import poly.algebra.conversion.FromScala._
 import poly.collection._
 import poly.collection.mut._
 import poly.collection.node._
-import scala.{collection ⇒ sc}
-import scala.collection.{mutable ⇒ scm}
+import scala.{collection => sc}
+import scala.collection.{mutable => scm}
 import scala.language.implicitConversions
 
 /**
@@ -17,7 +17,7 @@ import scala.language.implicitConversions
 object FromScala {
 
   implicit class scalaTraversableAsPoly[T](xs: sc.Traversable[T]) extends AbstractTraversable[T] {
-    def foreach[U](f: T ⇒ U) = xs foreach f
+    def foreach[U](f: T => U) = xs foreach f
   }
 
   implicit class scalaIteratorAsPoly[T](xs: sc.Iterator[T]) extends Iterator[T] {

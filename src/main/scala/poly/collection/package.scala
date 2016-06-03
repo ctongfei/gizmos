@@ -41,7 +41,7 @@ package object collection extends ImplicitOperators {
 
   implicit def arrayAsPoly[T](a: Array[T]): IndexedSeq[T] = new ArrayAsIndexedSeq[T](a)
   implicit def stringAsPoly(s: String): IndexedSeq[Char] = new StringAsIndexedSeq(s)
-  implicit def booleanFunctionAsPoly[T](f: T ⇒ Boolean): Predicate[T] = new BooleanFunctionAsPredicate[T](f)
+  implicit def booleanFunctionAsPoly[T](f: T => Boolean): Predicate[T] = new BooleanFunctionAsPredicate[T](f)
   implicit def stringBuilderAsPoly(sb: StringBuilder): Builder[Char, String] = new StringBuilderAsBuilder(sb)
   implicit def javaStringBuilderAsPoly(sb: java.lang.StringBuilder): Builder[Char, String] = new JavaStringBuilderAsBuilder(sb)
 
@@ -49,7 +49,14 @@ package object collection extends ImplicitOperators {
    * Gets the underlying `Array[T]` from a varargs argument of type `T*`.
    */
   private[poly] def getArrayFromVarargs[T](xs: scala.Seq[T]): Array[T] = xs match {
-    case xs: scala.collection.mutable.WrappedArray[T] ⇒ xs.array
+    case xs: scala.collection.mutable.WrappedArray[T] => xs.array
+  }
+
+  private[poly] implicit class WithModOps(val x: Int) extends AnyVal {
+    def %+(mod: Int) = {
+      val r = x % mod
+      if (r >= 0) r else r + mod
+    }
   }
 
 }

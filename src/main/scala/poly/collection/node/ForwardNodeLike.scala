@@ -15,7 +15,7 @@ import poly.collection.search._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait ForwardNodeLike[+T, +N <: ForwardNodeLike[T, N]] extends NodeLike[T, N] { self: N ⇒
+trait ForwardNodeLike[+T, +N <: ForwardNodeLike[T, N]] extends NodeLike[T, N] { self: N =>
 
   import ForwardNodeLike._
 
@@ -27,12 +27,12 @@ trait ForwardNodeLike[+T, +N <: ForwardNodeLike[T, N]] extends NodeLike[T, N] { 
   def depthFirstTraversal = StateSpace[T, N].depthFirstTraversal(self)
   def breadthFirstTraversal = StateSpace[T, N].breadthFirstTraversal(self)
 
-  def depthFirstSearch(goal: T ⇒ Boolean): BiSeq[N] = StateSpace[T, N].depthFirstSearch(self)(x ⇒ goal(x.data))
-  def breadthFirstSearch(goal: T ⇒ Boolean): BiSeq[N] = StateSpace[T, N].breadthFirstSearch(self)(x ⇒ goal(x.data))
+  def depthFirstSearch(goal: T => Boolean): BiSeq[N] = StateSpace[T, N].depthFirstSearch(self)(x => goal(x.data))
+  def breadthFirstSearch(goal: T => Boolean): BiSeq[N] = StateSpace[T, N].breadthFirstSearch(self)(x => goal(x.data))
   def depthFirstSearch[U >: T : Eq](goal: U): BiSeq[N] = depthFirstSearch(goal === _)
   def breadthFirstSearch[U >: T : Eq](goal: U): BiSeq[N] = breadthFirstSearch(goal === _)
 
-  override def toString = super[NodeLike].toString + " → " + succ.toString
+  override def toString = s"$data -> ${succ map {_.data}}"
 }
 
 object ForwardNodeLike {
@@ -42,7 +42,7 @@ object ForwardNodeLike {
   }
 }
 
-trait ForwardNode[+T] extends Node[T] with ForwardNodeLike[T, ForwardNode[T]] { self ⇒
+trait ForwardNode[+T] extends Node[T] with ForwardNodeLike[T, ForwardNode[T]] { self =>
 
   def reverse: BackwardNode[T] = new BackwardNode[T] {
     def pred = self.succ.map(_.reverse)
@@ -51,16 +51,10 @@ trait ForwardNode[+T] extends Node[T] with ForwardNodeLike[T, ForwardNode[T]] { 
     def isDummy = self.isDummy
   }
 
-  def map[U](f: T ⇒ U): ForwardNode[U] = new ForwardNode[U] {
+  def map[U](f: T => U): ForwardNode[U] = new ForwardNode[U] {
     def data = f(self.data)
     def succ = self.succ.map(_.map(f))
     def isDummy = self.isDummy
-  }
-
-  def zip[U](that: ForwardNode[U]): ForwardNode[(T, U)] = new ForwardNode[(T, U)] {
-    def data = (self.data, that.data)
-    def succ = (self.succ zipWith that.succ) { case (a, b) ⇒ a zip b }
-    def isDummy = self.isDummy || that.isDummy
   }
 
 }

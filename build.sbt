@@ -1,12 +1,12 @@
 name := "poly-collection"
-version := "0.0.5-SNAPSHOT"
+version := "0.0.6-SNAPSHOT"
 isSnapshot := true
 organization := "me.tongfei"
 scalaVersion := "2.11.8"
 
 resolvers += Resolver.sonatypeRepo("snapshots")
 
-libraryDependencies += "me.tongfei"        %% "poly-algebra"    % "0.3.5-SNAPSHOT"
+libraryDependencies += "me.tongfei"        %% "poly-algebra"    % "0.3.8-SNAPSHOT"
 
 libraryDependencies += "org.scalatest"     %% "scalatest"       % "2.2.6"           % Test
 libraryDependencies += "com.storm-enroute" %% "scalameter-core" % "0.7"             % Test

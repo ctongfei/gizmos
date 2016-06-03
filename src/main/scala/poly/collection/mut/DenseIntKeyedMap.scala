@@ -8,7 +8,7 @@ import poly.macroutil._
 
 /**
  * A special implementation of maps keyed by integers backed by an array.
- * This is efficient when the keys are contiguous from 0 to a not-too-large integer ''n''
+ * This is efficient when most of the keys lies in the space from 0 to a not-too-large integer ''n''
  * and most of the key space is actually used.
  * @since 0.1.0
  * @author Tongfei Chen
@@ -34,7 +34,7 @@ class DenseIntKeyedMap[T] private(
 
   def ?(x: Int): Option[T] = if (state(x)) Some(data(x)) else None
 
-  def pairs = state.createMapBy(i ⇒ data(i)).pairs
+  def pairs = state.createMapBy(i => data(i)).pairs
 
   override def size: Int = n
 

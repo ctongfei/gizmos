@@ -1,20 +1,28 @@
 package poly.collection
 
 import poly.algebra._
+import poly.algebra.specgroup._
 import poly.algebra.syntax._
+import poly.collection.mut._
 
 /**
  * Represents an unordered pair.
  * @since 0.1.0
  * @author Tongfei Chen
  */
-case class UPair[+T](_1: T, _2: T) {
+case class UPair[@sp(spTuple2) T: Eq](_1: T, _2: T) extends Set[T] {
+
+  def contains(x: T) = x === _1 || x === _2
+
+  def keys = ListSeq(_1, _2)
+
+  def eqOnKeys = Eq[T]
 
   override def equals(that: Any) = that match {
-    case that: UPair[T] ⇒
+    case that: UPair[T] =>
       ((this._1 == that._1) && (this._2 == that._2)) ||
         ((this._1 == that._2) && (this._2 == that._1))
-    case _ ⇒ false
+    case _ => false
   }
 
   override def hashCode = _1.## ^ _2.##
@@ -25,15 +33,25 @@ case class UPair[+T](_1: T, _2: T) {
 
 object UPair {
 
-  class UPairEq[-T: Eq] extends Eq[UPair[T]] {
+  class UPairEq[@sp(spTuple2) T: Eq] extends Eq[UPair[T]] {
     def eq(x: UPair[T], y: UPair[T]) =
       ((x._1 === y._1) && (x._2 === y._2)) ||
         ((x._1 === y._2) && (x._2 === y._1))
   }
-  implicit def Eq[T: Eq] = new UPairEq[T]
 
-  implicit def Hashing[T: Hashing] = new UPairEq[T] with Hashing[UPair[T]] {
+  // Does not inherit UPairEq because of specialization issues
+  class UPairHashing[@sp(spTuple2) T: Hashing] extends Hashing[UPair[T]] {
+    def eq(x: UPair[T], y: UPair[T]) =
+      ((x._1 === y._1) && (x._2 === y._2)) ||
+        ((x._1 === y._2) && (x._2 === y._1))
     def hash(x: UPair[T]) = x._1.### ^ x._2.###
   }
+
+  implicit def Eq[@sp(spTuple2) T](implicit T: Eq[T]): Eq[UPair[T]] = T match {
+    case ht: Hashing[T] => new UPairHashing[T]()(ht)
+    case _ => new UPairEq[T]()(T)
+  }
+
+  def Hashing[@sp(spTuple2) T](implicit T: Hashing[T]): Hashing[UPair[T]] = new UPairHashing()(T)
 
 }

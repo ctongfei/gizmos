@@ -8,7 +8,7 @@ import poly.algebra.specgroup._
   * @author Tongfei Chen
   * @since 0.1.0
   */
-trait KeyedLike[@sp(Int) K, +Coll <: KeyedLike[K, Coll]] extends Keyed[K] { self ⇒
+trait KeyedLike[@sp(Int) K, +Coll <: KeyedLike[K, Coll]] extends Keyed[K] { self =>
 
   /** Tests if this structure contains an item with the specified key. */
   def containsKey(k: K): Boolean
@@ -23,6 +23,6 @@ trait KeyedLike[@sp(Int) K, +Coll <: KeyedLike[K, Coll]] extends Keyed[K] { self
   def keySet: Set[K]
 
   /** Returns the restricted substructure obtained by choosing a smaller domain for the key given a specific predicate. */
-  def filterKeys(f: K ⇒ Boolean): Coll
+  def filterKeys(f: K => Boolean): Coll
 
 }

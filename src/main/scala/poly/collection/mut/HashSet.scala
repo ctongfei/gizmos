@@ -27,7 +27,7 @@ class HashSet[T: Hashing] private(val data: OpenHashTable[T, HashSet.Entry[T]]) 
 
   def keys = Iterable.ofIterator(data.entryIterator).map(_.key).asIfSizeKnown(size)
 
-  override def foreach[U](f: T ⇒ U) = data.foreachEntry(e ⇒ f(e.key))
+  override def foreach[U](f: T => U) = data.foreachEntry(e => f(e.key))
 
   override def size: Int = data.size
 }

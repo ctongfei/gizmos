@@ -39,7 +39,7 @@ object WithHeuristic extends WithHeuristicLowPriorityImplicits {
     def isDummy = true
   }
 
-  def WeightedSearchNodeInfo[S, C: OrderedAdditiveGroup](h: S ⇒ C): WeightedSearchNodeInfo[WithHeuristic[S, C], S, C]
+  def WeightedSearchNodeInfo[S, C: OrderedAdditiveGroup](h: S => C): WeightedSearchNodeInfo[WithHeuristic[S, C], S, C]
   = new WeightedSearchNodeInfo[WithHeuristic[S, C], S, C] {
     def startNode(s: S) = WithHeuristic(s, 0, h(s), dummy[S, C])
     def state(n: WithHeuristic[S, C]) = n.state

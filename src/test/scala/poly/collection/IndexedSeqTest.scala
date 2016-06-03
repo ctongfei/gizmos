@@ -17,7 +17,12 @@ object IndexedSeqTest extends App {
 
   val c = a product b
 
-  c foreach println
+  val ah = a.headNode
+  val ahh = a.headNode
+  val bh = b.headNode
+
+  println(ah == bh)
+  println(ah == ahh)
 
   val bp = 0
 }

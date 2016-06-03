@@ -8,7 +8,7 @@ import poly.collection._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait KeyMutableMap[K, V] extends ValueMutableMap[K, V] { self ⇒
+trait KeyMutableMap[K, V] extends ValueMutableMap[K, V] { self =>
 
   /**
    * Adds a key-value pair into this map.
@@ -18,7 +18,7 @@ trait KeyMutableMap[K, V] extends ValueMutableMap[K, V] { self ⇒
 
   def addInplace(kv: (K, V)): Unit = addInplace(kv._1, kv._2)
 
-  def getOrElseUpdate(k: K, v: ⇒ V) = {
+  def getOrElseUpdate(k: K, v: => V) = {
     if (notContainsKey(k))
       self.addInplace(k, v)
     self(k)
@@ -47,7 +47,7 @@ trait KeyMutableMap[K, V] extends ValueMutableMap[K, V] { self ⇒
    * Wraps around this map and modified its behavior:
    * When an absent key is accessed, returns the given default value. But this key would not be added to the map.
    */
-  def withDefault(default: ⇒ V): KeyMutableMap[K, V] = new KeyMutableMapT.WithDefault(self, default)
+  def withDefault(default: => V): KeyMutableMap[K, V] = new KeyMutableMapT.WithDefault(self, default)
 
   /**
    * Wraps around this map and modified its behavior:
@@ -57,7 +57,7 @@ trait KeyMutableMap[K, V] extends ValueMutableMap[K, V] { self ⇒
    *   map(k) :+= v
    * }}}
    */
-  def withDefaultUpdate(default: ⇒ V): KeyMutableMap[K, V] = new KeyMutableMapT.WithDefaultUpdate(self, default)
+  def withDefaultUpdate(default: => V): KeyMutableMap[K, V] = new KeyMutableMapT.WithDefaultUpdate(self, default)
 
   final def +=(k: K, v: V) = addInplace(k, v)
   final def +=(kv: (K, V)) = addInplace(kv)
@@ -75,7 +75,7 @@ private[poly] object KeyMutableMapT {
     def update(k: J, v: V) = self(f(k)) = v
   }
 
-  class WithDefault[K, V](self: KeyMutableMap[K, V], default: ⇒ V)
+  class WithDefault[K, V](self: KeyMutableMap[K, V], default: => V)
     extends MapT.WithDefault[K, V, V](self, default) with KeyMutableMap[K, V]
   {
     def addInplace(k: K, v: V) = self.addInplace(k, v)
@@ -84,7 +84,7 @@ private[poly] object KeyMutableMapT {
     def update(k: K, v: V) = self.update(k, v)
   }
 
-  class WithDefaultUpdate[K, V](self: KeyMutableMap[K, V], default: ⇒ V) extends KeyMutableMap[K, V] {
+  class WithDefaultUpdate[K, V](self: KeyMutableMap[K, V], default: => V) extends KeyMutableMap[K, V] {
     def addInplace(k: K, v: V) = self.addInplace(k, v)
     def removeInplace(k: K) = self.removeInplace(k)
     def clear() = self.clear()
@@ -94,14 +94,11 @@ private[poly] object KeyMutableMapT {
     }
     def pairs = self.pairs
     def containsKey(x: K) = self.containsKey(x)
-    def apply(k: K) = (this ? k).get
-    def ?(k: K) = self ? k match {
-      case Some(v) ⇒ Some(v)
-      case None ⇒
-        val d = default
-        self.addInplace(k, d)
-        Some(d)
+    def apply(k: K) = (this ? k) getOrElse {
+      self.addInplace(k, default)
+      self(k) //TODO
     }
+    def ?(k: K) = self ? k
     def eqOnKeys = self.eqOnKeys
 }
 

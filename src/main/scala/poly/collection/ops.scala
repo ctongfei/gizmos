@@ -11,9 +11,9 @@ trait ImplicitOperators {
 
   implicit final class OptionWithMonadOps[T](val a: Option[T]) {
 
-    def zip[U](b: Option[U]): Option[(T, U)] = for (x ← a; y ← b) yield (x, y)
+    def zip[U](b: Option[U]): Option[(T, U)] = for (x <- a; y <- b) yield (x, y)
 
-    def zipWith[U, X](b: Option[U])(f: (T, U) ⇒ X): Option[X] = for (x ← a; y ← b) yield f(x, y)
+    def zipWith[U, X](b: Option[U])(f: (T, U) => X): Option[X] = for (x <- a; y <- b) yield f(x, y)
 
   }
 
@@ -56,7 +56,7 @@ trait ImplicitOperators {
   }
 
 
-  implicit class withCollectionOps[T](x: ⇒ T) { // call-by-name
+  implicit class withCollectionOps[T](x: => T) { // call-by-name
 
     /** Checks if this element belongs to the specific set. */
     def in[U >: T](set: Set[U]) = set contains x
@@ -101,10 +101,10 @@ trait ImplicitOperators {
      * @example {{{0.iterate(_ + 2) == (0, 2, 4, 6, 8, ...)}}}
      * @return
      */
-    def iterate(f: T ⇒ T) = Seq.iterate(x)(f)
+    def iterate(f: T => T) = Seq.iterate(x)(f)
 
 
-    def unfold[A](f: T ⇒ (A, Option[T])): Seq[A] = {
+    def unfold[A](f: T => (A, Option[T])): Seq[A] = {
       class UnfoldedNode(val state: Option[T]) extends SeqNode[A] {
         println(state)
         def data = f(state.get)._1
@@ -114,7 +114,7 @@ trait ImplicitOperators {
       Seq.ofHeadNode(new UnfoldedNode(Some(x)))
     }
 
-    def unfoldInfinitely[A](f: T ⇒ (A, T)): Seq[A] = {
+    def unfoldInfinitely[A](f: T => (A, T)): Seq[A] = {
       class InfinitelyUnfoldedNode(val state: T) extends SeqNode[A] {
         val (data, nextState) = f(state)
         def next = new InfinitelyUnfoldedNode(nextState)

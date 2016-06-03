@@ -6,7 +6,7 @@ import poly.collection.mut._
 /**
  * @author Tongfei Chen
  */
-trait TreeNodeLike[+T, +N <: TreeNodeLike[T, N]] extends ForwardNodeLike[T, N] { self: N ⇒
+trait TreeNodeLike[+T, +N <: TreeNodeLike[T, N]] extends ForwardNodeLike[T, N] { self: N =>
 
   def children: Seq[N]
 
@@ -24,11 +24,11 @@ trait TreeNodeLike[+T, +N <: TreeNodeLike[T, N]] extends ForwardNodeLike[T, N] {
 
 }
 
-trait TreeNode[+T] extends ForwardNode[T] with TreeNodeLike[T, TreeNode[T]] { self ⇒
+trait TreeNode[+T] extends ForwardNode[T] with TreeNodeLike[T, TreeNode[T]] { self =>
 
   def children: Seq[TreeNode[T]]
 
-  override def map[U](f: T ⇒ U): TreeNode[U] = new TreeNode[U] {
+  override def map[U](f: T => U): TreeNode[U] = new TreeNode[U] {
     def children = self.children.map(_.map(f))
     def data = f(self.data)
     def isDummy = self.isDummy

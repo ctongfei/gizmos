@@ -10,7 +10,7 @@ import poly.collection.node._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait BinaryTree[+T] { self ⇒
+trait BinaryTree[+T] { self =>
 
   import BinaryTree._
 
@@ -38,7 +38,7 @@ trait BinaryTree[+T] { self ⇒
   def root: T = rootNode.data
 
   /** Returns the maximal height of this tree. */ //TODO: a recursive-free version?
-  def height: Int = foldBottomUp(0)((l, r, _) ⇒ math.max(l, r) + 1)
+  def height: Int = foldBottomUp(0)((l, r, _) => math.max(l, r) + 1)
 
   /** Returns the number of nodes in this tree. */
   def size: Int = rootNode.preOrder.size
@@ -62,8 +62,8 @@ trait BinaryTree[+T] { self ⇒
     var depth = 1
     while (depth <= x) {
       x / depth match {
-        case 0 ⇒ curr = curr.left
-        case 1 ⇒ curr = curr.right
+        case 0 => curr = curr.left
+        case 1 => curr = curr.right
       }
       if (curr.isDummy) throw new KeyNotFoundException(i)
       x %= depth
@@ -77,17 +77,17 @@ trait BinaryTree[+T] { self ⇒
   // HELPER FUNCTIONS
 
 
-  def map[U](f: T ⇒ U): BinaryTree[U] = ofRootNode(rootNode.map(f))
+  def map[U](f: T => U): BinaryTree[U] = ofRootNode(rootNode.map(f))
 
   /** Folds a binary tree bottom-up. This is analogous to the sequence `foldRight` in that both
     * are catamorphisms on recursive structures.
     */ //TODO: non-recursive version?
-  def foldBottomUp[U](z: U)(f: (U, U, T) ⇒ U): U = self match {
-    case BinaryTree.empty() ⇒ z
-    case (l :/ n \: r) ⇒ f(l.foldBottomUp(z)(f), r.foldBottomUp(z)(f), n)
+  def foldBottomUp[U](z: U)(f: (U, U, T) => U): U = self match {
+    case BinaryTree.empty() => z
+    case (l :/ n \: r) => f(l.foldBottomUp(z)(f), r.foldBottomUp(z)(f), n)
   }
 
-  def fold[U >: T](z: U)(f: (U, U, U) ⇒ U) = foldBottomUp(z)(f)
+  def fold[U >: T](z: U)(f: (U, U, U) => U) = foldBottomUp(z)(f)
 
   /**
    * Zips two binary trees into one. $LAZY
@@ -183,7 +183,7 @@ trait BinaryTree[+T] { self ⇒
   def inverseKnuthTransform: Tree[T] = new Tree[T] {
     class InverseKnuthTransformedTreeNode(val node: BinaryTreeNode[T]) extends TreeNode[T] {
       override def isDummy = node.isDummy
-      def children = node.left.iterate(_.right).takeUntil(_.isDummy).map(btn ⇒ new InverseKnuthTransformedTreeNode(btn))
+      def children = node.left.iterate(_.right).takeUntil(_.isDummy).map(btn => new InverseKnuthTransformedTreeNode(btn))
       def data = node.data
     }
     def rootNode = new InverseKnuthTransformedTreeNode(self.rootNode)
@@ -218,7 +218,7 @@ trait BinaryTree[+T] { self ⇒
 
   def asTree: Tree[T] = {
     class BinaryTreeAsTreeNode(n: BinaryTreeNode[T]) extends TreeNode[T] {
-      def children = ListSeq(n.left, n.right).filter(_.notDummy).map(n ⇒ new BinaryTreeAsTreeNode(n))
+      def children = ListSeq(n.left, n.right).filter(_.notDummy).map(n => new BinaryTreeAsTreeNode(n))
       def data = n.data
       def isDummy = n.isDummy
     }
@@ -240,7 +240,7 @@ object BinaryTree {
     else Some((bt.root, bt.left, bt.right))
   }
 
-  def infinite[T](x: ⇒ T): BinaryTree[T] = ofRootNode {
+  def infinite[T](x: => T): BinaryTree[T] = ofRootNode {
     new BinaryTreeNode[T] {
       def data = x
       def left = this
@@ -260,13 +260,13 @@ object BinaryTree {
 
   implicit object ZipIdiom extends Idiom[BinaryTree] {
     def id[X](u: X): BinaryTree[X] = infinite(u)
-    def liftedMap[X, Y](mx: BinaryTree[X])(mf: BinaryTree[(X) ⇒ Y]): BinaryTree[Y] = (mx zip mf).map { case (x, f) ⇒ f(x) }
-    override def map[T, U](t: BinaryTree[T])(f: T ⇒ U): BinaryTree[U] = t map f
+    def liftedMap[X, Y](mx: BinaryTree[X])(mf: BinaryTree[X => Y]): BinaryTree[Y] = (mx zip mf).map { case (x, f) => f(x) }
+    override def map[T, U](t: BinaryTree[T])(f: T => U): BinaryTree[U] = t map f
   }
 
   implicit object Comonad extends Comonad[BinaryTree] {
     def id[X](u: BinaryTree[X]) = u.root
-    def extend[X, Y](wx: BinaryTree[X])(f: BinaryTree[X] ⇒ Y) = wx.subtrees map f
+    def extend[X, Y](wx: BinaryTree[X])(f: BinaryTree[X] => Y) = wx.subtrees map f
   }
 
 }

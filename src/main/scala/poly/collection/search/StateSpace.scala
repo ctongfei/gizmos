@@ -11,7 +11,7 @@ import poly.collection._
   * @author Tongfei Chen
   * @since 0.1.0
   */
-trait StateSpace[@sp(Int) S] extends Keyed[S] { self ⇒
+trait StateSpace[@sp(Int) S] extends Keyed[S] { self =>
 
   import StateSpace._
 
@@ -24,7 +24,7 @@ trait StateSpace[@sp(Int) S] extends Keyed[S] { self ⇒
   // HELPER FUNCTIONS
 
   /** Constraints this state space by selecting only the states that satisfy the given predicate. */
-  def filterKeys(f: S ⇒ Boolean): StateSpace[S] = new AbstractStateSpace[S] {
+  def filterKeys(f: S => Boolean): StateSpace[S] = new AbstractStateSpace[S] {
     def eqOnKeys = self.eqOnKeys
     def succ(x: S) = self.succ(x) filter f
   }
@@ -51,7 +51,7 @@ trait StateSpace[@sp(Int) S] extends Keyed[S] { self ⇒
     Iterable.ofIterator(new BreadthFirstIterator(this, start))
 
   /** Finds a path to a state that satisfy the given condition from a specified starting state using depth-first search. */
-  def depthFirstSearch(start: S)(goal: S ⇒ Boolean): BiSeq[S] =
+  def depthFirstSearch(start: S)(goal: S => Boolean): BiSeq[S] =
     searchByIterator(new DepthFirstBacktrackableIterator(this, start), goal)
 
   /** Finds the path between two states using depth-first search. */
@@ -59,7 +59,7 @@ trait StateSpace[@sp(Int) S] extends Keyed[S] { self ⇒
     depthFirstSearch(start)(goal === _)
 
   /** Finds a path to a state that satisfy the given condition from a specified starting state using breadth-first search. */
-  def breadthFirstSearch(start: S)(goal: S ⇒ Boolean): BiSeq[S] =
+  def breadthFirstSearch(start: S)(goal: S => Boolean): BiSeq[S] =
     searchByIterator(new BreadthFirstBacktrackableIterator(this, start), goal)
 
   /** Finds the path between two states using breadth-first search. */
@@ -70,7 +70,7 @@ trait StateSpace[@sp(Int) S] extends Keyed[S] { self ⇒
 
 object StateSpace {
 
-  private[collection] def searchByIterator[S, N <: node.WithParent[S]](si: SearchIterator[N, S], goal: S ⇒ Boolean): BiSeq[S] = {
+  private[collection] def searchByIterator[S, N <: node.WithParent[S]](si: SearchIterator[N, S], goal: S => Boolean): BiSeq[S] = {
     while (si.advance())
       if (goal(si.current))
         return si.currentNode.pathToRoot.map(_.data).reverse

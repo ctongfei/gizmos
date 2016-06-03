@@ -77,7 +77,7 @@ object BinaryHeap extends BuilderFactoryAe[BinaryHeap, Order] {
     // heap building algorithm
     def result = {
       val h = new BinaryHeap[T](data)
-      FastLoop.descending(data.fastLength / 2, -1, -1) { i ⇒
+      FastLoop.descending(data.fastLength / 2, -1, -1) { i =>
         h.siftDown(i)
       }
       h

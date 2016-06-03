@@ -8,17 +8,17 @@ import poly.collection.mut._
  * It is the type of nodes in a bidirectional sequence ([[poly.collection.BiSeq]]).
  * @since 0.1.0
  */
-trait BiSeqNodeLike[+T, +N <: BiSeqNodeLike[T, N]] extends BiNodeLike[T, N] with SeqNodeLike[T, N] with NodeWithParentLike[T, N] { self: N ⇒
+trait BiSeqNodeLike[+T, +N <: BiSeqNodeLike[T, N]] extends BiNodeLike[T, N] with SeqNodeLike[T, N] with NodeWithParentLike[T, N] { self: N =>
   def prev: N
   def next: N
 
   override def parent: N = prev
-  override def pred: Iterable[N] = if (isDummy) Iterable.empty else Iterable.single(prev)
-  override def succ: Iterable[N] = if (isDummy) Iterable.empty else Iterable.single(next)
+  override def pred: Iterable[N] = if (prev.isDummy) Iterable.empty else Iterable.single(prev)
+  override def succ: Iterable[N] = if (next.isDummy) Iterable.empty else Iterable.single(next)
 
 }
 
-trait BiSeqNode[+T] extends BiNode[T] with SeqNode[T] with NodeWithParent[T] with BiSeqNodeLike[T, BiSeqNode[T]] { self ⇒
+trait BiSeqNode[+T] extends BiNode[T] with SeqNode[T] with NodeWithParent[T] with BiSeqNodeLike[T, BiSeqNode[T]] { self =>
 
   override def reverse: BiSeqNode[T] = new BiSeqNode[T] {
     def next = self.prev.reverse
@@ -27,7 +27,7 @@ trait BiSeqNode[+T] extends BiNode[T] with SeqNode[T] with NodeWithParent[T] wit
     override def reverse = self
     def isDummy = self.isDummy
   }
-  override def map[U](f: T ⇒ U): BiSeqNode[U] = new BiSeqNode[U] {
+  override def map[U](f: T => U): BiSeqNode[U] = new BiSeqNode[U] {
     def isDummy = self.isDummy
     def prev = self.prev map f
     def next = self.next map f

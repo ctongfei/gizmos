@@ -16,7 +16,7 @@ import scala.language.higherKinds
   * @since 0.1.0
   */
 @implicitNotFound("Cannot find a builder to build ${C} from elements of type ${T}.")
-trait Builder[-T, +C] { self ⇒
+trait Builder[-T, +C] { self =>
 
   /**
     * Provides a hint to this builder about how many elements are expected to be added.
@@ -50,7 +50,7 @@ trait Builder[-T, +C] { self ⇒
    * Returns a new builder which wraps around this builder. The difference
    * is that the result is mapped by the specified function.
    */
-  def map[D](f: C ⇒ D): Builder[T, D] = new Builder[T, D] {
+  def map[D](f: C => D): Builder[T, D] = new Builder[T, D] {
     def addInplace(x: T) = self addInplace x
     def result = f(self.result)
     override def sizeHint(n: Int) = self sizeHint n

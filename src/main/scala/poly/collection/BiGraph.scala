@@ -10,7 +10,7 @@ import poly.algebra.specgroup._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait BiGraph[@sp(Int) K, +E] extends Graph[K, E] { self ⇒
+trait BiGraph[@sp(Int) K, +E] extends Graph[K, E] { self =>
 
   import BiGraph._
 
@@ -18,11 +18,11 @@ trait BiGraph[@sp(Int) K, +E] extends Graph[K, E] { self ⇒
 
   override def node(i: K): GraphNode[K, E] = new NodeProxy(self, i)
 
-  def incomingMap(i: K) = incomingKeySet(i) createMapBy { j ⇒ apply(j, i) }
+  def incomingMap(i: K) = incomingKeySet(i) createMapBy { j => apply(j, i) }
 
   def incomingKeys(i: K) = incomingKeySet(i).elements
   def incomingNodes(i: K) = incomingKeys(i) map node
-  def incomingArcs(i: K) = incomingKeys(i) map { j ⇒ arc(j, i) }
+  def incomingArcs(i: K) = incomingKeys(i) map { j => arc(j, i) }
 
   def inDegree(i: K) = incomingKeySet(i).size
 
@@ -32,13 +32,14 @@ trait BiGraph[@sp(Int) K, +E] extends Graph[K, E] { self ⇒
   override def reverse: BiGraph[K, E] = new BiGraphT.Reverse(self)
 
   //TODO: mapArcs, filterKeys, zip, ...
+
 }
 
 object BiGraph {
-  class NodeProxy[K, +E](override val graph: BiGraph[K, E], override val key: K) extends Graph.NodeProxy[K, E](graph, key) with BiNode[K] {
+  class NodeProxy[K, +E](override val graph: BiGraph[K, E], override val key: K) extends Graph.NodeProxy[K, E](graph, key) { //TODO: BiNode
     def incomingMap = graph.incomingMap(key)
-    def pred = graph.pred(key) map { i ⇒ new NodeProxy(graph, i) }
-    override def succ = graph.succ(key) map { i ⇒ new NodeProxy(graph, i) }
+    def pred = graph.pred(key) map { i => new NodeProxy(graph, i) }
+    override def succ = graph.succ(key) map { i => new NodeProxy(graph, i) }
     def incomingKeySet = graph.incomingKeySet(key)
   }
 
@@ -49,6 +50,7 @@ abstract class AbstractBiGraph[K, +E] extends AbstractGraph[K, E] with BiGraph[K
 private[poly] object BiGraphT {
 
   class Reverse[K, +E](self: BiGraph[K, E]) extends AbstractBiGraph[K, E] {
+    override def reverse = self
     def outgoingKeySet(i: K) = self.incomingKeySet(i)
     def incomingKeySet(i: K) = self.outgoingKeySet(i)
     def keys = self.keys
@@ -58,5 +60,6 @@ private[poly] object BiGraphT {
     def apply(i: K, j: K) = self.apply(i, j)
     def eqOnKeys = self.eqOnKeys
   }
+
 
 }

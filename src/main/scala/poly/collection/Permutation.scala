@@ -33,7 +33,7 @@ class Permutation private(private val a1: Array[Int], private val a2: Array[Int]
 
   def compose(that: Permutation) = {
     require(this.size == that.size)
-    Permutation(Array.tabulate(size)(i ⇒ that(this(i))))
+    Permutation(Array.tabulate(size)(i => that(this(i))))
   }
 
   def andThen(that: Permutation) = that compose this
@@ -51,7 +51,7 @@ class Permutation private(private val a1: Array[Int], private val a2: Array[Int]
     val n = length
     val b1 = Array.ofDim[Int](n)
     val b2 = Array.ofDim[Int](n)
-    FastLoop.ascending(0, n, 1) { i ⇒
+    FastLoop.ascending(0, n, 1) { i =>
       b1(n - i - 1) = a1(i)
       b2(n - i - 1) = a2(i)
     }
@@ -68,18 +68,18 @@ object Permutation {
   def apply(xs: Array[Int]): Permutation = {
     val ys = Array.ofDim[Int](xs.length)
     val bs = Array.fill(xs.length)(false)
-    FastLoop.ascending(0, xs.length, 1) { i ⇒
+    FastLoop.ascending(0, xs.length, 1) { i =>
       ys(xs(i)) = i
       bs(xs(i)) = true
     }
     // Requires that this is essentially a true bijection: all bits should be set as true
-    require(bs forall {x ⇒ x})
+    require(bs forall {x => x})
     new Permutation(xs.clone, ys)
   }
 
   private[poly] def unchecked(xs: Array[Int]) = {
     val ys = Array.ofDim[Int](xs.length)
-    FastLoop.ascending(0, xs.length, 1) { i ⇒
+    FastLoop.ascending(0, xs.length, 1) { i =>
       ys(xs(i)) = i
     }
     new Permutation(xs.clone, ys)
@@ -87,9 +87,9 @@ object Permutation {
 
   /** Generates a random permutation of the given length. */
   def random(n: Int) = {
-    val a = Array.tabulate(n)(i ⇒ i)
+    val a = Array.tabulate(n)(i => i)
     val r = new java.util.Random()
-    FastLoop.descending(n - 1, 0, -1) { i ⇒
+    FastLoop.descending(n - 1, 0, -1) { i =>
       val j = r.nextInt(i + 1)
       val t = a(i)
       a(i) = a(j)
@@ -100,7 +100,7 @@ object Permutation {
 
   /** Generates an identity permutation of the given length. */
   def identity(n: Int) = {
-    val a = Array.tabulate(n)(i ⇒ i)
+    val a = Array.tabulate(n)(i => i)
     new Permutation(a, a)
   }
 
@@ -128,15 +128,15 @@ object Permutation {
         // Generate permutations under lexicographic order.
         def advance(): Boolean = {
           if (p == null) {
-            p = Array.tabulate(n)(i ⇒ i)
+            p = Array.tabulate(n)(i => i)
             true
           }
           else {
             var k = -1
-            FastLoop.ascending(0, n - 1, 1) { i ⇒ if (p(i) < p(i + 1)) k = i }
+            FastLoop.ascending(0, n - 1, 1) { i => if (p(i) < p(i + 1)) k = i }
             if (k == -1) return false
             var l = k + 1
-            FastLoop.ascending(k + 1, n, 1) { i ⇒ if (p(k) < p(i)) l = i }
+            FastLoop.ascending(k + 1, n, 1) { i => if (p(k) < p(i)) l = i }
             val t = p(k)
             p(k) = p(l)
             p(l) = t
@@ -158,7 +158,7 @@ object Permutation {
 
   implicit object LexicographicOrder extends SequentialOrder[Permutation] {
     def cmp(x: Permutation, y: Permutation): Int = {
-      FastLoop.ascending(0, x.size, 1) { i ⇒
+      FastLoop.ascending(0, x.size, 1) { i =>
         if (x(i) < y(i)) return -1
         if (x(i) > y(i)) return 1
       }

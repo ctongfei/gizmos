@@ -18,19 +18,19 @@ trait WeightedStateSpace[S, @sp(fdi) C] extends StateSpace[S] {
   def uniformCostTraversal(start: S) =
     Iterable.ofIterator(new UniformCostIterator[S, C](this, start))
 
-  def greedyBestFirstTraversal(start: S)(heuristic: S ⇒ C) =
+  def greedyBestFirstTraversal(start: S)(heuristic: S => C) =
     Iterable.ofIterator(new GreedyBestFirstIterator[S, C](this, start, heuristic))
 
-  def aStarTraversal(start: S)(heuristic: S ⇒ C) =
+  def aStarTraversal(start: S)(heuristic: S => C) =
     Iterable.ofIterator(new AStarIterator[S, C](this, start, heuristic))
 
-  def uniformCostSearch(start: S, goal: S ⇒ Boolean) =
+  def uniformCostSearch(start: S, goal: S => Boolean) =
     StateSpace.searchByIterator(new UniformCostIterator[S, C](this, start), goal)
 
-  def greedyBestFirstSearch(start: S, goal: S ⇒ Boolean)(heuristic: S ⇒ C) =
+  def greedyBestFirstSearch(start: S, goal: S => Boolean)(heuristic: S => C) =
     StateSpace.searchByIterator(new GreedyBestFirstIterator[S, C](this, start, heuristic), goal)
 
-  def aStarSearch(start: S, goal: S ⇒ Boolean)(heuristic: S ⇒ C) =
+  def aStarSearch(start: S, goal: S => Boolean)(heuristic: S => C) =
     StateSpace.searchByIterator(new AStarIterator[S, C](this, start, heuristic), goal)
 
 }

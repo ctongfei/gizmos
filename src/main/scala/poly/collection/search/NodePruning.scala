@@ -5,7 +5,7 @@ import poly.collection.search.node._
 /**
   * @author Tongfei Chen
   */
-trait NodePruning[-N] extends (N ⇒ Boolean) {
+trait NodePruning[-N] extends (N => Boolean) {
   /** Dictates whether a node should be expanded in a searching process. */
   def apply(n: N): Boolean
 }

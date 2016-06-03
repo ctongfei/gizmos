@@ -8,8 +8,7 @@ import poly.collection.factory._
 import poly.collection.impl._
 import poly.collection.mut._
 import poly.collection.node._
-
-import scala.annotation.unchecked.{uncheckedVariance ⇒ uv}
+import scala.annotation.unchecked.{uncheckedVariance => uv}
 
 /**
  * Represents sequences that guarantee the same order every time it is traversed,
@@ -18,7 +17,7 @@ import scala.annotation.unchecked.{uncheckedVariance ⇒ uv}
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self ⇒
+trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
 
   import Seq._
 
@@ -26,11 +25,7 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self ⇒
   def headNode: SeqNode[T]
 
   /** Returns a dummy node whose next node is the head of this sequence. */
-  def dummy: SeqNode[T] = new SeqNode[T] {
-    def next = self.headNode
-    def data = throw new DummyNodeException
-    def isDummy = true
-  }
+  def dummy: SeqNode[T] = new SeqT.DummyNode[T](self)
 
   /** Returns the length of this sequence. $On */
   def length: Int = {
@@ -50,13 +45,20 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self ⇒
    * @return The ''i''-th element of this sequence
    */
   override def apply(i: Int): T = {
-    var node = headNode
-    var j = 0
-    while (j < i) {
-      node = node.next
-      j += 1
+    if (i < 0) {
+      val l = length
+      if (i < -l) throw new KeyNotFoundException(i)
+      else apply(i + l)
     }
-    node.data
+    else {
+      var node = headNode
+      var j = 0
+      while (j < i) {
+        node = node.next
+        j += 1
+      }
+      node.data
+    }
   }
 
   /** Returns the weak order on keys. In this case (`Seq`), it returns the default order on integers. */
@@ -64,7 +66,7 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self ⇒
 
   override def size = length
 
-  override def foreach[V](f: T ⇒ V): Unit = {
+  override def foreach[V](f: T => V): Unit = {
     var node = headNode
     while (node.notDummy) {
       f(node.data)
@@ -72,14 +74,7 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self ⇒
     }
   }
 
-  def newIterator: Iterator[T] = new AbstractIterator[T] {
-    private[this] var node: SeqNode[T] = self.dummy
-    def advance() = {
-      node = node.next
-      node.notDummy
-    }
-    def current = node.data
-  }
+  def newIterator: Iterator[T] = new SeqT.DefaultIterator(self)
 
   override def isDefinedAt(i: Int) = containsKey(i)
 
@@ -93,36 +88,26 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self ⇒
    * @example {{{('a', 'b', 'c').pairs == ((0, 'a'), (1, 'b'), (2, 'c'))}}}
     * @return A sequence of index-element pairs.
     */
-  def pairs: SortedSeq[(Int, T @uv)] = {
-    class SeqNodeWithIndex(val outer: SeqNode[T], val i: Int) extends SeqNode[(Int, T)] {
-      def data = (i, outer.data)
-      def next = new SeqNodeWithIndex(outer.next, i + 1)
-      def isDummy = outer.isDummy
-    }
-    ofHeadNode(new SeqNodeWithIndex(headNode, 0)).asIfSorted(Order by first)
-  }
+  def pairs: SortedSeq[(Int, T @uv)] = new SeqT.Pairs(self)
 
-  override def keys: SortedSeq[Int] = new AbstractSortedSeq[Int] {
-    class IndexNode(val outer: SeqNode[T], val i: Int) extends SeqNode[Int] {
-      def next = new IndexNode(outer.next, i + 1)
-      def data = i
-      def isDummy = outer.isDummy
-    }
-    def headNode = new IndexNode(self.headNode, 0)
-    def orderOnElements = Order[Int]
-  }
+  override def keys: SortedSeq[Int] = new SeqT.Keys(self)
 
   // HELPER FUNCTIONS
 
   override def isEmpty = headNode.isDummy
 
-  override def map[U](f: T ⇒ U): Seq[U] = new AbstractSeq[U] {
-    def headNode = self.headNode map f
+  override def map[U](f: T => U): Seq[U] = new AbstractSeq[U] {
+    class MappedNode(val outer: SeqNode[T]) extends SeqNode[U] {
+      def next = new MappedNode(outer.next)
+      def data = f(outer.data)
+      def isDummy = outer.isDummy
+    }
+    def headNode = new MappedNode(self.headNode)
     override def sizeKnown = self.sizeKnown // map preserves size
     override def size = self.size
   }
 
-  def flatMap[U](f: T ⇒ Seq[U]): Seq[U] = {
+  def flatMap[U](f: T => Seq[U]): Seq[U] = {
     class FlatMappedSeqNode(val outer: SeqNode[T], val inner: SeqNode[U]) extends SeqNode[U] {
       override def isDummy = outer.isDummy
       def data = inner.data
@@ -145,9 +130,9 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self ⇒
     ofDummyNode(new FlatMappedSeqNode(dummy, SeqNode.dummy))
   }
 
-  def monadicProduct[U](that: Seq[U]): Seq[(T, U)] = this.flatMap(t ⇒ that.map(u ⇒ (t, u)))
+  def monadicProduct[U](that: Seq[U]): Seq[(T, U)] = this.flatMap(t => that.map(u => (t, u)))
 
-  override def filter(f: T ⇒ Boolean): Seq[T] = {
+  override def filter(f: T => Boolean): Seq[T] = {
     class FilteredSeqNode(val node: SeqNode[T]) extends SeqNode[T] {
       def isDummy = node.isDummy
       def data = node.data
@@ -173,7 +158,7 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self ⇒
     ofDummyNode(new CollectedNode(dummy, default[U]))
   }
 
-  override def filterNot(f: T ⇒ Boolean) = filter(x ⇒ !f(x))
+  override def filterNot(f: T => Boolean) = filter(x => !f(x))
 
   def concat[U >: T](that: Seq[U]): Seq[U] = {
     class ConcatenatedSeqNode(val first: Boolean, val node: SeqNode[U]) extends SeqNode[U] {
@@ -206,7 +191,7 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self ⇒
     ofHeadNode(new AppendedSeqNode(self.headNode, false))
   }
 
-  override def scanLeft[U](z: U)(f: (U, T) ⇒ U): Seq[U] = {
+  override def scanLeft[U](z: U)(f: (U, T) => U): Seq[U] = {
     class ScannedNode(val outer: SeqNode[T], val data: U) extends SeqNode[U] {
       def next = {
         if (outer.next.notDummy) new ScannedNode(outer.next, f(data, outer.next.data))
@@ -217,11 +202,11 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self ⇒
     ofHeadNode(new ScannedNode(self.dummy, z))
   }
 
-  override def scan[U >: T](z: U)(f: (U, U) ⇒ U) = scanLeft(z)(f)
+  override def scan[U >: T](z: U)(f: (U, U) => U) = scanLeft(z)(f)
 
   override def scanByMonoid[U >: T : Monoid] = scanLeft(id[U])(_ op _)
 
-  override def consecutive[U](f: (T, T) ⇒ U): Seq[U] = {
+  override def consecutive[U](f: (T, T) => U): Seq[U] = {
     class DiffNode(val a: SeqNode[T], val b: SeqNode[T]) extends SeqNode[U] {
       def data = f(b.data, a.data)
       def next = new DiffNode(b, b.next)
@@ -230,7 +215,7 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self ⇒
     ofDummyNode(new DiffNode(self.dummy, self.headNode))
   }
 
-  override def diffByGroup[U >: T](implicit U: Group[U]) = consecutive((x, y) ⇒ U.op(y, U.inv(x)))
+  override def diffByGroup[U >: T](implicit U: Group[U]) = consecutive((x, y) => U.op(y, U.inv(x)))
 
   override def head = headNode.data
 
@@ -269,7 +254,7 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self ⇒
     node
   }
 
-  override def skipWhile(f: T ⇒ Boolean) = ofHeadNode {
+  override def skipWhile(f: T => Boolean) = ofHeadNode {
     var node = self.headNode
     while (node.notDummy && f(node.data))
       node = node.next
@@ -285,7 +270,7 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self ⇒
     ofDummyNode(new TakenNode(-1, self.dummy))
   }
 
-  override def takeWhile(f: T ⇒ Boolean) = {
+  override def takeWhile(f: T => Boolean) = {
     class TakenWhileNode(val outer: SeqNode[T]) extends SeqNode[T] {
       def isDummy = outer.isDummy || !f(outer.data)
       def data = outer.data
@@ -294,7 +279,7 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self ⇒
     ofDummyNode(new TakenWhileNode(self.dummy))
   }
 
-  override def takeTo(f: T ⇒ Boolean) = {
+  override def takeTo(f: T => Boolean) = {
     class TakenToNode(val outer: SeqNode[T]) extends SeqNode[T] {
       def data = outer.data
       def next = if (outer.notDummy && f(outer.data)) SeqNode.dummy else new TakenToNode(outer.next)
@@ -303,9 +288,18 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self ⇒
     ofDummyNode(new TakenToNode(self.dummy))
   }
 
-  override def takeUntil(f: T ⇒ Boolean) = takeWhile(x ⇒ !f(x))
+  override def takeUntil(f: T => Boolean) = takeWhile(x => !f(x))
 
-  override def slice(i: Int, j: Int) = self.skip(i).take(j - i)
+  override def slice(i: Int, j: Int) = {
+    if (i >= 0 && j >= 0)
+      self.skip(i).take(j - i)
+    else {
+      val l = length
+      val ii = if (i < 0) i + l else i
+      val jj = if (j < 0) j + l else j
+      self.skip(ii).take(jj - ii)
+    }
+  }
 
   override def distinct[U >: T : Eq]: Seq[T] = {
     val set = AutoSet[U]()
@@ -327,7 +321,7 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self ⇒
     ofDummyNode(new DistinctNode(self.dummy))
   }
 
-  override def distinctBy[U: Eq](f: T ⇒ U): Seq[T] = {
+  override def distinctBy[U: Eq](f: T => U): Seq[T] = {
     val set = AutoSet[U]()
     class DistinctByNode(outer: SeqNode[T]) extends SeqNode[T] {
       def next: DistinctByNode = {
@@ -391,9 +385,9 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self ⇒
     def headNode: SeqNode[T] = self.headNode
   }
 
-  def zip[U](that: Seq[U]): Seq[(T, U)] = ofHeadNode(self.headNode zip that.headNode)
+  def zip[U](that: Seq[U]): Seq[(T, U)] = (self zipWith that) { (t, u) => (t, u) }
 
-  def zipWith[U, V](that: Seq[U])(f: (T, U) ⇒ V): Seq[V] = {
+  def zipWith[U, V](that: Seq[U])(f: (T, U) => V): Seq[V] = {
     class ZippedWithNode(nt: SeqNode[T], nu: SeqNode[U]) extends SeqNode[V] {
       def next = new ZippedWithNode(nt.next, nu.next)
       def data = f(nt.data, nu.data)
@@ -408,19 +402,19 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self ⇒
 
   def lastIndexOf[U >: T : Eq](x: U) = lastIndexWhere(x === _)
 
-  def firstIndexWhere(f: T ⇒ Boolean): Int = {
+  def firstIndexWhere(f: T => Boolean): Int = {
     var i = 0
-    for (y ← self) {
+    for (y <- self) {
       if (f(y)) return i
       i += 1
     }
     -1
   }
 
-  def lastIndexWhere(f: T ⇒ Boolean): Int = {
+  def lastIndexWhere(f: T => Boolean): Int = {
     var i = 0
     var k = -1
-    for (y ← self) {
+    for (y <- self) {
       if (f(y)) k = i
       i += 1
     }
@@ -469,11 +463,13 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self ⇒
   def |*|[U](that: Seq[U]) = this product that
   def |~|[U](that: Seq[U]) = this zip that
 
+  override def withFilter(f: T => Boolean) = filter(f)
+
   // OVERRIDING JAVA DEFAULT METHODS
 
   override def equals(that: Any) = that match {
-    case (that: Seq[T]) ⇒ Eq[T](poly.algebra.Eq.default[T]).eq(this, that)
-    case _ ⇒ false
+    case (that: Seq[T]) => Eq[T](poly.algebra.Eq.default[T]).eq(this, that)
+    case _ => false
   }
 
   override def toString = super[Iterable].toString
@@ -513,7 +509,7 @@ object Seq extends FactoryA[Seq] {
     def headNode = h
   }
 
-  def iterate[T](s: T)(f: T ⇒ T): Seq[T] = {
+  def iterate[T](s: T)(f: T => T): Seq[T] = {
     class IteratedSeqNode(val data: T) extends SeqNode[T] {
       def next = new IteratedSeqNode(f(data))
       def isDummy = false
@@ -521,7 +517,7 @@ object Seq extends FactoryA[Seq] {
     ofHeadNode(new IteratedSeqNode(s))
   }
 
-  def infinite[T](x: ⇒ T): Seq[T] = {
+  def infinite[T](x: => T): Seq[T] = {
     class InfiniteSeqNode extends SeqNode[T] {
       def next = this
       def data = x
@@ -570,7 +566,7 @@ object Seq extends FactoryA[Seq] {
 
   implicit object Monad extends ConcatenativeMonad[Seq] {
     def id[X](u: X) = mut.ListSeq(u)
-    def flatMap[X, Y](mx: Seq[X])(f: X ⇒ Seq[Y]) = mx flatMap f
+    def flatMap[X, Y](mx: Seq[X])(f: X => Seq[Y]) = mx flatMap f
     def empty[X] = Seq.empty
     def concat[X](sx: Seq[X], sy: Seq[X]) = sx concat sy
   }
@@ -583,8 +579,49 @@ object Seq extends FactoryA[Seq] {
   implicit object Comonad extends Comonad[Seq] {
     //TODO: actually should be Comonad[NonEmptySeq] ?
     def id[X](u: Seq[X]) = u.head
-    def extend[X, Y](wx: Seq[X])(f: Seq[X] ⇒ Y) = wx.suffixes.map(f)
+    def extend[X, Y](wx: Seq[X])(f: Seq[X] => Y) = wx.suffixes.map(f)
   }
 }
 
 abstract class AbstractSeq[+T] extends AbstractIterable[T] with Seq[T]
+
+private[poly] object SeqT {
+
+  class DummyNode[T](self: Seq[T]) extends SeqNode[T] {
+    def next = self.headNode
+    def data = throw new DummyNodeException
+    def isDummy = true
+  }
+
+  class DefaultIterator[T](self: Seq[T]) extends AbstractIterator[T] {
+    private[this] var node: SeqNode[T] = self.dummy
+    def advance() = {
+      node = node.next
+      node.notDummy
+    }
+    def current = node.data
+  }
+
+  class Pairs[T](self: Seq[T]) extends AbstractSortedSeq[(Int, T)] {
+    class SeqNodeWithIndex(val outer: SeqNode[T], val i: Int) extends SeqNode[(Int, T)] {
+      def data = (i, outer.data)
+      def next = new SeqNodeWithIndex(outer.next, i + 1)
+      def isDummy = outer.isDummy
+    }
+    def orderOnElements = Order[Int] contramap first
+    def headNode = new SeqNodeWithIndex(self.headNode, 0)
+  }
+
+  class Keys[T](self: Seq[T]) extends AbstractSortedSeq[Int] {
+    class IndexNode(val outer: SeqNode[T], val i: Int) extends SeqNode[Int] {
+      def next = new IndexNode(outer.next, i + 1)
+      def data = i
+      def isDummy = outer.isDummy
+    }
+    def headNode = new IndexNode(self.headNode, 0)
+    def orderOnElements = Order[Int]
+  }
+
+
+
+}

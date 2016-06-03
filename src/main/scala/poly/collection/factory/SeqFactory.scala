@@ -24,11 +24,11 @@ trait SeqFactory[+C[_]] extends BuilderFactoryA[C] {
   /** Creates a collection by adding the non-null arguments into it. */
   def applyNotNull[T](xs: T*): C[T] = {
     val b = newBuilder[T]
-    for (x ← xs if x != null) b addInplace x
+    for (x <- xs if x != null) b addInplace x
     b.result
   }
 
-  def fill[T](n: Int)(x: ⇒ T): C[T] = {
+  def fill[T](n: Int)(x: => T): C[T] = {
     var i = n
     val b = newBuilder[T]
     b.sizeHint(n)
@@ -39,7 +39,7 @@ trait SeqFactory[+C[_]] extends BuilderFactoryA[C] {
     b.result
   }
 
-  def tabulate[T](n: Int)(f: Int ⇒ T): C[T] = {
+  def tabulate[T](n: Int)(f: Int => T): C[T] = {
     var i = 0
     val b = newBuilder[T]
     b.sizeHint(n)
@@ -50,7 +50,7 @@ trait SeqFactory[+C[_]] extends BuilderFactoryA[C] {
     b.result
   }
 
-  def iterateN[T](start: T, n: Int)(f: T ⇒ T): C[T] = {
+  def iterateN[T](start: T, n: Int)(f: T => T): C[T] = {
     var i = n
     val b = newBuilder[T]
     b.sizeHint(n)
@@ -67,7 +67,7 @@ trait SeqFactory[+C[_]] extends BuilderFactoryA[C] {
     b.result
   }
 
-  def iterateTo[T](start: T, goal: T ⇒ Boolean)(f: T ⇒ T): C[T] = {
+  def iterateTo[T](start: T, goal: T => Boolean)(f: T => T): C[T] = {
     val b = newBuilder[T]
     var x = start
     while (!goal(x)) {
@@ -78,7 +78,7 @@ trait SeqFactory[+C[_]] extends BuilderFactoryA[C] {
     b.result
   }
 
-  def iterateUntil[T](start: T, goal: T ⇒ Boolean)(f: T ⇒ T): C[T] = {
+  def iterateUntil[T](start: T, goal: T => Boolean)(f: T => T): C[T] = {
     val b = newBuilder[T]
     var x = start
     while (!goal(x)) {

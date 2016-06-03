@@ -16,13 +16,9 @@ import poly.collection.search.ops._
   * @author Tongfei Chen
   * @since 0.1.0
   */
-abstract class WeightedSearcher[S, N, C] extends SearchIterator[N, S] {
+abstract class WeightedSearcher[S, N, C](val fringe: DistinctPriorityQueue[S, N], val start: S) extends SearchIterator[N, S] {
 
   def prune(n: N): Boolean
-
-  val fringe: Queue[N]
-
-  val start: S
 
   /** The state space in which the search process is performed. */
   implicit def stateSpace: WeightedStateSpace[S, C]
@@ -42,7 +38,7 @@ abstract class WeightedSearcher[S, N, C] extends SearchIterator[N, S] {
     if (fringe.notEmpty) {
       curr = fringe.pop()
       if (!prune(curr))
-        fringe ++= curr.state.succWithCost.map { case (next, cost) ⇒
+        fringe ++= curr.state.succWithCost.map { case (next, cost) =>
           curr.next(next, cost)
         }
       true
@@ -51,25 +47,28 @@ abstract class WeightedSearcher[S, N, C] extends SearchIterator[N, S] {
   }
 }
 
-class UniformCostIterator[S, C: OrderedAdditiveGroup](val stateSpace: WeightedStateSpace[S, C], val start: S)
-  extends WeightedSearcher[S, WithCost[S, C], C]
+class UniformCostIterator[S, C: OrderedAdditiveGroup](val stateSpace: WeightedStateSpace[S, C], start: S)
+  extends WeightedSearcher[S, WithCost[S, C], C](
+    DistinctPriorityQueue[S, WithCost[S, C]](BinaryHeap(), _.state)(stateSpace.eqOnKeys),
+    start)
 {
-  val fringe = DistinctPriorityQueue[BinaryHeap, WithCost[S, C]]()
   def searchNodeInfo = WithCost.WeightedSearchNodeInfo[S, C]
   def prune(n: WithCost[S, C]) = false
 }
 
-class GreedyBestFirstIterator[S, C: OrderedAdditiveGroup](val stateSpace: WeightedStateSpace[S, C], val start: S, val heuristic: S ⇒ C)
-  extends WeightedSearcher[S, WithHeuristic[S, C], C]
+class GreedyBestFirstIterator[S, C: OrderedAdditiveGroup](val stateSpace: WeightedStateSpace[S, C], start: S, val heuristic: S => C)
+  extends WeightedSearcher[S, WithHeuristic[S, C], C](
+    DistinctPriorityQueue[S, WithHeuristic[S, C]](BinaryHeap(), _.state)(stateSpace.eqOnKeys),
+    start)
 {
-  val fringe = DistinctPriorityQueue[BinaryHeap, WithHeuristic[S, C]]()
   def searchNodeInfo = WithHeuristic.WeightedSearchNodeInfo(heuristic)
   def prune(n: WithHeuristic[S, C]) = false
 }
 
-class AStarIterator[S, C: OrderedAdditiveGroup](val stateSpace: WeightedStateSpace[S, C], val start: S, val heuristic: S ⇒ C)
-  extends WeightedSearcher[S, WithCostAndHeuristic[S, C], C] {
-  val fringe = DistinctPriorityQueue[BinaryHeap, WithCostAndHeuristic[S, C]]()(Eq.byRef, BinaryHeap.newBuilder[WithCostAndHeuristic[S, C]](WithCostAndHeuristic.order))
+class AStarIterator[S, C: OrderedAdditiveGroup](val stateSpace: WeightedStateSpace[S, C], start: S, val heuristic: S => C)
+  extends WeightedSearcher[S, WithCostAndHeuristic[S, C], C](
+    DistinctPriorityQueue[S, WithCostAndHeuristic[S, C]](BinaryHeap()(WithCostAndHeuristic.order), _.state)(stateSpace.eqOnKeys),
+    start) { //TODO: contravariant typeclass implicit resolution bug
   def searchNodeInfo = WithCostAndHeuristic.WeightedSearchNodeInfo(heuristic)
   def prune(n: WithCostAndHeuristic[S, C]) = false
 }

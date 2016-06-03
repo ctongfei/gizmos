@@ -14,7 +14,7 @@ import poly.collection.factory._
  * @since 0.1.0
  */
 class RedBlackTreeSet[K] private(private val data: java.util.TreeSet[K])
-  extends AbstractSortedSet[K] with BiSortedSet[K] with KeyMutableSet[K] { self ⇒
+  extends AbstractSortedSet[K] with BiSortedSet[K] with KeyMutableSet[K] { self =>
 
   def addInplace(x: K) = data.add(x)
 

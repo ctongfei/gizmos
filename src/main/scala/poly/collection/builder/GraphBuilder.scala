@@ -22,7 +22,7 @@ trait GraphBuilder[-K, -E, +G] {
 
   def addEdgeInplace(i: K, j: K, e: E): Unit
 
-  def addEdges(kkes: Traversable[(K, K, E)]) = kkes foreach { case (i, j, e) ⇒ addEdgeInplace(i, j, e) }
+  def addEdges(kkes: Traversable[(K, K, E)]) = kkes foreach { case (i, j, e) => addEdgeInplace(i, j, e) }
 
   def result: G
 

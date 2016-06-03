@@ -21,9 +21,9 @@ trait BinarySearchTree[K, N >: Null <: BinarySearchTreeNodeLike[K, N]] {
     var c = rootNode
     while (c.notDummy) {
       x >?< c.key match {
-        case 0 ⇒ return c
-        case cmp if cmp < 0 ⇒ c = c.left
-        case cmp if cmp > 0 ⇒ c = c.right
+        case 0 => return c
+        case cmp if cmp < 0 => c = c.left
+        case cmp if cmp > 0 => c = c.right
       }
     }
     dummy
@@ -36,9 +36,9 @@ trait BinarySearchTree[K, N >: Null <: BinarySearchTreeNodeLike[K, N]] {
       p = c
 
       x.key >?< c.key match {
-        case 0 ⇒ return // already in the BST; return
-        case cmp if cmp < 0 ⇒ c = c.left
-        case cmp if cmp > 0 ⇒ c = c.right
+        case 0 => return // already in the BST; return
+        case cmp if cmp < 0 => c = c.left
+        case cmp if cmp > 0 => c = c.right
       }
     }
     x.left = dummy

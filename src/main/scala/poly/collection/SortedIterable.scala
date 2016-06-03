@@ -10,14 +10,14 @@ import poly.collection.mut._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait SortedIterable[T] extends Iterable[T] { self ⇒
+trait SortedIterable[T] extends Iterable[T] { self =>
 
   /** Returns the order under which the elements of this collection are sorted. */
   implicit def orderOnElements: Order[T]
 
-  override def filter(f: T ⇒ Boolean): SortedIterable[T] = super.filter(f).asIfSorted(orderOnElements)
+  override def filter(f: T => Boolean): SortedIterable[T] = super.filter(f).asIfSorted(orderOnElements)
 
-  override def filterNot(f: T ⇒ Boolean) = filter(x ⇒ !f(x))
+  override def filterNot(f: T => Boolean) = filter(x => !f(x))
 
   /**
    * Returns the unique elements of this iterable collection while retaining their original order.

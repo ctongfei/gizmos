@@ -42,7 +42,7 @@ class HashMap[K: Hashing, V] private(private val data: OpenHashTable[K, HashMap.
 
   override def size = data.size
 
-  def pairs = data.entries.map(e ⇒ e.key → e.value).asIfSizeKnown(size)
+  def pairs = data.entries.map(e => e.key -> e.value).asIfSizeKnown(size)
 
 }
 

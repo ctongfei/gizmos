@@ -12,7 +12,7 @@ import scala.reflect._
  * @since 0.1.0
  */
 class SpResizableArray[@sp(Float, Double, Int, Long, Boolean) T: ClassTag]
-(private[this] var cap: Int = Settings.ArrayInitialSize) { self ⇒
+(private[this] var cap: Int = Settings.ArrayInitialSize) { self =>
 
   private[this] var data: Array[T] = Array.ofDim[T](math.max(nextPowerOfTwo(cap), Settings.ArrayInitialSize))
 
@@ -35,7 +35,7 @@ class SpResizableArray[@sp(Float, Double, Int, Long, Boolean) T: ClassTag]
     data(i) = x
   }
 
-  def fillInplace(x: T) = FastLoop.ascending(0, capacity, 1) { i ⇒
+  def fillInplace(x: T) = FastLoop.ascending(0, capacity, 1) { i =>
     data(i) = x
   }
 

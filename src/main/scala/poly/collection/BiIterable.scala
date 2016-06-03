@@ -6,7 +6,7 @@ package poly.collection
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait BiIterable[+T] extends Iterable[T] { self ⇒
+trait BiIterable[+T] extends Iterable[T] { self =>
 
   import BiIterable._
 
@@ -20,7 +20,7 @@ trait BiIterable[+T] extends Iterable[T] { self ⇒
     override def reverse = self
   }
 
-  override def map[U](f: T ⇒ U): BiIterable[U] = new AbstractBiIterable[U] {
+  override def map[U](f: T => U): BiIterable[U] = new AbstractBiIterable[U] {
     def newIterator = new AbstractIterator[U] {
       private[this] val i = self.newIterator
       def current = f(i.current)
@@ -48,7 +48,7 @@ trait BiIterable[+T] extends Iterable[T] { self ⇒
 
 object BiIterable {
 
-  def ofIterator[T](forward: ⇒ Iterator[T], backward: ⇒ Iterator[T]): BiIterable[T] = new BiIterable[T] {
+  def ofIterator[T](forward: => Iterator[T], backward: => Iterator[T]): BiIterable[T] = new BiIterable[T] {
     def newReverseIterator = backward
     def newIterator = forward
   }

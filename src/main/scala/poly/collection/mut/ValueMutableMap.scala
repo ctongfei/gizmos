@@ -13,5 +13,5 @@ trait ValueMutableMap[K, V] extends Map[K, V] {
   def update(k: K, v: V): Unit
 
   /** Transforms the value of this map in-place given a specific function. */
-  def mapInplace(f: V ⇒ V): Unit = for (k ← this.keys) this.update(k, f(this(k)))
+  def mapInplace(f: V => V): Unit = for (k <- this.keys) this.update(k, f(this(k)))
 }

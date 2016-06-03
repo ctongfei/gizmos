@@ -7,7 +7,7 @@ import poly.algebra.specgroup._
  * This is similar to a SeqNode[K].
  * @author Tongfei Chen
  */
-trait OpenHashEntryLike[@sp(Int) K, E <: OpenHashEntryLike[K, E]] { self: E ⇒
+trait OpenHashEntryLike[@sp(Int) K, E <: OpenHashEntryLike[K, E]] { self: E =>
 
   def key: K
   var nextEntry: E = _

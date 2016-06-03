@@ -5,7 +5,7 @@ import poly.collection._
 /**
  * @author Tongfei Chen
  */
-trait GraphNode[K, +E] extends ForwardNode[K] {
+trait GraphNode[K, +E] extends ForwardNodeLike[K, GraphNode[K, E]] {
 
   def key: K
 

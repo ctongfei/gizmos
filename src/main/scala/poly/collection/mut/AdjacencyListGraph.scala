@@ -14,12 +14,13 @@ import poly.collection.factory._
 class AdjacencyListGraph[@sp(Int) K, E] private(private val r: KeyMutableMap[K, ListMap[K, E]]) extends Graph[K, E] {
 
   def apply(i: K, j: K): E = r(i)(j)
-  def ?(i: K, j: K) = for (x ← r ? i; y ← x ? j) yield y
+  def ?(i: K, j: K) = for (x <- r ? i; y <- x ? j) yield y
   def containsArc(i: K, j: K) = r.containsKey(i) && r(i).containsKey(j)
   def keys = r.keys
   def containsKey(i: K) = r.containsKey(i)
   implicit def eqOnKeys = r.eqOnKeys
   def outgoingKeySet(i: K) = r(i).keySet
+
 }
 
 object AdjacencyListGraph extends BuilderFactoryAAeB[AdjacencyListGraph, Eq] {

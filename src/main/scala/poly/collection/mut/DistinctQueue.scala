@@ -19,7 +19,7 @@ class DistinctQueue[Q[α] <: Queue[α], T: Eq] private(private val inner: Q[T]) 
 
   override def pushAll(xs: Traversable[T]) = {
     val buf = ArraySeq[T]()
-    for (x ← xs)
+    for (x <- xs)
       if (!seen(x)) {
         seen += x
         buf :+= x

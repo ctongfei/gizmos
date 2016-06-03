@@ -13,7 +13,7 @@ import scala.language.implicitConversions
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait Predicate[@sp(Int) -T] extends (T ⇒ Boolean) { self ⇒
+trait Predicate[@sp(Int) -T] extends (T => Boolean) { self =>
 
   /** Returns the negation/complement of this predicate. */
   def unary_! : Predicate[T] = new PredicateT.Complement(self)
@@ -32,7 +32,7 @@ trait Predicate[@sp(Int) -T] extends (T ⇒ Boolean) { self ⇒
 
   def implies[U <: T](that: Predicate[U]) = !self intersect that
 
-  def contramap[S](f: S ⇒ T): Predicate[S] = new PredicateT.Contramapped(self, f)
+  def contramap[S](f: S => T): Predicate[S] = new PredicateT.Contramapped(self, f)
 }
 
 object Predicate {
@@ -49,7 +49,7 @@ object Predicate {
 
   // IMPLICIT CONVERSIONS
 
-  implicit def fromBooleanFunc[T](f: T ⇒ Boolean): Predicate[T] = new Predicate[T] {
+  implicit def fromBooleanFunc[T](f: T => Boolean): Predicate[T] = new Predicate[T] {
     def apply(x: T) = f(x)
   }
 
@@ -57,7 +57,7 @@ object Predicate {
 
   /** Predicate sets form a contravariant functor. */
   implicit object ContravariantFunctor extends ContravariantFunctor[Predicate] {
-    def contramap[X, Y](sx: Predicate[X])(f: Y ⇒ X): Predicate[Y] = sx contramap f
+    def contramap[X, Y](sx: Predicate[X])(f: Y => X): Predicate[Y] = sx contramap f
   }
 
   /** Predicate sets form a Boolean algebra. */
@@ -79,12 +79,12 @@ private[poly] object PredicateT {
   }
 
   class Intersection[T](ps: Seq[Predicate[T]]) extends Predicate[T] {
-    def apply(x: T) = ps forall { p ⇒ p(x) }
+    def apply(x: T) = ps forall { p => p(x) }
     override def union[U <: T](that: Predicate[U]) = new Intersection[U](that +: ps)
   }
 
   class Union[T](ps: Seq[Predicate[T]]) extends Predicate[T] {
-    def apply(x: T) = ps exists { p ⇒ p(x) }
+    def apply(x: T) = ps exists { p => p(x) }
     override def intersect[U <: T](that: Predicate[U]) = new Union[U](that +: ps)
   }
 
@@ -93,11 +93,11 @@ private[poly] object PredicateT {
   }
 
   class SymmetricDiff[T](ps: Seq[Predicate[T]]) extends Predicate[T] {
-    def apply(x: T) = ps map { p ⇒ p(x) } reduce { _^_ }
+    def apply(x: T) = ps map { p => p(x) } reduce { _^_ }
     override def symmetricDiff[U <: T](that: Predicate[U]) = new SymmetricDiff[U](that +: ps)
   }
 
-  class Contramapped[T, S](self: Predicate[T], f: S ⇒ T) extends Predicate[S] {
+  class Contramapped[T, S](self: Predicate[T], f: S => T) extends Predicate[S] {
     def apply(x: S) = self(f(x))
   }
 

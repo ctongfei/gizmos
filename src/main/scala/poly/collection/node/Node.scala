@@ -3,7 +3,7 @@ package poly.collection.node
 /**
   * @author Tongfei Chen
   */
-trait NodeLike[+T, +N <: NodeLike[T, N]] { self: N ⇒
+trait NodeLike[+T, +N <: NodeLike[T, N]] { self: N =>
 
   /** Returns the data on this node. */
   def data: T
@@ -14,7 +14,7 @@ trait NodeLike[+T, +N <: NodeLike[T, N]] { self: N ⇒
   /** Tests if this node is not a dummy node. */
   @inline final def notDummy = !isDummy
 
-  override def toString = if (notDummy) s"<$data>" else "<dummy>"
+  override def toString = if (notDummy) s"$data" else "<dummy>"
 }
 
 

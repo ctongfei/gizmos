@@ -45,7 +45,7 @@ object MurmurHash3 {
     var sum = 0
     var xor = 0
     var prod = 1
-    for (x ← xs) {
+    for (x <- xs) {
       val h = x.###
       sum += h
       xor ^= h
@@ -62,7 +62,7 @@ object MurmurHash3 {
   final def sequentialHash[T: Hashing](xs: Traversable[T], seed: Int = 0xe73a8b15) = {
     var n = 0
     var h = seed
-    for (x ← xs) {
+    for (x <- xs) {
       h = mix(h, x.###)
       n += 1
     }

@@ -11,7 +11,7 @@ import poly.collection.node._
 import poly.collection.search._
 
 import scala.language.higherKinds
-import scala.annotation.unchecked.{uncheckedVariance ⇒ uv}
+import scala.annotation.unchecked.{uncheckedVariance => uv}
 
 /**
  * Represents a directed graph in which each node's successors can be efficiently retrieved.
@@ -21,7 +21,7 @@ import scala.annotation.unchecked.{uncheckedVariance ⇒ uv}
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait Graph[@sp(Int) K, +E] extends KeyedLike[K, Graph[K, E]] with StateSpace[K] { self ⇒
+trait Graph[@sp(Int) K, +E] extends KeyedLike[K, Graph[K, E]] with StateSpace[K] { self =>
 
   import Graph._
 
@@ -65,7 +65,7 @@ trait Graph[@sp(Int) K, +E] extends KeyedLike[K, Graph[K, E]] with StateSpace[K]
   def numArcs: Int = arcs.size
 
   //TODO: compiler bug here: writing j <- outgoingKeySet(i) results in NPE in compiler phase patmat
-  def arcs: Iterable[GraphArc[K, E]] = for (i ← keys; j ← outgoingKeys(i)) yield arc(i, j)
+  def arcs: Iterable[GraphArc[K, E]] = for (i <- keys; j <- outgoingKeys(i)) yield arc(i, j)
 
   def arcMap: Map[(K, K), E] = (keySet createMapBy outgoingMap).uncurry
 
@@ -78,10 +78,10 @@ trait Graph[@sp(Int) K, +E] extends KeyedLike[K, Graph[K, E]] with StateSpace[K]
 
   def containsNode(i: K) = keySet.contains(i)
 
-  def outgoingMap(i: K) = outgoingKeySet(i) createMapBy { j ⇒ apply(i, j) }
+  def outgoingMap(i: K) = outgoingKeySet(i) createMapBy { j => apply(i, j) }
   def outgoingKeys(i: K) = outgoingKeySet(i).elements
   def outgoingNodes(i: K) = outgoingKeys(i) map node
-  def outgoingArcs(i: K) = outgoingKeys(i) map { j ⇒ arc(i, j) }
+  def outgoingArcs(i: K) = outgoingKeys(i) map { j => arc(i, j) }
 
   def outDegree(i: K) = outgoingKeySet(i).size
 
@@ -89,56 +89,50 @@ trait Graph[@sp(Int) K, +E] extends KeyedLike[K, Graph[K, E]] with StateSpace[K]
 
   // HELPER FUNCTIONS
 
-  def map[F](f: E ⇒ F): Graph[K, F] = new GraphT.Mapped(self, f)
+  def map[F](f: E => F): Graph[K, F] = new GraphT.Mapped(self, f)
 
-  def mapWithKeys[F](f: GraphArc[K, E] ⇒ F): Graph[K, F] = new GraphT.MappedWithKeys(self, f)
+  def mapWithKeys[F](f: GraphArc[K, E] => F): Graph[K, F] = new GraphT.MappedWithKeys(self, f)
 
-  override def filterKeys(f: K ⇒ Boolean): Graph[K, E] = new GraphT.KeyFiltered(self, f)
+  override def filterKeys(f: K => Boolean): Graph[K, E] = new GraphT.KeyFiltered(self, f)
 
-  def zip[F](that: Graph[K, F]): Graph[K, (E, F)] = zipWith(that)((e, f) ⇒ (e, f))
+  def zip[F](that: Graph[K, F]): Graph[K, (E, F)] = zipWith(that)((e, f) => (e, f))
 
-  def zipWith[F, X](that: Graph[K, F])(f: (E, F) ⇒ X): Graph[K, X] = new GraphT.ZippedWith(self, that, f)
+  def zipWith[F, X](that: Graph[K, F])(f: (E, F) => X): Graph[K, X] = new GraphT.ZippedWith(self, that, f)
 
   def contramap[J](f: Bijection[J, K]): Graph[J, E] = new GraphT.Contramapped(self, f)
 
   /**
    * Returns the reverse/transpose graph of the original graph.
- *
    * @return The reverse graph, in which every edge is reversed
    */
-  def reverse: BiGraph[K, E] = ???
+  def reverse: BiGraph[K, E] = AdjacencyListBiGraph from arcs.map(e => (e.target, e.source, e.data))
 
-  //def to[G[_, _], Ev[_], F >: E](factory: FactoryAAeB[G, Ev])(implicit K: Ev[K]): G[K, F] = factory from arcs.map(e ⇒ (e.source, e.target, e.data: F))
+  def to[G[_, _], Ev[_], F >: E](factory: FactoryAAeB[G, Ev])(implicit K: Ev[K]): G[K, F] = factory from arcs.map(e => (e.source, e.target, e.data: F))
 
 
-  override def toString = arcMap.toString
+  override def toString = "{" + arcs.map(e => s"${e.target} –(${e.data})-> ${e.data}").buildString(", ") + "}"
 }
 
 object Graph {
 
   class NodeProxy[K, +E](val graph: Graph[K, E], val key: K) extends GraphNode[K, E] {
     def outgoingMap = graph.outgoingMap(key)
-    def succ = graph.succ(key) map { i ⇒ new NodeProxy(graph, i) }
+    def succ = graph.succ(key) map { i => new NodeProxy(graph, i) }
     def isDummy = graph notContainsKey key
     def outgoingKeySet = graph.outgoingKeySet(key)
 
+    // special implementation: uses the eqOnKeys in the referring graph!
+    // ensures that two NodeProxy objects are really referring to the same node in the graph
     override def equals(that: Any) = that match {
-      case that: NodeProxy[K, E] ⇒ (this.graph eq that.graph) && (this.key == that.key)
-      case _ ⇒ false
+      case that: NodeProxy[K, E] => (this.graph eq that.graph) && graph.eqOnKeys.eq(this.key, that.key)
+      case _ => false
     }
-    override def hashCode = graph.## + key.##
+    override def hashCode = poly.algebra.Hashing.byRef.hash(graph) + (graph.eqOnKeys match {
+      case hk: Hashing[K] => hk.hash(key)
+      case _ => key.##
+    })
+
   }
-
-  object NodeProxy {
-    implicit def Eq[K: Eq]: Eq[NodeProxy[K, Any]] = new Eq[NodeProxy[K, Any]] {
-      def eq(x: NodeProxy[K, Any], y: NodeProxy[K, Any]) = (x.graph eq y.graph) && x.graph.eqOnKeys.eq(x.key, y.key)
-    }
-    implicit def Hashing[K: Hashing]: Hashing[NodeProxy[K, Any]] = new Hashing[NodeProxy[K, Any]] {
-      def eq(x: NodeProxy[K, Any], y: NodeProxy[K, Any]) = (x.graph eq y.graph) && x.graph.eqOnKeys.eq(x.key, y.key)
-      def hash(x: NodeProxy[K, Any]) = poly.algebra.Hashing.byRef.hash(x.graph) + x.key.###
-    }
- }
-
 
   class ArcProxy[K, +E](val graph: Graph[K, E], val source: K, val target: K) extends GraphArc[K, E] {
 
@@ -148,26 +142,26 @@ object Graph {
     def targetNode = graph.node(target)
 
     override def equals(that: Any) = that match {
-      case that: ArcProxy[K, E] ⇒ (this.graph eq that.graph) && (this.source == that.source) && (this.target == that.target)
-      case _ ⇒ false
+      case that: ArcProxy[K, E] => (this.graph eq that.graph) && (this.source == that.source) && (this.target == that.target)
+      case _ => false
     }
 
     override def hashCode = graph.## + (source, target).##
   }
 
-  implicit class AsWeightedStateSpace[K, E](g: Graph[K, E])(implicit E: OrderedAdditiveGroup[E]) extends WeightedStateSpace[K, E] {
-    implicit def groupOnCost = E
-    def succWithCost(x: K) = g.outgoingArcs(x).map(e ⇒ (e.target, e.data))
+  implicit class AsWeightedStateSpace[K, E: OrderedAdditiveGroup](g: Graph[K, E]) extends WeightedStateSpace[K, E] {
+    def groupOnCost = OrderedAdditiveGroup[E]
+    def succWithCost(x: K) = g.outgoingArcs(x).map(e => (e.target, e.data))
     def eqOnKeys = g.eqOnKeys
   }
 
 }
 
-abstract class AbstractGraph[@sp(Int) K, +E] extends AbstractStateSpace[K] with Graph[K, E]
+abstract class AbstractGraph[@sp(Int) K, +E] extends Graph[K, E]
 
 private[poly] object GraphT {
 
-  class Mapped[K, E, F](self: Graph[K, E], f: E ⇒ F) extends AbstractGraph[K, F] {
+  class Mapped[K, E, F](self: Graph[K, E], f: E => F) extends AbstractGraph[K, F] {
     def apply(i: K, j: K) = f(self(i, j))
     def ?(i: K, j: K) = (self ? (i, j)) map f
     def keys = self.keys
@@ -177,7 +171,7 @@ private[poly] object GraphT {
     def outgoingKeySet(i: K) = self.outgoingKeySet(i)
   }
 
-  class MappedWithKeys[K, E, F](self: Graph[K, E], f: GraphArc[K, E] ⇒ F) extends AbstractGraph[K, F] {
+  class MappedWithKeys[K, E, F](self: Graph[K, E], f: GraphArc[K, E] => F) extends AbstractGraph[K, F] {
     def apply(i: K, j: K) = f(self.arc(i, j))
     def ?(i: K, j: K) = if (self.containsArc(i, j)) Some(f(self.arc(i, j))) else None
     def keys = self.keys
@@ -187,7 +181,7 @@ private[poly] object GraphT {
     def outgoingKeySet(i: K) = self.outgoingKeySet(i)
   }
 
-  class KeyFiltered[K, E](self: Graph[K, E], f: K ⇒ Boolean) extends AbstractGraph[K, E] {
+  class KeyFiltered[K, E](self: Graph[K, E], f: K => Boolean) extends AbstractGraph[K, E] {
     def apply(i: K, j: K) = self(i, j)
     def ?(i: K, j: K) = if (f(i) && f(j)) self ? (i, j) else None
     def keys = self.keys filter f
@@ -197,9 +191,9 @@ private[poly] object GraphT {
     def outgoingKeySet(i: K) = self.outgoingKeySet(i) filterKeys f
   }
 
-  class ZippedWith[K, E, F, X](self: Graph[K, E], that: Graph[K, F], f: (E, F) ⇒ X) extends AbstractGraph[K, X] {
+  class ZippedWith[K, E, F, X](self: Graph[K, E], that: Graph[K, F], f: (E, F) => X) extends AbstractGraph[K, X] {
     def apply(i: K, j: K) = f(self(i, j), that(i, j))
-    def ?(i: K, j: K) = for (a ← self ? (i, j); b ← that ? (i, j)) yield f(a, b)
+    def ?(i: K, j: K) = for (a <- self ? (i, j); b <- that ? (i, j)) yield f(a, b)
     def keys = (self.keySet intersect that.keySet).keys
     def containsKey(i: K) = self.containsKey(i) && that.containsKey(i)
     def containsArc(i: K, j: K) = self.containsArc(i, j) && that.containsArc(i, j)

@@ -3,6 +3,8 @@ package poly.collection.mut
 import poly.algebra._
 import poly.algebra.syntax._
 import poly.collection._
+import poly.collection.builder._
+import poly.collection.factory._
 import poly.collection.impl.specialized._
 
 /**
@@ -19,8 +21,8 @@ class AdjacencyMatrixGraph[E] private(
   private val edgeData: ValueMutableTable[E]
 ) extends AbstractBiGraph[Int, E] with ValueMutableGraph[Int, E] {
 
-  def incomingKeySet(j: Int) = keySet filterKeys { i ⇒ edgeExists(i, j) }
-  def outgoingKeySet(i: Int) = keySet filterKeys { j ⇒ edgeExists(i, j) }
+  def incomingKeySet(j: Int) = keySet filterKeys { i => edgeExists(i, j) }
+  def outgoingKeySet(i: Int) = keySet filterKeys { j => edgeExists(i, j) }
 
   def keys = Range(numNodes)
 

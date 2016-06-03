@@ -15,7 +15,7 @@ class AdjacencyListBiGraph[@sp(Int) K: Eq, E] private(private val r: KeyMutableM
 
   def apply(i: K, j: K): E = r(i).succ(j)
 
-  def ?(i: K, j: K) = for (v ← r ? i; x ← v.succ ? j) yield x
+  def ?(i: K, j: K) = for (v <- r ? i; x <- v.succ ? j) yield x
 
   def incomingKeySet(i: K) = r(i).pred
   def outgoingKeySet(i: K) = r(i).succ.keySet

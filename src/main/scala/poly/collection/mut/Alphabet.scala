@@ -20,8 +20,8 @@ class Alphabet[T: Eq] private(
   def eqOnValues = Eq[Int]
 
   def apply(x: T): Int = w2i ? x match {
-    case Some(i) ⇒ i
-    case None ⇒
+    case Some(i) => i
+    case None =>
       val newIndex = w2i.size
       w2i.addInplace(x, newIndex)
       i2w.appendInplace(x)
@@ -55,6 +55,6 @@ object Alphabet {
    * Creates an alphabet with a `nil` element. This element will be mapped to index `0`.
    */
   def withNil[T: Eq](nil: T) =
-    new Alphabet[T](AutoMap[T, Int](nil → 0), ArraySeq(nil))
+    new Alphabet[T](AutoMap[T, Int](nil -> 0), ArraySeq(nil))
 
 }

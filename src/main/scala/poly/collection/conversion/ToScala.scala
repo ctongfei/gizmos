@@ -3,7 +3,7 @@ package poly.collection.conversion
 import poly.algebra.conversion.ToScala._
 import poly.collection._
 import poly.collection.mut._
-import scala.{collection ⇒ sc}
+import scala.{collection => sc}
 
 /**
   * @author Tongfei Chen
@@ -46,7 +46,7 @@ object ToScala {
 
     /** Converts a Poly-collection traversable to a Scala traversable. */
     def asScalaTraversable: sc.Traversable[T] = new sc.AbstractTraversable[T] {
-      def foreach[U](f: T ⇒ U): Unit = xs.foreach(f)
+      def foreach[U](f: T => U): Unit = xs.foreach(f)
     }
   }
 
