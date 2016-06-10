@@ -24,24 +24,13 @@ trait Iterable[+T] extends Traversable[T] { self =>
   /** Returns a new iterator that can be used to iterate through this collection. */
   def newIterator: Iterator[T]
 
-  def foreach[V](f: T => V) = {
-    val i = newIterator
-    while (i.advance()) f(i.current)
-  }
+  def foreach[V](f: T => V) = newIterator run f
 
  // final def ringOnWeight = OrderedRing[Int]
 
   //region HELPER FUNCTIONS
 
-  override def map[U](f: T => U): Iterable[U] = new AbstractIterable[U] {
-    def newIterator = new AbstractIterator[U] {
-      private[this] val i = self.newIterator
-      def current = f(i.current)
-      def advance() = i.advance()
-    }
-    override def sizeKnown = self.sizeKnown // map preserves size
-    override def size = self.size
-  }
+  override def map[U](f: T => U): Iterable[U] = new IterableT.Mapped(self, f)
 
   def flatMap[U](f: T => Iterable[U]) = ofIterator {
     new AbstractIterator[U] {
@@ -206,7 +195,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
     }
   }
 
-  override def suffixes = Iterable.iterate(self)(_.tail).takeTo(_.isEmpty)
+  override def suffixes: Iterable[Iterable[T]] = Iterable.iterate(self)(_.tail).takeTo(_.isEmpty)
 
   override def take(n: Int): Iterable[T] = ofIterator {
     new AbstractIterator[T] {
@@ -502,8 +491,8 @@ object Iterable {
   }
 
   /** Creates an iterable collection based on an existing iterator. */
-  def ofIterator[T](e: => Iterator[T]): Iterable[T] = new AbstractIterable[T] {
-    def newIterator = e // call-by-name parameter because Iterators are mutable objects that contain states!
+  def ofIterator[T](i: => Iterator[T]): Iterable[T] = new AbstractIterable[T] {
+    def newIterator = i // call-by-name parameter because Iterators are mutable objects that contain states!
   }
 
   /** Creates an iterable collection that contains only one element. */
@@ -569,12 +558,11 @@ object Iterable {
     def empty[X]: Iterable[X] = Iterable.empty
     def concat[X](a: Iterable[X], b: Iterable[X]) = a.concat(b)
     override def filter[X](mx: Iterable[X])(f: X => Boolean) = mx.filter(f)
-    override def productMap[X, Y, Z](mx: Iterable[X], my: Iterable[Y])(f: (X, Y) => Z) = (mx zipWith my)(f)
   }
 
   object ZipIdiom extends Idiom[Iterable] {
     def id[X](u: X) = Iterable.infinite(u)
-    def liftedMap[X, Y](mx: Iterable[X])(mf: Iterable[X => Y]) = (mx zip mf) map { case (x, f) => f(x) }
+    def liftedMap[X, Y](mx: Iterable[X])(mf: Iterable[X => Y]) = (mx zipWith mf) { case (x, f) => f(x) }
     override def product[X, Y](mx: Iterable[X])(my: Iterable[Y]) = mx zip my
   }
 
@@ -602,3 +590,17 @@ object Iterable {
 }
 
 abstract class AbstractIterable[+T] extends AbstractTraversable[T] with Iterable[T]
+
+private[poly] object IterableT {
+
+  class Mapped[T, U](self: Iterable[T], f: T => U) extends  AbstractIterable[U] {
+    def newIterator = new AbstractIterator[U] {
+      private[this] val i = self.newIterator
+      def current = f(i.current)
+      def advance() = i.advance()
+    }
+    override def sizeKnown = self.sizeKnown // map preserves size
+    override def size = self.size
+  }
+
+}

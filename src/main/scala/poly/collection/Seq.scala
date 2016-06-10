@@ -40,7 +40,6 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
 
   /**
    * Returns the ''i''-th element of this sequence. $On
-   *
    * @param i Index
    * @return The ''i''-th element of this sequence
    */
@@ -96,16 +95,7 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
 
   override def isEmpty = headNode.isDummy
 
-  override def map[U](f: T => U): Seq[U] = new AbstractSeq[U] {
-    class MappedNode(val outer: SeqNode[T]) extends SeqNode[U] {
-      def next = new MappedNode(outer.next)
-      def data = f(outer.data)
-      def isDummy = outer.isDummy
-    }
-    def headNode = new MappedNode(self.headNode)
-    override def sizeKnown = self.sizeKnown // map preserves size
-    override def size = self.size
-  }
+  override def map[U](f: T => U): Seq[U] = new SeqT.Mapped(self, f)
 
   def flatMap[U](f: T => Seq[U]): Seq[U] = {
     class FlatMappedSeqNode(val outer: SeqNode[T], val inner: SeqNode[U]) extends SeqNode[U] {
@@ -398,8 +388,10 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
 
   // INDEXING OPERATIONS
 
-  def firstIndexOf[U >: T: Eq](x: U) = firstIndexWhere(x === _)
+  /** Finds the index of the first occurrence of a given value in this sequence. */
+  def firstIndexOf[U >: T : Eq](x: U) = firstIndexWhere(x === _)
 
+  /** Finds the index of the last occurrence of a given value in this sequence. */
   def lastIndexOf[U >: T : Eq](x: U) = lastIndexWhere(x === _)
 
   def firstIndexWhere(f: T => Boolean): Int = {
@@ -422,8 +414,7 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
   }
 
   /**
-   * Tests if this sequence starts with the pattern sequence under an implicit equivalence relation.
-   *
+   * Tests if this sequence starts with the pattern sequence.
    * @example {{{
    *   (1, 2, 3, 4) startsWith (1, 2) == true
    * }}}
@@ -444,8 +435,7 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
   }
 
   /**
-   * Tests if this sequence ends with the pattern sequence under an implicit equivalence relation.
-   *
+   * Tests if this sequence ends with the pattern sequence.
    * @example {{{
    *   (1, 2, 3, 4) endsWith (3, 4) == true
    * }}}
@@ -622,6 +612,16 @@ private[poly] object SeqT {
     def orderOnElements = Order[Int]
   }
 
+  class Mapped[T, U](self: Seq[T], f: T => U) extends AbstractSeq[U] {
+    class MappedNode(val outer: SeqNode[T]) extends SeqNode[U] {
+      def next = new MappedNode(outer.next)
+      def data = f(outer.data)
+      def isDummy = outer.isDummy
+    }
+    def headNode = new MappedNode(self.headNode)
+    override def sizeKnown = self.sizeKnown // map preserves size
+    override def size = self.size
+  }
 
 
 }

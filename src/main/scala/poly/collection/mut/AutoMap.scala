@@ -4,6 +4,8 @@ import poly.algebra._
 import poly.collection.builder._
 import poly.collection.factory._
 
+import scala.reflect._
+
 /**
  * A mutable map factory that creates a map given an implicit equivalence relation on the keys.
  * The type of the resulting map is determined from the following fallback relation:
@@ -20,7 +22,15 @@ import poly.collection.factory._
 object AutoMap extends BuilderFactoryAeB[KeyMutableMap, Eq] {
   implicit def newBuilder[K, V](implicit K: Eq[K]): Builder[(K, V), KeyMutableMap[K, V]] = K match {
     case kh: Hashing[K] => HashMap.newBuilder[K, V](kh)
-    case ko: Order[K] => RedBlackTreeMap.newBuilder[K, V](ko)
-    case ke => ListMap.newBuilder[K, V](ke)
+    case ko: Order[K]   => RedBlackTreeMap.newBuilder[K, V](ko)
+    case ke             => ListMap.newBuilder[K, V](ke)
   }
+
+  object Dense extends BuilderFactoryAeeB[KeyMutableMap, Eq, ClassTag] {
+    implicit def newBuilder[K, V](implicit K: Eq[K], ct: ClassTag[K]): Builder[(K, V), KeyMutableMap[K, V]] = (K, ct) match {
+      case (std.IntStructure, ClassTag.Int) => DenseIntKeyedMap.newBuilder[V].asInstanceOf[Builder[(K, V), KeyMutableMap[K, V]]] // this cast is safe because K =:= Int
+      case _                                => AutoMap.newBuilder(K)
+    }
+  }
+
 }

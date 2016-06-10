@@ -54,6 +54,11 @@ trait Iterator[@sp(Int, Long, Double, Char) +T] { self =>
 
   def readToArray(a: Array[T @uv]): Unit = readToArray(a, 0, a.length)
 
+  /** Runs this iterator with the given callback function. */
+  def run[V](f: T => V) = {
+    while (self.advance()) f(self.current)
+  }
+
   override def toString = try { s"⋯ $current ⋯" } catch {
     case _: Exception => "<invalid position>"
   }

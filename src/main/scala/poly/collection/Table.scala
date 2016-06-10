@@ -72,7 +72,7 @@ trait Table[+T] extends Map[(Int, Int), T] { self =>
 
   override def map[U](f: T => U): Table[U] = new AbstractTable[U] {
     def numCols = self.numCols
-    def numRows = self.numCols
+    def numRows = self.numRows
     def apply(i: Int, j: Int) = f(self(i, j))
   }
 
@@ -151,3 +151,4 @@ object Table {
 }
 
 abstract class AbstractTable[T] extends Table[T]
+

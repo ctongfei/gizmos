@@ -8,15 +8,13 @@ import poly.collection._
 import poly.collection.mut._
 
 /**
- * Runs the Floyd-Warshall algorithm on a specified graph.
+ * Runs Floyd-Warshall algorithm on a specified graph.
  * @author Tongfei Chen
  * @since 0.1.0
  */
 class AllPairsShortestPath[K, E : OrderedAdditiveGroup : HasTop](val graph: Graph[K, E]) extends MetricSpace[K, E] {
 
-  private[this] val max = top[E]
-
-  private implicit val eq = graph.eqOnKeys
+  private[this] implicit val eq = graph.eqOnKeys
 
   private[this] val d = AutoMap[(K, K), E]().withDefaultUpdate(zero[E])
   private[this] val mid = AutoMap[(K, K), K]().withDefaultUpdate(default[K])
@@ -38,7 +36,9 @@ class AllPairsShortestPath[K, E : OrderedAdditiveGroup : HasTop](val graph: Grap
     }
   }
 
-  def dist(i: K, j: K): E = d.getOrElse(i -> j, max)
+  def dist(i: K, j: K): E = distanceBetween(i, j).getOrElse(top[E])
+
+  def distanceBetween(i: K, j: K) = d ? (i, j)
 
   def pathBetween(i: K, j: K): Seq[K] = {
     if (i === j) Seq(i)

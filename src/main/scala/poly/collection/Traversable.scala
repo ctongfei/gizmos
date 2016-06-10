@@ -15,7 +15,6 @@ import scala.reflect._
 
 /**
  * Represents a collection whose elements can be traversed through.
- *
  * @author Tongfei Chen
  * @since 0.1.0
  * @define LAZY '''[LAZY]'''
@@ -30,7 +29,6 @@ trait Traversable[+T] { self =>
 
   /**
    * Applies a specific function to each element in this collection.
- *
    * @param f The function to be applied. Return values are discarded.
    */
   def foreach[V](f: T => V): Unit
@@ -42,7 +40,6 @@ trait Traversable[+T] { self =>
 
   /**
    * Returns a new collection by applying a function to all elements in this collection. $LAZY
- *
    * @example {{{(1, 2, 3) map { _ + 1 } == (2, 3, 4)}}}
    */
   def map[U](f: T => U): Traversable[U] = new AbstractTraversable[U] {
@@ -57,11 +54,10 @@ trait Traversable[+T] { self =>
    * Builds a new collection by applying a function to all elements of this collection
    * and using the elements of the resulting collections.
    * $LAZY This is the direct equivalent of the Haskell function `bind`/`>>=`.
-   *
    * @example {{{(0, 1, 2, 3) flatMap { i => i repeat i } == (1, 2, 2, 3, 3, 3)}}}
    */
   def flatMap[U](f: T => Traversable[U]): Traversable[U] = new AbstractTraversable[U] {
-    def foreach[V](g: U => V): Unit = {
+    def foreach[V](g: U => V) = {
       for (x <- self)
         for (y <- f(x))
           g(y)
@@ -75,17 +71,8 @@ trait Traversable[+T] { self =>
   def monadicProduct[U](that: Traversable[U]): Traversable[(T, U)] =
     self flatMap (x => that map (y => (x, y)))
 
-  /** Counts the number of elements in this collection that satisfy the specified predicate. $On */
-  def count(f: T => Boolean): Int = {
-    var s = 0
-    for (x <- self)
-      if (f(x)) s += 1
-    s
-  }
-
   /**
    * Selects only the elements that satisfy the specified predicate. $LAZY
-   *
    * @example {{{(1, 2, 3, 4) filter { _ > 2 } == (3, 4)}}}
    */
   def filter(f: T => Boolean): Traversable[T] = new AbstractTraversable[T] {
@@ -114,10 +101,9 @@ trait Traversable[+T] { self =>
 
   /**
    * Partitions this collection to two collections according to a predicate. $EAGER
- *
    * @return A pair of collections: ( {x|f(x)} , {x|!f(x)} )
    */
-  def partition(f: T => Boolean): (Seq[T], Seq[T]) = {
+  def partition(f: T => Boolean): (Iterable[T], Iterable[T]) = {
     val l, r = ArraySeq.newBuilder[T]
     for (x <- self)
       if (f(x)) l += x else r += x
@@ -125,7 +111,6 @@ trait Traversable[+T] { self =>
   }
 
   /** Puts each element in this collection into multiple bins, where each bin is specified by a predicate. $EAGER
- *
    * @example {{{
    *   (0, 1, 2, 3, 4, 5).filterMany(_ % 2 == 1, _ % 3 == 1)
    *   == ((1, 3, 5), (1, 4))
@@ -165,7 +150,6 @@ trait Traversable[+T] { self =>
   //region Concatenation (concat, prepend, append)
   /**
    * Concatenates two traversable collections into one. $LAZY
- *
    * @example {{{(1, 2, 3) ++ (4, 5) == (1, 2, 3, 4, 5)}}}
    */
   def concat[U >: T](that: Traversable[U]): Traversable[U] = new AbstractTraversable[U] {
@@ -194,10 +178,17 @@ trait Traversable[+T] { self =>
   }
   //endregion
 
+  /** Counts the number of elements in this collection that satisfy the specified predicate. $On */
+  def count(f: T => Boolean): Int = {
+    var s = 0
+    for (x <- self)
+      if (f(x)) s += 1
+    s
+  }
+
   /**
    * Returns the number of elements in this collection. $On
- *
-   * @return The size of this collection
+   * @note May not terminate if this collection is infinite.
    */
   def size: Int = {
     var s = 0
@@ -358,7 +349,7 @@ trait Traversable[+T] { self =>
     }
   }
 
-  def suffixes = Iterable.iterate(self)(_.tail).takeUntil(_.isEmpty)
+  def suffixes: Iterable[Iterable[T]] = to(ArraySeq).suffixes
 
   def prefixes: Iterable[Iterable[T]] = to(ArraySeq).prefixes
 
@@ -454,7 +445,9 @@ trait Traversable[+T] { self =>
 
   def union[U >: T : Eq](that: Traversable[U]): Traversable[U] = (this concat that).distinct
 
-  def intersect[U >: T : Eq](that: Traversable[U]): Traversable[U] = (this filter that.to(AutoSet)).distinct
+  def intersect[U >: T : Eq](that: Traversable[U]): Traversable[U] = {
+    (this filter that.to(AutoSet)).distinct
+  }
 
   /** Returns the reverse of this collection. $EAGER */
   def reverse: BiIterable[T] = self.to(ArraySeq).reverse
@@ -472,7 +465,9 @@ trait Traversable[+T] { self =>
    * @example {{{(1, 2, 3, 4).rotate(1) == (2, 3, 4, 1)}}}
    * @param n Rotation starts here
    */
-  def rotate(n: Int) = (self skip n) ++ (self take n)
+  def rotate(n: Int) = {
+    (self skip n) ++ (self take n)
+  }
 
   /**
    * Sorts this collection in ascending order using the implicitly provided order. $EAGER

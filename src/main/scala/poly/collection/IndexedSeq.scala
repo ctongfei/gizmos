@@ -3,6 +3,7 @@ package poly.collection
 import poly.algebra._
 import poly.algebra.specgroup._
 import poly.algebra.syntax._
+import poly.collection.exception._
 import poly.collection.mut._
 import poly.collection.node._
 import poly.macroutil._
@@ -19,10 +20,10 @@ import scala.language.implicitConversions
  */
 trait IndexedSeq[+T] extends BiSeq[T] { self =>
 
-  import IndexedSeq._
-
+  /** Returns the length of this indexed sequence. */
   def fastLength: Int
 
+  /** Returns the ''i''-th element of this sequence. */
   def fastApply(i: Int): T
 
   @inline final override def size = fastLength
@@ -54,7 +55,7 @@ trait IndexedSeq[+T] extends BiSeq[T] { self =>
       case that: Node => this.i == that.i
       case _ => false
     }
-    override def hashCode = poly.algebra.Hashing.byRef.hash(self) + i
+    override def hashCode = hashByRef(self) + i
   }
 
   def headNode = new Node(0)
@@ -85,6 +86,7 @@ trait IndexedSeq[+T] extends BiSeq[T] { self =>
   override def append[U >: T](x: U): IndexedSeq[U] = new IndexedSeqT.Appended(self, x)
 
   override def reduce[U >: T](f: (U, U) => U): U = {
+    if (length == 0) throw new EmptyCollectionReductionException
     MapReduceOps.bySemigroup[U](length, x => self(x): U, f) // optimize through macros
   }
 
@@ -102,7 +104,7 @@ trait IndexedSeq[+T] extends BiSeq[T] { self =>
 
   override def suffixes = Range(length) map skip
 
-  override def prefixes = Range(length).reverse map take
+  override def prefixes = Range(length, 0, -1) map take
 
   override def take(n: Int) = slice(0, n)
 
@@ -142,6 +144,10 @@ trait IndexedSeq[+T] extends BiSeq[T] { self =>
   def asIndexedSeq: IndexedSeq[T] = new IndexedSeqT.Bare(self)
 
   // SYMBOLIC ALIASES
+
+  override def +:[U >: T](u: U): IndexedSeq[U] = this prepend u
+  override def :+[U >: T](u: U): IndexedSeq[U] = this append u
+  def ++[U >: T](that: IndexedSeq[U]) = this concat that
   def |*|[U](that: IndexedSeq[U]) = self monadicProduct that
   def |~|[U](that: IndexedSeq[U]) = self zip that
   def ×[U](that: IndexedSeq[U]) = self product that

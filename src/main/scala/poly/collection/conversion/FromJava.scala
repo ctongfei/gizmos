@@ -125,14 +125,17 @@ object FromJava {
     def elements = xs
   }
 
+  /*
   implicit class javaDequeAsPoly[T](xs: ju.Deque[T]) extends Deque[T] {
     def bottom = xs.peekLast()
     def popTop() = xs.removeFirst()
     def popBottom() = xs.removeLast()
     def push(x: T) = xs.add(x)
+    xs.add()
     def top = xs.peekFirst()
     def elements = xs
   }
+  */
 
   implicit class javaMapAsPoly[K, V](jm: ju.Map[K, V]) extends AbstractMap[K, V] with KeyMutableMap[K, V] {
     def eqOnKeys = Eq.default[K]
@@ -173,6 +176,7 @@ object FromJava {
     override def readToArray(a: Array[Char], off: Int, len: Int) = jr.read(a, off, len)
   }
 
+  /*
   implicit class javaOutputStreamAsPoly(jos: ji.OutputStream) extends Observer[Byte] {
     def onCompleted() = jos.close()
     def onError(error: Throwable) = throw error
@@ -186,5 +190,6 @@ object FromJava {
     def onNext(x: Char) = jw.write(x)
     override def writeFromArray(a: Array[Char], off: Int, len: Int) = jw.write(a, off, len)
   }
+  */
 
 }

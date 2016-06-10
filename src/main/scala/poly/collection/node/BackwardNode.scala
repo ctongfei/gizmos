@@ -12,7 +12,7 @@ trait BackwardNodeLike[+T, +N <: BackwardNodeLike[T, N]] extends NodeLike[T, N] 
   /** Returns the list of predecessor nodes of this node. */
   def pred: Iterable[N]
 
-  override def toString = s"${pred map {_.data}} -> $data"
+  override def toString = s"[${pred map {_.data}} → $dataString]"
 }
 
 trait BackwardNode[+T] extends Node[T] with BackwardNodeLike[T, BackwardNode[T]] { self =>

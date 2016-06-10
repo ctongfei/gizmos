@@ -2,9 +2,10 @@ package poly.collection.mut
 
 import poly.algebra._
 import poly.collection._
+import poly.collection.builder._
+import poly.collection.factory._
 import poly.collection.impl._
-import poly.collection.impl.specialized._
-import poly.macroutil._
+import scala.language.higherKinds
 
 /**
  * A special implementation of maps keyed by integers backed by an array.
@@ -51,7 +52,6 @@ class DenseIntKeyedMap[T] private(
 
   def clear(): Unit = state.clear()
 
-
   def removeInplace(x: Int): Unit = {
     if (state(x)) n -= 1
     state -= x
@@ -60,5 +60,18 @@ class DenseIntKeyedMap[T] private(
 }
 
 object DenseIntKeyedMap {
+
+  implicit def newBuilder[V]: Builder[(Int, V), DenseIntKeyedMap[V]] = new Builder[(Int, V), DenseIntKeyedMap[V]] {
+    private[this] val data = new ResizableArray[V]()
+    private[this] val state = BitSet()
+    private[this] var n = 0
+    override def sizeHint(n: Int) = data.ensureCapacity(n)
+    def addInplace(x: (Int, V)) = {
+      state += x._1
+      data(x._1) = x._2
+      n += 1
+    }
+    def result = new DenseIntKeyedMap(data, state, n)
+  }
 
 }

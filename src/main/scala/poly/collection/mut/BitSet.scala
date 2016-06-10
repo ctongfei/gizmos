@@ -2,6 +2,7 @@ package poly.collection.mut
 
 import poly.algebra._
 import poly.collection._
+import poly.collection.builder._
 import poly.collection.impl.specialized._
 import poly.macroutil._
 
@@ -88,5 +89,11 @@ object BitSet {
   private[poly] final val LongSize = 64
 
   def apply() = new BitSet(new LongResizableArray(Settings.ArrayInitialSize))
+
+  implicit def newBuilder: Builder[Int, BitSet] = new Builder[Int, BitSet] {
+    private[this] val bs = BitSet()
+    def addInplace(x: Int) = bs addInplace x
+    def result = bs
+  }
 
 }

@@ -1,6 +1,20 @@
 ##### \[IMPROVEMENT\] Negative indices for `Seq`s
+    CHECK bugs
+
+##### \[IMPROVEMENT\] Support for negative indices for `rotate` 
+    CHECK bugs
 
 ##### \[IMPROVEMENT\] Path-dependent types for SeqNodes/BinaryTreeNodes/TreeNodes
+
+##### \[CHECK?\] Depedent-typed object's equals/hashCode
+
+##### \[IMPROVEMENT\] Dense Int-keyed Set/Map/Table/Graph builder
+
+##### \[FUNCTION\] Deques / PriorityDeques
+ArrayDeque / MinMaxHeapPriorityDeque ?
+
+##### \[FUNCTION\] More heaps & mergeable heaps
+LeftistHeap / PairingHeap / BinomialHeap / FibonacciHeap ?
 
 ##### \[BUG\] Map's hashCode and Seq's are not compatible
 ```scala

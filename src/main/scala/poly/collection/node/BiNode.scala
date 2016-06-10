@@ -11,7 +11,7 @@ trait BiNodeLike[+T, +N <: BiNodeLike[T, N]] extends ForwardNodeLike[T, N] with 
   def pred: Iterable[N]
   def succ: Iterable[N]
 
-  override def toString = s"${pred map {_.data}} -> $data -> ${succ map {_.data}}"
+  override def toString = s"[${pred map {_.data}} → $dataString → ${succ map {_.data}}]"
 
 }
 

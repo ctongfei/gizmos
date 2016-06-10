@@ -4,6 +4,8 @@ import poly.algebra._
 import poly.collection.builder._
 import poly.collection.factory._
 
+import scala.reflect._
+
 /**
  * Constructs a mutable set given an implicit equivalence relation on the keys.
  * The type of the resulting set is determined from the following fallback relation:
@@ -20,7 +22,14 @@ import poly.collection.factory._
 object AutoSet extends BuilderFactoryAe[KeyMutableSet, Eq] {
   implicit def newBuilder[K](implicit K: Eq[K]): Builder[K, KeyMutableSet[K]] = K match {
     case kh: Hashing[K] => HashSet.newBuilder(kh)
-    case ko: Order[K] => RedBlackTreeSet.newBuilder(ko)
-    case ke => ListSet.newBuilder(ke)
+    case ko: Order[K]   => RedBlackTreeSet.newBuilder(ko)
+    case ke             => ListSet.newBuilder(ke)
+  }
+
+  object Dense extends BuilderFactoryAee[KeyMutableSet, Eq, ClassTag] {
+    implicit def newBuilder[K](implicit K: Eq[K], ct: ClassTag[K]): Builder[K, KeyMutableSet[K]] = (K, ct) match {
+      case (std.IntStructure, ClassTag.Int) => BitSet.newBuilder.asInstanceOf[Builder[K, KeyMutableSet[K]]] // the cast is safe: K =:= Int
+      case _                                => AutoSet.newBuilder(K)
+    }
   }
 }

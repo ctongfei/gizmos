@@ -6,8 +6,6 @@ import scala.language.implicitConversions
 
 package object collection extends ImplicitOperators {
 
-  type =:>[K, +V] = Map[K, V]
-
   /** Returns the first element of two elements. */
   //@inline def first[@sp(di) α, @sp(di) β](a: α, b: β) = a
 
@@ -51,6 +49,8 @@ package object collection extends ImplicitOperators {
   private[poly] def getArrayFromVarargs[T](xs: scala.Seq[T]): Array[T] = xs match {
     case xs: scala.collection.mutable.WrappedArray[T] => xs.array
   }
+
+  @inline private[poly] def hashByRef(x: AnyRef) = System.identityHashCode(x)
 
   private[poly] implicit class WithModOps(val x: Int) extends AnyVal {
     def %+(mod: Int) = {

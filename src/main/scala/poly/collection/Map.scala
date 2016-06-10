@@ -181,7 +181,7 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
   def ⟗[W](that: Map[K, W]) = self fullOuterJoin that
 
   // OVERRIDING JAVA METHODS
-  override def toString = "{" + pairs.map { case (k, v) => s"$k => $v" }.buildString(", ") + "}"
+  override def toString = "{" + pairs.map { case (k, v) => s"$k → $v" }.buildString(", ") + "}"
 
   override def equals(that: Any) = that match {
     case that: Map[K, V] => Map.Eq(Eq.default[V]).eq(this, that)
@@ -243,7 +243,6 @@ object Map extends FactoryAeB[Map, Eq] with MapLowPriorityTypeclassInstances {
      *                     ANALOGOUS TO
      *     K => (L => V)   . uncurry ==  (K, L) => V
      * }}}
- *
      * @note The user should guarantee that the implicit equivalence relation on L
      *       conforms with every inner map (of type `Map[L, V]`) of the curried map.
      */
@@ -258,13 +257,16 @@ object Map extends FactoryAeB[Map, Eq] with MapLowPriorityTypeclassInstances {
 
   // TYPECLASS INSTANCES
 
-  //TODO: should also return Hashing instances
-  implicit def __dynamicEq[K, V: Eq]: Eq[Map[K, V]] = new Eq[Map[K, V]] {
-    def eq(x: Map[K, V], y: Map[K, V]) = (x, y) match {
-      case (x: IndexedSeq[V], y: IndexedSeq[V]) => IndexedSeq.Eq[V].eq(x, y)
-      case (x: Seq[V], y: Seq[V]) => Seq.Eq[V].eq(x, y)
-      case (x: Table[V], y: Table[V]) => Table.Eq[V].eq(x, y)
-      case _ => Map.Eq[K, V].eq(x, y)
+  implicit def __dynamicEq[K, V](implicit V: Eq[V]): Eq[Map[K, V]] = V match {
+    case vh: Hashing[V] => ??? //TODO: !
+
+    case ve => new Eq[Map[K, V]] {
+      def eq(x: Map[K, V], y: Map[K, V]) = (x, y) match {
+        case (x: IndexedSeq[V], y: IndexedSeq[V]) => IndexedSeq.Eq[V].eq(x, y)
+        case (x: Seq[V], y: Seq[V]) => Seq.Eq[V].eq(x, y)
+        case (x: Table[V], y: Table[V]) => Table.Eq[V].eq(x, y)
+        case _ => Map.Eq[K, V].eq(x, y)
+      }
     }
   }
 

@@ -20,7 +20,6 @@ object SeqTest extends App {
   a appendInplace 4
 
 
-
   val b = ArraySeq(5, 6, 7)
 
 

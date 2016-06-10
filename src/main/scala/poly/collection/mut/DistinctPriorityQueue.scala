@@ -3,7 +3,6 @@ package poly.collection.mut
 import poly.algebra._
 import poly.algebra.syntax._
 import poly.collection._
-import scala.language.higherKinds
 
 /**
  * @author Tongfei Chen

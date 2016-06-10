@@ -20,7 +20,7 @@ class ArrayStack[T] private(private var data: ResizableSeq[T]) extends Queue[T] 
   def push(x: T): Unit = data.appendInplace(x)
 
   override def pushAll(xs: Traversable[T]) = {
-    xs.reverse foreach push
+    xs.reverse foreach push // retain the node visiting sequence for DFS
   }
 
   def top: T = {

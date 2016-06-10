@@ -23,7 +23,7 @@ Poly-collection is a Scala collection framework that aims to provide an alternat
   - `Seq[+A]` inherits the `Map[Int, +A]` trait. 
 
   - Concretely based on basic algebraic concepts through [poly-algebra](https://github.com/ctongfei/poly-algebra) by extensive use
-   of typeclass patterns (Eq / Order / IntHashing / ...).
+   of typeclass patterns (Eq / Order / Hashing / ...).
   
 Implicit conversions from/to Scala & from Java collections to Poly collections are provided by importing the
 objects `poly.collection.conversion.{FromJava, FromScala, ToScala}`.

@@ -29,7 +29,7 @@ trait BiGraph[@sp(Int) K, +E] extends Graph[K, E] { self =>
   def pred(i: K) = incomingKeys(i)
 
   // HELPER FUNCTIONS
-  override def reverse: BiGraph[K, E] = new BiGraphT.Reverse(self)
+  override def reverse: BiGraph[K, E] = new BiGraphT.Reversed(self)
 
   //TODO: mapArcs, filterKeys, zip, ...
 
@@ -49,7 +49,7 @@ abstract class AbstractBiGraph[K, +E] extends AbstractGraph[K, E] with BiGraph[K
 
 private[poly] object BiGraphT {
 
-  class Reverse[K, +E](self: BiGraph[K, E]) extends AbstractBiGraph[K, E] {
+  class Reversed[K, +E](self: BiGraph[K, E]) extends AbstractBiGraph[K, E] {
     override def reverse = self
     def outgoingKeySet(i: K) = self.incomingKeySet(i)
     def incomingKeySet(i: K) = self.outgoingKeySet(i)

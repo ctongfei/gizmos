@@ -131,22 +131,6 @@ class ListSeq[T] private() extends AbstractSeq[T] with KeyMutableSeq[T] {
 
   def inplaceReverse() = ???
 
-  override def newIterator = new AbstractIterator[T] {
-    var node = dummy
-
-    def advance(): Boolean = {
-      if (node.next.isDummy) false
-      else {
-        node = node.next
-        true
-      }
-    }
-
-    def current: T = {
-      if (node.isDummy) throw new DummyNodeException
-      node.data
-    }
-  }
 }
 
 object ListSeq extends SeqFactory[ListSeq] {
