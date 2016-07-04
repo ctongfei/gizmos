@@ -261,10 +261,10 @@ private[poly] object SetT {
   }
 
   class MapByFunc[T, U](self: Set[T], f: T => U) extends AbstractMap[T, U] {
+    def keys = self.keys
     def apply(k: T) = f(k)
     def ?(k: T) = if (self contains k) Some(f(k)) else None
     def eqOnKeys = self.eqOnKeys
-    def pairs = self.keys.map(k => k -> f(k))
     override def size = self.size
     def containsKey(x: T) = self.contains(x)
   }
@@ -273,7 +273,8 @@ private[poly] object SetT {
     def apply(k: T) = f(k).get
     def ?(k: T) = if (self contains k) f(k) else None
     def eqOnKeys = self.eqOnKeys
-    def pairs = for (k <- self.keys; v <- f(k)) yield (k, v)
+    def keys = self.keys.filter(k => f(k).isDefined)
+    override def pairs = for (k <- self.keys; v <- f(k)) yield (k, v)
     def containsKey(x: T) = (self contains x) && f(x).isDefined
   }
 

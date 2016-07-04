@@ -1,8 +1,10 @@
-# Created by .gitignore support plugin (hsz.mobi)
+c/z/# Created by .gitignore support plugin (hsz.mobi)
 ### JetBrains template
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm
 
 *.iml
+
+experimental/
 
 ## Directory-based project format:
 .idea/
@@ -81,3 +83,5 @@ project/plugins/project/
 .worksheet
 
 
+.DS_Store
+experimental/*

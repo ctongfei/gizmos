@@ -13,7 +13,7 @@ import poly.collection.factory._
  *  @since 0.1.0
   */
 class RedBlackTreeMap[K, V] private(private val data: java.util.TreeMap[K, V])
-  extends AbstractMap[K, V] with KeyMutableMap[K, V] with SortedMap[K, V] {
+  extends AbstractMap[K, V] with KeyMutableMap[K, V] with SortedMap[K, V] { self =>
 
   def apply(k: K) = data get k
 
@@ -25,12 +25,18 @@ class RedBlackTreeMap[K, V] private(private val data: java.util.TreeMap[K, V])
 
   def removeInplace(x: K) = data.remove(x)
 
-  def pairs: SortedIterable[(K, V)] = new AbstractSortedIterable[(K, V)] {
+
+  def keys = new AbstractSortedIterable[K] {
+    def orderOnElements = self.orderOnKeys
+    def newIterator = data.keySet().iterator()
+  }
+
+  override def pairs: SortedIterable[(K, V)] = new AbstractSortedIterable[(K, V)] {
     def orderOnElements = orderOnKeys contramap first
     def newIterator = data.entrySet().elements.map(e => (e.getKey, e.getValue)).newIterator
   }
 
-  def orderOnKeys: Order[K] = data.comparator()
+  override def orderOnKeys: Order[K] = data.comparator()
 
   def update(x: K, y: V) = data.put(x, y)
 

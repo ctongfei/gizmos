@@ -39,7 +39,7 @@ class LinkedBinaryTree[T] extends BinaryTree[T] {
         case 1 => curr = curr.right
       }
       x %= depth
-      depth <<= 1
+      depth *= 2
     }
     curr
   }

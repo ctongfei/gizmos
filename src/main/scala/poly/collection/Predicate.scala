@@ -13,7 +13,7 @@ import scala.language.implicitConversions
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait Predicate[@sp(Int) -T] extends (T => Boolean) { self =>
+trait Predicate[@sp(Int) -T] extends Func[T, Boolean] { self =>
 
   /** Returns the negation/complement of this predicate. */
   def unary_! : Predicate[T] = new PredicateT.Complement(self)
@@ -32,7 +32,7 @@ trait Predicate[@sp(Int) -T] extends (T => Boolean) { self =>
 
   def implies[U <: T](that: Predicate[U]) = !self intersect that
 
-  def contramap[S](f: S => T): Predicate[S] = new PredicateT.Contramapped(self, f)
+  override def contramap[S](f: S => T): Predicate[S] = new PredicateT.Contramapped(self, f)
 }
 
 object Predicate {

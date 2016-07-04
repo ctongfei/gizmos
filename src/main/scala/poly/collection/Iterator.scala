@@ -31,7 +31,7 @@ trait Iterator[@sp(Int, Long, Double, Char) +T] { self =>
   def current: T
 
   /**
-   * Advances the iterator to the next element.
+   * Advances the iterator to the next element. This method is where side-effects should happen.
    * @return Whether the iterator successfully advanced to the next element.
    */
   def advance(): Boolean

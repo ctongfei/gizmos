@@ -3,13 +3,12 @@ package poly.collection.mut
 import poly.algebra._
 import poly.collection._
 import poly.collection.builder._
-import poly.collection.factory._
 import poly.collection.impl._
 import scala.language.higherKinds
 
 /**
  * A special implementation of maps keyed by integers backed by an array.
- * This is efficient when most of the keys lies in the space from 0 to a not-too-large integer ''n''
+ * This is efficient when most of the keys lies in the space from 0 to an integer ''n''
  * and most of the key space is actually used.
  * @since 0.1.0
  * @author Tongfei Chen
@@ -20,7 +19,10 @@ class DenseIntKeyedMap[T] private(
   private var n: Int = 0
 ) extends IntKeyedSortedMap[T] with KeyMutableMap[Int, T] {
 
-  implicit def orderOnKeys = poly.algebra.std.IntStructure
+
+  def keys = state.keys
+
+  implicit override def orderOnKeys = std.IntStructure
 
   def apply(x: Int): T = data(x)
 
@@ -35,7 +37,7 @@ class DenseIntKeyedMap[T] private(
 
   def ?(x: Int): Option[T] = if (state(x)) Some(data(x)) else None
 
-  def pairs = state.createMapBy(i => data(i)).pairs
+  override def pairs = state.createMapBy(i => data(i)).pairs
 
   override def size: Int = n
 

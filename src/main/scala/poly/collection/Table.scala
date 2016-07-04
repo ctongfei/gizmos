@@ -27,7 +27,9 @@ trait Table[+T] extends Map[(Int, Int), T] { self =>
 
   def eqOnKeys = Eq.default[(Int, Int)]
 
-  def pairs = triples map { case (i, j, e) => ((i, j), e) }
+  def keys = Range(numRows) monadicProduct Range(numCols)
+
+  override def pairs = triples map { case (i, j, e) => ((i, j), e) }
 
   /**
    * Returns all the (row, col, elem) triples in this table.

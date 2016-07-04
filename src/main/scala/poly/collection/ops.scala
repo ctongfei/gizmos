@@ -1,6 +1,9 @@
 package poly.collection
 
+import poly.algebra._
 import poly.collection.node._
+import poly.collection.search._
+
 import scala.language.implicitConversions
 
 /**
@@ -114,6 +117,16 @@ trait ImplicitOperators {
       Seq.ofHeadNode(new UnfoldedNode(Some(x)))
     }
 
+    def unfold2[A](f: T => (A, Option[T], Option[T])): BinaryTree[A] = {
+      class UnfoldedNode2(val state: Option[T]) extends BinaryTreeNode[A] {
+        def data = f(state.get)._1
+        def left = new UnfoldedNode2(f(state.get)._2)
+        def right = new UnfoldedNode2(f(state.get)._3)
+        def isDummy = state.isEmpty
+      }
+      BinaryTree.ofRootNode(new UnfoldedNode2(Some(x)))
+    }
+
     def unfoldInfinitely[A](f: T => (A, T)): Seq[A] = {
       class InfinitelyUnfoldedNode(val state: T) extends SeqNode[A] {
         val (data, nextState) = f(state)
@@ -122,6 +135,18 @@ trait ImplicitOperators {
       }
       Seq.ofHeadNode(new InfinitelyUnfoldedNode(x))
     }
+
+    def depthFirstTreeTraversal[U >: T](f: U => Traversable[U]) =
+      StateSpace.create(f).depthFirstTreeTraversal(x)
+
+    def breadthFirstTreeTraversal[U >: T](f: U => Traversable[U]) =
+      StateSpace.create(f).breadthFirstTreeTraversal(x)
+
+    def depthFirstTraversal[U >: T : Eq](f: U => Traversable[U]) =
+      StateSpaceWithEq.create(f).depthFirstTraversal(x)
+
+    def breadthFirstTraversal[U >: T : Eq](f: U => Traversable[U]) =
+      StateSpaceWithEq.create(f).breadthFirstTraversal(x)
 
   }
 

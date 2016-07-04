@@ -59,11 +59,11 @@ a.init
 a.last
 a.suffixes
 a.prefixes
-a skip 2
+a drop 2
 a take 3
 a take 7
-a skip -1
-a skip 8
+a drop -1
+a drop 8
 a.skipWhile(_ >= 3)
 a.takeWhile(_ >= 3)
 a.takeTo(_ == 2)

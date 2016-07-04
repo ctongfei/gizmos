@@ -36,7 +36,7 @@ e.consecutive(_-_)
 e.head
 e.tail
 e.sort
-e.skip(1)
+e.drop(1)
 e.skipWhile(_ < 2)
 e.take(2)
 e.takeWhile(_ < 3)

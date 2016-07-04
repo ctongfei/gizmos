@@ -5,7 +5,7 @@ import poly.algebra.specgroup._
 
 /**
  * Represents a bidirectional graph, i.e., a graph in which each
- * node's predecessors and successors can be efficiently retrieved.
+ * node's predecessors and successors can both be efficiently retrieved.
  *
  * @author Tongfei Chen
  * @since 0.1.0
@@ -32,6 +32,8 @@ trait BiGraph[@sp(Int) K, +E] extends Graph[K, E] { self =>
   override def reverse: BiGraph[K, E] = new BiGraphT.Reversed(self)
 
   //TODO: mapArcs, filterKeys, zip, ...
+
+  override def asMultimap: BiMultimap[K, K] = ???
 
 }
 

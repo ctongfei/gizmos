@@ -18,6 +18,8 @@ case class UPair[@sp(spTuple2) T: Eq](_1: T, _2: T) extends Set[T] {
 
   def eqOnKeys = Eq[T]
 
+  override def size = 2
+
   override def equals(that: Any) = that match {
     case that: UPair[T] =>
       ((this._1 == that._1) && (this._2 == that._2)) ||

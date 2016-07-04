@@ -31,7 +31,7 @@ class IterableTest extends FunSuite {
   test("Iterable.scanRight") { s.scanRight(0)(_+_) iterable_=== p.scanRight(0)(_+_) }
 
 
-  test("Iterable.skip") { s.drop(4) iterable_=== p.skip(4) }
+  test("Iterable.skip") { s.drop(4) iterable_=== p.drop(4) }
   test("Iterable.take") { s.take(8) iterable_=== p.take(8) }
 
 }

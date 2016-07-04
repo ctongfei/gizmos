@@ -65,7 +65,7 @@ class LinkedHashMap[K: Hashing, V] private(val data: OpenHashTable[K, LinkedHash
     else addInplace(x, y)
   }
 
-  def pairs: BiSeq[(K, V)] = BiSeq.ofDummyNode(dummy)
+  override def pairs: BiSeq[(K, V)] = BiSeq.ofDummyNode(dummy)
 
   override def keys = pairs map first
 

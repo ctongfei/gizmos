@@ -14,8 +14,8 @@ object ToScala {
 
     /** Converts a Poly-collection iterator to a Scala iterator. */
     def asScalaIterator: sc.Iterator[T] = new sc.AbstractIterator[T] {
-      var nextElem: T = default[T]
-      var nextElemFetched: Boolean = false
+      private[this] var nextElem: T = default[T]
+      private[this] var nextElemFetched: Boolean = false
 
       def hasNext: Boolean = {
         if (nextElemFetched) true

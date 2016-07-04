@@ -18,14 +18,13 @@ import scala.language.reflectiveCalls
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K, V] { self =>
+trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K, V] with Func[K, V] { self =>
 
-  /** Returns all key-value pairs stored in this map. */
-  def pairs: Iterable[(K, V)]
+  /** Returns an iterable collection of the keys in this map. $LAZY */
+  def keys: Iterable[K]
 
   /**
    * Optionally retrieves the value associated with the specified key.
- *
    * @param k The given key
    * @return The associated value. If the key is not found, [[None]] will be returned.
    */
@@ -55,16 +54,14 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
    */
   def getOrElse[W >: V](x: K, default: => W) = ?(x) getOrElse default
 
-  def isDefinedAt(x: K) = containsKey(x)
+  final def isDefinedAt(x: K) = containsKey(x)
 
   /** Returns the set of the keys of this map. $LAZY */
   def keySet: Set[K] = new MapT.KeySet(self)
 
-  /** Returns an iterable collection of the keys in this map. $LAZY */
-  def keys = pairs map first
-
-  /** Returns an iterable collection of the values in this map. $LAZY */
-  def values = pairs map second
+  /** Returns all key-value pairs stored in this map.
+   * @note For performance reasons, this method should be overridden. */
+  def pairs: Iterable[(K, V)] = keys map { k => (k, apply(k)) }
 
   // HELPER FUNCTIONS
 
@@ -85,7 +82,9 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
    * @param f The specific function
    * @return A map view that maps every key of this map to `f(this(key))`.
    */
-  def map[W](f: V => W): Map[K, W] = new MapT.Mapped(self, f)
+  override def map[W](f: V => W): Map[K, W] = new MapT.Mapped(self, f)
+
+  def mapWithKeys[W](f: (K, V) => W): Map[K, W] = new MapT.MappedWithKeys(self, f)
 
   /**
    * Returns the product map of two maps. $LAZY
@@ -168,11 +167,12 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
 
   def asMap: Map[K, V] = new MapT.Bare(self)
 
+  def asMultimap[W >: V](implicit W: Eq[W]): Multimap[K, W] = new MapT.AsMultimap(self, W)
+
   // SYMBOLIC ALIASES
-  def |~|[W](that: Map[K, W]) = self zip that
   def ×[L, W](that: Map[L, W]) = self product that
 
-  def |>[W](f: V => W) = self map f
+  override def |>[W](f: V => W) = self map f
   def <|[J](f: Bijection[J, K]) = self contramap f
 
   def ⋈[W](that: Map[K, W]) = self innerJoin that
@@ -202,7 +202,8 @@ object Map extends FactoryAeB[Map, Eq] with MapLowPriorityTypeclassInstances {
     def apply(k: K) = throw new KeyNotFoundException[K](k)
     def ?(k: K) = None
     def eqOnKeys = poly.algebra.Eq[K]
-    def pairs = Iterable.empty
+    def keys = Iterable.empty
+    override def pairs = Iterable.empty
     def containsKey(x: K) = false
   }
 
@@ -228,7 +229,7 @@ object Map extends FactoryAeB[Map, Eq] with MapLowPriorityTypeclassInstances {
       }
 
       def ?(k: K) = if (domK contains k) Some(apply(k)) else None
-      def pairs = domK.elements map { k => (k, apply(k)) }
+      def keys = domK.elements
       def containsKey(k: K) = domK contains k
       def apply(k: K) = domL createMapByOptional { l => m ? (k, l) }
       def eqOnKeys = domK.eqOnKeys
@@ -248,7 +249,8 @@ object Map extends FactoryAeB[Map, Eq] with MapLowPriorityTypeclassInstances {
      */
     def uncurry(implicit L: Eq[L]): Map[(K, L), V] = new AbstractMap[(K, L), V] {
       def ?(kl: (K, L)) = for (ml <- m ? kl._1) yield ml(kl._2)
-      def pairs = for ((k, ml) <- m.pairs; (l, v) <- ml.pairs) yield ((k, l), v)
+      def keys = for ((k, ml) <- m.pairs; l <- ml.keys) yield (k, l)
+      override def pairs = for ((k, ml) <- m.pairs; (l, v) <- ml.pairs) yield ((k, l), v)
       def containsKey(kl: (K, L)) = m.containsKey(kl._1) && m(kl._1).containsKey(kl._2)
       def apply(kl: (K, L)) = m(kl._1)(kl._2)
       def eqOnKeys = m.eqOnKeys product L
@@ -331,7 +333,8 @@ private[poly] object MapT {
   class KeyFiltered[K, V](self: Map[K, V], f: K => Boolean) extends AbstractMap[K, V] {
     def apply(k: K) = if (!f(k)) throw new KeyNotFoundException(k) else self(k)
     def ?(k: K) = if (!f(k)) None else self ? k
-    def pairs = self.pairs.filter { case (k, _) => f(k) }
+    def keys = self.keys filter f
+    override def pairs = self.pairs.filter { case (k, _) => f(k) }
     def containsKey(k: K) = if (!f(k)) false else self.containsKey(k)
     def eqOnKeys = self.eqOnKeys
   }
@@ -341,12 +344,22 @@ private[poly] object MapT {
     def containsKey(x: K) = self.containsKey(x)
     def ?(x: K) = (self ? x).map(f)
     def apply(x: K) = f(self(x))
-    def pairs = self.pairs.map { case (k, v) => (k, f(v)) }
+    def keys = self.keys
+    override def pairs = self.pairs.map { case (k, v) => (k, f(v)) }
     override def size = self.size
   }
 
+  class MappedWithKeys[K, V, W](self: Map[K, V], f: (K, V) => W) extends AbstractMap[K, W] {
+    def keys = self.keys
+    def ?(k: K) = for (v <- self ? k) yield f(k, v)
+    def apply(k: K) = f(k, self(k))
+    def containsKey(x: K) = self containsKey x
+    def eqOnKeys = self.eqOnKeys
+  }
+
   class Contramapped[K, V, J](self: Map[K, V], f: Bijection[J, K]) extends AbstractMap[J, V] {
-    def pairs = self.pairs.map { case (k, v) => (f.invert(k), v) }
+    def keys = self.keys map f.invert
+    override def pairs = self.pairs.map { case (k, v) => (f.invert(k), v) }
     def containsKey(x: J) = self containsKey f(x)
     def apply(k: J) = self apply f(k)
     def ?(k: J) = self ? f(k)
@@ -358,13 +371,15 @@ private[poly] object MapT {
     def containsKey(k: (K, L)) = self.containsKey(k._1) && that.containsKey(k._2)
     def ?(k: (K, L)) = for (v <- self ? k._1; v1 <- that ? k._2) yield (v, v1)
     def apply(k: (K, L)) = (self(k._1), that(k._2))
-    def pairs = for (k <- self.keys; k1 <- that.keys) yield ((k, k1), (self(k), that(k1)))
+    def keys = for (k <- self.keys; l <- that.keys) yield (k, l)
+    override def pairs = for ((k, v) <- self.pairs; (l, w) <- that.pairs) yield ((k, l) -> (v, w))
     override def size = self.size * that.size
   }
 
   class ZippedWith[K, V, W, X](self: Map[K, V], that: Map[K, W], f: (V, W) => X) extends AbstractMap[K, X] {
     def ?(k: K) = for (v <- self ? k; w <- that ? k) yield f(v, w)
-    def pairs = self.pairs filter { case (k, v) => that containsKey k } map { case (k, v) => (k, f(v, that(k))) }
+    def keys = self.keys filter that.containsKey
+    override def pairs = self.pairs filter { case (k, v) => that containsKey k } map { case (k, v) => (k, f(v, that(k))) }
     def containsKey(x: K) = self.containsKey(x) && that.containsKey(x)
     def apply(k: K) = f(self(k), that(k))
     def eqOnKeys = self.eqOnKeys
@@ -374,7 +389,8 @@ private[poly] object MapT {
     def apply(k: K) = (self(k), that ? k)
     def ?(k: K) = for (v <- self ? k) yield (v, that ? k)
     def eqOnKeys = self.eqOnKeys
-    def pairs = self.pairs map { case (k, v) => (k, (v, that ? k)) }
+    def keys = self.keys
+    override def pairs = self.pairs map { case (k, v) => (k, (v, that ? k)) }
     def containsKey(x: K) = self containsKey x
   }
 
@@ -382,7 +398,8 @@ private[poly] object MapT {
     def apply(k: K) = (self ? k, that(k))
     def ?(k: K) = for (w <- that ? k) yield (self ? k, w)
     def eqOnKeys = that.eqOnKeys
-    def pairs = that.pairs map { case (k, w) => (k, (self ? k, w)) }
+    def keys = that.keys
+    override def pairs = that.pairs map { case (k, w) => (k, (self ? k, w)) }
     def containsKey(x: K) = that containsKey x
   }
 
@@ -393,7 +410,8 @@ private[poly] object MapT {
       case res => Some(res)
     }
     def eqOnKeys = self.eqOnKeys
-    def pairs =
+    def keys = self.keys ++ (that.keys filter self.notContainsKey)
+    override def pairs =
       (self.pairs map { case (k, v) => k -> (Some(v), that ? k) }) ++
         (that.pairs filter { case (k, w) => self notContainsKey k } map { case (k, w) => k -> (None, Some(w)) })
     def containsKey(x: K) = self.containsKey(x) || that.containsKey(x)
@@ -405,7 +423,8 @@ private[poly] object MapT {
       case (false, true) => Some(Right(that(k)))
       case _ => None
     }
-    def pairs = {
+    def keys = (self.keySet symmetricDiff that.keySet).elements
+    override def pairs = {
       val l = for ((k, v) <- self.pairs if that notContainsKey k) yield (k, Left(v))
       val r = for ((k, v) <- that.pairs if self notContainsKey k) yield (k, Right(v))
       l ++ r
@@ -416,7 +435,8 @@ private[poly] object MapT {
   }
 
   class WithDefault[K, V, W >: V](self: Map[K, V], default: => W) extends AbstractMap[K, W] {
-    def pairs = self.pairs
+    def keys = self.keys
+    override def pairs = self.pairs
     def containsKey(x: K) = self.containsKey(x)
     def apply(k: K) = (self ? k).getOrElse(default)
     def ?(k: K) = self ? k
@@ -427,8 +447,20 @@ private[poly] object MapT {
     def apply(k: K) = self.apply(k)
     def ?(k: K) = self ? k
     def eqOnKeys = self.eqOnKeys
-    def pairs = self.pairs
+    def keys = self.keys
+    override def pairs = self.pairs
     def containsKey(x: K) = self.containsKey(x)
+  }
+
+  class AsMultimap[K, V](self: Map[K, V], implicit val eqOnValues: Eq[V]) extends Multimap[K, V] {
+    def keys = self.keys
+    override def pairs = self.pairs
+    def apply(k: K) = self ? k match {
+      case Some(v) => Set(v)
+      case None => Set.empty[V]
+    }
+    def containsKey(x: K) = self.containsKey(x)
+    def eqOnKeys = self.eqOnKeys
   }
 
 }

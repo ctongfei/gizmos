@@ -23,7 +23,8 @@ trait IndexedSeq[+T] extends BiSeq[T] { self =>
   /** Returns the length of this indexed sequence. */
   def fastLength: Int
 
-  /** Returns the ''i''-th element of this sequence. */
+  /** Returns the ''i''-th element of this sequence.
+   * @note Not necessary to implement negative indices here. */
   def fastApply(i: Int): T
 
   @inline final override def size = fastLength
@@ -44,7 +45,6 @@ trait IndexedSeq[+T] extends BiSeq[T] { self =>
     FastLoop.ascending(0, length, 1) { i => f(apply(i)) }
   }
 
-
   class Node(val i: Int) extends BiSeqNode[T] {
     def isDummy = (i < 0) || (i >= length)
     def data = self(i)
@@ -63,12 +63,11 @@ trait IndexedSeq[+T] extends BiSeq[T] { self =>
 
   override def sizeKnown = true
 
-  override def pairs: SortedIndexedSeq[(Int, T @uv)] =
-    IndexedSeq.tabulate(length)(i => i -> self(i)).asIfSorted(Order by first)
-
-  override def keys = Range(length)
+  override def asMap = new IndexedSeqT.AsMap(self)
 
   // HELPER FUNCTIONS
+
+  override def isEmpty = fastLength == 0
 
   override def map[U](f: T => U): IndexedSeq[U] = new IndexedSeqT.Mapped(self, f)
 
@@ -76,8 +75,8 @@ trait IndexedSeq[+T] extends BiSeq[T] { self =>
 
   /**
    * Returns the Cartesian product of two indexed sequences. The returning value is a table.
-   */
-  def product[U](that: IndexedSeq[U]): Table[(T, U)] = new IndexedSeqT.Product(self, that)
+   */ //TODO: consider revising?
+  def productToTable[U](that: IndexedSeq[U]): Table[(T, U)] = new IndexedSeqT.TableProduct(self, that)
 
   def concat[U >: T](that: IndexedSeq[U]): IndexedSeq[U] = new IndexedSeqT.Concatenated(self, that)
 
@@ -98,17 +97,17 @@ trait IndexedSeq[+T] extends BiSeq[T] { self =>
 
   override def last = self(length - 1)
 
-  override def tail = self.skip(1)
+  override def tail = self.drop(1)
 
   override def init = self.take(length - 1)
 
-  override def suffixes = Range(length) map skip
+  override def suffixes = Range(length) map drop
 
   override def prefixes = Range(length, 0, -1) map take
 
   override def take(n: Int) = slice(0, n)
 
-  override def skip(n: Int) = slice(n, self.length)
+  override def drop(n: Int) = slice(n, self.length)
 
   override def slice(_i: Int, _j: Int): IndexedSeq[T] = {
     val i = if (_i < 0) _i + length else _i
@@ -148,9 +147,9 @@ trait IndexedSeq[+T] extends BiSeq[T] { self =>
   override def +:[U >: T](u: U): IndexedSeq[U] = this prepend u
   override def :+[U >: T](u: U): IndexedSeq[U] = this append u
   def ++[U >: T](that: IndexedSeq[U]) = this concat that
-  def |*|[U](that: IndexedSeq[U]) = self monadicProduct that
-  def |~|[U](that: IndexedSeq[U]) = self zip that
-  def ×[U](that: IndexedSeq[U]) = self product that
+  def ∗[U](that: IndexedSeq[U]) = self monadicProduct that
+  def ⋈[U](that: IndexedSeq[U]) = self zip that
+  def ×[U](that: IndexedSeq[U]) = self productToTable that
 
 }
 
@@ -205,7 +204,7 @@ private[poly] object IndexedSeqT {
     def fastApply(i: Int) = (self(i / stride), that(i % stride))
   }
 
-  class Product[T, U](self: IndexedSeq[T], that: IndexedSeq[U]) extends AbstractTable[(T, U)] {
+  class TableProduct[T, U](self: IndexedSeq[T], that: IndexedSeq[U]) extends AbstractTable[(T, U)] {
     def apply(i: Int, j: Int) = (self(i), that(j))
     def numRows = self.length
     def numCols = that.length
@@ -271,6 +270,16 @@ private[poly] object IndexedSeqT {
     def fastApply(i: Int) = self(p.invert(i))
     def fastLength = self.fastLength
     override def permuteBy(q: Permutation) = self.permuteBy(q compose p)
+  }
+
+  class AsMap[+T](self: IndexedSeq[T]) extends AbstractSortedMap[Int, T] {
+    def apply(k: Int) = self(k)
+    def orderOnKeys = Order[Int]
+    def keys = Range(self.length)
+    override def pairs: SortedIndexedSeq[(Int, T @uv)] =
+      IndexedSeq.tabulate(self.length)(i => i -> self(i)).asIfSorted(Order by first)
+    def ?(k: Int) = if (k >= 0 && k < self.length) Some(self(k)) else None
+    def containsKey(k: Int) = k >= 0 && k < self.length
   }
 
   class AsIfSorted[T](self: IndexedSeq[T], order: Order[T]) extends SortedIndexedSeq[T] {

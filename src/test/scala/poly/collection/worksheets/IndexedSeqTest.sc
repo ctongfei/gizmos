@@ -74,7 +74,7 @@ a.prefixes
 a.suffixes
 
 a take 3
-a skip 2
+a drop 2
 a slice (1, 3)
 
 a slice (0, -1)

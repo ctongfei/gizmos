@@ -19,7 +19,6 @@ object GraphTest extends App {
     (1, 5, 5)
   )
 
-
   g.breadthFirstTraversal(1) foreach println
 
   println(g)
@@ -33,7 +32,6 @@ object GraphTest extends App {
   apsp.pathBetween(2, 5) foreach println
 
   val sssp = new SingleSourceShortestPath(g, 1)
-
 
   val bp = 0
 

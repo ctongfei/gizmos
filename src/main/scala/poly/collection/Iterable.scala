@@ -155,7 +155,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
 
   override def scan[U >: T](z: U)(f: (U, U) => U) = scanLeft(z)(f)
 
-  override def scanByMonoid[U >: T : Monoid] = scanLeft(id)(_ op _)
+  override def scanByMonoid[U >: T : Monoid] = scanLeft(id)(_ <> _)
 
   override def consecutive[U](f: (T, T) => U) = ofIterator {
     new AbstractIterator[U] {
@@ -211,7 +211,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
    *
    * @param n The number of elements to be skipped
    */
-  override def skip(n: Int): Iterable[T] = ofIterator {
+  override def drop(n: Int): Iterable[T] = ofIterator {
     val skippedIterator = self.newIterator
     var i = 0
     while (i < n && skippedIterator.advance()) i += 1
@@ -247,7 +247,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
 
   override def takeUntil(f: T => Boolean) = takeWhile(x => !f(x))
 
-  override def slice(i: Int, j: Int) = self.skip(i).take(j - i)
+  override def slice(i: Int, j: Int) = self.drop(i).take(j - i)
 
   override def distinct[U >: T : Eq]: Iterable[U] = ofIterator {
     new AbstractIterator[T] {
@@ -288,7 +288,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
 
   def intersect[U >: T : Eq](that: Iterable[U]): Iterable[U] = (this filter that.to(AutoSet)).distinct
 
-  override def rotate(n: Int): Iterable[T] = self.skip(n) ++ self.take(n)
+  override def rotate(n: Int): Iterable[T] = self.drop(n) ++ self.take(n)
 
   /**
    * Lazily splits this collection into multiple subsequences using the given delimiter predicate.
@@ -469,7 +469,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
   def ++[U >: T](that: Iterable[U]) = this concat that
   //def *(n: Int) = this repeat n
   def |*|[U](that: Iterable[U]) = this monadicProduct that
-  def |~|[U](that: Iterable[U]) = this zip that
+  def ⋈[U](that: Iterable[U]) = this zip that
   //endregion
 
   def asIterable: Iterable[T] = ofIterator(self.newIterator)

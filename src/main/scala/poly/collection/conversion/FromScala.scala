@@ -61,7 +61,8 @@ object FromScala {
   }
 
   implicit class scalaMapAsPoly[K, V](smap: sc.Map[K, V]) extends AbstractMap[K, V] {
-    def pairs = scalaIterableAsPoly(smap)
+    def keys = smap.keys
+    override def pairs = scalaIterableAsPoly(smap)
     def containsKey(x: K) = smap contains x
     def apply(k: K) = smap(k)
     def ?(k: K) = smap get k
@@ -75,8 +76,9 @@ object FromScala {
   }
 
   implicit class scalaSortedMapAsPoly[K, V](smap: sc.SortedMap[K, V]) extends AbstractMap[K, V] with SortedMap[K, V] {
-    def orderOnKeys = smap.ordering
-    def pairs = scalaIterableAsPoly(smap).asIfSorted(smap.ordering contramap first)
+    def keys = smap.keys.asIfSorted(orderOnKeys)
+    override def orderOnKeys = smap.ordering
+    override def pairs = scalaIterableAsPoly(smap).asIfSorted(smap.ordering contramap first)
     def containsKey(x: K) = smap contains x
     def apply(k: K) = smap(k)
     def ?(k: K) = smap get k

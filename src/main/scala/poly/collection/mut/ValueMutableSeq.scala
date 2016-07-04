@@ -7,7 +7,7 @@ import poly.collection._
  * @since 0.1.0
  * @author Tongfei Chen
  */
-trait ValueMutableSeq[T] extends Seq[T] with ValueMutableMap[Int, T] { self =>
+trait ValueMutableSeq[T] extends Seq[T] { self =>
 
   /**
    * Updates the element at the specific location.
@@ -25,6 +25,11 @@ trait ValueMutableSeq[T] extends Seq[T] with ValueMutableMap[Int, T] { self =>
     val t = this(i)
     this(i) = this(j)
     this(j) = t
+  }
+
+  def mapInplace(f: T => T): Unit = {
+    for (i <- Range(length))
+      update(i, f(apply(i)))
   }
 
   //def inplaceReverse(): Unit

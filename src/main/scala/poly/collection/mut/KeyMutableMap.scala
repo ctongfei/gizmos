@@ -92,7 +92,9 @@ private[poly] object KeyMutableMapT {
       if (self.containsKey(k)) self.update(k, v)
       else self.addInplace(k, v)
     }
-    def pairs = self.pairs
+
+    def keys = self.keys
+    override def pairs = self.pairs
     def containsKey(x: K) = self.containsKey(x)
     def apply(k: K) = (this ? k) getOrElse {
       self.addInplace(k, default)

@@ -9,7 +9,7 @@ import poly.collection._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait WeightedStateSpace[S, @sp(fdi) C] extends StateSpace[S] {
+trait WeightedStateSpace[S, @sp(fdi) C] extends StateSpaceWithEq[S] {
 
   implicit def groupOnCost: OrderedAdditiveGroup[C]
   def succWithCost(x: S): Traversable[(S, C)]
@@ -25,12 +25,12 @@ trait WeightedStateSpace[S, @sp(fdi) C] extends StateSpace[S] {
     Iterable.ofIterator(new AStarIterator[S, C](this, start, heuristic))
 
   def uniformCostSearch(start: S, goal: S => Boolean) =
-    StateSpace.searchByIterator(new UniformCostIterator[S, C](this, start), goal)
+    StateSpaceWithEq.searchByIterator(new UniformCostIterator[S, C](this, start), goal)
 
   def greedyBestFirstSearch(start: S, goal: S => Boolean)(heuristic: S => C) =
-    StateSpace.searchByIterator(new GreedyBestFirstIterator[S, C](this, start, heuristic), goal)
+    StateSpaceWithEq.searchByIterator(new GreedyBestFirstIterator[S, C](this, start, heuristic), goal)
 
   def aStarSearch(start: S, goal: S => Boolean)(heuristic: S => C) =
-    StateSpace.searchByIterator(new AStarIterator[S, C](this, start, heuristic), goal)
+    StateSpaceWithEq.searchByIterator(new AStarIterator[S, C](this, start, heuristic), goal)
 
 }

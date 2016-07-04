@@ -17,7 +17,7 @@ import scala.annotation.unchecked.{uncheckedVariance => uv}
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
+trait Seq[+T] extends Iterable[T] { self =>
 
   import Seq._
 
@@ -43,7 +43,7 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
    * @param i Index
    * @return The ''i''-th element of this sequence
    */
-  override def apply(i: Int): T = {
+  def apply(i: Int): T = {
     if (i < 0) {
       val l = length
       if (i < -l) throw new KeyNotFoundException(i)
@@ -60,8 +60,7 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
     }
   }
 
-  /** Returns the weak order on keys. In this case (`Seq`), it returns the default order on integers. */
-  def orderOnKeys = Order[Int]
+
 
   override def size = length
 
@@ -74,22 +73,6 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
   }
 
   def newIterator: Iterator[T] = new SeqT.DefaultIterator(self)
-
-  override def isDefinedAt(i: Int) = containsKey(i)
-
-  def ?(i: Int) = if (i >= 0 && i < length) Some(this(i)) else None
-
-  def containsKey(i: Int) = i >= 0 && i < length
-
-  /**
-    * Pairs each element with its index. $LAZY
-   *
-   * @example {{{('a', 'b', 'c').pairs == ((0, 'a'), (1, 'b'), (2, 'c'))}}}
-    * @return A sequence of index-element pairs.
-    */
-  def pairs: SortedSeq[(Int, T @uv)] = new SeqT.Pairs(self)
-
-  override def keys: SortedSeq[Int] = new SeqT.Keys(self)
 
   // HELPER FUNCTIONS
 
@@ -194,7 +177,7 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
 
   override def scan[U >: T](z: U)(f: (U, U) => U) = scanLeft(z)(f)
 
-  override def scanByMonoid[U >: T : Monoid] = scanLeft(id[U])(_ op _)
+  override def scanByMonoid[U >: T : Monoid] = scanLeft(id[U])(_ <> _)
 
   override def consecutive[U](f: (T, T) => U): Seq[U] = {
     class DiffNode(val a: SeqNode[T], val b: SeqNode[T]) extends SeqNode[U] {
@@ -234,7 +217,7 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
     ofDummyNode(new InitNode(self.dummy, self.headNode))
   }
 
-  override def skip(n: Int) = ofHeadNode {
+  override def drop(n: Int) = ofHeadNode {
     var node = self.headNode
     var i = 0
     while (node.notDummy && i < n) {
@@ -282,12 +265,12 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
 
   override def slice(i: Int, j: Int) = {
     if (i >= 0 && j >= 0)
-      self.skip(i).take(j - i)
+      self.drop(i).take(j - i)
     else {
       val l = length
       val ii = if (i < 0) i + l else i
       val jj = if (j < 0) j + l else j
-      self.skip(ii).take(jj - ii)
+      self.drop(ii).take(jj - ii)
     }
   }
 
@@ -336,7 +319,7 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
 
   def intersect[U >: T : Eq](that: Seq[U]): Seq[U] = (this filter AutoSet.from(that)).distinct
 
-  override def rotate(i: Int) = self.skip(i) ++ self.take(i)
+  override def rotate(i: Int) = self.drop(i) ++ self.take(i)
 
   override def repeat(n: Int): Seq[T] = {
     if (n <= 0) return Seq.empty
@@ -444,14 +427,22 @@ trait Seq[+T] extends IntKeyedSortedMap[T] with Iterable[T] { self =>
 
   def asSeq: Seq[T] = ofHeadNode(headNode)
 
+  def asMap: SortedMap[Int, T] = new SortedMap[Int, T] {
+    def orderOnKeys = Order[Int]
+    def keys = new SeqT.Keys(self)
+    override def pairs: SortedSeq[(Int, T @uv)] = new SeqT.Pairs(self)
+    def ?(i: Int) = if (i >= 0 && i < length) Some(this(i)) else None
+    def apply(i: Int) = self(i)
+    def containsKey(i: Int) = i >= 0 && i < length
+  }
+
   // SYMBOLIC ALIASES
 
   override def +:[U >: T](u: U): Seq[U] = this prepend u
   override def :+[U >: T](u: U): Seq[U] = this append u
   def ++[U >: T](that: Seq[U]) = this concat that
  // override def *(n: Int) = this repeat n
-  def |*|[U](that: Seq[U]) = this product that
-  def |~|[U](that: Seq[U]) = this zip that
+  def ⋈[U](that: Seq[U]) = this zip that
 
   override def withFilter(f: T => Boolean) = filter(f)
 

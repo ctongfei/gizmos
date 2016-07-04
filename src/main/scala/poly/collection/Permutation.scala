@@ -15,19 +15,23 @@ import poly.macroutil._
  * @since 0.1.0
  */
 class Permutation private(private val a1: Array[Int], private val a2: Array[Int])
-  extends BijectiveMap[Int, Int] with IndexedSeq[Int] with SequentialOrder[Int] with Bounded[Int]
-{
+  extends BiMap[Int, Int] { self =>
+
   def fastLength = a1.length
+
+  override def size = a1.length
+
   def fastApply(x: Int) = a1(x)
+
   def invert(y: Int) = a2(y)
 
-  def eqOnValues = Hashing[Int]
+  def eqOnValues = std.IntStructure
 
   def containsValue(y: Int) = containsKey(y)
 
   def invertOption(y: Int) = if (y < 0 || y >= size) None else Some(a2(y))
 
-  override def keySet = Range(length).asSet
+  override def keySet = Range(size).asSet
 
   override def valueSet = keySet
 
@@ -38,17 +42,23 @@ class Permutation private(private val a1: Array[Int], private val a2: Array[Int]
 
   def andThen(that: Permutation) = that compose this
 
-  def cmp(x: Int, y: Int) = a2(x) >?< a2(y)
-  def pred(x: Int) = a1((a2(x) - 1) % size)
-  def succ(x: Int) = a1((a2(x) + 1) % size)
-  def top = a1(size - 1)
-  def bot = a1(0)
+  /**
+   * Casts this permutation as an order on the set '''Z''',,''n'',,.
+   * @example Given a permutation (2, 0, 1), 2 < 0 < 1 holds under this order.
+   */
+  def asOrder: SequentialOrder[Int] with Bounded[Int] = new SequentialOrder[Int] with Bounded[Int] {
+    def cmp(x: Int, y: Int) = a2(x) >?< a2(y)
+    def pred(x: Int) = a1((a2(x) - 1) % size)
+    def succ(x: Int) = a1((a2(x) + 1) % size)
+    def top = a1(size - 1)
+    def bot = a1(0)
+  }
 
   /** Returns the inverse of this permutation. */
   override def inverse: Permutation = new Permutation(a2, a1)
 
   override def reverse: Permutation = {
-    val n = length
+    val n = size
     val b1 = Array.ofDim[Int](n)
     val b2 = Array.ofDim[Int](n)
     FastLoop.ascending(0, n, 1) { i =>
@@ -58,7 +68,6 @@ class Permutation private(private val a1: Array[Int], private val a2: Array[Int]
     new Permutation(b1, b2)
   }
 
-  override def toString = super[IndexedSeq].toString
 }
 
 object Permutation {
@@ -73,7 +82,7 @@ object Permutation {
       bs(xs(i)) = true
     }
     // Requires that this is essentially a true bijection: all bits should be set as true
-    require(bs forall {x => x})
+    require(bs forall {x => x} )
     new Permutation(xs.clone, ys)
   }
 

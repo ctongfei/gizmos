@@ -144,7 +144,8 @@ object FromJava {
     def removeInplace(x: K) = jm.remove(x)
     def update(x: K, y: V) = jm.put(x, y)
     def ?(x: K) = Option(jm.get(x))
-    def pairs = jm.entrySet().elements.map(e => e.getKey -> e.getValue)
+    def keys = jm.keySet()
+    override def keySet = jm.keySet()
     override def size = jm.size
     def apply(x: K) = jm.get(x)
     def containsKey(x: K) = jm.containsKey(x)

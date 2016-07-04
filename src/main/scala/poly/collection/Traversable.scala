@@ -237,7 +237,7 @@ trait Traversable[+T] { self =>
   def fold[U >: T](z: U)(f: (U, U) => U): U = foldLeft(z)(f)
 
   /** $On */
-  def foldByMonoid[U >: T : Monoid]: U = foldLeft(id)(_ op _)
+  def foldByMonoid[U >: T : Monoid]: U = foldLeft(id)(_ <> _)
 
   /** $On */
   def reduceLeft[U >: T](f: (U, T) => U): U = { //TODO: Action[U, T]
@@ -258,7 +258,7 @@ trait Traversable[+T] { self =>
 
   def reduce[U >: T](f: (U, U) => U) = reduceLeft(f)
 
-  def reduceBySemigroup[U >: T : Semigroup]: U = reduceLeft[U](_ op _)
+  def reduceBySemigroup[U >: T : Semigroup]: U = reduceLeft[U](_ <> _)
 
   /** $LAZY $O1 */
   def scanLeft[U](z: U)(f: (U, T) => U): Traversable[U] = new AbstractTraversable[U] {
@@ -278,7 +278,7 @@ trait Traversable[+T] { self =>
   def scan[U >: T](z: U)(f: (U, U) => U): Traversable[U] = scanLeft(z)(f)
 
   /** $LAZY $O1 */
-  def scanByMonoid[U >: T : Monoid]: Traversable[U] = scanLeft(id)(_ op _)
+  def scanByMonoid[U >: T : Monoid]: Traversable[U] = scanLeft(id)(_ <> _)
 
   /**
    * Returns the consecutive differences of the sequences. $LAZY
@@ -365,7 +365,7 @@ trait Traversable[+T] { self =>
     override def take(nn: Int) = self.take(math.min(n, nn))
   }
 
-  def skip(n: Int): Traversable[T] = new AbstractTraversable[T] {
+  def drop(n: Int): Traversable[T] = new AbstractTraversable[T] {
     def foreach[U](f: T => U): Unit = {
       var i = 0
       for (x <- self) {
@@ -373,7 +373,7 @@ trait Traversable[+T] { self =>
         i += 1
       }
     }
-    override def skip(nn: Int) = self.skip(n + nn)
+    override def drop(nn: Int) = self.drop(n + nn)
   }
 
   def takeWhile(f: T => Boolean): Traversable[T] = new AbstractTraversable[T] {
@@ -408,7 +408,7 @@ trait Traversable[+T] { self =>
     }
   }
 
-  def slice(i: Int, j: Int) = skip(i).take(j - i)
+  def slice(i: Int, j: Int) = drop(i).take(j - i)
 
   /**
    * Returns the unique elements in this collection while retaining its original order.
@@ -466,7 +466,7 @@ trait Traversable[+T] { self =>
    * @param n Rotation starts here
    */
   def rotate(n: Int) = {
-    (self skip n) ++ (self take n)
+    (self drop n) ++ (self take n)
   }
 
   /**
@@ -750,7 +750,7 @@ trait Traversable[+T] { self =>
   private[poly] def toString0 = {
     val sb = new StringBuilder
     sb.append(self.take(Settings.MaxElementsToString).buildString(", "))
-    if (self.skip(Settings.MaxElementsToString).notEmpty) sb.append(", ⋯")
+    if (self.drop(Settings.MaxElementsToString).notEmpty) sb.append(", ⋯")
     sb.result()
   }
 
@@ -801,7 +801,7 @@ object Traversable {
     def unzip: (Traversable[A], Traversable[B]) = (underlying map first, underlying map second)
 
     /** Eagerly unzips a traversable sequence of pairs. This method only traverses through the collection once. */
-    def unzipEagerly: (IndexedSeq[A], IndexedSeq[B]) = {
+    def unzipE: (IndexedSeq[A], IndexedSeq[B]) = {
       val ak = ArraySeq.newBuilder[A]
       val av = ArraySeq.newBuilder[B]
       for ((k, v) <- underlying) {

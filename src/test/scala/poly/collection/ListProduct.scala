@@ -36,7 +36,6 @@ object ListProduct extends App {
     }
   }
 
-
   val a = ArraySeq(1, 2, 3)
   val b = ArraySeq(4, 5)
   val c = ArraySeq(6, 7, 8)

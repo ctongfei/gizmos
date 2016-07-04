@@ -27,7 +27,7 @@ trait UndirectedGraph[@sp(Int) K, +E] extends BiGraph[K, E] { self =>
 
   def edgeMap: Map[UPair[K], E] = new AbstractMap[UPair[K], E] {
     def ?(k: UPair[K]) = self ? (k._1, k._2)
-    def pairs = edges map { e => UPair(e.key1, e.key2)(self.eqOnKeys) -> e.data }
+    def keys = edges map { e => UPair(e.key1, e.key2)(self.eqOnKeys) }
     def containsKey(k: UPair[K]) = self.containsArc(k._1, k._2)
     def apply(k: UPair[K]) = self(k._1, k._2)
     def eqOnKeys = UPair.Eq(self.eqOnKeys)
@@ -45,7 +45,16 @@ trait UndirectedGraph[@sp(Int) K, +E] extends BiGraph[K, E] { self =>
 
   override def reverse = self
 
-  //TODO: map, zip, ...
+  override def map[F](f: E => F): UndirectedGraph[K, F] = ???
+
+  def mapWithKeys[F](f: (UPair[K], E) => F) = ???
+
+  def zip[F](that: UndirectedGraph[K, F]) = zipWith(that) { case (e, f) => (e, f) }
+
+  def zipWith[F, X](that: UndirectedGraph[K, F])(f: (E, F) => X): UndirectedGraph[K, X] = ???
+
+  override def asMultimap: BiMultimap[K, K] = ???
+
   override def toString = "{" + edges.map(e => s"${e.key1} <-(${e.data})-> ${e.key2}").buildString(", ") + "}"
 }
 

@@ -75,7 +75,7 @@ class ListMap[K, V] private(private val data: SinglyLinkedList[K, ListMap.Node[K
 
   def apply(x: K): V = locateKey(x)._2.value
 
-  def pairs = data.entries.map(n => n.data -> n.value)
+  override def pairs = data.entries.map(n => n.data -> n.value)
 
   override def keys = data.entries.map(_.data)
 

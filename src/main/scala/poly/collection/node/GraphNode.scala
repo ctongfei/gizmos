@@ -21,17 +21,7 @@ trait GraphNode[K, +E] extends ForwardNodeLike[K, GraphNode[K, E]] {
   def isDummy: Boolean
 }
 
-trait GraphArc[K, +E] {
 
-  def source: K
-  def target: K
-
-  def sourceNode: GraphNode[K, E]
-  def targetNode: GraphNode[K, E]
-
-  def data: E
-
-}
 
 trait GraphEdge[K, +E] {
   def key1: K

@@ -22,6 +22,13 @@ trait Tree[+T] { self =>
 
   // HELPER FUNCTIONS
 
+  def map[U](f: T => U) = new AbstractTree[U] {
+    def rootNode = self.rootNode map f
+  }
+
+  //TODO: zip
+  //TODO: zipWith
+
   /**
    * Folds a tree bottom-up using the specific function.
    */
@@ -125,7 +132,7 @@ object Tree {
 
   implicit object Comonad extends Comonad[Tree] {
     def id[X](u: Tree[X]): X = u.root
-    def extend[X, Y](wx: Tree[X])(f: Tree[X] => Y): Tree[Y] = ???
+    def extend[X, Y](wx: Tree[X])(f: Tree[X] => Y): Tree[Y] = ??? // wx.subtrees.map(f)
   }
 
 }

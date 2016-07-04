@@ -40,8 +40,13 @@ trait Multiset[@sp(Int) K, @sp(Int, Double) R] extends KeyedLike[K, Multiset[K, 
 
   final def apply(k: K) = weight(k)
 
-  def asKeyWeightMap: Map[K, R] = new AbstractMap[K, R] {
-    def pairs = self.keyWeightPairs
+  /**
+   * Casts this multiset as a map of keys to their corresponding weights.
+   * @example {'a': 2, 'b': 3}.asMap == {'a' -> 2, 'b' -> 3}
+   */
+  def asMap: Map[K, R] = new AbstractMap[K, R] {
+    def keys = self.keys
+    override def pairs = self.keyWeightPairs
     def containsKey(x: K) = self contains x
     def apply(k: K) = self(k)
     def ?(k: K) = if (self.weight(k) == ringOnWeight.zero) None else Some(self.weight(k))
@@ -155,6 +160,8 @@ trait Multiset[@sp(Int) K, @sp(Int, Double) R] extends KeyedLike[K, Multiset[K, 
     case that: Multiset[K, R] => Multiset.ContainmentOrder[K, R].eq(this, that)
     case _ => false
   }
+
+  override def hashCode = asMap.hashCode
 
 }
 
