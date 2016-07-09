@@ -32,7 +32,7 @@ class HashSet[T: Hashing] private(val data: OpenHashTable[T, HashSet.Entry[T]]) 
   override def size: Int = data.size
 }
 
-object HashSet extends BuilderFactoryAe[HashSet, Hashing] {
+object HashSet extends BuilderFactoryA_EvA[HashSet, Hashing] {
 
   private[poly] class Entry[K](val key: K) extends OpenHashEntryLike[K, Entry[K]]
 

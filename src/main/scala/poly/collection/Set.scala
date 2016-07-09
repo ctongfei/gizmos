@@ -92,11 +92,13 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
   def product[U](that: Set[U]): Set[(T, U)] = new SetT.Product(self, that)
 
   /** Using this set as the key set, construct a map by the given function. */
-  def createMapBy[V](f: T => V): Map[T, V] = new SetT.MapByFunc(self, f)
+  def createMap[V](f: T => V): Map[T, V] = new SetT.MapByFunc(self, f)
 
-  def createMapByOptional[V](f: T => Option[V]): Map[T, V] = new SetT.MapByOptionalFunc(self, f)
+  def createMapPartially[V](f: PartialFunction[T, V]): Map[T, V] = createMapOptionally(f.lift)
 
-  //def createGraphBy[E](f: (T, T) => Option[E]): Graph[T, E] = new SetT.GraphByOptionalFunc(self, f)
+  def createMapOptionally[V](f: T => Option[V]): Map[T, V] = new SetT.MapByOptionalFunc(self, f)
+
+  def createGraph[E](f: (T, T) => Option[E]): Graph[T, E] = new SetT.GraphByOptionalFunc(self, f)
 
   override def filterKeys(f: T => Boolean): Set[T] = new SetT.KeyFiltered(self, f)
 
@@ -177,6 +179,8 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
 
   def argmaxWithValue[U: Order](f: T => U) = elements.argmaxWithValue(f)
 
+  def powerSet: Set[Set[T]] = new SetT.PowerSet[T](self)
+
   /**
    * Casts this set as a multiset in which each element appears exactly once.
    * @tparam R Type of the counts of elements in the multiset, can be `Int`, `Double`, etc.
@@ -212,7 +216,7 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
   override def hashCode = MurmurHash3.symmetricHash(self.elements)(Hashing.default[T])
 }
 
-object Set extends FactoryAe[Set, Eq] {
+object Set extends FactoryA_EvA[Set, Eq] {
 
   // CONSTRUCTORS
 
@@ -231,7 +235,12 @@ object Set extends FactoryAe[Set, Eq] {
       def sup(x: Set[T], y: Set[T]) = x ∪ y
   }
 
-  implicit def Hashing[T: Hashing]: Hashing[Set[T]] = new Hashing[Set[T]] {
+  implicit def Eq[T](implicit T: Eq[T]): Eq[Set[T]] = T match {
+    case th: Hashing[T] => Hashing[T](th)
+    case _ => new SetT.SetEq[T]
+  }
+
+  def Hashing[T: Hashing]: Hashing[Set[T]] = new Hashing[Set[T]] {
     def eq(x: Set[T], y: Set[T]) = (x ⊆ y) && (x ⊇ y)
     def hash(x: Set[T]) = MurmurHash3.symmetricHash(x.elements)
   }
@@ -246,6 +255,10 @@ object Set extends FactoryAe[Set, Eq] {
 abstract class AbstractSet[@sp(Int) T] extends Set[T]
 
 private[poly] object SetT {
+
+  class SetEq[T] extends Eq[Set[T]] {
+    def eq(x: Set[T], y: Set[T]) = (x ⊆ y) && (x ⊇ y)
+  }
 
   class KeyFiltered[T](self: Set[T], f: T => Boolean) extends AbstractSet[T] {
     def eqOnKeys = self.eqOnKeys
@@ -278,20 +291,27 @@ private[poly] object SetT {
     def containsKey(x: T) = (self contains x) && f(x).isDefined
   }
 
-  //class GraphByOptionalFunc[T, U](self: Set[T], f: (T, T) => Option[U]) extends AbstractGraph[T, U] {
-  //  def apply(i: T, j: T) = f(i, j).get
-  //  def keys = self.keys
-  //  def containsKey(i: T) = self contains i
-  //  def containsArc(i: T, j: T) = self.contains(i) && self.contains(j) && f(i, j).isDefined
-  //  def eqOnKeys = self.eqOnKeys
-  //  def outgoingKeySet(i: T) = self filterKeys { j => f(i, j).isDefined }
-  //  override def outgoingMap(i: T) = self createMapByOptional { j => f(i, j) }
-  //}
+  class PowerSet[T](self: Set[T]) extends AbstractSet[Set[T]] {
+    implicit def eqOnKeys = new SetT.SetEq[T]
+    def keys = ???
+    def contains(x: Set[T]) = x subsetOf self
+  }
+
+  class GraphByOptionalFunc[T, U](self: Set[T], f: (T, T) => Option[U]) extends AbstractGraph[T, U] {
+    def apply(i: T, j: T) = f(i, j).get
+    def ?(i: T, j: T) = f(i, j)
+    def keys = self.keys
+    def containsKey(i: T) = self contains i
+    def containsArc(i: T, j: T) = self.contains(i) && self.contains(j) && f(i, j).isDefined
+    def eqOnKeys = self.eqOnKeys
+    def outgoingKeySet(i: T) = self filterKeys { j => f(i, j).isDefined }
+    override def outgoingMap(i: T) = self createMapOptionally  { j => f(i, j) }
+  }
 
   class Empty[T: Eq] extends AbstractSet[T] {
     def eqOnKeys = poly.algebra.Eq[T]
     override def size = 0
-    def keys = Iterable.empty
+    def keys = Iterable.Empty
     def contains(x: T) = false
     override def union(that: Set[T]) = that
     override def setDiff(that: Set[T]) = this

@@ -33,7 +33,6 @@ trait Table[+T] extends Map[(Int, Int), T] { self =>
 
   /**
    * Returns all the (row, col, elem) triples in this table.
-   *
    * @example {{{
    *    ┌      ┐
    *    │ 1  2 │

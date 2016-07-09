@@ -34,3 +34,13 @@ trait WeightedStateSpace[S, @sp(fdi) C] extends StateSpaceWithEq[S] {
     StateSpaceWithEq.searchByIterator(new AStarIterator[S, C](this, start, heuristic), goal)
 
 }
+
+object WeightedStateSpace {
+
+  def apply[S: Eq, C: OrderedAdditiveGroup](f: S => Traversable[(S, C)]): WeightedStateSpace[S, C] = new WeightedStateSpace[S, C] {
+    def groupOnCost = OrderedAdditiveGroup[C]
+    def eqOnKeys = Eq[S]
+    def succWithCost(x: S) = f(x)
+  }
+
+}

@@ -79,11 +79,11 @@ class ListMap[K, V] private(private val data: SinglyLinkedList[K, ListMap.Node[K
 
   override def keys = data.entries.map(_.data)
 
-  override def values = data.entries.map(_.value)
+  def values = data.entries.map(_.value)
 
 }
 
-object ListMap extends BuilderFactoryAeB[ListMap, Eq] {
+object ListMap extends BuilderFactoryAB_EvA[ListMap, Eq] {
 
   private[poly] class Node[K, V](var data: K, var value: V) extends SinglyLinkedNodeLike[K, Node[K, V]] {
     var next: Node[K, V] = _

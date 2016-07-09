@@ -35,7 +35,7 @@ trait UndirectedGraph[@sp(Int) K, +E] extends BiGraph[K, E] { self =>
 
   def adjacentKeySet(i: K): Set[K]
 
-  def adjacentMap(i: K) = adjacentKeySet(i) createMapBy { j => apply(i, j) }
+  def adjacentMap(i: K) = adjacentKeySet(i) createMap { j => apply(i, j) }
   def adjacentKeys(i: K) = adjacentKeySet(i).elements
   def adjacentNodes(i: K) = adjacentKeys(i) map node
   def adjacentEdges(i: K) = adjacentKeys(i) map { j => edge(i, j) }
@@ -51,7 +51,7 @@ trait UndirectedGraph[@sp(Int) K, +E] extends BiGraph[K, E] { self =>
 
   def zip[F](that: UndirectedGraph[K, F]) = zipWith(that) { case (e, f) => (e, f) }
 
-  def zipWith[F, X](that: UndirectedGraph[K, F])(f: (E, F) => X): UndirectedGraph[K, X] = ???
+  def zipWith[F, H](that: UndirectedGraph[K, F])(f: (E, F) => H): UndirectedGraph[K, H] = ???
 
   override def asMultimap: BiMultimap[K, K] = ???
 

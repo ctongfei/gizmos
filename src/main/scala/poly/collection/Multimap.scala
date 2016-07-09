@@ -6,7 +6,6 @@ import poly.collection.mut._
 
 /**
  * Represents a multimap, in which each key can potentially be mapped to multiple values.
- *
  * @author Tongfei Chen
  * @since 0.1.0
  */
@@ -14,12 +13,16 @@ trait Multimap[K, V] extends Relation[K, V] with KeyedLike[K, Multimap[K, V]] wi
 
   def keys: Iterable[K]
 
+  /** Returns all key-value pairs in this multimap. */
   def pairs: Iterable[(K, V)] = for (k <- keys; v <- apply(k).elements) yield (k, v)
 
+  /** Returns the equivalence relation on values. */
   implicit def eqOnValues: Eq[V]
 
+  /** Returns all values that are associated with the given key. */
   def apply(k: K): Set[V]
 
+  /** Checks if a specific key is present in this multimap. */
   def containsKey(x: K): Boolean
 
   def related(k: K, v: V) = apply(k) contains v
@@ -64,7 +67,7 @@ trait Multimap[K, V] extends Relation[K, V] with KeyedLike[K, Multimap[K, V]] wi
 
   def map[W](f: Bijection[V, W]): Multimap[K, W] = ???
 
-  def contramap[J](f: Bijection[J, K]): Multimap[J, V] = ???
+  def contramap[J](f: Bijection[J, K]): Multimap[J, V] = new MultimapT.BijectivelyContramapped(self, f)
 
   def contramap[J](that: Multimap[J, K]): Multimap[J, V] = new MultimapT.Composed(self, that)
 
@@ -77,13 +80,19 @@ trait Multimap[K, V] extends Relation[K, V] with KeyedLike[K, Multimap[K, V]] wi
   /**
    * Casts this multimap of type `Multimap[K, V]` to the equivalent map of type `Map[K, Set[V]]`.
    */
-  def asMap: Map[K, Set[V]] = ???
+  def asMap: Map[K, Set[V]] = new AbstractMap[K, Set[V]] {
+    def keys = self.keys
+    def ?(k: K) = if (self containsKey k) Some(self(k)) else None
+    def apply(k: K) = self(k)
+    def containsKey(k: K) = self containsKey k
+    def eqOnKeys = self.eqOnKeys
+  }
 
 }
 
 object Multimap {
 
-  implicit object Semicategory
+  //implicit object Semicategory
   //TODO: semicategory. does not have id.
   //TODO: update poly.algebra.hkt.Semigroupoid
 
@@ -93,13 +102,13 @@ abstract class AbstractMultimap[K, V] extends Multimap[K, V]
 
 private[poly] object MultimapT {
 
-  class KeySet[K](self: Multimap[K, _]) extends Set[K] {
+  class KeySet[K](self: Multimap[K, _]) extends AbstractSet[K] {
     def eqOnKeys = self.eqOnKeys
     def keys = self.pairs map first
     def contains(x: K) = self containsKey x
   }
 
-  class KeyFiltered[K, V](self: Multimap[K, V], f: K => Boolean) extends Multimap[K, V] {
+  class KeyFiltered[K, V](self: Multimap[K, V], f: K => Boolean) extends AbstractMultimap[K, V] {
     override def pairs = self.pairs filter { f compose first }
     implicit def eqOnValues = self.eqOnValues
     def apply(k: K) = if (f(k)) self(k) else Set.empty[V]
@@ -108,7 +117,7 @@ private[poly] object MultimapT {
     def eqOnKeys = self.eqOnKeys
   }
 
-  class Product[K, L, V, W](self: Multimap[K, V], that: Multimap[L, W]) extends Multimap[(K, L), (V, W)] {
+  class Product[K, L, V, W](self: Multimap[K, V], that: Multimap[L, W]) extends AbstractMultimap[(K, L), (V, W)] {
     override def pairs = for ((k, v) <- self.pairs; (l, w) <- that.pairs) yield (k, l) -> (v, w)
     def eqOnValues = self.eqOnValues product that.eqOnValues
     def apply(k: (K, L)) = self(k._1) product that(k._2)
@@ -117,7 +126,7 @@ private[poly] object MultimapT {
     def eqOnKeys = self.eqOnKeys product that.eqOnKeys
   }
 
-  class Composed[A, B, C](self: Multimap[B, C], that: Multimap[A, B]) extends Multimap[A, C] {
+  class Composed[A, B, C](self: Multimap[B, C], that: Multimap[A, B]) extends AbstractMultimap[A, C] {
     def keys = that.keys filter containsKey
     implicit def eqOnKeys = that.eqOnKeys
     implicit def eqOnValues = self.eqOnValues
@@ -130,6 +139,14 @@ private[poly] object MultimapT {
     }
     def apply(k: A) = that(k) flatMap self
     def containsKey(k: A) = that(k).elements.flatMap((b: B) => self(b).elements).notEmpty
+  }
+
+  class BijectivelyContramapped[K, V, J](self: Multimap[K, V], f: Bijection[J, K]) extends AbstractMultimap[J, V] {
+    def keys = self.keys map f.invert
+    def eqOnKeys = self.eqOnKeys contramap f
+    def eqOnValues = self.eqOnValues
+    def apply(j: J) = self(f(j))
+    def containsKey(j: J) = self containsKey f(j)
   }
 
 }

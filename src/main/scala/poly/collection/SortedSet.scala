@@ -32,7 +32,7 @@ trait SortedSet[T] extends Set[T] { self =>
 
   def subsetUpTo(upperBound: T): SortedSet[T] = ???
 
-  override def createMapBy[V](f: T => V): SortedMap[T, V] = new SortedMap[T, V] {
+  override def createMap[V](f: T => V): SortedMap[T, V] = new SortedMap[T, V] {
     def apply(k: T) = f(k)
     def ?(k: T) = if (self contains k) Some(f(k)) else None
     def keys = self.keys

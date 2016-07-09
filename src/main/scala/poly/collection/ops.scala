@@ -12,11 +12,11 @@ import scala.language.implicitConversions
  */
 trait ImplicitOperators {
 
-  implicit final class OptionWithMonadOps[T](val a: Option[T]) {
+  implicit final class OptionWithMonadOps[T](val a: Option[T]) extends App {
 
     def zip[U](b: Option[U]): Option[(T, U)] = for (x <- a; y <- b) yield (x, y)
 
-    def zipWith[U, X](b: Option[U])(f: (T, U) => X): Option[X] = for (x <- a; y <- b) yield f(x, y)
+    def zipWith[U, V](b: Option[U])(f: (T, U) => V): Option[V] = for (x <- a; y <- b) yield f(x, y)
 
   }
 
@@ -117,16 +117,6 @@ trait ImplicitOperators {
       Seq.ofHeadNode(new UnfoldedNode(Some(x)))
     }
 
-    def unfold2[A](f: T => (A, Option[T], Option[T])): BinaryTree[A] = {
-      class UnfoldedNode2(val state: Option[T]) extends BinaryTreeNode[A] {
-        def data = f(state.get)._1
-        def left = new UnfoldedNode2(f(state.get)._2)
-        def right = new UnfoldedNode2(f(state.get)._3)
-        def isDummy = state.isEmpty
-      }
-      BinaryTree.ofRootNode(new UnfoldedNode2(Some(x)))
-    }
-
     def unfoldInfinitely[A](f: T => (A, T)): Seq[A] = {
       class InfinitelyUnfoldedNode(val state: T) extends SeqNode[A] {
         val (data, nextState) = f(state)
@@ -136,17 +126,15 @@ trait ImplicitOperators {
       Seq.ofHeadNode(new InfinitelyUnfoldedNode(x))
     }
 
-    def depthFirstTreeTraversal[U >: T](f: U => Traversable[U]) =
-      StateSpace.create(f).depthFirstTreeTraversal(x)
-
-    def breadthFirstTreeTraversal[U >: T](f: U => Traversable[U]) =
-      StateSpace.create(f).breadthFirstTreeTraversal(x)
-
-    def depthFirstTraversal[U >: T : Eq](f: U => Traversable[U]) =
-      StateSpaceWithEq.create(f).depthFirstTraversal(x)
-
-    def breadthFirstTraversal[U >: T : Eq](f: U => Traversable[U]) =
-      StateSpaceWithEq.create(f).breadthFirstTraversal(x)
+    def unfoldToBinaryTree[A](f: T => (A, Option[T], Option[T])): BinaryTree[A] = {
+      class UnfoldedNode2(val state: Option[T]) extends BinaryTreeNode[A] {
+        def data = f(state.get)._1
+        def left = new UnfoldedNode2(f(state.get)._2)
+        def right = new UnfoldedNode2(f(state.get)._3)
+        def isDummy = state.isEmpty
+      }
+      BinaryTree.ofRootNode(new UnfoldedNode2(Some(x)))
+    }
 
   }
 

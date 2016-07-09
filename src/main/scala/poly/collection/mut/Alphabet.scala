@@ -34,6 +34,8 @@ class Alphabet[T: Eq] private(
 
   def keys: IndexedSeq[T] = Range(size).map(i2w)
 
+  def values = Range(size)
+
   def invert(i: Int): T = i2w(i)
   def invertOption(i: Int): Option[T] = i2w ? i
 

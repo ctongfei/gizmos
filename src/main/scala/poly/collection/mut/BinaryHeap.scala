@@ -67,7 +67,7 @@ class BinaryHeap[T] private(private val data: ResizableSeq[T])(implicit val orde
 
 }
 
-object BinaryHeap extends BuilderFactoryAe[BinaryHeap, Order] {
+object BinaryHeap extends BuilderFactoryA_EvA[BinaryHeap, Order] {
 
   implicit def newBuilder[T: Order]: Builder[T, BinaryHeap[T]] = new Builder[T, BinaryHeap[T]] {
     private[this] val data = new ResizableSeq[T]()

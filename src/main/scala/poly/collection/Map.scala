@@ -192,7 +192,7 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
 
 }
 
-object Map extends FactoryAeB[Map, Eq] with MapLowPriorityTypeclassInstances {
+object Map extends FactoryAB_EvA[Map, Eq] with MapLowPriorityTypeclassInstances {
 
   // CONSTRUCTORS
 
@@ -202,8 +202,8 @@ object Map extends FactoryAeB[Map, Eq] with MapLowPriorityTypeclassInstances {
     def apply(k: K) = throw new KeyNotFoundException[K](k)
     def ?(k: K) = None
     def eqOnKeys = poly.algebra.Eq[K]
-    def keys = Iterable.empty
-    override def pairs = Iterable.empty
+    def keys = Iterable.Empty
+    override def pairs = Iterable.Empty
     def containsKey(x: K) = false
   }
 
@@ -231,7 +231,7 @@ object Map extends FactoryAeB[Map, Eq] with MapLowPriorityTypeclassInstances {
       def ?(k: K) = if (domK contains k) Some(apply(k)) else None
       def keys = domK.elements
       def containsKey(k: K) = domK contains k
-      def apply(k: K) = domL createMapByOptional { l => m ? (k, l) }
+      def apply(k: K) = domL createMapOptionally { l => m ? (k, l) }
       def eqOnKeys = domK.eqOnKeys
     }
   }
@@ -327,7 +327,7 @@ private[poly] object MapT {
     def eqOnKeys = self.eqOnKeys
     def contains(x: K) = self.containsKey(x)
     override def size = self.size
-    def keys = self.pairs map first
+    def keys = self.keys
   }
 
   class KeyFiltered[K, V](self: Map[K, V], f: K => Boolean) extends AbstractMap[K, V] {

@@ -36,7 +36,7 @@ final class ResizableSeq[T]
     def next = new Node(i + 1)
   }
 
-  def ensureCapacity(minCapacity: Int): Unit = {
+  private[poly] def ensureCapacity(minCapacity: Int): Unit = {
     if (cap < minCapacity) {
       val newCapacity = nextPowerOfTwo(minCapacity)
       val newData = Array.ofDim[AnyRef](newCapacity)
@@ -46,11 +46,11 @@ final class ResizableSeq[T]
     }
   }
 
-  def grow() = ensureCapacity(cap * 2)
+  private[poly] def grow() = ensureCapacity(cap * 2)
 
   def fastApply(i: Int) = data(i).asInstanceOf[T]
 
-  def capacity = cap
+  private[poly] def capacity = cap
 
   def fastLength = len
 
@@ -82,7 +82,7 @@ final class ResizableSeq[T]
     len += 1
   }
 
-  def appendUnchecked(x: T) = {
+  private[poly] def appendUnchecked(x: T) = {
     data(len) = x.asInstanceOf[AnyRef]
     len += 1
   }

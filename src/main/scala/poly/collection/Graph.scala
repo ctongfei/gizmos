@@ -72,7 +72,7 @@ trait Graph[@sp(Int) K, +E] extends StateSpaceWithEq[K] with KeyedLike[K, Graph[
   //TODO: minimize bug and report to SI
   def arcs: Iterable[(K, K, E)] = for (i <- keys; (j, e) <- outgoingMap(i).pairs) yield (i, j, e)
 
-  def arcMap: Map[(K, K), E] = (keySet createMapBy outgoingMap).uncurry
+  def arcMap: Map[(K, K), E] = (keySet createMap outgoingMap).uncurry
 
   /** Returns the set of the keys of the vertices in this graph. */
   def keySet: Set[K] = new AbstractSet[K] {
@@ -83,7 +83,7 @@ trait Graph[@sp(Int) K, +E] extends StateSpaceWithEq[K] with KeyedLike[K, Graph[
 
   def containsNode(i: K) = keySet.contains(i)
 
-  def outgoingMap(i: K) = outgoingKeySet(i) createMapBy { j => apply(i, j) }
+  def outgoingMap(i: K) = outgoingKeySet(i) createMap { j => apply(i, j) }
   def outgoingKeys(i: K) = outgoingKeySet(i).elements
   def outgoingNodes(i: K) = outgoingKeys(i) map node
   def outgoingArcs(i: K) = outgoingKeys(i) map { j => arc(i, j) }
@@ -121,7 +121,7 @@ trait Graph[@sp(Int) K, +E] extends StateSpaceWithEq[K] with KeyedLike[K, Graph[
   /** Casts this graph as a multimap that maps a key to the outgoing set of that key. */
   def asMultimap: Multimap[K, K] = new GraphT.AsMultimap(self)
 
-  def to[G[_, _], Ev[_], F >: E](factory: FactoryAAeB[G, Ev])(implicit K: Ev[K]): G[K, F] = factory from arcs
+  def to[G[_, _], Ev[_], F >: E](factory: FactoryAAB_EvA[G, Ev])(implicit K: Ev[K]): G[K, F] = factory from arcs
 
   override def toString = "{" + arcs.map(e => s"${e._1} –(${e._3})-> ${e._2}").buildString(", ") + "}"
 }

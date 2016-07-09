@@ -19,14 +19,14 @@ import scala.reflect._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-object AutoSet extends BuilderFactoryAe[KeyMutableSet, Eq] {
+object AutoSet extends BuilderFactoryA_EvA[KeyMutableSet, Eq] {
   implicit def newBuilder[K](implicit K: Eq[K]): Builder[K, KeyMutableSet[K]] = K match {
     case kh: Hashing[K] => HashSet.newBuilder(kh)
     case ko: Order[K]   => RedBlackTreeSet.newBuilder(ko)
     case ke             => ListSet.newBuilder(ke)
   }
 
-  object Dense extends BuilderFactoryAee[KeyMutableSet, Eq, ClassTag] {
+  object Dense extends BuilderFactoryA_EvAA[KeyMutableSet, Eq, ClassTag] {
     implicit def newBuilder[K](implicit K: Eq[K], ct: ClassTag[K]): Builder[K, KeyMutableSet[K]] = (K, ct) match {
       case (std.IntStructure, ClassTag.Int) => BitSet.newBuilder.asInstanceOf[Builder[K, KeyMutableSet[K]]] // the cast is safe: K =:= Int
       case _                                => AutoSet.newBuilder(K)

@@ -17,7 +17,7 @@ import scala.annotation.unchecked.{uncheckedVariance => uv}
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait Seq[+T] extends Iterable[T] { self =>
+trait Seq[+T] extends Iterable[T] with IntKeyedSortedMap[T] { self =>
 
   import Seq._
 
@@ -60,8 +60,6 @@ trait Seq[+T] extends Iterable[T] { self =>
     }
   }
 
-
-
   override def size = length
 
   override def foreach[V](f: T => V): Unit = {
@@ -73,6 +71,16 @@ trait Seq[+T] extends Iterable[T] { self =>
   }
 
   def newIterator: Iterator[T] = new SeqT.DefaultIterator(self)
+
+  def orderOnKeys = Order[Int]
+
+  def keys: SortedSeq[Int] = new SeqT.Keys(self)
+
+  def ?(i: Int) = if (i >= 0 && i < length) Some(this(i)) else None
+
+  def containsKey(i: Int) = i >= 0 && i < length
+
+  override def pairs: SortedSeq[(Int, T @uv)] = new SeqT.Pairs(self)
 
   // HELPER FUNCTIONS
 
@@ -103,7 +111,7 @@ trait Seq[+T] extends Iterable[T] { self =>
     ofDummyNode(new FlatMappedSeqNode(dummy, SeqNode.dummy))
   }
 
-  def monadicProduct[U](that: Seq[U]): Seq[(T, U)] = this.flatMap(t => that.map(u => (t, u)))
+  def monadicProduct[U](that: Seq[U]): Seq[(T, U)] = for (t <- this; u <- that) yield (t, u)
 
   override def filter(f: T => Boolean): Seq[T] = {
     class FilteredSeqNode(val node: SeqNode[T]) extends SeqNode[T] {
@@ -322,7 +330,7 @@ trait Seq[+T] extends Iterable[T] { self =>
   override def rotate(i: Int) = self.drop(i) ++ self.take(i)
 
   override def repeat(n: Int): Seq[T] = {
-    if (n <= 0) return Seq.empty
+    if (n <= 0) return Seq.Empty
     class RepeatedNode(i: Int, outer: SeqNode[T]) extends SeqNode[T] {
       def next = {
         val tempNext = outer.next
@@ -427,15 +435,6 @@ trait Seq[+T] extends Iterable[T] { self =>
 
   def asSeq: Seq[T] = ofHeadNode(headNode)
 
-  def asMap: SortedMap[Int, T] = new SortedMap[Int, T] {
-    def orderOnKeys = Order[Int]
-    def keys = new SeqT.Keys(self)
-    override def pairs: SortedSeq[(Int, T @uv)] = new SeqT.Pairs(self)
-    def ?(i: Int) = if (i >= 0 && i < length) Some(this(i)) else None
-    def apply(i: Int) = self(i)
-    def containsKey(i: Int) = i >= 0 && i < length
-  }
-
   // SYMBOLIC ALIASES
 
   override def +:[U >: T](u: U): Seq[U] = this prepend u
@@ -476,7 +475,7 @@ object Seq extends FactoryA[Seq] {
 
   def from[T](xs: Traversable[T]) = xs to ArraySeq
 
-  object empty extends Seq[Nothing] {
+  object Empty extends Seq[Nothing] {
     def headNode = SeqNode.dummy
     def unapply[T](xs: Seq[T]) = xs.isEmpty
   }
@@ -509,7 +508,7 @@ object Seq extends FactoryA[Seq] {
 
   // TYPECLASS INSTANCES
 
-  //TODO: should be implicit, but results in ambiguous implicits because of problems with contravariant typeclass
+  //TODO: should be implicit, but results in ambiguous implicits because of problems with contravariant typeclass (SI-2509)
   def Eq[T: Eq]: Eq[Seq[T]] = new Eq[Seq[T]] {
     def eq(x: Seq[T], y: Seq[T]): Boolean = {
       //TODO: faster implementation using iterators?
@@ -548,13 +547,13 @@ object Seq extends FactoryA[Seq] {
   implicit object Monad extends ConcatenativeMonad[Seq] {
     def id[X](u: X) = mut.ListSeq(u)
     def flatMap[X, Y](mx: Seq[X])(f: X => Seq[Y]) = mx flatMap f
-    def empty[X] = Seq.empty
+    def empty[X] = Seq.Empty
     def concat[X](sx: Seq[X], sy: Seq[X]) = sx concat sy
   }
 
   implicit def FreeMonoid[T]: ConcatenativeMonoid[Seq[T]] = new ConcatenativeMonoid[Seq[T]] {
     def concat(x: Seq[T], y: Seq[T]) = x ++ y
-    def empty = Seq.empty
+    def empty = Seq.Empty
   }
 
   implicit object Comonad extends Comonad[Seq] {

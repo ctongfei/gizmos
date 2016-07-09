@@ -23,7 +23,7 @@ class AdjacencyListGraph[@sp(Int) K, E] private(private val r: KeyMutableMap[K, 
 
 }
 
-object AdjacencyListGraph extends BuilderFactoryAAeB[AdjacencyListGraph, Eq] {
+object AdjacencyListGraph extends BuilderFactoryAAB_EvA[AdjacencyListGraph, Eq] {
 
   implicit def newBuilder[K: Eq, E]: Builder[(K, K, E), AdjacencyListGraph[K, E]] =
     new Builder[(K, K, E), AdjacencyListGraph[K, E]] {

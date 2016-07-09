@@ -673,7 +673,7 @@ trait Traversable[+T] { self =>
    * Converts this traversable sequence to any collection type given a factory that requires an additional evidence.
    * @example {{{ xs to AutoSet }}}
    */
-  def to[U >: T : Ev, C[_], Ev[_]](factory: FactoryAe[C, Ev]): C[U] = factory from self
+  def to[U >: T : Ev, C[_], Ev[_]](factory: FactoryA_EvA[C, Ev]): C[U] = factory from self
 
   // Seems not useful, type signature too complicated
   //def to[U >: T : EvU, V: EvV, C[_, _], EvU[_], EvV[_]](factory: FactoryEv2[C, EvU, EvV]): C[U, V] = build(factory.newBuilder[U, V])
@@ -813,7 +813,7 @@ object Traversable {
 
     def to[M[_, _]](factory: FactoryAB[M]) = factory from underlying
 
-    def to[M[_, _], Ev[_]](factory: FactoryAeB[M, Ev])(implicit A: Ev[A]) = factory from underlying
+    def to[M[_, _], Ev[_]](factory: FactoryAB_EvA[M, Ev])(implicit A: Ev[A]) = factory from underlying
 
   }
 

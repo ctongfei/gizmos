@@ -18,7 +18,7 @@ trait BiGraph[@sp(Int) K, +E] extends Graph[K, E] { self =>
 
   override def node(i: K): GraphNode[K, E] = new NodeProxy(self, i)
 
-  def incomingMap(i: K) = incomingKeySet(i) createMapBy { j => apply(j, i) }
+  def incomingMap(i: K) = incomingKeySet(i) createMap { j => apply(j, i) }
 
   def incomingKeys(i: K) = incomingKeySet(i).elements
   def incomingNodes(i: K) = incomingKeys(i) map node

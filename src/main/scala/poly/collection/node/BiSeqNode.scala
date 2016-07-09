@@ -13,8 +13,8 @@ trait BiSeqNodeLike[+T, +N <: BiSeqNodeLike[T, N]] extends BiNodeLike[T, N] with
   def next: N
 
   override def parent: N = prev
-  override def pred: Iterable[N] = if (prev.isDummy) Iterable.empty else Iterable.single(prev)
-  override def succ: Iterable[N] = if (next.isDummy) Iterable.empty else Iterable.single(next)
+  override def pred: Iterable[N] = if (prev.isDummy) Iterable.Empty else Iterable.single(prev)
+  override def succ: Iterable[N] = if (next.isDummy) Iterable.Empty else Iterable.single(next)
 
 }
 

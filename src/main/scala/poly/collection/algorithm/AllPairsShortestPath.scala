@@ -44,7 +44,7 @@ class AllPairsShortestPath[K, E : OrderedAdditiveGroup : HasTop](val graph: Grap
     if (i === j) Seq(i)
     else if (graph.containsArc(i, j)) Seq(i, j)
     else mid ? (i -> j) match {
-      case None => Seq.empty
+      case None => Seq.Empty
       case Some(m) => pathBetween(i, m) ++ pathBetween(m, j).tail
     }
   }

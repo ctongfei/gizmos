@@ -21,7 +21,7 @@ trait StateSpaceWithEq[@sp(Int) S] extends StateSpace[S] with Keyed[S] { self =>
   // HELPER FUNCTIONS
 
   /** Constraints this state space by selecting only the states that satisfy the given predicate. */
-  def filterKeys(f: S => Boolean): StateSpaceWithEq[S] = new StateSpaceWithEqT.KeyFiltered(self, f)
+  override def filterKeys(f: S => Boolean): StateSpaceWithEq[S] = new StateSpaceWithEqT.KeyFiltered(self, f)
 
   def depthFirstTraversal(start: S) =
     Iterable.ofIterator(new DepthFirstIterator(this, start))
@@ -57,7 +57,7 @@ object StateSpaceWithEq {
   }
 
 
-  def create[S](f: S => Traversable[S])(implicit S: Eq[S]): StateSpaceWithEq[S] = new StateSpaceWithEqT.BySucc(f, S)
+  def apply[S](f: S => Traversable[S])(implicit S: Eq[S]): StateSpaceWithEq[S] = new StateSpaceWithEqT.BySucc(f, S)
 
 }
 

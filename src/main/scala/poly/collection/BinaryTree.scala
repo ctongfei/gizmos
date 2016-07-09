@@ -76,14 +76,13 @@ trait BinaryTree[+T] { self =>
 
   // HELPER FUNCTIONS
 
-
   def map[U](f: T => U): BinaryTree[U] = ofRootNode(rootNode.map(f))
 
   /** Folds a binary tree bottom-up. This is analogous to the sequence `foldRight` in that both
     * are catamorphisms on recursive structures.
     */ //TODO: non-recursive version?
   def foldBottomUp[U](z: U)(f: (U, U, T) => U): U = self match {
-    case BinaryTree.empty() => z
+    case BinaryTree.Empty() => z
     case (l :/ n \: r) => f(l.foldBottomUp(z)(f), r.foldBottomUp(z)(f), n)
   }
 
@@ -180,8 +179,8 @@ trait BinaryTree[+T] { self =>
    *  └   f   d ┘
    * }}}
    */
-  def inverseKnuthTransform: Tree[T] = new Tree[T] {
-    class InverseKnuthTransformedTreeNode(val node: BinaryTreeNode[T]) extends TreeNode[T] {
+  def inverseKnuthTransform: OrderedTree[T] = new OrderedTree[T] {
+    class InverseKnuthTransformedTreeNode(val node: BinaryTreeNode[T]) extends OrderedTreeNode[T] {
       override def isDummy = node.isDummy
       def children = node.left.iterate(_.right).takeUntil(_.isDummy).map(btn => new InverseKnuthTransformedTreeNode(btn))
       def data = node.data
@@ -216,13 +215,13 @@ trait BinaryTree[+T] { self =>
   //}
 
 
-  def asTree: Tree[T] = {
-    class BinaryTreeAsTreeNode(n: BinaryTreeNode[T]) extends TreeNode[T] {
+  def asTree: OrderedTree[T] = {
+    class BinaryTreeAsTreeNode(n: BinaryTreeNode[T]) extends OrderedTreeNode[T] {
       def children = ListSeq(n.left, n.right).filter(_.notDummy).map(n => new BinaryTreeAsTreeNode(n))
       def data = n.data
       def isDummy = n.isDummy
     }
-    Tree.ofRootNode(new BinaryTreeAsTreeNode(self.rootNode))
+    OrderedTree.ofRootNode(new BinaryTreeAsTreeNode(self.rootNode))
   }
 
   override def toString = if (isEmpty) "#" else s"($root $left $right)"
@@ -249,7 +248,7 @@ object BinaryTree {
     }
   }
 
-  object empty extends BinaryTree[Nothing] {
+  object Empty extends BinaryTree[Nothing] {
     def rootNode = BinaryTreeNode.Dummy
     def unapply[T](bt: BinaryTree[T]) = bt.isEmpty
   }

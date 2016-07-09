@@ -27,7 +27,7 @@ class AdjacencyListBiGraph[@sp(Int) K: Eq, E] private(private val r: KeyMutableM
 
 }
 
-object AdjacencyListBiGraph extends BuilderFactoryAAeB[AdjacencyListBiGraph, Eq] {
+object AdjacencyListBiGraph extends BuilderFactoryAAB_EvA[AdjacencyListBiGraph, Eq] {
 
   private[poly] class VertexInfo[K: Eq, E] {
     val pred = ListSet[K]()

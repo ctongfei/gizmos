@@ -51,7 +51,7 @@ class LinkedHashSet[T: Hashing] private(val data: OpenHashTable[T, LinkedHashSet
   def contains(x: T) = data.locate(x) != null
 }
 
-object LinkedHashSet extends BuilderFactoryAe[LinkedHashSet, Hashing] {
+object LinkedHashSet extends BuilderFactoryA_EvA[LinkedHashSet, Hashing] {
 
   private[poly] class Entry[K](val key: K, var prev: Entry[K], var next: Entry[K])
     extends OpenHashEntryLike[K, Entry[K]] with BiSeqNode[K] {

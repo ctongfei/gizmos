@@ -5,7 +5,7 @@ import poly.collection.mut._
 
 val e = Iterable.iterate(0)(_ + 1).take(5)
 val f = Iterable.iterate(0)(x => 0).take(10)
-val em = Iterable.empty
+val em = Iterable.Empty
 
 e.split(2)
 

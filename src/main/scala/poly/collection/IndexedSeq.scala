@@ -63,7 +63,10 @@ trait IndexedSeq[+T] extends BiSeq[T] { self =>
 
   override def sizeKnown = true
 
-  override def asMap = new IndexedSeqT.AsMap(self)
+  override def keys = Range(fastLength)
+
+  override def pairs: SortedIndexedSeq[(Int, T @uv)] =
+    IndexedSeq.tabulate(self.length)(i => i -> self(i)).asIfSorted(Order by first)
 
   // HELPER FUNCTIONS
 
@@ -272,15 +275,6 @@ private[poly] object IndexedSeqT {
     override def permuteBy(q: Permutation) = self.permuteBy(q compose p)
   }
 
-  class AsMap[+T](self: IndexedSeq[T]) extends AbstractSortedMap[Int, T] {
-    def apply(k: Int) = self(k)
-    def orderOnKeys = Order[Int]
-    def keys = Range(self.length)
-    override def pairs: SortedIndexedSeq[(Int, T @uv)] =
-      IndexedSeq.tabulate(self.length)(i => i -> self(i)).asIfSorted(Order by first)
-    def ?(k: Int) = if (k >= 0 && k < self.length) Some(self(k)) else None
-    def containsKey(k: Int) = k >= 0 && k < self.length
-  }
 
   class AsIfSorted[T](self: IndexedSeq[T], order: Order[T]) extends SortedIndexedSeq[T] {
     def orderOnElements = order

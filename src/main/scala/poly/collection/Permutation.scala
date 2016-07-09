@@ -15,11 +15,13 @@ import poly.macroutil._
  * @since 0.1.0
  */
 class Permutation private(private val a1: Array[Int], private val a2: Array[Int])
-  extends BiMap[Int, Int] { self =>
+  extends BiMap[Int, Int] with IndexedSeq[Int] { self =>
 
   def fastLength = a1.length
 
-  override def size = a1.length
+  override def keys = Range(fastLength)
+
+  def values = keys
 
   def fastApply(x: Int) = a1(x)
 

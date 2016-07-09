@@ -48,7 +48,7 @@ class HashMap[K: Hashing, V] private(private val data: OpenHashTable[K, HashMap.
 
 }
 
-object HashMap extends BuilderFactoryAeB[HashMap, Hashing] {
+object HashMap extends BuilderFactoryAB_EvA[HashMap, Hashing] {
 
   private[poly] class Entry[K, V](val key: K, var value: V) extends OpenHashEntryLike[K, Entry[K, V]]
 

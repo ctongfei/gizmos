@@ -31,7 +31,7 @@ trait StateSpace[S] { self =>
 
 object StateSpace {
 
-  def create[S](f: S => Traversable[S]): StateSpace[S] = new StateSpaceT.BySucc(f)
+  def apply[S](f: S => Traversable[S]): StateSpace[S] = new StateSpaceT.BySucc(f)
 
 }
 

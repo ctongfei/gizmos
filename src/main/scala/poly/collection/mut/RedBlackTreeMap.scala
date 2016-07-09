@@ -45,7 +45,7 @@ class RedBlackTreeMap[K, V] private(private val data: java.util.TreeMap[K, V])
   def containsKey(x: K) = data.containsKey(x)
 }
 
-object RedBlackTreeMap extends BuilderFactoryAeB[RedBlackTreeMap, Order] {
+object RedBlackTreeMap extends BuilderFactoryAB_EvA[RedBlackTreeMap, Order] {
 
   implicit def newBuilder[K, V](implicit K: Order[K]): Builder[(K, V), RedBlackTreeMap[K, V]] =
     new Builder[(K, V), RedBlackTreeMap[K, V]] {

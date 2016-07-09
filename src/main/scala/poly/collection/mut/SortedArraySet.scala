@@ -26,7 +26,7 @@ class SortedArraySet[T] private(private val data: SortedArraySeq[T]) extends Sor
   def clear() = data.data.clear()
 }
 
-object SortedArraySet extends BuilderFactoryAe[SortedArraySet, Order] {
+object SortedArraySet extends BuilderFactoryA_EvA[SortedArraySet, Order] {
   implicit def newBuilder[T: Order]: Builder[T, SortedArraySet[T]] = new Builder[T, SortedArraySet[T]] {
     private[this] val b = SortedArraySeq.newBuilder
     def addInplace(x: T) = b += x

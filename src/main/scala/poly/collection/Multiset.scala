@@ -171,7 +171,7 @@ object Multiset {
     def eqOnKeys = Eq[K]
     def weight(k: K) = OrderedRing[R].zero
     def ringOnWeight = OrderedRing[R]
-    def keys = Iterable.empty
+    def keys = Iterable.Empty
     def contains(k: K) = false
   }
 

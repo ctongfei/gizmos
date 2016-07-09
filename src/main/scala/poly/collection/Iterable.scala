@@ -483,7 +483,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
 
 object Iterable {
 
-  object empty extends Iterable[Nothing] {
+  object Empty extends Iterable[Nothing] {
     def newIterator: Iterator[Nothing] = new AbstractIterator[Nothing] {
       def advance() = false
       def current = throw new DummyNodeException
@@ -555,7 +555,7 @@ object Iterable {
     def flatMap[X, Y](mx: Iterable[X])(f: X => Iterable[Y]): Iterable[Y] = mx.flatMap(f)
     override def map[X, Y](mx: Iterable[X])(f: X => Y): Iterable[Y] = mx.map(f)
     def id[X](u: X): Iterable[X] = Iterable.single(u)
-    def empty[X]: Iterable[X] = Iterable.empty
+    def empty[X]: Iterable[X] = Iterable.Empty
     def concat[X](a: Iterable[X], b: Iterable[X]) = a.concat(b)
     override def filter[X](mx: Iterable[X])(f: X => Boolean) = mx.filter(f)
   }
@@ -569,7 +569,7 @@ object Iterable {
   /** Implicitly converts an `Option` to an `Iterable` that contains one or zero element. */
   implicit def fromOption[T](o: Option[T]): Iterable[T] = o match {
     case Some(x) => Iterable.single(x)
-    case None    => Iterable.empty
+    case None    => Iterable.Empty
   }
 
 
