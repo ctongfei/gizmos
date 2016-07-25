@@ -14,9 +14,10 @@ trait BiSeq[+T] extends Seq[T] with BiIterable[T] { self =>
 
   import BiSeq._
 
-  /** Returns a dummy node whose next node is the head of this sequence,
-    * and whose previous node is the last of this sequence.
-    */
+  /**
+   * Returns a dummy node whose next node is the head of this sequence,
+   * and whose previous node is the last of this sequence.
+   */
   override def dummy: BiSeqNode[T] = new BiSeqNode[T] {
     def prev = lastNode
     def next = headNode

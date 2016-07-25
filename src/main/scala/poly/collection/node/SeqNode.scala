@@ -16,13 +16,6 @@ trait SeqNodeLike[+T, +N <: SeqNodeLike[T, N]] extends ForwardNodeLike[T, N] { s
 
 trait SeqNode[+T] extends ForwardNode[T] with SeqNodeLike[T, SeqNode[T]] { self =>
 
-  override def reverse: NodeWithParent[T] = new NodeWithParent[T] {
-    def data = self.data
-    def parent = self.next.reverse
-    def isDummy = self.isDummy
-    override def reverse = self
-  }
-
   override def map[U](f: T => U): SeqNode[U] = new SeqNode[U] {
     def next = self.next.map(f)
     def data = f(self.data)

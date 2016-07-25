@@ -7,6 +7,10 @@ val e = Iterable.iterate(0)(_ + 1).take(5)
 val f = Iterable.iterate(0)(x => 0).take(10)
 val em = Iterable.Empty
 
+val s = Iterable.iterate(0)(_ + 1).asStream
+
+
+
 e.split(2)
 
 e collect { case x if x > 2 => x * x }
@@ -37,7 +41,7 @@ e.head
 e.tail
 e.sort
 e.drop(1)
-e.skipWhile(_ < 2)
+e.dropWhile(_ < 2)
 e.take(2)
 e.takeWhile(_ < 3)
 e.takeUntil(_ > 3)

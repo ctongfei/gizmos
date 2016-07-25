@@ -69,7 +69,7 @@ trait Traversable[+T] { self =>
    * @example {{{(1, 2) monadicProduct (1, 2) == ((1, 1), (1, 2), (2, 1), (2, 2))}}}
    */
   def monadicProduct[U](that: Traversable[U]): Traversable[(T, U)] =
-    self flatMap (x => that map (y => (x, y)))
+    for (x <- self; y <- that) yield (x, y)
 
   /**
    * Selects only the elements that satisfy the specified predicate. $LAZY
@@ -136,12 +136,9 @@ trait Traversable[+T] { self =>
 
   /** $EAGER $On */
   def groupBy[K: Eq](f: T => K): Map[K, Iterable[T]] = {
-    val m = AutoMap[K, ArraySeq[T]]()
-    for (x <- self) {
-      val fx = f(x)
-      if (m notContainsKey fx) m.addInplace(fx, ArraySeq[T]())
-      m(fx) appendInplace x
-    }
+    val m = AutoMap[K, ArraySeq[T]]().withDefaultUpdate(ArraySeq[T]())
+    for (x <- self)
+      m(f(x)) :+= x
     m
   }
 
@@ -332,9 +329,9 @@ trait Traversable[+T] { self =>
 
   /** $EAGER $On */
   def last: T = {
-    var p = head
-    for (x <- this) p = x
-    p
+    var l = head
+    for (x <- this) l = x
+    l
   }
 
   def init: Traversable[T] = new AbstractTraversable[T] {
@@ -362,7 +359,7 @@ trait Traversable[+T] { self =>
         if (i >= n) return
       }
     }
-    override def take(nn: Int) = self.take(math.min(n, nn))
+    override def take(nn: Int) = self.take(Math.min(n, nn))
   }
 
   def drop(n: Int): Traversable[T] = new AbstractTraversable[T] {
@@ -398,7 +395,7 @@ trait Traversable[+T] { self =>
 
   def takeUntil(f: T => Boolean): Traversable[T] = takeWhile(x => !f(x))
 
-  def skipWhile(f: T => Boolean): Traversable[T] = new AbstractTraversable[T] {
+  def dropWhile(f: T => Boolean): Traversable[T] = new AbstractTraversable[T] {
     def foreach[U](g: T => U): Unit = {
       var starts = false
       for (x <- self) {
@@ -465,9 +462,7 @@ trait Traversable[+T] { self =>
    * @example {{{(1, 2, 3, 4).rotate(1) == (2, 3, 4, 1)}}}
    * @param n Rotation starts here
    */
-  def rotate(n: Int) = {
-    (self drop n) ++ (self take n)
-  }
+  def rotate(n: Int) = (self drop n) ++ (self take n)
 
   /**
    * Sorts this collection in ascending order using the implicitly provided order. $EAGER
@@ -485,7 +480,7 @@ trait Traversable[+T] { self =>
 
   def sortBy[U: Order](f: T => U): SortedIndexedSeq[T @uv] = {
     val seq = self to ArraySeq
-    val w = seq map f to ArraySeq
+    val w = ArraySeq.tabulate(seq.length)(i => f(seq(i))) // cache the weights of each term!
     seq sortInplaceUsing w
     seq asIfSorted (Order by f)
   }
@@ -568,7 +563,6 @@ trait Traversable[+T] { self =>
   /** Returns the minimum element in this collection. */
   def min(implicit T: Order[T]): T = reduce(T.min[T])
 
-
   /** Returns the maximum element in this collection. */
   def max(implicit T: Order[T]): T = reduce(T.max[T])
 
@@ -600,7 +594,6 @@ trait Traversable[+T] { self =>
 
   /**
    * Returns the first element in this collection that makes the specific function greatest.
- *
    * @example {{{
    *   (1, 2, 3, 4, 5) argmax { _ % 4 } == 3
    * }}}
@@ -680,7 +673,6 @@ trait Traversable[+T] { self =>
 
   /**
    * Converts this traversable sequence to an array.
- *
    * @example {{{ xs.toArray }}}
    */
   def toArray[U >: T : ClassTag]: Array[U] = {
@@ -696,7 +688,6 @@ trait Traversable[+T] { self =>
 
   /**
    * Builds a structure based on this traversable sequence given an implicit builder.
- *
    * @param builder An implicit builder
    * @tparam S Type of the structure to be built
    * @return A new structure of type `S`
@@ -737,6 +728,7 @@ trait Traversable[+T] { self =>
   def +:[U >: T](x: U) = this prepend x
   def ++[U >: T](that: Traversable[U]) = this concat that
   def |*|[U](that: Traversable[U]) = this monadicProduct that
+  def |>[U](f: T => U) = this map f
 
   //endregion
   //endregion
@@ -785,7 +777,6 @@ object Traversable {
   implicit class TraversableOfTraversablesOps[T](val underlying: Traversable[Traversable[T]]) extends AnyVal {
     /**
      * "Flattens" this collection of collection into one collection.
-     *
      * @example {{{((1, 2, 3), (), (7)).flatten == (1, 2, 3, 7)}}}
      */
     def flatten: Traversable[T] = underlying.flatMap(x => x)
@@ -795,7 +786,6 @@ object Traversable {
 
     /**
      * Lazily unzips a traversable sequence of pairs.
-     *
      * @example {{{((1, 'a'), (2, 'b'), (3, 'c')).unzip == ((1, 2, 3), ('a', 'b', 'c'))}}}
      */
     def unzip: (Traversable[A], Traversable[B]) = (underlying map first, underlying map second)

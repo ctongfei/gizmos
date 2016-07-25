@@ -16,11 +16,11 @@ import poly.collection.node._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-class LinkedHashMap[K: Hashing, V] private(val data: OpenHashTable[K, LinkedHashMap.Entry[K, V]]) extends KeyMutableMap[K, V] {
+class LinkedHashMap[K: Hashing, V] private(private[poly] val data: OpenHashTable[K, LinkedHashMap.Entry[K, V]]) extends KeyMutableMap[K, V] {
 
   import LinkedHashMap._
 
-  private[this] object dummy extends Entry[K, V](default[K], default[V], null, null) {
+  private[poly] object dummy extends Entry[K, V](default[K], default[V], null, null) {
     override def data = throw new DummyNodeException
     override def isDummy = true
   }

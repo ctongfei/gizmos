@@ -5,7 +5,7 @@ import poly.collection._
 import poly.collection.search._
 
 /**
- * Runs Dijkstra algorithm on a given graph.
+ * Runs the Dijkstra algorithm on a given graph.
  * @author Tongfei Chen
  * @since 0.1.0
  */

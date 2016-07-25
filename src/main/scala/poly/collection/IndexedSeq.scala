@@ -70,7 +70,7 @@ trait IndexedSeq[+T] extends BiSeq[T] { self =>
 
   // HELPER FUNCTIONS
 
-  override def isEmpty = fastLength == 0
+  override def isEmpty = fastLength <= 0
 
   override def map[U](f: T => U): IndexedSeq[U] = new IndexedSeqT.Mapped(self, f)
 

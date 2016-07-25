@@ -18,7 +18,7 @@ trait BiNodeLike[+T, +N <: BiNodeLike[T, N]] extends ForwardNodeLike[T, N] with 
 
 trait BiNode[+T] extends ForwardNode[T] with BackwardNode[T] with BiNodeLike[T, BiNode[T]] { self =>
 
-  override def reverse: BiNode[T] = new BiNode[T] {
+  def reverse: BiNode[T] = new BiNode[T] {
     def data = self.data
     def pred = self.succ.map(_.reverse)
     def succ = self.pred.map(_.reverse)

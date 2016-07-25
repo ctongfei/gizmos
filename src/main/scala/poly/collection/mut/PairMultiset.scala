@@ -12,7 +12,7 @@ import scala.language.higherKinds
  * @author Tongfei Chen
  * @since 0.1.0
  */
-class PairMultiset[K, R: OrderedRing] private(private val data: KeyMutableMap[K, R]) extends KeyMutableMultiset[K, R] {
+class PairMultiset[K, R: OrderedRing] private[poly](private val data: KeyMutableMap[K, R]) extends KeyMutableMultiset[K, R] {
 
   def eqOnKeys = data.eqOnKeys
   def ringOnWeight = OrderedRing[R]

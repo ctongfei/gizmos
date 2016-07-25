@@ -3,6 +3,7 @@ package poly.collection
 import poly.algebra.specgroup._
 import poly.collection.exception._
 import poly.macroutil._
+
 import scala.annotation.unchecked.{uncheckedVariance => uv}
 
 /**
@@ -57,6 +58,11 @@ trait Iterator[@sp(Int, Long, Double, Char) +T] { self =>
   /** Runs this iterator with the given callback function. */
   def run[V](f: T => V) = {
     while (self.advance()) f(self.current)
+  }
+
+  private[poly] def asStream: immut.Stream[T] = {
+    if (self.advance()) immut.Stream.Cons(self.current, self.asStream)
+    else immut.Stream.Empty
   }
 
   override def toString = try { s"⋯ $current ⋯" } catch {

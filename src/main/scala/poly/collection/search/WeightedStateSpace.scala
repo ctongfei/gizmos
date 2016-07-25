@@ -5,11 +5,11 @@ import poly.algebra.specgroup._
 import poly.collection._
 
 /**
- * Represents a search state space whose edges are weighted.
+ * Represents a search state space whose edges are weighted (and states are equatable).
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait WeightedStateSpace[S, @sp(fdi) C] extends StateSpaceWithEq[S] {
+trait WeightedStateSpace[S, @sp(fdi) C] extends EquatableStateSpace[S] {
 
   implicit def groupOnCost: OrderedAdditiveGroup[C]
   def succWithCost(x: S): Traversable[(S, C)]
@@ -25,13 +25,13 @@ trait WeightedStateSpace[S, @sp(fdi) C] extends StateSpaceWithEq[S] {
     Iterable.ofIterator(new AStarIterator[S, C](this, start, heuristic))
 
   def uniformCostSearch(start: S, goal: S => Boolean) =
-    StateSpaceWithEq.searchByIterator(new UniformCostIterator[S, C](this, start), goal)
+    EquatableStateSpace.searchByIterator(new UniformCostIterator[S, C](this, start), goal)
 
   def greedyBestFirstSearch(start: S, goal: S => Boolean)(heuristic: S => C) =
-    StateSpaceWithEq.searchByIterator(new GreedyBestFirstIterator[S, C](this, start, heuristic), goal)
+    EquatableStateSpace.searchByIterator(new GreedyBestFirstIterator[S, C](this, start, heuristic), goal)
 
   def aStarSearch(start: S, goal: S => Boolean)(heuristic: S => C) =
-    StateSpaceWithEq.searchByIterator(new AStarIterator[S, C](this, start, heuristic), goal)
+    EquatableStateSpace.searchByIterator(new AStarIterator[S, C](this, start, heuristic), goal)
 
 }
 

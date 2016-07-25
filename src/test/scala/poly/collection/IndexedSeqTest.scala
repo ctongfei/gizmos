@@ -1,6 +1,7 @@
 package poly.collection
 
 import poly.collection.mut._
+import poly.algebra.syntax._
 
 /**
   * @author Tongfei Chen
@@ -8,6 +9,8 @@ import poly.collection.mut._
 object IndexedSeqTest extends App {
 
   val aa = ArraySeq(1, 2, 3, 4, 5).asBiSeq
+
+  val m = aa.repeat(4).groupBy(_ % 4)
   
 
   val a = ArraySeq(1, 2, 3, 4, 5).asIndexedSeq

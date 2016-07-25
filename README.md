@@ -8,7 +8,7 @@ Poly-collection is a Scala collection framework that aims to provide an alternat
   
   - Lazy by default: Higher-order transformational functions are nearly always executed in a non-strict manner:
    functions like `map`, `filter`, `flatMap` are nearly always evaluated lazily. This allows chain application like 
-   `xs.map(f).filter(g).reduce(h)` to be much faster than the standard library.
+   `xs map f filter g reduce h` to be much faster than the standard library.
   
   - Returning-same-trait principle: Instead of the uniform-return-type principle of the Scala standard collection
    library, Poly-collection returns the most fined-grained trait possible without much performance loss. This eliminates

@@ -1,6 +1,5 @@
 import poly.algebra.syntax._
 import poly.collection.mut._
-import poly.collection.ops._
 
 val a = ListSeq(0, 1, 2, 3).asTraversable
 val c = ListSeq(2, 3, 5, 6).asTraversable
@@ -14,7 +13,6 @@ e map { _.## }
 a union c
 a intersect c
 
-a flatMap { i => i.repeat(i) }
 b flatMap { s => s.split(' ') }
 a monadicProduct b
 a monadicProduct e

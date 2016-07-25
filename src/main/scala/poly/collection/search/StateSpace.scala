@@ -3,13 +3,16 @@ package poly.collection.search
 import poly.collection._
 
 /**
+ * Represents a simple state space that contains a state transition function.
  * @author Tongfei Chen
+ * @since 0.1.0
  */
 trait StateSpace[S] { self =>
 
   /** Returns the successive states of the specified state under this state space. */
   def succ(x: S): Traversable[S]
 
+  /** Constraints this state space by selecting only the states that satisfy the given predicate. */
   def filterKeys(f: S => Boolean): StateSpace[S] = new StateSpaceT.KeyFiltered(self, f)
 
   /**
@@ -31,6 +34,7 @@ trait StateSpace[S] { self =>
 
 object StateSpace {
 
+  /** Creates a state space given a state transition function. */
   def apply[S](f: S => Traversable[S]): StateSpace[S] = new StateSpaceT.BySucc(f)
 
 }

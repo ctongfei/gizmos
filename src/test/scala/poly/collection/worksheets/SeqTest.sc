@@ -21,7 +21,7 @@ a.takeUntil(_ > 3)
 a.take(10)
 a.drop(2)
 a.drop(10)
-a.skipWhile(_ > 100)
+a.dropWhile(_ > 100)
 a.flatMap((i: Int) => i repeat i)
 a product b
 a.isEmpty

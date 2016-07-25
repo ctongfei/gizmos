@@ -40,7 +40,7 @@ object Bijection {
 
   private type <=>[X, Y] = Bijection[X, Y]
 
-  def create[X, Y](f1: X => Y, f2: Y => X): X <=> Y = new AbstractBijection[X, Y] {
+  def apply[X, Y](f1: X => Y, f2: Y => X): X <=> Y = new AbstractBijection[X, Y] {
     def invert(y: Y) = f2(y)
     def apply(x: X): Y = f1(x)
   }
@@ -49,7 +49,7 @@ object Bijection {
   def identity[X]: X <=> X = new BijectionT.Identity[X]
 
   implicit object Category extends Category[Bijection] {
-    def id[X] = Bijection.create(x => x, x => x)
+    def id[X] = Bijection(x => x, x => x)
     def compose[X, Y, Z](g: Y <=> Z, f: X <=> Y) = g compose f
   }
 

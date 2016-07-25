@@ -4,7 +4,9 @@ import poly.algebra._
 import poly.algebra.hkt._
 import poly.algebra.syntax._
 import poly.collection.exception._
+import poly.collection.immut.Stream
 import poly.collection.mut._
+
 import scala.annotation.unchecked.{uncheckedVariance => uv}
 import scala.language.implicitConversions
 
@@ -218,7 +220,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
     skippedIterator
   }
 
-  override def skipWhile(f: T => Boolean) = ofIterator {
+  override def dropWhile(f: T => Boolean) = ofIterator {
     val skippedIterator = self.newIterator
     while (skippedIterator.advance() && f(skippedIterator.current)) {}
     skippedIterator
@@ -460,6 +462,8 @@ trait Iterable[+T] extends Traversable[T] { self =>
     override def sizeKnown = true
     override def size = s
   }
+
+  def asStream: Stream[T] = newIterator.asStream
 
   //endregion
 

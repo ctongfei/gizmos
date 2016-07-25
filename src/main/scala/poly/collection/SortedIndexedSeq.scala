@@ -104,3 +104,5 @@ trait SortedIndexedSeq[T] extends SortedSeq[T] with IndexedSeq[T] { self =>
   }
 
 }
+
+abstract class AbstractSortedIndexedSeq[T] extends AbstractIndexedSeq[T] with SortedIndexedSeq[T]

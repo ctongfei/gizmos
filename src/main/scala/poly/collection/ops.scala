@@ -12,7 +12,7 @@ import scala.language.implicitConversions
  */
 trait ImplicitOperators {
 
-  implicit final class OptionWithMonadOps[T](val a: Option[T]) extends App {
+  implicit final class OptionWithMonadOps[T](val a: Option[T]) {
 
     def zip[U](b: Option[U]): Option[(T, U)] = for (x <- a; y <- b) yield (x, y)
 
@@ -106,13 +106,12 @@ trait ImplicitOperators {
      */
     def iterate(f: T => T) = Seq.iterate(x)(f)
 
-
     def unfold[A](f: T => (A, Option[T])): Seq[A] = {
       class UnfoldedNode(val state: Option[T]) extends SeqNode[A] {
-        println(state)
-        def data = f(state.get)._1
-        def next = new UnfoldedNode(f(state.get)._2)
-        def isDummy = state.isEmpty
+        private[this] val m = state map f
+        def data = m.get._1
+        def next = new UnfoldedNode(m.get._2)
+        def isDummy = m.isEmpty
       }
       Seq.ofHeadNode(new UnfoldedNode(Some(x)))
     }
@@ -128,12 +127,23 @@ trait ImplicitOperators {
 
     def unfoldToBinaryTree[A](f: T => (A, Option[T], Option[T])): BinaryTree[A] = {
       class UnfoldedNode2(val state: Option[T]) extends BinaryTreeNode[A] {
-        def data = f(state.get)._1
-        def left = new UnfoldedNode2(f(state.get)._2)
-        def right = new UnfoldedNode2(f(state.get)._3)
-        def isDummy = state.isEmpty
+        private[this] val m = state map f
+        def left = new UnfoldedNode2(m.get._2)
+        def right = new UnfoldedNode2(m.get._3)
+        def isDummy = m.isEmpty
+        def data = m.get._1
       }
       BinaryTree.ofRootNode(new UnfoldedNode2(Some(x)))
+    }
+
+    def unfoldToBinaryTreeInfinitely[A](f: T => (A, T, T)): BinaryTree[A] = {
+      class InfinitelyUnfoldedNode2(val state: T) extends BinaryTreeNode[A] {
+        val (data, leftState, rightState) = f(state)
+        def left = new InfinitelyUnfoldedNode2(leftState)
+        def right = new InfinitelyUnfoldedNode2(rightState)
+        def isDummy = false
+      }
+      BinaryTree.ofRootNode(new InfinitelyUnfoldedNode2(x))
     }
 
   }

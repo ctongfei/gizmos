@@ -20,7 +20,7 @@ import scala.annotation.unchecked.{uncheckedVariance => uv}
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait Graph[@sp(Int) K, +E] extends StateSpaceWithEq[K] with KeyedLike[K, Graph[K, E]] with Relation[K, K] with PartialFunction[(K, K), E] { self =>
+trait Graph[@sp(Int) K, +E] extends EquatableStateSpace[K] with KeyedLike[K, Graph[K, E]] with PartialFunction[(K, K), E] { self =>
 
   import Graph._
 
@@ -93,7 +93,7 @@ trait Graph[@sp(Int) K, +E] extends StateSpaceWithEq[K] with KeyedLike[K, Graph[
   def succ(i: K) = outgoingKeys(i)
 
   /** @inheritdoc In this case, the relation is the adjacency relation on vertices. */
-  def related(i: K, j: K) = containsArc(i, j)
+  override def related(i: K, j: K) = containsArc(i, j)
 
   // HELPER FUNCTIONS
 

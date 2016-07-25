@@ -235,7 +235,7 @@ trait Seq[+T] extends Iterable[T] with IntKeyedSortedMap[T] { self =>
     node
   }
 
-  override def skipWhile(f: T => Boolean) = ofHeadNode {
+  override def dropWhile(f: T => Boolean) = ofHeadNode {
     var node = self.headNode
     while (node.notDummy && f(node.data))
       node = node.next
@@ -436,6 +436,8 @@ trait Seq[+T] extends Iterable[T] with IntKeyedSortedMap[T] { self =>
   def asSeq: Seq[T] = ofHeadNode(headNode)
 
   // SYMBOLIC ALIASES
+
+  override def |>[U](f: T => U) = this map f
 
   override def +:[U >: T](u: U): Seq[U] = this prepend u
   override def :+[U >: T](u: U): Seq[U] = this append u

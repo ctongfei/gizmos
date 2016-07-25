@@ -64,7 +64,7 @@ a take 3
 a take 7
 a drop -1
 a drop 8
-a.skipWhile(_ >= 3)
+a.dropWhile(_ >= 3)
 a.takeWhile(_ >= 3)
 a.takeTo(_ == 2)
 a.takeUntil(_ <= 3)

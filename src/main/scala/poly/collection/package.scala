@@ -13,10 +13,10 @@ package object collection extends ImplicitOperators {
   //@inline def second[@sp(di) α, @sp(di) β](a: α, b: β) = b
 
   /** Returns the first element of a pair. */
-  @inline def first[@sp(dil) α, @sp(dil) β](pair: (α, β)) = pair._1
+  @inline def first[@sp(spTuple2) α, @sp(spTuple2) β](pair: (α, β)) = pair._1
 
   /** Returns the second element of a pair. */
-  @inline def second[@sp(dil) α, @sp(dil) β](pair: (α, β)) = pair._2
+  @inline def second[@sp(spTuple2) α, @sp(spTuple2) β](pair: (α, β)) = pair._2
 
   @inline def third[γ](triple: (_, _, γ)) = triple._3
 

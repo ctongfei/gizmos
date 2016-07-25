@@ -36,20 +36,13 @@ trait ForwardNodeLike[+T, +N <: ForwardNodeLike[T, N]] extends NodeLike[T, N] { 
 }
 
 object ForwardNodeLike {
-  implicit def StateSpace[T, N <: ForwardNodeLike[T, N]]: StateSpaceWithEq[N] = new AbstractStateSpaceWithEq[N] {
+  implicit def StateSpace[T, N <: ForwardNodeLike[T, N]]: EquatableStateSpace[N] = new AbstractEquatableStateSpace[N] {
     def eqOnKeys = Eq.default[N]
     def succ(x: N) = x.succ
   }
 }
 
 trait ForwardNode[+T] extends Node[T] with ForwardNodeLike[T, ForwardNode[T]] { self =>
-
-  def reverse: BackwardNode[T] = new BackwardNode[T] {
-    def pred = self.succ.map(_.reverse)
-    def data = self.data
-    override def reverse = self
-    def isDummy = self.isDummy
-  }
 
   def map[U](f: T => U): ForwardNode[U] = new ForwardNode[U] {
     def data = f(self.data)

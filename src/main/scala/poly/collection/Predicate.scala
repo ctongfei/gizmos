@@ -15,6 +15,10 @@ import scala.language.implicitConversions
  */
 trait Predicate[@sp(Int) -T] extends Func[T, Boolean] { self =>
 
+  def anyOf(xs: T*) = xs exists self
+
+  def allOf(xs: T*) = xs forall self
+
   /** Returns the negation/complement of this predicate. */
   def unary_! : Predicate[T] = new PredicateT.Complement(self)
 

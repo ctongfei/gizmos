@@ -4,7 +4,7 @@ import poly.algebra._
 import poly.collection._
 
 /**
- * Enables searching methods on objects.
+ * Enables searching functions on objects.
  * @author Tongfei Chen
  * @since 0.1.0
  */
@@ -27,13 +27,13 @@ object ops extends LowerPriorityImplicits {
      * Performs depth first graph traversal given the transition function.
      */
     def depthFirstTraversal[U >: T : Eq](f: U => Traversable[U]) =
-      StateSpaceWithEq(f).depthFirstTraversal(x)
+      EquatableStateSpace(f).depthFirstTraversal(x)
 
     /**
      * Performs breadth first graph traversal given the transition function.
      */
     def breadthFirstTraversal[U >: T : Eq](f: U => Traversable[U]) =
-      StateSpaceWithEq(f).breadthFirstTraversal(x)
+      EquatableStateSpace(f).breadthFirstTraversal(x)
 
     /**
      * Performs uniform cost traversal given the transition function.
