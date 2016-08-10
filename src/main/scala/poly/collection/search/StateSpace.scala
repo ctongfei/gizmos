@@ -17,15 +17,11 @@ trait StateSpace[S] { self =>
 
   /**
    * Depth-first traverses this state space from the given starting state.
-   * This method uses tree traversal: The user must guarantee that the state space is a tree.
-   * Otherwise, use the [[depthFirstTraversal]] method.
    * $LAZY */
   def depthFirstTreeTraversal(start: S) =
     Iterable.ofIterator(new DepthFirstTreeIterator(this, start))
 
   /** Breadth-first traverses this state space from the given starting state.
-   * This method uses tree traversal: The user must guarantee that the state space is a tree.
-   * Otherwise, use the [[breadthFirstTraversal]] method.
    * $LAZY */
   def breadthFirstTreeTraversal(start: S) =
     Iterable.ofIterator(new BreadthFirstTreeIterator(this, start))

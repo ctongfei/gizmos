@@ -20,6 +20,8 @@ package object collection extends ImplicitOperators {
 
   @inline def third[γ](triple: (_, _, γ)) = triple._3
 
+  @inline private[poly] def hashByRef(x: AnyRef) = System.identityHashCode(x)
+
   @inline private[poly] def default[T]: T = {
     class Default {
       var default: T = _
@@ -37,12 +39,6 @@ package object collection extends ImplicitOperators {
     c + 1
   }
 
-  implicit def arrayAsPoly[T](a: Array[T]): IndexedSeq[T] = new ArrayAsIndexedSeq[T](a)
-  implicit def stringAsPoly(s: String): IndexedSeq[Char] = new StringAsIndexedSeq(s)
-  implicit def booleanFunctionAsPoly[T](f: T => Boolean): Predicate[T] = new BooleanFunctionAsPredicate[T](f)
-  implicit def stringBuilderAsPoly(sb: StringBuilder): Builder[Char, String] = new StringBuilderAsBuilder(sb)
-  implicit def javaStringBuilderAsPoly(sb: java.lang.StringBuilder): Builder[Char, String] = new JavaStringBuilderAsBuilder(sb)
-
   /**
    * Gets the underlying `Array[T]` from a varargs argument of type `T*`.
    */
@@ -50,7 +46,6 @@ package object collection extends ImplicitOperators {
     case xs: scala.collection.mutable.WrappedArray[T] => xs.array
   }
 
-  @inline private[poly] def hashByRef(x: AnyRef) = System.identityHashCode(x)
 
   private[poly] implicit class WithModOps(val x: Int) extends AnyVal {
     def %+(mod: Int) = {
@@ -58,5 +53,12 @@ package object collection extends ImplicitOperators {
       if (r >= 0) r else r + mod
     }
   }
+
+  implicit def arrayAsPoly[T](a: Array[T]): IndexedSeq[T] = new ArrayAsIndexedSeq[T](a)
+  implicit def stringAsPoly(s: String): IndexedSeq[Char] = new StringAsIndexedSeq(s)
+  implicit def booleanFunctionAsPoly[T](f: T => Boolean): Predicate[T] = new BooleanFunctionAsPredicate[T](f)
+  implicit def stringBuilderAsPoly(sb: StringBuilder): Builder[Char, String] = new StringBuilderAsBuilder(sb)
+  implicit def javaStringBuilderAsPoly(sb: java.lang.StringBuilder): Builder[Char, String] = new JavaStringBuilderAsBuilder(sb)
+
 
 }

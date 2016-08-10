@@ -27,13 +27,13 @@ object ops extends LowerPriorityImplicits {
      * Performs depth first graph traversal given the transition function.
      */
     def depthFirstTraversal[U >: T : Eq](f: U => Traversable[U]) =
-      EquatableStateSpace(f).depthFirstTraversal(x)
+      EqStateSpace(f).depthFirstTraversal(x)
 
     /**
      * Performs breadth first graph traversal given the transition function.
      */
     def breadthFirstTraversal[U >: T : Eq](f: U => Traversable[U]) =
-      EquatableStateSpace(f).breadthFirstTraversal(x)
+      EqStateSpace(f).breadthFirstTraversal(x)
 
     /**
      * Performs uniform cost traversal given the transition function.

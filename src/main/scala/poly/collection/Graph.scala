@@ -20,7 +20,7 @@ import scala.annotation.unchecked.{uncheckedVariance => uv}
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait Graph[@sp(Int) K, +E] extends EquatableStateSpace[K] with KeyedLike[K, Graph[K, E]] with PartialFunction[(K, K), E] { self =>
+trait Graph[@sp(Int) K, @sp(Double) +E] extends EqStateSpace[K] with KeyedLike[K, Graph[K, E]] with PartialFunction[(K, K), E] { self =>
 
   import Graph._
 
@@ -146,7 +146,6 @@ object Graph {
     })
 
   }
-
 
   implicit class AsWeightedStateSpace[K, E: OrderedAdditiveGroup](g: Graph[K, E]) extends WeightedStateSpace[K, E] {
     def groupOnCost = OrderedAdditiveGroup[E]

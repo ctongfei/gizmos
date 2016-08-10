@@ -109,7 +109,7 @@ object FromJava {
   }
 
   implicit class javaNavigableSetAsPoly[T](xs: ju.NavigableSet[T]) extends AbstractSortedSet[T] with BiSortedSet[T] {
-    def keys = new BiSortedIterable[T] {
+    def keys: BiSortedIterable[T] = new BiSortedIterable[T] {
       implicit def orderOnElements = xs.comparator()
       def newReverseIterator = xs.descendingIterator()
       def newIterator = xs.iterator()

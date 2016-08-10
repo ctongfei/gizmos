@@ -129,7 +129,17 @@ class ListSeq[T] private() extends AbstractSeq[T] with KeyMutableSeq[T] {
     }
   }
 
-  def inplaceReverse() = ???
+  def reverseInplace() = {
+    var p = dummy
+    var c = dummy.next
+    var n = dummy.next.next
+    do {
+      c.next = p
+      p = c
+      c = n
+      n = c.next
+    } while (p.notDummy)
+  }
 
 }
 

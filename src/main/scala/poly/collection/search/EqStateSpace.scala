@@ -6,16 +6,16 @@ import poly.algebra.specgroup._
 import poly.collection._
 
 /**
- * Represents a space of search states, which can be considered as an implicit graph.
- * In an '''equatable''' state space, there is an state equivalence relation endowed on the set of states,
+ * Represents a space of equatable search states, which can be considered as an implicit graph.
+ * In an '''''equatable''''' state space, there is an equivalence relation endowed on the set of states,
  * so two states can be considered ''equal'', henceforth allowing graph traversal instead of tree traversal.
  * @author Yuhuan Jiang
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait EquatableStateSpace[@sp(Int) S] extends StateSpace[S] with Keyed[S] with Relation[S, S] { self =>
+trait EqStateSpace[@sp(Int) S] extends StateSpace[S] with Keyed[S] with Relation[S, S] { self =>
 
-  import EquatableStateSpace._
+  import EqStateSpace._
 
   /** Returns the equivalence relation on search states. */
   implicit def eqOnKeys: Eq[S]
@@ -25,7 +25,7 @@ trait EquatableStateSpace[@sp(Int) S] extends StateSpace[S] with Keyed[S] with R
   // HELPER FUNCTIONS
 
   /** Constraints this state space by selecting only the states that satisfy the given predicate. */
-  override def filterKeys(f: S => Boolean): EquatableStateSpace[S] = new EquatableStateSpaceT.KeyFiltered(self, f)
+  override def filterKeys(f: S => Boolean): EqStateSpace[S] = new EqStateSpaceT.KeyFiltered(self, f)
 
   def depthFirstTraversal(start: S) =
     Iterable.ofIterator(new DepthFirstIterator(this, start))
@@ -51,7 +51,7 @@ trait EquatableStateSpace[@sp(Int) S] extends StateSpace[S] with Keyed[S] with R
 
 }
 
-object EquatableStateSpace {
+object EqStateSpace {
 
   private[collection] def searchByIterator[S, N <: node.WithParent[S]](si: SearchIterator[N, S], goal: S => Boolean): BiSeq[S] = {
     while (si.advance())
@@ -60,21 +60,21 @@ object EquatableStateSpace {
     BiSeq.empty
   }
 
-  def apply[S](f: S => Traversable[S])(implicit S: Eq[S]): EquatableStateSpace[S] = new EquatableStateSpaceT.BySucc(f, S)
+  def apply[S: Eq](f: S => Traversable[S]): EqStateSpace[S] = new EqStateSpaceT.BySucc(f, Eq[S])
 
 }
 
-abstract class AbstractEquatableStateSpace[@sp(Int) S] extends EquatableStateSpace[S]
+abstract class AbstractEqStateSpace[@sp(Int) S] extends EqStateSpace[S]
 
-private[poly] object EquatableStateSpaceT {
+private[poly] object EqStateSpaceT {
 
-  class BySucc[S](f: S => Traversable[S], val eq: Eq[S]) extends AbstractEquatableStateSpace[S] {
+  class BySucc[S](f: S => Traversable[S], val eq: Eq[S]) extends AbstractEqStateSpace[S] {
     /** Returns the equivalence relation on search states. */
     def eqOnKeys = eq
     def succ(x: S) = f(x)
   }
 
-  class KeyFiltered[S](self: EquatableStateSpace[S], f: S => Boolean) extends AbstractEquatableStateSpace[S] {
+  class KeyFiltered[S](self: EqStateSpace[S], f: S => Boolean) extends AbstractEqStateSpace[S] {
     def eqOnKeys = self.eqOnKeys
     def succ(x: S) = self.succ(x) filter f
   }

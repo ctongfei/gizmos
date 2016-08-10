@@ -93,16 +93,30 @@ class ListBiSeq[T] private() extends AbstractBiSeq[T] with KeyMutableSeq[T] {
     len -= 1
   }
 
-  def inplaceReverse(): Unit = {
-    ???
+  def reverseInplace(): Unit = {
+    var p = dummy.prev
+    var c = dummy
+    var n = dummy.next
+    do {
+      c.prev = n
+      c.next = p
+      p = c
+      c = n
+      n = n.next
+    } while (c != dummy)
   }
 
   override def mapInplace(f: T => T): Unit = {
-    ???
+    var c = dummy.next
+    while (c != dummy) {
+      c.data = f(c.data)
+      c = c.next
+    }
   }
 }
 
 object ListBiSeq extends SeqFactory[ListBiSeq] {
+
   /**
    * Type of the internal node of a linked list.
    *

@@ -42,13 +42,7 @@ trait Traversable[+T] { self =>
    * Returns a new collection by applying a function to all elements in this collection. $LAZY
    * @example {{{(1, 2, 3) map { _ + 1 } == (2, 3, 4)}}}
    */
-  def map[U](f: T => U): Traversable[U] = new AbstractTraversable[U] {
-    def foreach[V](g: U => V) = {
-      for (x <- self) g(f(x))
-    }
-    override def sizeKnown = self.sizeKnown // map preserves size
-    override def size = self.size
-  }
+  def map[U](f: T => U): Traversable[U] = new TraversableT.Mapped(self, f)
 
   /**
    * Builds a new collection by applying a function to all elements of this collection
@@ -56,13 +50,7 @@ trait Traversable[+T] { self =>
    * $LAZY This is the direct equivalent of the Haskell function `bind`/`>>=`.
    * @example {{{(0, 1, 2, 3) flatMap { i => i repeat i } == (1, 2, 2, 3, 3, 3)}}}
    */
-  def flatMap[U](f: T => Traversable[U]): Traversable[U] = new AbstractTraversable[U] {
-    def foreach[V](g: U => V) = {
-      for (x <- self)
-        for (y <- f(x))
-          g(y)
-    }
-  }
+  def flatMap[U](f: T => Traversable[U]): Traversable[U] = new TraversableT.FlatMapped(self, f)
 
   /**
    * Returns the monadic product of two traversable sequences. $LAZY
@@ -75,19 +63,9 @@ trait Traversable[+T] { self =>
    * Selects only the elements that satisfy the specified predicate. $LAZY
    * @example {{{(1, 2, 3, 4) filter { _ > 2 } == (3, 4)}}}
    */
-  def filter(f: T => Boolean): Traversable[T] = new AbstractTraversable[T] {
-    def foreach[V](g: T => V) = {
-      for (x <- self)
-        if (f(x)) g(x)
-    }
-  }
+  def filter(f: T => Boolean): Traversable[T] = new TraversableT.Filtered(self, f)
 
-  def collect[U](pf: PartialFunction[T, U]): Traversable[U] = new AbstractTraversable[U] {
-    def foreach[V](f: U => V) = {
-      for (x <- self)
-        (pf runWith f)(x)
-    }
-  }
+  def collect[U](pf: PartialFunction[T, U]): Traversable[U] = new TraversableT.Collected(self, pf)
 
   /** Tests if this collection contains the given element. $On */
   def contains[U >: T : Eq](u: U): Boolean = {
@@ -144,36 +122,17 @@ trait Traversable[+T] { self =>
 
   //endregion
 
-  //region Concatenation (concat, prepend, append)
   /**
    * Concatenates two traversable collections into one. $LAZY
    * @example {{{(1, 2, 3) ++ (4, 5) == (1, 2, 3, 4, 5)}}}
    */
-  def concat[U >: T](that: Traversable[U]): Traversable[U] = new AbstractTraversable[U] {
-    def foreach[V](f: U => V): Unit = {
-      for (x <- self)
-        f(x)
-      for (x <- that)
-        f(x)
-    }
-  }
+  def concat[U >: T](that: Traversable[U]): Traversable[U] = new TraversableT.Concatenated(self, that)
 
   /** Prepends an element to the beginning of this collection. $LAZY */
-  def prepend[U >: T](x: U): Traversable[U] = new AbstractTraversable[U] {
-    def foreach[V](f: U => V) = {
-      f(x)
-      self foreach f
-    }
-  }
+  def prepend[U >: T](x: U): Traversable[U] = new TraversableT.Prepended(self, x)
 
   /** Appends an element to the end of this collection. $LAZY */
-  def append[U >: T](x: U): Traversable[U] = new AbstractTraversable[U] {
-    def foreach[V](f: U => V) = {
-      self foreach f
-      f(x)
-    }
-  }
-  //endregion
+  def append[U >: T](x: U): Traversable[U] = new TraversableT.Appended(self, x)
 
   /** Counts the number of elements in this collection that satisfy the specified predicate. $On */
   def count(f: T => Boolean): Int = {
@@ -258,16 +217,7 @@ trait Traversable[+T] { self =>
   def reduceBySemigroup[U >: T : Semigroup]: U = reduceLeft[U](_ <> _)
 
   /** $LAZY $O1 */
-  def scanLeft[U](z: U)(f: (U, T) => U): Traversable[U] = new AbstractTraversable[U] {
-    def foreach[V](g: U => V) = {
-      var accum = z
-      for (x <- self) {
-        g(accum)
-        accum = f(accum, x)
-      }
-      g(accum)
-    }
-  }
+  def scanLeft[U](z: U)(f: (U, T) => U): Traversable[U] = new TraversableT.Scanned(self, z, f)
 
   def scanRight[U](z: U)(f: (T, U) => U) = self.reverse.scanLeft(z)((x, y) => f(y, x)).reverse
 
@@ -279,25 +229,9 @@ trait Traversable[+T] { self =>
 
   /**
    * Returns the consecutive differences of the sequences. $LAZY
-   *
    * @example {{{ (0, 1, 3, 6, 10).consecutive(_ - _) == (1, 2, 3, 4) }}}
    */
-  def consecutive[U](f: (T, T) => U): Traversable[U] = new AbstractTraversable[U] {
-    var first = true
-    var prev: T = _
-    def foreach[V](g: U => V) = {
-      for (x <- self) {
-        if (first) {
-          prev = x
-          first = false
-        }
-        else {
-          g(f(x, prev))
-          prev = x
-        }
-      }
-    }
-  }
+  def consecutive[U](f: (T, T) => U): Traversable[U] = new TraversableT.Consecutive(self, f)
 
   /** $LAZY $O1 */
   def diffByGroup[U >: T](implicit U: Group[U]) = consecutive((x, y) => U.op(x, U.inv(y)))
@@ -317,15 +251,7 @@ trait Traversable[+T] { self =>
   }
 
   /** $LAZY $O1 */
-  def tail: Traversable[T] = new AbstractTraversable[T] {
-    def foreach[U](f: T => U): Unit = {
-      var first = true
-      for (x <- self) {
-        if (!first) f(x)
-        first = false
-      }
-    }
-  }
+  def tail: Traversable[T] = new TraversableT.Tail(self)
 
   /** $EAGER $On */
   def last: T = {
@@ -334,76 +260,25 @@ trait Traversable[+T] { self =>
     l
   }
 
-  def init: Traversable[T] = new AbstractTraversable[T] {
-    def foreach[U](f: T => U): Unit = {
-      var p = default[T]
-      var first = true
-      for (x <- self) {
-        if (first) first = false
-        else f(p)
-        p = x
-      }
-    }
-  }
+  def init: Traversable[T] = new TraversableT.Init(self)
 
   def suffixes: Iterable[Iterable[T]] = to(ArraySeq).suffixes
 
   def prefixes: Iterable[Iterable[T]] = to(ArraySeq).prefixes
 
-  def take(n: Int): Traversable[T] = new AbstractTraversable[T] {
-    def foreach[U](f: T => U): Unit = {
-      var i = 0
-      for (x <- self) {
-        f(x)
-        i += 1
-        if (i >= n) return
-      }
-    }
-    override def take(nn: Int) = self.take(Math.min(n, nn))
-  }
+  def take(n: Int): Traversable[T] = new TraversableT.Taken(self, n)
 
-  def drop(n: Int): Traversable[T] = new AbstractTraversable[T] {
-    def foreach[U](f: T => U): Unit = {
-      var i = 0
-      for (x <- self) {
-        if (i >= n) f(x)
-        i += 1
-      }
-    }
-    override def drop(nn: Int) = self.drop(n + nn)
-  }
+  def drop(n: Int): Traversable[T] = new TraversableT.Dropped(self, n)
 
-  def takeWhile(f: T => Boolean): Traversable[T] = new AbstractTraversable[T] {
-    def foreach[U](g: T => U): Unit = {
-      for (x <- self) {
-        if (f(x)) g(x)
-        else return
-      }
-    }
-  }
+  def takeWhile(f: T => Boolean): Traversable[T] = new TraversableT.TakenWhile(self, f)
 
-  def takeTo(f: T => Boolean): Traversable[T] = new AbstractTraversable[T] {
-    def foreach[U](g: T => U): Unit = {
-      var goal = false
-      for (x <- self) {
-        if (f(x)) goal = true
-        g(x)
-        if (goal) return
-      }
-    }
-  }
+  def takeTo(f: T => Boolean): Traversable[T] = new TraversableT.TakenTo(self, f)
 
-  def takeUntil(f: T => Boolean): Traversable[T] = takeWhile(x => !f(x))
+  def takeUntil(f: T => Boolean): Traversable[T] = takeWhile(!f)
 
-  def dropWhile(f: T => Boolean): Traversable[T] = new AbstractTraversable[T] {
-    def foreach[U](g: T => U): Unit = {
-      var starts = false
-      for (x <- self) {
-        if (!starts && !f(x)) starts = true
-        if (starts) g(x)
-      }
-    }
-  }
+  def dropWhile(f: T => Boolean): Traversable[T] = new TraversableT.DroppedWhile(self, f)
+
+  def dropUntil(f: T => Boolean): Traversable[T] = dropWhile(!f)
 
   def slice(i: Int, j: Int) = drop(i).take(j - i)
 
@@ -415,36 +290,16 @@ trait Traversable[+T] { self =>
    *   (1, 4, 1, 3, 4, 2).distinct == (1, 4, 3, 2)
    * }}}
    */
-  def distinct[U >: T : Eq]: Traversable[U] = new AbstractTraversable[U] {
-    private[this] val set = AutoSet[U]()
-    def foreach[V](f: U => V) = {
-      for (x <- self) {
-        if (set notContains x) {
-          set += x
-          f(x)
-        }
-      }
-    }
-  }
+  def distinct[U >: T : Eq]: Traversable[U] = distinctBy(identity)
 
-  def distinctBy[U: Eq](f: T => U): Traversable[T] = new AbstractTraversable[T] {
-    private[this] val set = AutoSet[U]()
-    def foreach[V](g: T => V) = {
-      for (x <- self) {
-        val u = f(x)
-        if (set notContains u) {
-          set += u
-          g(x)
-        }
-      }
-    }
-  }
+  def distinctBy[U: Eq](f: T => U): Traversable[T] = new TraversableT.DistinctBy(self, f, Eq[U])
 
-  def union[U >: T : Eq](that: Traversable[U]): Traversable[U] = (this concat that).distinct
+  def union[U >: T : Eq](that: Traversable[U]): Traversable[U] =
+    (this concat that).distinct
 
-  def intersect[U >: T : Eq](that: Traversable[U]): Traversable[U] = {
+  def intersect[U >: T : Eq](that: Traversable[U]): Traversable[U] =
     (this filter that.to(AutoSet)).distinct
-  }
+
 
   /** Returns the reverse of this collection. $EAGER */
   def reverse: BiIterable[T] = self.to(ArraySeq).reverse
@@ -466,7 +321,6 @@ trait Traversable[+T] { self =>
 
   /**
    * Sorts this collection in ascending order using the implicitly provided order. $EAGER
- *
    * @example {{{
    *   (3, 2, 4, 1).sort == (1, 2, 3, 4)
    *   (3, 2, 4, 1).sort(Order[Int].reverse) == (4, 3, 2, 1)
@@ -485,43 +339,26 @@ trait Traversable[+T] { self =>
     seq asIfSorted (Order by f)
   }
 
-  def withIndex: Traversable[(Int, T)] = new AbstractTraversable[(Int, T)] {
-    def foreach[V](f: ((Int, T)) => V) = {
-      var i = 0
-      for (x <- self) {
-        f(i, x)
-        i += 1
-      }
-    }
-  }
+  /**
+   * Pairs each element in this collection with an index while traversing.
+   * @example {{{ (a, b, c).withIndex == ((0, a), (1, b), (2, c)) }}}
+   */
+  def withIndex: Traversable[(Int, T)] = new TraversableT.WithIndex(self)
 
   /**
    * Repeats this collection for a specific number of times. $LAZY
-   *
-   * @example {{{(1, 2, 3).repeat(2) == (1, 2, 3, 1, 2, 3)}}}
+   * @example {{{ (1, 2, 3) repeat 2 == (1, 2, 3, 1, 2, 3) }}}
    */
-  def repeat(n: Int): Traversable[T] = new AbstractTraversable[T] {
-    def foreach[V](f: T => V) = {
-      FastLoop.ascending(0, n, 1) { i =>
-        for (x <- self) f(x)
-      }
-    }
-  }
+  def repeat(n: Int): Traversable[T] = new TraversableT.Repeated(self, n)
 
   /**
    * Infinitely cycles through this collection. $LAZY
-   *
    * @example {{{(1, 2, 3).cycle == (1, 2, 3, 1, 2, 3, 1, 2, ...)}}}
    */
-  def cycle: Traversable[T] = new AbstractTraversable[T] {
-    def foreach[V](f: T => V) = {
-      while (true) for (x <- self) f(x)
-    }
-  }
+  def cycle: Traversable[T] = new TraversableT.Cycled(self)
 
   /**
    * Returns the sum of the elements in this collection.
-   *
    * @example {{{(1, 2, 3).sum == 6}}}
    * @tparam U Supertype of the type of elements: must be endowed with an additive monoid.
    * @return The sum
@@ -538,7 +375,6 @@ trait Traversable[+T] { self =>
 
   /**
    * Returns the prefix sums of this collection.
-   *
    * @example {{{(1, 2, 3, 4).prefixSums == (0, 1, 3, 6, 10)}}}
    * @tparam X Supertype of the type of elements: must be endowed with an additive monoid
    * @return The prefix sums sequence
@@ -583,7 +419,6 @@ trait Traversable[+T] { self =>
 
   /**
    * Returns the first element in this collection that makes the specific function least.
- *
    * @example {{{
    *   (1, 2, 3, 4, 5) argmin { _ % 4 } == 4
    * }}}
@@ -699,7 +534,7 @@ trait Traversable[+T] { self =>
     b.result
   }
 
-  def buildString(delimiter: String): String = { //TODO: toString should be abstracted as typeclass
+  def buildString(delimiter: String): String = {
     val sb = new StringBuilder
     var first = true
     for (x <- this) {
@@ -810,3 +645,195 @@ object Traversable {
 }
 
 abstract class AbstractTraversable[+T] extends Traversable[T]
+
+private[poly] object TraversableT {
+
+  class Mapped[T, U](self: Traversable[T], f: T => U) extends AbstractTraversable[U] {
+    def foreach[V](g: U => V) = {
+      for (x <- self) g(f(x))
+    }
+    override def sizeKnown = self.sizeKnown // map preserves size
+    override def size = self.size
+  }
+
+  class FlatMapped[T, U](self: Traversable[T], f: T => Traversable[U]) extends AbstractTraversable[U] {
+    def foreach[V](g: U => V) = {
+      for (x <- self; y <- f(x)) g(y)
+    }
+  }
+
+  class Filtered[T](self: Traversable[T], f: T => Boolean) extends AbstractTraversable[T] {
+    def foreach[V](g: T => V) = {
+      for (x <- self) if (f(x)) g(x)
+    }
+  }
+
+  class Collected[T, U](self: Traversable[T], pf: PartialFunction[T, U]) extends AbstractTraversable[U] {
+    def foreach[V](f: U => V) = {
+      for (x <- self) (pf runWith f)(x)
+    }
+  }
+
+  class Concatenated[T](self: Traversable[T], that: Traversable[T]) extends AbstractTraversable[T] {
+    def foreach[V](f: T => V) = {
+      for (x <- self) f(x)
+      for (x <- that) f(x)
+    }
+  }
+
+  class Prepended[T](self: Traversable[T], x: T) extends AbstractTraversable[T] {
+    def foreach[V](f: T => V) = {
+      f(x)
+      for (x <- self) f(x)
+    }
+  }
+
+  class Appended[T](self: Traversable[T], x: T) extends AbstractTraversable[T] {
+    def foreach[V](f: T => V) = {
+      for (x <- self) f(x)
+      f(x)
+    }
+  }
+
+  class Scanned[T, U](self: Traversable[T], z: U, f: (U, T) => U) extends AbstractTraversable[U] {
+    def foreach[V](g: U => V) = {
+      var accum = z
+      for (x <- self) {
+        g(accum)
+        accum = f(accum, x)
+      }
+      g(accum)
+    }
+  }
+
+  class Consecutive[T, U](self: Traversable[T], f: (T, T) => U) extends AbstractTraversable[U] {
+    var first = true
+    var prev: T = _
+    def foreach[V](g: U => V) = {
+      for (x <- self) {
+        if (first) {
+          prev = x
+          first = false
+        }
+        else {
+          g(f(x, prev))
+          prev = x
+        }
+      }
+    }
+  }
+
+  class Tail[T](self: Traversable[T]) extends AbstractTraversable[T] {
+    def foreach[U](f: T => U) = {
+      var first = true
+      for (x <- self) {
+        if (!first) f(x)
+        first = false
+      }
+    }
+  }
+
+  class Init[T](self: Traversable[T]) extends AbstractTraversable[T] {
+    def foreach[U](f: T => U) = {
+      var p = default[T]
+      var first = true
+      for (x <- self) {
+        if (first) first = false
+        else f(p)
+        p = x
+      }
+    }
+  }
+
+  class Taken[T](self: Traversable[T], n: Int) extends AbstractTraversable[T] {
+    def foreach[U](f: T => U) = {
+      var i = 0
+      for (x <- self) {
+        f(x)
+        i += 1
+        if (i >= n) return
+      }
+    }
+    override def take(nn: Int) = self.take(Math.min(n, nn))
+    //TODO: override sizeKnown/size?
+  }
+
+  class Dropped[T](self: Traversable[T], n: Int) extends AbstractTraversable[T] {
+    def foreach[U](f: T => U) = {
+      var i = 0
+      for (x <- self) {
+        if (i >= n) f(x)
+        i += 1
+      }
+    }
+    override def drop(nn: Int) = self.drop(n + nn)
+  }
+
+  class TakenWhile[T](self: Traversable[T], f: T => Boolean) extends AbstractTraversable[T] {
+    def foreach[U](g: T => U): Unit = {
+      for (x <- self) {
+        if (f(x)) g(x)
+        else return
+      }
+    }
+  }
+
+  class TakenTo[T](self: Traversable[T], f: T => Boolean) extends AbstractTraversable[T] {
+    def foreach[U](g: T => U): Unit = {
+      var goal = false
+      for (x <- self) {
+        if (f(x)) goal = true
+        g(x)
+        if (goal) return
+      }
+    }
+  }
+
+  class DroppedWhile[T](self: Traversable[T], f: T => Boolean) extends AbstractTraversable[T] {
+    def foreach[U](g: T => U) = {
+      var starts = false
+      for (x <- self) {
+        if (!starts && !f(x)) starts = true
+        if (starts) g(x)
+      }
+    }
+  }
+
+  class DistinctBy[T, U](self: Traversable[T], f: T => U, e: Eq[U]) extends AbstractTraversable[T] {
+    private[this] val set = AutoSet[U]()(e)
+    def foreach[V](g: T => V) = {
+      for (x <- self) {
+        val u = f(x)
+        if (set notContains u) {
+          set += u
+          g(x)
+        }
+      }
+    }
+  }
+
+  class WithIndex[T](self: Traversable[T]) extends AbstractTraversable[(Int, T)] {
+    def foreach[V](f: ((Int, T)) => V) = {
+      var i = 0
+      for (x <- self) {
+        f(i, x)
+        i += 1
+      }
+    }
+  }
+
+  class Repeated[T](self: Traversable[T], n: Int) extends AbstractTraversable[T] {
+    def foreach[V](f: T => V) = {
+      FastLoop.ascending(0, n, 1) { i =>
+        for (x <- self) f(x)
+      }
+    }
+  }
+
+  class Cycled[T](self: Traversable[T]) extends AbstractTraversable[T] {
+    def foreach[V](f: T => V) = {
+      while (true) for (x <- self) f(x)
+    }
+  }
+
+}

@@ -269,7 +269,9 @@ trait Seq[+T] extends Iterable[T] with IntKeyedSortedMap[T] { self =>
     ofDummyNode(new TakenToNode(self.dummy))
   }
 
-  override def takeUntil(f: T => Boolean) = takeWhile(x => !f(x))
+  override def takeUntil(f: T => Boolean) = takeWhile(!f)
+
+  override def dropUntil(f: T => Boolean) = dropWhile(!f)
 
   override def slice(i: Int, j: Int) = {
     if (i >= 0 && j >= 0)

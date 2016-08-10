@@ -4,7 +4,7 @@ import poly.algebra._
 import poly.algebra.hkt._
 import poly.algebra.syntax._
 import poly.collection.exception._
-import poly.collection.immut.Stream
+import poly.collection.immut.LazyFSeq$
 import poly.collection.mut._
 
 import scala.annotation.unchecked.{uncheckedVariance => uv}
@@ -247,7 +247,9 @@ trait Iterable[+T] extends Traversable[T] { self =>
     }
   }
 
-  override def takeUntil(f: T => Boolean) = takeWhile(x => !f(x))
+  override def takeUntil(f: T => Boolean) = takeWhile(!f)
+
+  override def dropUntil(f: T => Boolean) = dropWhile(!f)
 
   override def slice(i: Int, j: Int) = self.drop(i).take(j - i)
 
@@ -463,7 +465,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
     override def size = s
   }
 
-  def asStream: Stream[T] = newIterator.asStream
+  def asStream: LazyFSeq[T] = newIterator.asStream
 
   //endregion
 
@@ -492,6 +494,7 @@ object Iterable {
       def advance() = false
       def current = throw new DummyNodeException
     }
+    def unapply[T](x: Iterable[T]) = x.isEmpty
   }
 
   /** Creates an iterable collection based on an existing iterator. */

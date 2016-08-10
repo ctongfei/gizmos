@@ -32,3 +32,13 @@ trait TreeNode[+T] extends ForwardNode[T] with TreeNodeLike[T, TreeNode[T]] { se
     def isDummy = self.isDummy
   }
 }
+
+object TreeNode {
+
+  object Dummy extends TreeNode[Nothing] {
+    def children = Iterable.Empty
+    def data = throw new NoSuchElementException
+    def isDummy = true
+  }
+
+}

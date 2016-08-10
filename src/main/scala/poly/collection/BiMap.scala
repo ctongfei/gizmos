@@ -80,10 +80,10 @@ trait BiMap[K, V] extends Map[K, V] with Bijection[K, V] with Relation[K, V] { s
   def compose[J](that: BiMap[J, K]) = that map this
 
   def |>[W](that: BiMap[V, W]) = this andThen that
-  def <|[J](that: BiMap[J, K]) = this compose that
+  def |>:[J](that: BiMap[J, K]) = this compose that
 
   override def |>[W](that: Bijection[V, W]) = ???
-  override def <|[J](that: Bijection[J, K]) = ???
+  override def |>:[J](that: Bijection[J, K]) = ???
 
 
   override def toString = "{" + pairs.map { case (k, v) => s"$k ↔︎ $v" }.buildString(", ") + "}"

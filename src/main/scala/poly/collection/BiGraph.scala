@@ -31,7 +31,9 @@ trait BiGraph[@sp(Int) K, +E] extends Graph[K, E] { self =>
   // HELPER FUNCTIONS
   override def reverse: BiGraph[K, E] = new BiGraphT.Reversed(self)
 
-  //TODO: mapArcs, filterKeys, zip, ...
+  override def map[F](f: E => F): BiGraph[K, F] = new BiGraphT.Mapped(self, f)
+
+  //TODO: mapWithKeys, filterKeys, zip, zipWith
 
   override def asMultimap: BiMultimap[K, K] = ???
 
@@ -62,6 +64,12 @@ private[poly] object BiGraphT {
     def apply(i: K, j: K) = self.apply(i, j)
     def eqOnKeys = self.eqOnKeys
   }
+
+  class Mapped[K, E, F](self: BiGraph[K, E], f: E => F) extends GraphT.Mapped(self, f) with BiGraph[K, F] {
+    def incomingKeySet(i: K) = self.incomingKeySet(i)
+  }
+
+
 
 
 }

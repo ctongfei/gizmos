@@ -20,7 +20,7 @@ trait OrderedTree[+T] extends Tree[T] { self =>
 
   // HELPER FUNCTIONS
 
-  override def map[U](f: T => U): OrderedTree[U] = ofRootNode { self.rootNode map f }
+  override def map[U](f: T => U): OrderedTree[U] = ofRootNode(self.rootNode map f)
 
   def zip[U](that: OrderedTree[U]) = (self zipWith that)((t, u) => (t, u))
 

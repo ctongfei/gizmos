@@ -1,13 +1,13 @@
-package poly.collection.impl
+package poly.collection.mut
 
 import poly.collection._
-import poly.collection.exception._
+import poly.collection.impl._
 import poly.collection.impl.specialized._
-import poly.collection.node._
 
 /**
  * A binary tree stored in an array.
  * @author Tongfei Chen
+ * @since 0.1.0
  */
 class ArrayBinaryTree[T] private(
   private[poly] val data: ResizableSeq[T],

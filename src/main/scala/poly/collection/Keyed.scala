@@ -17,7 +17,7 @@ import poly.algebra.specgroup._
  */
 trait Keyed[@sp(Int) K] {
 
-  /** Returns the equivalence relation on keys. */
+  /** Returns the equivalence relation on the set of keys. */
   def eqOnKeys: Eq[K]
 
 }

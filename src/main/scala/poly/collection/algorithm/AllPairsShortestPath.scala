@@ -8,7 +8,8 @@ import poly.collection._
 import poly.collection.mut._
 
 /**
- * Runs Floyd-Warshall algorithm on a specified graph.
+ * Runs Floyd-Warshall algorithm on a specified graph to compute shortest paths between
+ * each pair of nodes in a graph.
  * @author Tongfei Chen
  * @since 0.1.0
  */
@@ -40,6 +41,10 @@ class AllPairsShortestPath[K, E : OrderedAdditiveGroup : HasTop](val graph: Grap
 
   def distanceBetween(i: K, j: K) = d ? (i, j)
 
+  /**
+   * Returns the shortest path between two nodes as discovered by this instance of Floyd-Warshall algorithm.
+   * @return If the two nodes are not connected, the returned path is empty.
+   */
   def pathBetween(i: K, j: K): Seq[K] = {
     if (i === j) Seq(i)
     else if (graph.containsArc(i, j)) Seq(i, j)

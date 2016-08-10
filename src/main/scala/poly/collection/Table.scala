@@ -78,12 +78,7 @@ trait Table[+T] extends Map[(Int, Int), T] { self =>
   }
 
   /** Transposes this table. */
-  def transpose: Table[T] = new AbstractTable[T] {
-    def numCols = self.numRows
-    def numRows = self.numCols
-    def apply(i: Int, j: Int) = self(j, i)
-    override def transpose = self
-  }
+  def transpose: Table[T] = new TableT.Transposed(self)
 
   def zip[U](that: Table[U]): Table[(T, U)] = new AbstractTable[(T, U)] {
     def numRows = min(self.numRows, that.numRows)
@@ -136,7 +131,15 @@ object Table {
     def numCols = nc
   }
 
-  def Eq[T: Eq]: Eq[Table[T]] = new Eq[Table[T]] {
+  def Eq[T](implicit T: Eq[T]): Eq[Table[T]] = new TableT.TableEq()(T)
+
+}
+
+abstract class AbstractTable[T] extends Table[T]
+
+private[poly] object TableT {
+
+  class TableEq[T](implicit T: Eq[T]) extends Eq[Table[T]] {
     def eq(x: Table[T], y: Table[T]): Boolean = {
       if (x.numRows != y.numRows) return false
       if (x.numCols != y.numCols) return false
@@ -149,7 +152,11 @@ object Table {
     }
   }
 
+  class Transposed[T](self: Table[T]) extends AbstractTable[T] {
+    def numCols = self.numRows
+    def numRows = self.numCols
+    def apply(i: Int, j: Int) = self(j, i)
+    override def transpose = self
+  }
+
 }
-
-abstract class AbstractTable[T] extends Table[T]
-

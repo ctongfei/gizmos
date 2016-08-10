@@ -11,8 +11,8 @@ import scala.language.higherKinds
  * @author Tongfei Chen
  */
 class Alphabet[T: Eq] private(
-  private val w2i: KeyMutableMap[T, Int],
-  private val i2w: DenseIntKeyedMap[T])
+  private[this] val w2i: KeyMutableMap[T, Int],
+  private[this] val i2w: KeyMutableMap[Int, T])
   extends BiMap[T, Int]
 {
 
@@ -32,7 +32,7 @@ class Alphabet[T: Eq] private(
 
   override def size = i2w.size
 
-  def keys: IndexedSeq[T] = Range(size).map(i2w)
+  def keys: IndexedSeq[T] = Range(size) map i2w
 
   def values = Range(size)
 
@@ -41,6 +41,8 @@ class Alphabet[T: Eq] private(
 
   def containsKey(x: T): Boolean = w2i containsKey x
   def containsValue(v: Int): Boolean = i2w containsKey v
+
+  //TODO: freeze
 
   override def pairs: Iterable[(T, Int)] = w2i.pairs
 
@@ -53,12 +55,16 @@ class Alphabet[T: Eq] private(
 
 object Alphabet {
 
-  def apply[T: Eq] = new Alphabet(AutoMap[T, Int](), DenseIntKeyedMap.newBuilder[T].result) //TODO
+  /** Creates an empty alphabet. */
+  def apply[T: Eq] = new Alphabet(AutoMap[T, Int](), DenseIntKeyedMap[T]())
 
   /**
    * Creates an alphabet with a `nil` element. This element will be mapped to index `0`.
    */
   def withNil[T: Eq](nil: T) =
-    new Alphabet[T](AutoMap[T, Int](nil -> 0), /*ArraySeq(nil)*/ ???) //TODO
+    new Alphabet[T](
+      AutoMap[T, Int](nil -> 0),
+      DenseIntKeyedMap(0 -> nil)
+    )
 
 }

@@ -1,6 +1,7 @@
 package poly.collection
 
 import poly.algebra.hkt._
+import poly.collection.conversion.FromScala._
 import poly.collection.node._
 
 /**
@@ -23,9 +24,11 @@ trait Tree[+T] { self =>
   def map[U](f: T => U) = ofRootNode(rootNode map f)
 
   def fold[U](f: (T, Iterable[U]) => U): U =
-    f(self.root, self.children.map(_.fold(f)))
+    f(self.root, self.children.map(_ fold f)) //TODO: makes it non-recursive
 
-  // Comonadic operation
+  /**
+   * The comonadic operations on trees.
+   */
   def subtrees: Tree[Tree[T]] = {
     class TreeOfTreeNode(n: TreeNode[T]) extends TreeNode[Tree[T]] {
       def children = n.children.map(tn => new TreeOfTreeNode(tn))
@@ -46,7 +49,6 @@ trait Tree[+T] { self =>
    * }}}
    */
   def preOrder = rootNode.preOrder map { _.data }
-
 
   /**
    * '''Lazily''' traverses this tree in level order (breadth-first order).
@@ -70,24 +72,38 @@ trait Tree[+T] { self =>
    *    └  e   f    ┘
    * }}}
    */
-  def postOrder = fold[Iterable[T]] {
-    case (n, cs) => cs.flatten :+ n
-  }
+  def postOrder = fold[Iterable[T]] { (n, cs) => cs.flatten :+ n } //TODO: a non-recursive lazy method
 
   def leaves = rootNode.preOrder.filter(_.isLeaf).map(_.data)
 
-  override def toString =
-    if (children.isEmpty) s"$root"
-    else s"($root ${children.map(_.toString).buildString(" ")})"
+  override def toString = self match {
+    case Empty       => ""
+    case Tree(r, cs) => cs match {
+      case Iterable.Empty() => s"$r"
+      case _                => s"($r ${cs.map(_.toString).buildString(" ")})"
+    }
+  }
 }
 
 object Tree {
+
+  def apply[T](r: T, c: Tree[T]*): Tree[T] = new Tree[T] {
+    def rootNode = new TreeNode[T] {
+      def children = c.map(_.rootNode)
+      def data = r
+      def isDummy = false
+    }
+  }
 
   def unapply[T](xs: Tree[T]) = {
     if (xs.isEmpty) None
     else Some(xs.root, xs.children)
   }
 
+  object Empty extends Tree[Nothing] {
+    def rootNode = TreeNode.Dummy
+    def unapply[T](t: Tree[T]) = t.isEmpty
+  }
 
   def ofRootNode[T](n: TreeNode[T]): Tree[T] = new Tree[T] {
     def rootNode = n
@@ -113,5 +129,10 @@ object Tree {
     def id[X](u: Tree[X]) = u.root
     def extend[X, Y](wx: Tree[X])(f: Tree[X] => Y) = wx.subtrees map f
   }
+
+}
+
+private[poly] object TreeT {
+
 
 }

@@ -9,9 +9,12 @@ import poly.collection.mut._
  * @since 0.1.0
  * @author Tongfei Chen
  */
-class Memoized[A: Eq, R] private(f: A => R) extends CachedFunction[A, R] {
-  private val c = AutoMap[A, R]()
+class Memoized[A: Eq, +R] private(f: A => R) extends CachedFunction[A, R] {
+
+  private[this] val c = AutoMap[A, R]()
+
   def apply(a: A) = c getOrElseUpdate (a, f(a))
+
   def cache: Map[A, R] = c
 }
 
@@ -27,5 +30,11 @@ object Memoized {
    * }}}
    */
   def apply[A: Eq, R](f: A => R) = new Memoized(f)
+
+  /**
+   * Creates an memoized version of a function using the default `hashCode` method on inputs
+   * as the hashing function for the memo.
+   */
+  def byDefaultHashing[A, R](f: A => R) = new Memoized(f)(Hashing.default[A])
 
 }

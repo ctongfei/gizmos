@@ -12,7 +12,7 @@ import scala.collection.mutable._
 object SeqBenchmark extends App {
 
   val conf = config(Key.exec.benchRuns → 50)
-    .withWarmer(new Warmer.Default).withMeasurer(new IgnoringGC)
+    .withWarmer(new Warmer.Default)
 
   for (n ← scala.Seq(100000, 200000, 400000, 800000, 1600000, 3200000)) {
 

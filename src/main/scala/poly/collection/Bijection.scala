@@ -30,7 +30,7 @@ trait Bijection[@sp(Int, AnyRef) X, @sp(Int, AnyRef) Y] extends Func[X, Y] { sel
   def contramap[W](f: Bijection[W, X]) = compose(f)
 
   def |>[Z](f: Bijection[Y, Z]) = andThen(f)
-  def <|[W](f: Bijection[W, X]) = compose(f)
+  def |>:[W](f: Bijection[W, X]) = compose(f)
   final def ∘[W](that: Bijection[W, X]) = compose(that)
   final def ×[U, V](that: Bijection[U, V]) = product(that)
 

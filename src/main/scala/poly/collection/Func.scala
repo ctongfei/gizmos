@@ -2,14 +2,15 @@ package poly.collection
 
 import poly.algebra._
 import poly.algebra.hkt._
+import poly.algebra.specgroup._
 
 /**
  * Poly-collection's wrapper of [[scala.Function1]].
  *
  * @author Tongfei Chen
  * @since 0.1.0
- */ //TODO: specialize
-trait Func[-A, +B] extends (A => B) { self =>
+ */
+trait Func[@sp(spFunc1) -A, @sp(spFuncR) +B] extends (A => B) { self =>
 
   import Func._
 
@@ -25,10 +26,10 @@ trait Func[-A, +B] extends (A => B) { self =>
   }
 
   /** Casts this binary function as a binary relation. */
-  def asRelation[C >: B](implicit C: Eq[C]): Relation[A, C] = new FunctionT.AsRelation(self, C)
+  def asRelation[C >: B : Eq]: Relation[A, C] = new FuncT.AsRelation(self, Eq[C])
 
   def |>[C](that: B => C) = andThen(that)
-  def <|[C](that: C => A) = compose(that)
+  def |>:[C](that: C => A) = compose(that)
   def ∘[C](that: C => A) = compose(that)
   def ×[C, D](that: C => D) = product(that)
 
@@ -42,6 +43,7 @@ object Func {
     def apply(a: A) = f(a)
   }
 
+  //TODO: Profunctor + Arrow
   implicit object Category extends Category[Func] {
     def id[X] = (x: X) => x
     def compose[X, Y, Z](g: Func[Y, Z], f: Func[X, Y]) = g compose f
@@ -49,7 +51,7 @@ object Func {
 
 }
 
-private[poly] object FunctionT {
+private[poly] object FuncT {
 
   class AsRelation[A, B](self: A => B, e: Eq[B]) extends Relation[A, B] {
     def related(a: A, b: B) = e.eq(self(a), b)

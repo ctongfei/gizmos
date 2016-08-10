@@ -23,7 +23,7 @@ trait Predicate[@sp(Int) -T] extends Func[T, Boolean] { self =>
   def unary_! : Predicate[T] = new PredicateT.Complement(self)
 
   /** Returns the conjunction/intersection of two predicates. */
-  def union[U <: T](that: Predicate[U]): Predicate[U] = new PredicateT.Intersection[U](Seq(self, that)) //TODO: ImList?
+  def union[U <: T](that: Predicate[U]): Predicate[U] = new PredicateT.Intersection[U](Seq(self, that)) //TODO: FSeq?
 
   /** Returns the disjunction/union of two predicates. */
   def intersect[U <: T](that: Predicate[U]): Predicate[U] = new PredicateT.Union[U](Seq(self, that))

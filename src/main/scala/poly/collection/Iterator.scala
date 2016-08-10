@@ -60,9 +60,9 @@ trait Iterator[@sp(Int, Long, Double, Char) +T] { self =>
     while (self.advance()) f(self.current)
   }
 
-  private[poly] def asStream: immut.Stream[T] = {
-    if (self.advance()) immut.Stream.Cons(self.current, self.asStream)
-    else immut.Stream.Empty
+  private[poly] def asStream: immut.LazyFSeq[T] = {
+    if (self.advance()) immut.LazyFSeq.Cons(self.current, self.asStream)
+    else immut.LazyFSeq.Empty
   }
 
   override def toString = try { s"⋯ $current ⋯" } catch {

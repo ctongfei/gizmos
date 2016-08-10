@@ -27,7 +27,11 @@ case class UPair[@sp(spTuple2) T: Eq](_1: T, _2: T) extends Set[T] {
     case _ => false
   }
 
-  override def hashCode = _1.## ^ _2.##
+  override def hashCode = {
+    val a = _1.##
+    val b = _2.##
+    (a * b) + (a ^ b)
+  }
 
   override def toString = s"{${_1}, ${_2}}"
 

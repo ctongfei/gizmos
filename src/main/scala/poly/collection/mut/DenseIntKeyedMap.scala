@@ -3,7 +3,9 @@ package poly.collection.mut
 import poly.algebra._
 import poly.collection._
 import poly.collection.builder._
+import poly.collection.factory._
 import poly.collection.impl._
+
 import scala.language.higherKinds
 
 /**
@@ -61,7 +63,7 @@ class DenseIntKeyedMap[T] private(
 
 }
 
-object DenseIntKeyedMap {
+object DenseIntKeyedMap extends BuilderFactoryIntA[DenseIntKeyedMap] {
 
   implicit def newBuilder[V]: Builder[(Int, V), DenseIntKeyedMap[V]] = new Builder[(Int, V), DenseIntKeyedMap[V]] {
     private[this] val data = new ResizableArray[V]()
@@ -75,5 +77,6 @@ object DenseIntKeyedMap {
     }
     def result = new DenseIntKeyedMap(data, state, n)
   }
+
 
 }

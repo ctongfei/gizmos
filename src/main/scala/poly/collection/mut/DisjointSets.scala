@@ -1,6 +1,7 @@
 package poly.collection.mut
 
 import poly.algebra._
+import poly.collection._
 import poly.collection.conversion.FromScala._
 import poly.collection.node._
 
@@ -9,15 +10,14 @@ import poly.collection.node._
  * This structure keeps track of a set of elements partitioned into a number of disjoint subsets,
  * and enables the user to join two sets at any time.
  *
- * This structure is essential in the Kruskal's algorithm ([[poly.collection.algorithm.MinimumSpanningTree]]).
- * @author Tongfei Chen
+ * This structure is essential in the Kruskal's algorithm.
  * @since 0.1.0
  */
-class DisjointSets[T] private(private val data: KeyMutableMap[T, DisjointSets.Node]) extends Eq[T] {
+class DisjointSets[T] private(private val data: Map[T, DisjointSets.Node]) extends Eq[T] {
 
   import DisjointSets._
 
-  private var numSets = data.size
+  private[this] var numSets = data.size
 
   /** Returns the number of element this disjoint-sets structure is managing. */
   def size = data.size
@@ -65,7 +65,9 @@ object DisjointSets {
     def isDummy = false
   }
 
-  def apply[T: Eq](xs: T*): DisjointSets[T] =
+  def apply[T: Eq](xs: T*) = from(xs)
+
+  def from[T: Eq](xs: Traversable[T]): DisjointSets[T] =
     new DisjointSets[T](AutoMap from xs.map(t => t -> new Node()))
 
 }

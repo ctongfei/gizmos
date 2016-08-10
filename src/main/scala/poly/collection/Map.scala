@@ -12,8 +12,10 @@ import scala.language.reflectiveCalls
 
 /**
  * The base trait for maps.
- * A map is a mapping between a key type (domain) and a value type (codomain).
- * It can also be viewed as a collection of (key, value) pairs, in which each key is unique.
+ * A map is a function that maps a key type (domain) to a value type (codomain).
+ * In addition to a normal function, a map is also endowed with an iterable set on the type of keys.
+ * It can also be viewed as a collection of (key, value) pairs, in which each key is unique under
+ * the equivalence relation of the key set.
  *
  * @author Tongfei Chen
  * @since 0.1.0
@@ -35,7 +37,6 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
    * If the key is not found, its behavior is undefined
    * (may or may not throw an exception. This is a deliberate design for efficiency).
    * For maximum safety, use [[?]] to optionally access an element.
- *
    * @param k The given key
    * @return The associated value of ''k''
    * @throws KeyNotFoundException if key not found (may or may not throw)
@@ -87,13 +88,13 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
   def mapWithKeys[W](f: (K, V) => W): Map[K, W] = new MapT.MappedWithKeys(self, f)
 
   /**
-   * Returns the product map of two maps. $LAZY
+   * Returns the Cartesian product map of two maps. $LAZY
    * @example {{{
    *   {1 -> 'A', 2 -> 'B'} product {true -> 1, false -> 0} ==
-   *      {(1, true)  -> ('A', 1),
+   *     { (1, true)  -> ('A', 1),
    *       (1, false) -> ('A', 0),
    *       (2, true)  -> ('B', 1),
-   *       (2, false) -> ('B', 0)}
+   *       (2, false) -> ('B', 0) }
    * }}}
    */
   def product[L, W](that: Map[L, W]): Map[(K, L), (V, W)] = new MapT.Product(self, that)
@@ -173,7 +174,7 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
   def ×[L, W](that: Map[L, W]) = self product that
 
   override def |>[W](f: V => W) = self map f
-  def <|[J](f: Bijection[J, K]) = self contramap f
+  def |>:[J](f: Bijection[J, K]) = self contramap f
 
   def ⋈[W](that: Map[K, W]) = self innerJoin that
   def ⟕[W](that: Map[K, W]) = self leftOuterJoin that
@@ -217,7 +218,8 @@ object Map extends FactoryAB_EvA[Map, Eq] with MapLowPriorityTypeclassInstances 
      *    (K, L) => V   . curry ==  K => (L => V)
      * }}}
      * @note The user should guarantee that the implicit equivalence relation of K and L
-     *       conforms to the equivalence relation on pair (K, L) stored in this map.
+     *       conforms to the equivalence relation on pair (K, L) stored in this map. I.e.,
+     *       `(K product L)` should behave exactly the same as `m.eqOnKeys`.
      * @note This function incurs some overhead (traversing through the key set).
      */
     def curry(implicit K: Eq[K], L: Eq[L]): Map[K, Map[L, V]] = new AbstractMap[K, Map[L, V]] {
@@ -260,7 +262,7 @@ object Map extends FactoryAB_EvA[Map, Eq] with MapLowPriorityTypeclassInstances 
   // TYPECLASS INSTANCES
 
   implicit def __dynamicEq[K, V](implicit V: Eq[V]): Eq[Map[K, V]] = V match {
-    case vh: Hashing[V] => ??? //TODO: !
+    case vh: Hashing[V] => ???
 
     case ve => new Eq[Map[K, V]] {
       def eq(x: Map[K, V], y: Map[K, V]) = (x, y) match {
@@ -277,7 +279,7 @@ object Map extends FactoryAB_EvA[Map, Eq] with MapLowPriorityTypeclassInstances 
   def Eq[K, V: Eq]: Eq[Map[K, V]] = new MapT.MapEq[K, V]
 
   /** Returns the functor on maps. */
-  //TODO: this should be stronger than a functor but less than an applicative functor
+  //TODO: this should be stronger than a functor but less than an applicative functor (no unit element)
   implicit def Functor[K]: Functor[({type λ[+V] = Map[K, V]})#λ] = new Functor[({type λ[+V] = Map[K, V]})#λ] {
     def map[X, Y](mx: Map[K, X])(f: X => Y): Map[K, Y] = mx map f
   }

@@ -29,15 +29,25 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
 
   @inline final def notContains(x: T) = !contains(x)
 
+  /** Tests if an element belongs to this set. */
   def apply(x: T) = contains(x)
 
+  /**
+   * Returns an iterable sequence of all the elements in this set.
+   * The elements returned should be distinct under the equivalence relation of this set.
+   */
   def elements = keys
 
   override def keySet = this
 
-  def size = elements.size
+  /** Returns the number of elements of this set. */
+  def size = keys.size
 
+  /** Tests if this set is empty. */
   def isEmpty = size == 0
+
+  /** Tests if this set is not empty. */
+  final def notEmpty = !isEmpty
 
   /**
     * Returns the union of two sets.
@@ -71,7 +81,7 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
 
   /** Returns the symmetric difference of two sets. */
   def symmetricDiff(that: Set[T]): Set[T] = new AbstractSet[T] {
-    def keys = ???
+    def keys = self.keys.filter(that.notContains) ++ that.keys.filter(self.notContains)
     def contains(x: T) = self.contains(x) ^ that.contains(x)
     implicit def eqOnKeys = self.eqOnKeys
   }
@@ -91,6 +101,8 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
   /** Returns the cartesian product of two sets. */
   def product[U](that: Set[U]): Set[(T, U)] = new SetT.Product(self, that)
 
+  def mapWithKeys[V](f: T => V): Map[T, V] = createMap(f)
+
   /** Using this set as the key set, construct a map by the given function. */
   def createMap[V](f: T => V): Map[T, V] = new SetT.MapByFunc(self, f)
 
@@ -108,7 +120,7 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
 
   def map[U](f: Bijection[T, U]): Set[U] = new AbstractSet[U] {
     def eqOnKeys = self.eqOnKeys contramap f.invert
-    def keys = self.elements.map(f)
+    def keys = self.elements map f
     def contains(x: U) = self contains f.invert(x)
   }
 
@@ -139,11 +151,7 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
    *   == {'A', 'B', 'C'}
    * }}}
    */
-  def contramap[S](f: Bijection[S, T]): Set[S] = new AbstractSet[S] {
-    def eqOnKeys = self.eqOnKeys contramap f
-    def keys = self.elements.map(f.invert)
-    def contains(x: S) = self.contains(f(x))
-  }
+  def contramap[S](f: Bijection[S, T]) = map(f.inverse)
 
   def foreach[U](f: T => U) = elements foreach f
 

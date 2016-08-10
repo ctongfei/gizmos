@@ -82,8 +82,8 @@ object ToScala {
     /** Converts a Poly-collection set to a Scala set. */
     def asScalaSet: sc.Set[T] = new sc.AbstractSet[T] {
       def contains(elem: T) = xs contains elem
-      def +(elem: T) = AutoSet.from(xs.elements :+ elem)(xs.eqOnKeys).asScalaSet // TODO??
-      def -(elem: T) = ???
+      def +(elem: T) = AutoSet.from(xs.elements :+ elem)(xs.eqOnKeys).asScalaSet
+      def -(elem: T) = AutoSet.from(xs.elements.filter(x => xs.eqOnKeys.ne(x, elem)))(xs.eqOnKeys).asScalaSet
       def iterator = xs.elements.newIterator.asScalaIterator
     }
 
