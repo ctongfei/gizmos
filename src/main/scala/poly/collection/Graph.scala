@@ -24,8 +24,11 @@ trait Graph[@sp(Int) K, @sp(Double) +E] extends EqStateSpace[K] with KeyedLike[K
 
   import Graph._
 
+  /** Returns the set of the keys of the vertices in this graph. */
+  def keySet: Set[K]
+
   /** Returns the equivalence relation on the keys of this graph. */
-  implicit def eqOnKeys: Eq[K]
+  implicit def keyEq = keySet.keyEq
 
   /** Gets the data on the arc indexed by the specific two keys. */
   def apply(i: K, j: K): E
@@ -36,10 +39,10 @@ trait Graph[@sp(Int) K, @sp(Double) +E] extends EqStateSpace[K] with KeyedLike[K
   def ?(i: K, j: K): Option[E]
 
   /** Returns an iterable collection of the keys in this graph. */
-  def keys: Iterable[K]
+  def keys = keySet.keys
 
   /** Returns whether a key is present in this graph. */
-  def containsKey(i: K): Boolean
+  def containsKey(i: K): Boolean = keySet.contains(i)
 
   /** Returns whether an arc is present between the two given keys in this graph. */
   def containsArc(i: K, j: K): Boolean
@@ -73,13 +76,6 @@ trait Graph[@sp(Int) K, @sp(Double) +E] extends EqStateSpace[K] with KeyedLike[K
   def arcs: Iterable[(K, K, E)] = for (i <- keys; (j, e) <- outgoingMap(i).pairs) yield (i, j, e)
 
   def arcMap: Map[(K, K), E] = (keySet createMap outgoingMap).uncurry
-
-  /** Returns the set of the keys of the vertices in this graph. */
-  def keySet: Set[K] = new AbstractSet[K] {
-    def keys = self.keys
-    def contains(k: K) = self.containsKey(k)
-    implicit def eqOnKeys = self.eqOnKeys
-  }
 
   def containsNode(i: K) = keySet.contains(i)
 
@@ -137,10 +133,10 @@ object Graph {
     // special implementation: uses the eqOnKeys in the referring graph!
     // ensures that two NodeProxy objects are really referring to the same node in the graph
     override def equals(that: Any) = that match {
-      case that: NodeProxy[K, E] => (this.graph eq that.graph) && graph.eqOnKeys.eq(this.key, that.key)
+      case that: NodeProxy[K, E] => (this.graph eq that.graph) && graph.keyEq.eq(this.key, that.key)
       case _ => false
     }
-    override def hashCode = poly.algebra.Hashing.byRef.hash(graph) + (graph.eqOnKeys match {
+    override def hashCode = poly.algebra.Hashing.byRef.hash(graph) + (graph.keyEq match {
       case hk: Hashing[K] => hk.hash(key)
       case _ => key.##
     })
@@ -150,7 +146,7 @@ object Graph {
   implicit class AsWeightedStateSpace[K, E: OrderedAdditiveGroup](g: Graph[K, E]) extends WeightedStateSpace[K, E] {
     def groupOnCost = OrderedAdditiveGroup[E]
     def succWithCost(x: K) = g.outgoingMap(x).pairs
-    def eqOnKeys = g.eqOnKeys
+    def keyEq = g.keyEq
   }
 
 }
@@ -162,59 +158,47 @@ private[poly] object GraphT {
   class Mapped[K, E, F](self: Graph[K, E], f: E => F) extends AbstractGraph[K, F] {
     def apply(i: K, j: K) = f(self(i, j))
     def ?(i: K, j: K) = (self ? (i, j)) map f
-    def keys = self.keys
-    def containsKey(i: K) = self.containsKey(i)
+    def keySet = self.keySet
     def containsArc(i: K, j: K) = self.containsArc(i, j)
-    def eqOnKeys = self.eqOnKeys
     def outgoingKeySet(i: K) = self.outgoingKeySet(i)
   }
 
   class MappedWithKeys[K, E, F](self: Graph[K, E], f: (K, K, E) => F) extends AbstractGraph[K, F] {
+    def keySet = self.keySet
     def apply(i: K, j: K) = f(i, j, self(i, j))
     def ?(i: K, j: K) = if (self.containsArc(i, j)) Some(f(i, j, self(i, j))) else None
-    def keys = self.keys
-    def containsKey(i: K) = self.containsKey(i)
     def containsArc(i: K, j: K) = self.containsArc(i, j)
-    def eqOnKeys = self.eqOnKeys
     def outgoingKeySet(i: K) = self.outgoingKeySet(i)
   }
 
   class KeyFiltered[K, E](self: Graph[K, E], f: K => Boolean) extends AbstractGraph[K, E] {
+    def keySet = self.keySet filter f
     def apply(i: K, j: K) = self(i, j)
     def ?(i: K, j: K) = if (f(i) && f(j)) self ? (i, j) else None
-    def keys = self.keys filter f
-    def containsKey(i: K) = self.containsKey(i) && f(i)
     def containsArc(i: K, j: K) = self.containsArc(i, j) && f(i) && f(j)
-    def eqOnKeys = self.eqOnKeys
     def outgoingKeySet(i: K) = self.outgoingKeySet(i) filterKeys f
   }
 
   class ZippedWith[K, E, F, X](self: Graph[K, E], that: Graph[K, F], f: (E, F) => X) extends AbstractGraph[K, X] {
+    def keySet = self.keySet intersect that.keySet
     def apply(i: K, j: K) = f(self(i, j), that(i, j))
     def ?(i: K, j: K) = for (a <- self ? (i, j); b <- that ? (i, j)) yield f(a, b)
-    def keys = (self.keySet intersect that.keySet).keys
-    def containsKey(i: K) = self.containsKey(i) && that.containsKey(i)
     def containsArc(i: K, j: K) = self.containsArc(i, j) && that.containsArc(i, j)
-    def eqOnKeys = self.eqOnKeys
     def outgoingKeySet(i: K) = self.outgoingKeySet(i) intersect that.outgoingKeySet(i)
   }
 
   class Contramapped[K, E, J](self: Graph[K, E], f: Bijection[J, K]) extends AbstractGraph[J, E] {
+    def keySet = self.keySet contramap f
     def apply(i: J, j: J) = self(f(i), f(j))
     def ?(i: J, j: J) = self ? (f(i), f(j))
-    def keys = self.keys map f.invert
-    def containsKey(i: J) = self.containsKey(f(i))
     def containsArc(i: J, j: J) = self.containsArc(f(i), f(j))
-    def eqOnKeys = self.eqOnKeys contramap f
     def outgoingKeySet(i: J) = self.outgoingKeySet(f(i)) contramap f
   }
 
   class AsMultimap[K](self: Graph[K, Any]) extends AbstractMultimap[K, K] {
-    def keys = self.keys
-    def eqOnKeys = self.eqOnKeys
-    def eqOnValues = self.eqOnKeys
+    def keySet = self.keySet
+    def valueEq = self.keyEq
     def apply(k: K) = self.outgoingKeySet(k)
-    def containsKey(k: K) = self.containsKey(k)
   }
 
 }

@@ -55,31 +55,27 @@ object FromScala {
   }
 
   implicit class scalaSetAsPoly[T](sset: sc.Set[T]) extends AbstractSet[T] {
-    def eqOnKeys = Eq.default[T]
+    def keyEq = Eq.default[T]
     def keys = sset
     def contains(x: T) = sset contains x
   }
 
   implicit class scalaMapAsPoly[K, V](smap: sc.Map[K, V]) extends AbstractMap[K, V] {
-    def keys = smap.keys
+    def keySet = smap.keySet
     override def pairs = scalaIterableAsPoly(smap)
-    def containsKey(x: K) = smap contains x
     def apply(k: K) = smap(k)
     def ?(k: K) = smap get k
-    def eqOnKeys = Eq.default[K]
   }
 
   implicit class scalaSortedSetAsPoly[K](sset: sc.SortedSet[K]) extends AbstractSortedSet[K] {
     def keys = scalaIterableAsPoly(sset).asIfSorted(sset.ordering)
-    def orderOnKeys = sset.ordering
+    def keyOrder = sset.ordering
     def contains(x: K) = sset contains x
   }
 
   implicit class scalaSortedMapAsPoly[K, V](smap: sc.SortedMap[K, V]) extends AbstractMap[K, V] with SortedMap[K, V] {
-    def keys = smap.keys.asIfSorted(orderOnKeys)
-    override def orderOnKeys = smap.ordering
+    def keySet = smap.keySet
     override def pairs = scalaIterableAsPoly(smap).asIfSorted(smap.ordering contramap first)
-    def containsKey(x: K) = smap contains x
     def apply(k: K) = smap(k)
     def ?(k: K) = smap get k
   }

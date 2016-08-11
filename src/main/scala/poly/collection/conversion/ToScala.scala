@@ -82,8 +82,8 @@ object ToScala {
     /** Converts a Poly-collection set to a Scala set. */
     def asScalaSet: sc.Set[T] = new sc.AbstractSet[T] {
       def contains(elem: T) = xs contains elem
-      def +(elem: T) = AutoSet.from(xs.elements :+ elem)(xs.eqOnKeys).asScalaSet
-      def -(elem: T) = AutoSet.from(xs.elements.filter(x => xs.eqOnKeys.ne(x, elem)))(xs.eqOnKeys).asScalaSet
+      def +(elem: T) = AutoSet.from(xs.elements :+ elem)(xs.keyEq).asScalaSet
+      def -(elem: T) = AutoSet.from(xs.elements.filter(x => xs.keyEq.ne(x, elem)))(xs.keyEq).asScalaSet
       def iterator = xs.elements.newIterator.asScalaIterator
     }
 
@@ -100,7 +100,7 @@ object ToScala {
 
   implicit class PolySortedSetAsScala[T](val xs: SortedSet[T]) extends AnyVal {
     def asScalaSortedSet: sc.SortedSet[T] = new sc.AbstractSet[T] with sc.SortedSet[T] {
-      implicit def ordering = xs.orderOnKeys.asScalaOrdering
+      implicit def ordering = xs.keyOrder.asScalaOrdering
       def rangeImpl(from: Option[T], until: Option[T]) = ???
       def +(elem: T) = ???
       def contains(elem: T) = xs.contains(elem)

@@ -54,15 +54,13 @@ abstract class AbstractBiGraph[K, +E] extends AbstractGraph[K, E] with BiGraph[K
 private[poly] object BiGraphT {
 
   class Reversed[K, +E](self: BiGraph[K, E]) extends AbstractBiGraph[K, E] {
+    def keySet = self.keySet
     override def reverse = self
     def outgoingKeySet(i: K) = self.incomingKeySet(i)
     def incomingKeySet(i: K) = self.outgoingKeySet(i)
-    def keys = self.keys
     def ?(i: K, j: K) = self ? (j, i)
-    def containsKey(i: K) = self.containsKey(i)
     def containsArc(i: K, j: K) = self.containsArc(i, j)
     def apply(i: K, j: K) = self.apply(i, j)
-    def eqOnKeys = self.eqOnKeys
   }
 
   class Mapped[K, E, F](self: BiGraph[K, E], f: E => F) extends GraphT.Mapped(self, f) with BiGraph[K, F] {

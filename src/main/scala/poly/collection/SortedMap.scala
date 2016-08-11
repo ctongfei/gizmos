@@ -12,20 +12,14 @@ import scala.annotation.unchecked.{uncheckedVariance => uv}
  */
 trait SortedMap[@sp(Int) K, +V] extends Map[K, V] { self =>
 
+  def keySet: SortedSet[K]
+
   /** Returns the weak order on keys. */
-  def orderOnKeys: Order[K]
+  def keyOrder = keySet.keyOrder
 
-  def eqOnKeys = orderOnKeys
+  override def keys = keySet.keys
 
-  def keys: SortedIterable[K]
-
-  override def keySet: SortedSet[K] = new SortedSet[K] {
-    def keys = self.keys
-    def orderOnKeys = self.orderOnKeys
-    def contains(k: K) = self.containsKey(k)
-  }
-
-  override def pairs: SortedIterable[(K, V @uv)] = keySet.keys.map(k => (k, apply(k))).asIfSorted(orderOnKeys contramap first)
+  override def pairs: SortedIterable[(K, V @uv)] = keySet.keys.map(k => (k, apply(k))).asIfSorted(keyOrder contramap first)
 
 }
 

@@ -20,10 +20,8 @@ class AdjacencyListBiGraph[@sp(Int) K: Eq, E] private(private val r: KeyMutableM
   def incomingKeySet(i: K) = r(i).pred
   def outgoingKeySet(i: K) = r(i).succ.keySet
 
-  def keys = r.keys
-  def containsKey(i: K) = r.containsKey(i)
+  def keySet = r.keySet
   def containsArc(i: K, j: K) = r.containsKey(i) && r(i).succ.containsKey(j)
-  implicit def eqOnKeys = r.eqOnKeys
 
 }
 

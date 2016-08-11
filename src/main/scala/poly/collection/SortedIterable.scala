@@ -13,9 +13,9 @@ import poly.collection.mut._
 trait SortedIterable[T] extends Iterable[T] { self =>
 
   /** Returns the order under which the elements of this collection are sorted. */
-  implicit def orderOnElements: Order[T]
+  implicit def elementOrder: Order[T]
 
-  override def filter(f: T => Boolean): SortedIterable[T] = super.filter(f).asIfSorted(orderOnElements)
+  override def filter(f: T => Boolean): SortedIterable[T] = super.filter(f).asIfSorted(elementOrder)
 
   override def filterNot(f: T => Boolean) = filter(x => !f(x))
 
@@ -23,7 +23,7 @@ trait SortedIterable[T] extends Iterable[T] { self =>
    * Returns the unique elements of this iterable collection while retaining their original order.
    * The equivalence function is this sorted iterable collection's inherent order.
    */
-  def distinct: Iterable[T] = self.distinct(orderOnElements)
+  def distinct: Iterable[T] = self.distinct(elementOrder)
 
   /**
    * Merges two sorted iterable collection into one sorted iterable collection. $LAZY
@@ -31,7 +31,7 @@ trait SortedIterable[T] extends Iterable[T] { self =>
    * @return A merged sorted sequence
    */
   def merge(that: SortedIterable[T]): SortedIterable[T] = new SortedIterable[T] {
-    implicit def orderOnElements: Order[T] = self.orderOnElements
+    implicit def elementOrder: Order[T] = self.elementOrder
     def newIterator: Iterator[T] = new AbstractIterator[T] {
       private[this] val ai = self.newIterator
       private[this] val bi = that.newIterator
@@ -88,7 +88,7 @@ trait SortedIterable[T] extends Iterable[T] { self =>
     // Appends remaining elements
     if (aNotComplete) do c.appendInplace(ai.current) while (ai.advance())
     if (bNotComplete) do c.appendInplace(bi.current) while (bi.advance())
-    c.asIfSorted(this.orderOnElements)
+    c.asIfSorted(this.elementOrder)
   }
 
 }

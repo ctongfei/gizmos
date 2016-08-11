@@ -19,17 +19,9 @@ class Permutation private(private val a1: Array[Int], private val a2: Array[Int]
 
   def fastLength = a1.length
 
-  override def keys = Range(fastLength)
-
-  def values = keys
-
   def fastApply(x: Int) = a1(x)
 
   def invert(y: Int) = a2(y)
-
-  def eqOnValues = std.IntStructure
-
-  def containsValue(y: Int) = containsKey(y)
 
   def invertOption(y: Int) = if (y < 0 || y >= size) None else Some(a2(y))
 
@@ -127,7 +119,7 @@ object Permutation {
     def inv(x: Permutation) = x.inverse
     def id = identity(n)
     def op(x: Permutation, y: Permutation) = x compose y
-    def eqOnKeys = LexicographicOrder
+    def keyEq = LexicographicOrder
     def contains(x: Permutation) = x.size == n
 
     def keys: Iterable[Permutation] = Iterable.ofIterator {

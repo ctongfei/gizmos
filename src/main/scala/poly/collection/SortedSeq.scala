@@ -17,7 +17,7 @@ trait SortedSeq[T] extends Seq[T] with SortedIterable[T] { self =>
         new FilteredSeqNode(nextNode)
       }
     }
-    Seq.ofDummyNode(new FilteredSeqNode(dummy)).asIfSorted(orderOnElements)
+    Seq.ofDummyNode(new FilteredSeqNode(dummy)).asIfSorted(elementOrder)
   }
 
   override def filterNot(f: T => Boolean) = filter(x => !f(x))

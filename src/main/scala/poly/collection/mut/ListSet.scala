@@ -12,7 +12,7 @@ import poly.collection.impl._
  * @since 0.1.0
  * @author Tongfei Chen
  */
-class ListSet[T] private(private val data: SinglyLinkedList[T])(implicit val eqOnKeys: Eq[T]) extends KeyMutableSet[T] {
+class ListSet[T] private(private val data: SinglyLinkedList[T])(implicit val keyEq: Eq[T]) extends KeyMutableSet[T] {
 
   override def size = data.len
 

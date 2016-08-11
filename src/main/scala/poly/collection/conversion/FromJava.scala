@@ -92,7 +92,7 @@ object FromJava {
   implicit class javaSetAsPoly[T](xs: ju.Set[T]) extends KeyMutableSet[T] {
     def removeInplace(x: T) = xs.remove(x)
     def addInplace(x: T) = xs.add(x)
-    def eqOnKeys = Eq.default[T]
+    def keyEq = Eq.default[T]
     def contains(x: T) = xs.contains(x)
     override def size = xs.size()
     def keys = Iterable.ofIterator(xs.iterator())
@@ -101,20 +101,20 @@ object FromJava {
 
   implicit class javaSortedSetAsPoly[T](xs: ju.SortedSet[T]) extends AbstractSortedSet[T] {
     def keys = new SortedIterable[T] {
-      implicit def orderOnElements = xs.comparator()
+      implicit def elementOrder = xs.comparator()
       def newIterator = xs.iterator()
     }
     def contains(x: T) = xs.contains(x)
-    def orderOnKeys = xs.comparator()
+    def keyOrder = xs.comparator()
   }
 
   implicit class javaNavigableSetAsPoly[T](xs: ju.NavigableSet[T]) extends AbstractSortedSet[T] with BiSortedSet[T] {
     def keys: BiSortedIterable[T] = new BiSortedIterable[T] {
-      implicit def orderOnElements = xs.comparator()
+      implicit def elementOrder = xs.comparator()
       def newReverseIterator = xs.descendingIterator()
       def newIterator = xs.iterator()
     }
-    def orderOnKeys = xs.comparator()
+    def keyOrder = xs.comparator()
     def contains(x: T) = xs.contains(x)
   }
 
@@ -138,17 +138,14 @@ object FromJava {
   */
 
   implicit class javaMapAsPoly[K, V](jm: ju.Map[K, V]) extends AbstractMap[K, V] with KeyMutableMap[K, V] {
-    def eqOnKeys = Eq.default[K]
+    def keySet = jm.keySet
     def addInplace(x: K, y: V) = jm.put(x, y)
     def clear() = jm.clear()
     def removeInplace(x: K) = jm.remove(x)
     def update(x: K, y: V) = jm.put(x, y)
     def ?(x: K) = Option(jm.get(x))
-    def keys = jm.keySet()
-    override def keySet = jm.keySet()
     override def size = jm.size
     def apply(x: K) = jm.get(x)
-    def containsKey(x: K) = jm.containsKey(x)
   }
 
   // java.io

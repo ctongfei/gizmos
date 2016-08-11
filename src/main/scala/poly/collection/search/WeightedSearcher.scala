@@ -49,7 +49,7 @@ abstract class WeightedSearcher[S, N, C](val fringe: KeyedPriorityQueue[S, N], v
 
 class UniformCostIterator[S, C: OrderedAdditiveGroup](val stateSpace: WeightedStateSpace[S, C], start: S)
   extends WeightedSearcher[S, WithCost[S, C], C](
-    DistinctPriorityQueue[S, WithCost[S, C]](BinaryHeap(), _.state)(stateSpace.eqOnKeys),
+    DistinctPriorityQueue[S, WithCost[S, C]](BinaryHeap(), _.state)(stateSpace.keyEq),
     start)
 {
   def searchNodeInfo = WithCost.WeightedSearchNodeInfo[S, C]
@@ -58,7 +58,7 @@ class UniformCostIterator[S, C: OrderedAdditiveGroup](val stateSpace: WeightedSt
 
 class GreedyBestFirstIterator[S, C: OrderedAdditiveGroup](val stateSpace: WeightedStateSpace[S, C], start: S, val heuristic: S => C)
   extends WeightedSearcher[S, WithHeuristic[S, C], C](
-    DistinctPriorityQueue[S, WithHeuristic[S, C]](BinaryHeap(), _.state)(stateSpace.eqOnKeys),
+    DistinctPriorityQueue[S, WithHeuristic[S, C]](BinaryHeap(), _.state)(stateSpace.keyEq),
     start)
 {
   def searchNodeInfo = WithHeuristic.WeightedSearchNodeInfo(heuristic)
@@ -67,7 +67,7 @@ class GreedyBestFirstIterator[S, C: OrderedAdditiveGroup](val stateSpace: Weight
 
 class AStarIterator[S, C: OrderedAdditiveGroup](val stateSpace: WeightedStateSpace[S, C], start: S, val heuristic: S => C)
   extends WeightedSearcher[S, WithCostAndHeuristic[S, C], C](
-    DistinctPriorityQueue[S, WithCostAndHeuristic[S, C]](BinaryHeap()(WithCostAndHeuristic.order), _.state)(stateSpace.eqOnKeys),
+    DistinctPriorityQueue[S, WithCostAndHeuristic[S, C]](BinaryHeap()(WithCostAndHeuristic.order), _.state)(stateSpace.keyEq),
     start) { //TODO: contravariant typeclass implicit resolution bug
   def searchNodeInfo = WithCostAndHeuristic.WeightedSearchNodeInfo(heuristic)
   def prune(n: WithCostAndHeuristic[S, C]) = false

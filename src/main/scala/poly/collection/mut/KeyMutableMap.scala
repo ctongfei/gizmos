@@ -93,15 +93,13 @@ private[poly] object KeyMutableMapT {
       else self.addInplace(k, v)
     }
 
-    def keys = self.keys
+    def keySet = self.keySet
     override def pairs = self.pairs
-    def containsKey(x: K) = self.containsKey(x)
     def apply(k: K) = (this ? k) getOrElse {
       self.addInplace(k, default)
       self(k) //TODO
     }
     def ?(k: K) = self ? k
-    def eqOnKeys = self.eqOnKeys
 }
 
 }

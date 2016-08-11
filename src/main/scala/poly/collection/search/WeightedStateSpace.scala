@@ -39,7 +39,7 @@ object WeightedStateSpace {
 
   def apply[S: Eq, C: OrderedAdditiveGroup](f: S => Traversable[(S, C)]): WeightedStateSpace[S, C] = new WeightedStateSpace[S, C] {
     def groupOnCost = OrderedAdditiveGroup[C]
-    def eqOnKeys = Eq[S]
+    def keyEq = Eq[S]
     def succWithCost(x: S) = f(x)
   }
 

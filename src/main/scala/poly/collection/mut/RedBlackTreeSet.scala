@@ -22,7 +22,7 @@ class RedBlackTreeSet[K] private(private val data: java.util.TreeSet[K])
 
   def removeInplace(x: K) = data.remove(x)
 
-  def orderOnKeys = data.comparator()
+  def keyOrder = data.comparator()
 
   def keys = data.keys
 

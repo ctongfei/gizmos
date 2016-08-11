@@ -17,11 +17,13 @@ class HashMap[K: Hashing, V] private(private val data: OpenHashTable[K, HashMap.
 
   import HashMap._
 
-  val eqOnKeys = Hashing[K]
+  def keySet: Set[K] = new AbstractSet[K] {
+    def keyEq = Hashing[K]
+    def contains(k: K) = data.locate(k) != null
+    def keys = data.entries.map(_.key)
+  }
 
   def apply(k: K): V = data.locate(k).value
-
-  def containsKey(k: K): Boolean = data.locate(k) != null
 
   def update(k: K, v: V): Unit = data.locate(k).value = v
 
@@ -41,8 +43,6 @@ class HashMap[K: Hashing, V] private(private val data: OpenHashTable[K, HashMap.
   def clear(): Unit = data.clear()
 
   override def size = data.size
-
-  def keys = data.entries.map(_.key)
 
   override def pairs = data.entries.map(e => e.key -> e.value).asIfSizeKnown(size)
 

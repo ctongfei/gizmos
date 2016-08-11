@@ -8,9 +8,7 @@ import poly.collection.exception._
  */
 class SortedArrayMap[K, V] private(private val data: SortedArraySeq[(K, V)]) extends SortedMap[K, V] {
 
-  def orderOnKeys = ???
-
-  def keys = ???
+  def keySet = ???
 
   def ?(k: K) = ???
 
@@ -18,6 +16,5 @@ class SortedArrayMap[K, V] private(private val data: SortedArraySeq[(K, V)]) ext
     case Some(i) => data(i)._2
     case None => throw new KeyNotFoundException(k)
   }
-  def containsKey(k: K) = data.binarySearch((k, default[V])).isDefined
 
 }

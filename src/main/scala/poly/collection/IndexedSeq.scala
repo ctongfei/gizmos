@@ -277,7 +277,7 @@ private[poly] object IndexedSeqT {
 
 
   class AsIfSorted[T](self: IndexedSeq[T], order: Order[T]) extends SortedIndexedSeq[T] {
-    def orderOnElements = order
+    def elementOrder = order
     def fastLength: Int = self.length
     def fastApply(i: Int): T = self.apply(i)
   }

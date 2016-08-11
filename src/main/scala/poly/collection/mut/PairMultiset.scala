@@ -14,13 +14,13 @@ import scala.language.higherKinds
  */
 class PairMultiset[K, R: OrderedRing] private[poly](private val data: KeyMutableMap[K, R]) extends KeyMutableMultiset[K, R] {
 
-  def eqOnKeys = data.eqOnKeys
-  def ringOnWeight = OrderedRing[R]
+  def keyEq = data.keyEq
+  def weightRing = OrderedRing[R]
 
-  def removeInplace(x: K, w: R = ringOnWeight.one) = {
+  def removeInplace(x: K, w: R = weightRing.one) = {
     val u = data(x) - w
-    if (u == ringOnWeight.zero) data.removeInplace(x)
-    data(x) = function.max(ringOnWeight.zero, u)
+    if (u == weightRing.zero) data.removeInplace(x)
+    data(x) = function.max(weightRing.zero, u)
   }
 
   def removeKeyInplace(x: K) = {
@@ -33,7 +33,7 @@ class PairMultiset[K, R: OrderedRing] private[poly](private val data: KeyMutable
 
   def contains(k: K) = data.containsKey(k)
 
-  def addInplace(x: K, w: R = ringOnWeight.one) = {
+  def addInplace(x: K, w: R = weightRing.one) = {
     if (data containsKey x) data(x) += w
     else data addInplace(x, w)
   }

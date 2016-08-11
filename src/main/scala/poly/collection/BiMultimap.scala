@@ -7,17 +7,15 @@ package poly.collection
  */
 trait BiMultimap[K, V] extends KeyedLike[K, BiMultimap[K, V]] with Multimap[K, V] { self =>
 
+  def valueSet: Set[V]
+
   def invert(v: V): Set[K]
 
-  def containsValue(v: V): Boolean
+  def containsValue(v: V) = valueSet contains v
 
-  def values: Iterable[V]
+  def values = valueSet.keys
 
-  override def valueSet = new AbstractSet[V] {
-    def eqOnKeys = self.eqOnValues
-    def keys = self.values
-    def contains(v: V) = self.containsValue(v)
-  }
+  def valueEq = valueSet.keyEq
 
   override def filterKeys(f: K => Boolean): BiMultimap[K, V] = ???
 
@@ -32,12 +30,8 @@ abstract class AbstractBiMultimap[K, V] extends BiMultimap[K, V]
 private[poly] object BiMultimapT {
 
   class Inverse[K, V](self: BiMultimap[K, V]) extends AbstractBiMultimap[V, K] {
-    def eqOnKeys = self.eqOnValues
-    def eqOnValues = self.eqOnKeys
-    def keys = self.values
-    def values = self.keys
-    def containsKey(v: V) = self containsValue v
-    def containsValue(k: K) = self containsKey k
+    def keySet = self.valueSet
+    def valueSet = self.keySet
     def apply(v: V) = self invert v
     def invert(k: K) = self apply k
     override def inverse = self

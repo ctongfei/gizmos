@@ -65,15 +65,16 @@ class LinkedHashMap[K: Hashing, V] private(private[poly] val data: OpenHashTable
     else addInplace(x, y)
   }
 
+  def keySet: Set[K] = new AbstractSet[K] {
+    def keys = pairs map first
+    def contains(x: K) = data.locate(x) != null
+    def keyEq = Hashing[K]
+  }
+
   override def pairs: BiSeq[(K, V)] = BiSeq.ofDummyNode(dummy)
 
-  override def keys = pairs map first
+  override def values = pairs map second
 
-  def values = pairs map second
-
-  def containsKey(x: K) = data.locate(x) != null
-
-  def eqOnKeys = Hashing[K]
 }
 
 object LinkedHashMap extends BuilderFactoryAB_EvA[LinkedHashMap, Hashing] {

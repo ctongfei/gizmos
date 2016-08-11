@@ -10,5 +10,5 @@ trait CachedFunction[A, +B] extends Keyed[A] with (A => B) {
   /** Returns the cached values of this function. */
   def cache: Map[A, B]
 
-  def eqOnKeys = cache.eqOnKeys
+  def keyEq = cache.keyEq
 }

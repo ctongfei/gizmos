@@ -14,7 +14,7 @@ import poly.collection.mut._
  */
 trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
 
-  implicit def eqOnKeys: Eq[T]
+  implicit def keyEq: Eq[T]
 
   /**
     * Returns an iterable sequence of all the elements in this set.
@@ -54,7 +54,7 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
     * @example {{{ {1, 2, 3} | {2, 4} == {1, 2, 3, 4} }}}
     */
   def union(that: Set[T]): Set[T] = new AbstractSet[T] {
-    def eqOnKeys = self.eqOnKeys
+    def keyEq = self.keyEq
     def contains(x: T) = self.contains(x) || that.contains(x)
     def keys = self.keys ++ that.keys.filter(self.notContains)
   }
@@ -64,7 +64,7 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
     * @example {{{ {1, 2, 3} & {1, 3, 5} == {1, 3} }}}
     */
   def intersect(that: Set[T]): Set[T] = new AbstractSet[T] {
-    def eqOnKeys = self.eqOnKeys
+    def keyEq = self.keyEq
     def contains(x: T) = self.contains(x) && that.contains(x)
     def keys = self.keys.filter(that.contains)
   }
@@ -74,7 +74,7 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
     * @example {{{ {1, 2, 3} \ {2, 3, 4} == {1} }}}
     */
   def setDiff(that: Set[T]): Set[T] = new AbstractSet[T] {
-    def eqOnKeys = self.eqOnKeys
+    def keyEq = self.keyEq
     def contains(x: T) = self.contains(x) && that.notContains(x)
     def keys = self.keys.filter(that.notContains)
   }
@@ -83,7 +83,7 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
   def symmetricDiff(that: Set[T]): Set[T] = new AbstractSet[T] {
     def keys = self.keys.filter(that.notContains) ++ that.keys.filter(self.notContains)
     def contains(x: T) = self.contains(x) ^ that.contains(x)
-    implicit def eqOnKeys = self.eqOnKeys
+    implicit def keyEq = self.keyEq
   }
 
   /** Tests if this set is a subset of another set. */
@@ -119,7 +119,7 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
   def map[U: Eq](f: T => U): Set[U] = elements map f to AutoSet
 
   def map[U](f: Bijection[T, U]): Set[U] = new AbstractSet[U] {
-    def eqOnKeys = self.eqOnKeys contramap f.invert
+    def keyEq = self.keyEq contramap f.invert
     def keys = self.elements map f
     def contains(x: U) = self contains f.invert(x)
   }
@@ -194,8 +194,8 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
    * @tparam R Type of the counts of elements in the multiset, can be `Int`, `Double`, etc.
    */
   def asMultiset[R: OrderedRing]: Multiset[T, R] = new AbstractMultiset[T, R] {
-    def eqOnKeys = self.eqOnKeys
-    def ringOnWeight = OrderedRing[R]
+    def keyEq = self.keyEq
+    def weightRing = OrderedRing[R]
     def weight(k: T) = if (self.contains(k)) one[R] else zero[R]
     def keys = self.keys
     def contains(k: T) = self.contains(k)
@@ -269,55 +269,49 @@ private[poly] object SetT {
   }
 
   class KeyFiltered[T](self: Set[T], f: T => Boolean) extends AbstractSet[T] {
-    def eqOnKeys = self.eqOnKeys
+    def keyEq = self.keyEq
     def contains(x: T) = self.contains(x) && f(x)
     def keys = self.keys filter f
   }
 
   class Product[T, U](self: Set[T], that: Set[U]) extends AbstractSet[(T, U)] {
-    def eqOnKeys = self.eqOnKeys product that.eqOnKeys
+    def keyEq = self.keyEq product that.keyEq
     def keys = self.keys monadicProduct that.keys
     override def size = self.size * that.size
     def contains(k: (T, U)) = self.containsKey(k._1) && that.containsKey(k._2)
   }
 
   class MapByFunc[T, U](self: Set[T], f: T => U) extends AbstractMap[T, U] {
-    def keys = self.keys
+    def keySet = self
     def apply(k: T) = f(k)
     def ?(k: T) = if (self contains k) Some(f(k)) else None
-    def eqOnKeys = self.eqOnKeys
     override def size = self.size
-    def containsKey(x: T) = self.contains(x)
   }
 
   class MapByOptionalFunc[T, U](self: Set[T], f: T => Option[U]) extends AbstractMap[T, U] {
+    def keySet = self filter { k => f(k).isDefined }
     def apply(k: T) = f(k).get
     def ?(k: T) = if (self contains k) f(k) else None
-    def eqOnKeys = self.eqOnKeys
-    def keys = self.keys.filter(k => f(k).isDefined)
     override def pairs = for (k <- self.keys; v <- f(k)) yield (k, v)
-    def containsKey(x: T) = (self contains x) && f(x).isDefined
   }
 
   class PowerSet[T](self: Set[T]) extends AbstractSet[Set[T]] {
-    implicit def eqOnKeys = new SetT.SetEq[T]
+    implicit def keyEq = new SetT.SetEq[T]
     def keys = ???
     def contains(x: Set[T]) = x subsetOf self
   }
 
   class GraphByOptionalFunc[T, U](self: Set[T], f: (T, T) => Option[U]) extends AbstractGraph[T, U] {
+    def keySet = self.keySet
     def apply(i: T, j: T) = f(i, j).get
     def ?(i: T, j: T) = f(i, j)
-    def keys = self.keys
-    def containsKey(i: T) = self contains i
     def containsArc(i: T, j: T) = self.contains(i) && self.contains(j) && f(i, j).isDefined
-    def eqOnKeys = self.eqOnKeys
     def outgoingKeySet(i: T) = self filterKeys { j => f(i, j).isDefined }
     override def outgoingMap(i: T) = self createMapOptionally  { j => f(i, j) }
   }
 
   class Empty[T: Eq] extends AbstractSet[T] {
-    def eqOnKeys = poly.algebra.Eq[T]
+    def keyEq = poly.algebra.Eq[T]
     override def size = 0
     def keys = Iterable.Empty
     def contains(x: T) = false

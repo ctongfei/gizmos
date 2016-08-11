@@ -22,8 +22,8 @@ import scala.language.reflectiveCalls
  */
 trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K, V] with Func[K, V] { self =>
 
-  /** Returns an iterable collection of the keys in this map. $LAZY */
-  def keys: Iterable[K]
+  /** Returns the set of the keys of this map. $LAZY */
+  def keySet: Set[K]
 
   /**
    * Optionally retrieves the value associated with the specified key.
@@ -46,8 +46,13 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
   /** Returns the number of (key, value) pairs this map contains. */
   def size: Int = pairs.size
 
+  /** Returns an iterable collection of the keys in this map. $LAZY */
+  def keys = keySet.keys
+
+  def keyEq = keySet.keyEq
+
   /** Checks if the specified key is present in this map. */
-  def containsKey(x: K): Boolean
+  def containsKey(x: K) = keySet contains x
 
   /**
    * Returns the value associated with the given key,
@@ -57,12 +62,11 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
 
   final def isDefinedAt(x: K) = containsKey(x)
 
-  /** Returns the set of the keys of this map. $LAZY */
-  def keySet: Set[K] = new MapT.KeySet(self)
-
   /** Returns all key-value pairs stored in this map.
    * @note For performance reasons, this method should be overridden. */
   def pairs: Iterable[(K, V)] = keys map { k => (k, apply(k)) }
+
+  def values = keys map apply
 
   // HELPER FUNCTIONS
 
@@ -202,10 +206,7 @@ object Map extends FactoryAB_EvA[Map, Eq] with MapLowPriorityTypeclassInstances 
   def empty[K: Eq]: Map[K, Nothing] = new AbstractMap[K, Nothing] {
     def apply(k: K) = throw new KeyNotFoundException[K](k)
     def ?(k: K) = None
-    def eqOnKeys = poly.algebra.Eq[K]
-    def keys = Iterable.Empty
-    override def pairs = Iterable.Empty
-    def containsKey(x: K) = false
+    def keySet = Set.empty[K]
   }
 
   // IMPLICIT CONVERSIONS
@@ -229,12 +230,9 @@ object Map extends FactoryAB_EvA[Map, Eq] with MapLowPriorityTypeclassInstances 
         domK += k
         domL += l
       }
-
+      def keySet = domK
       def ?(k: K) = if (domK contains k) Some(apply(k)) else None
-      def keys = domK.elements
-      def containsKey(k: K) = domK contains k
       def apply(k: K) = domL createMapOptionally { l => m ? (k, l) }
-      def eqOnKeys = domK.eqOnKeys
     }
   }
 
@@ -250,12 +248,14 @@ object Map extends FactoryAB_EvA[Map, Eq] with MapLowPriorityTypeclassInstances 
      *       conforms with every inner map (of type `Map[L, V]`) of the curried map.
      */
     def uncurry(implicit L: Eq[L]): Map[(K, L), V] = new AbstractMap[(K, L), V] {
+      def keySet = new AbstractSet[(K, L)] {
+        def keyEq = m.keyEq product L
+        def keys = for ((k, ml) <- m.pairs; l <- ml.keys) yield (k, l)
+        def contains(kl: (K, L)) =  m.containsKey(kl._1) && m(kl._1).containsKey(kl._2)
+      }
       def ?(kl: (K, L)) = for (ml <- m ? kl._1) yield ml(kl._2)
-      def keys = for ((k, ml) <- m.pairs; l <- ml.keys) yield (k, l)
       override def pairs = for ((k, ml) <- m.pairs; (l, v) <- ml.pairs) yield ((k, l), v)
-      def containsKey(kl: (K, L)) = m.containsKey(kl._1) && m(kl._1).containsKey(kl._2)
       def apply(kl: (K, L)) = m(kl._1)(kl._2)
-      def eqOnKeys = m.eqOnKeys product L
     }
   }
 
@@ -286,7 +286,7 @@ object Map extends FactoryAB_EvA[Map, Eq] with MapLowPriorityTypeclassInstances 
 
   /** Returns the vector space on maps given the value set of the map forms a field. */
   implicit def VectorSpace[K: Eq, F: Field]: VectorSpace[Map[K, F], F] = new VectorSpace[Map[K, F], F] {
-    def fieldOnScalar = Field[F]
+    def scalarField = Field[F]
     def scale(x: Map[K, F], k: F) = x map (_ * k)
     def add(x: Map[K, F], y: Map[K, F]) = (x fullOuterJoin y) map {
       case (Some(a), Some(b)) => a + b
@@ -303,7 +303,7 @@ trait MapLowPriorityTypeclassInstances {
   /** Returns the module on maps given the value set of the map forms a ring. */
   implicit def Module[K: Eq, R: Ring]: Module[Map[K, R], R] = new Module[Map[K, R], R] {
     private[this] val R = Ring[R]
-    def ringOnScalar = R
+    def scalarRing = R
     def scale(x: Map[K, R], k: R) = x map (_ * k)
     def add(x: Map[K, R], y: Map[K, R]) = (x fullOuterJoin y) map {
       case (Some(a), Some(b)) => a + b
@@ -325,144 +325,112 @@ private[poly] object MapT {
       (x.keys forall { k => x(k) === y(k) }) && (y.keys forall { k => y(k) === x(k) })
   }
 
-  class KeySet[K, V](self: Map[K, V]) extends AbstractSet[K] {
-    def eqOnKeys = self.eqOnKeys
-    def contains(x: K) = self.containsKey(x)
-    override def size = self.size
-    def keys = self.keys
-  }
-
   class KeyFiltered[K, V](self: Map[K, V], f: K => Boolean) extends AbstractMap[K, V] {
     def apply(k: K) = if (!f(k)) throw new KeyNotFoundException(k) else self(k)
     def ?(k: K) = if (!f(k)) None else self ? k
-    def keys = self.keys filter f
+    def keySet = self.keySet filter f
     override def pairs = self.pairs.filter { case (k, _) => f(k) }
-    def containsKey(k: K) = if (!f(k)) false else self.containsKey(k)
-    def eqOnKeys = self.eqOnKeys
   }
 
   class Mapped[K, V, W](self: Map[K, V], f: V => W) extends AbstractMap[K, W] {
-    def eqOnKeys = self.eqOnKeys
-    def containsKey(x: K) = self.containsKey(x)
+    def keySet = self.keySet
     def ?(x: K) = (self ? x).map(f)
     def apply(x: K) = f(self(x))
-    def keys = self.keys
     override def pairs = self.pairs.map { case (k, v) => (k, f(v)) }
     override def size = self.size
   }
 
   class MappedWithKeys[K, V, W](self: Map[K, V], f: (K, V) => W) extends AbstractMap[K, W] {
-    def keys = self.keys
+    def keySet = self.keySet
     def ?(k: K) = for (v <- self ? k) yield f(k, v)
     def apply(k: K) = f(k, self(k))
-    def containsKey(x: K) = self containsKey x
-    def eqOnKeys = self.eqOnKeys
+    override def pairs = self.pairs.map { case (k, v) => (k, f(k, v)) }
   }
 
   class Contramapped[K, V, J](self: Map[K, V], f: Bijection[J, K]) extends AbstractMap[J, V] {
-    def keys = self.keys map f.invert
+    def keySet = self.keySet contramap f
     override def pairs = self.pairs.map { case (k, v) => (f.invert(k), v) }
-    def containsKey(x: J) = self containsKey f(x)
     def apply(k: J) = self apply f(k)
     def ?(k: J) = self ? f(k)
-    implicit def eqOnKeys = self.eqOnKeys contramap f
   }
 
   class Product[K, L, V, W](self: Map[K, V], that: Map[L, W]) extends AbstractMap[(K, L), (V, W)] {
-    def eqOnKeys = Eq.product(self.eqOnKeys, that.eqOnKeys)
-    def containsKey(k: (K, L)) = self.containsKey(k._1) && that.containsKey(k._2)
+    def keySet = self.keySet product that.keySet
     def ?(k: (K, L)) = for (v <- self ? k._1; v1 <- that ? k._2) yield (v, v1)
     def apply(k: (K, L)) = (self(k._1), that(k._2))
-    def keys = for (k <- self.keys; l <- that.keys) yield (k, l)
     override def pairs = for ((k, v) <- self.pairs; (l, w) <- that.pairs) yield ((k, l) -> (v, w))
     override def size = self.size * that.size
   }
 
   class ZippedWith[K, V, W, X](self: Map[K, V], that: Map[K, W], f: (V, W) => X) extends AbstractMap[K, X] {
+    def keySet = self.keySet intersect that.keySet
     def ?(k: K) = for (v <- self ? k; w <- that ? k) yield f(v, w)
-    def keys = self.keys filter that.containsKey
     override def pairs = self.pairs filter { case (k, v) => that containsKey k } map { case (k, v) => (k, f(v, that(k))) }
-    def containsKey(x: K) = self.containsKey(x) && that.containsKey(x)
     def apply(k: K) = f(self(k), that(k))
-    def eqOnKeys = self.eqOnKeys
   }
 
   class LeftOuterJoined[K, V, W](self: Map[K, V], that: Map[K, W]) extends AbstractMap[K, (V, Option[W])] {
+    def keySet = self.keySet
     def apply(k: K) = (self(k), that ? k)
     def ?(k: K) = for (v <- self ? k) yield (v, that ? k)
-    def eqOnKeys = self.eqOnKeys
-    def keys = self.keys
     override def pairs = self.pairs map { case (k, v) => (k, (v, that ? k)) }
-    def containsKey(x: K) = self containsKey x
   }
 
   class RightOuterJoined[K, V, W](self: Map[K, V], that: Map[K, W]) extends AbstractMap[K, (Option[V], W)] {
+    def keySet = that.keySet
     def apply(k: K) = (self ? k, that(k))
     def ?(k: K) = for (w <- that ? k) yield (self ? k, w)
-    def eqOnKeys = that.eqOnKeys
-    def keys = that.keys
     override def pairs = that.pairs map { case (k, w) => (k, (self ? k, w)) }
-    def containsKey(x: K) = that containsKey x
   }
 
   class FullOuterJoined[K, V, W](self: Map[K, V], that: Map[K, W]) extends AbstractMap[K, (Option[V], Option[W])] {
+    def keySet = self.keySet union that.keySet
     def apply(k: K) = (self ? k, that ? k)
     def ?(k: K) = (self ? k, that ? k) match {
       case (None, None) => None
       case res => Some(res)
     }
-    def eqOnKeys = self.eqOnKeys
-    def keys = self.keys ++ (that.keys filter self.notContainsKey)
     override def pairs =
       (self.pairs map { case (k, v) => k -> (Some(v), that ? k) }) ++
         (that.pairs filter { case (k, w) => self notContainsKey k } map { case (k, w) => k -> (None, Some(w)) })
-    def containsKey(x: K) = self.containsKey(x) || that.containsKey(x)
   }
 
   class SymmetricDiff[K, V, W](self: Map[K, V], that: Map[K, W]) extends AbstractMap[K, Either[V, W]] {
+    def keySet = self.keySet symmetricDiff that.keySet
     def ?(k: K) = (self containsKey k, that containsKey k) match {
       case (true, false) => Some(Left(self(k)))
       case (false, true) => Some(Right(that(k)))
       case _ => None
     }
-    def keys = (self.keySet symmetricDiff that.keySet).elements
     override def pairs = {
       val l = for ((k, v) <- self.pairs if that notContainsKey k) yield (k, Left(v))
       val r = for ((k, v) <- that.pairs if self notContainsKey k) yield (k, Right(v))
       l ++ r
     }
-    def containsKey(x: K) = self.containsKey(x) ^ that.containsKey(x)
     def apply(k: K) = Either.cond(that.containsKey(k), that(k), self(k))
-    def eqOnKeys = self.eqOnKeys
   }
 
   class WithDefault[K, V, W >: V](self: Map[K, V], default: => W) extends AbstractMap[K, W] {
-    def keys = self.keys
+    def keySet = self.keySet
     override def pairs = self.pairs
-    def containsKey(x: K) = self.containsKey(x)
     def apply(k: K) = (self ? k).getOrElse(default)
     def ?(k: K) = self ? k
-    def eqOnKeys = self.eqOnKeys
   }
 
   class Bare[K, V](self: Map[K, V]) extends AbstractMap[K, V] {
+    def keySet = self.keySet
     def apply(k: K) = self.apply(k)
     def ?(k: K) = self ? k
-    def eqOnKeys = self.eqOnKeys
-    def keys = self.keys
     override def pairs = self.pairs
-    def containsKey(x: K) = self.containsKey(x)
   }
 
-  class AsMultimap[K, V](self: Map[K, V], implicit val eqOnValues: Eq[V]) extends Multimap[K, V] {
-    def keys = self.keys
+  class AsMultimap[K, V](self: Map[K, V], implicit val valueEq: Eq[V]) extends Multimap[K, V] {
+    def keySet = self.keySet
     override def pairs = self.pairs
     def apply(k: K) = self ? k match {
       case Some(v) => Set(v)
       case None => Set.empty[V]
     }
-    def containsKey(x: K) = self.containsKey(x)
-    def eqOnKeys = self.eqOnKeys
   }
 
 }

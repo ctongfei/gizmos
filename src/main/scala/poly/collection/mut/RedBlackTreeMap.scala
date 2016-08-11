@@ -26,23 +26,24 @@ class RedBlackTreeMap[K, V] private(private val data: java.util.TreeMap[K, V])
   def removeInplace(x: K) = data.remove(x)
 
 
-  def keys = new AbstractSortedIterable[K] {
-    def orderOnElements = self.orderOnKeys
-    def newIterator = data.keySet().iterator()
+  def keySet: SortedSet[K] = new AbstractSortedSet[K] {
+    def keyOrder = data.comparator()
+    def keys = new AbstractSortedIterable[K] {
+      def elementOrder = self.keyOrder
+      def newIterator = data.keySet().iterator()
+    }
+    def contains(x: K) = data containsKey x
   }
 
   override def pairs: SortedIterable[(K, V)] = new AbstractSortedIterable[(K, V)] {
-    def orderOnElements = orderOnKeys contramap first
+    def elementOrder = keyOrder contramap first
     def newIterator = data.entrySet().elements.map(e => (e.getKey, e.getValue)).newIterator
   }
-
-  override def orderOnKeys: Order[K] = data.comparator()
 
   def update(x: K, y: V) = data.put(x, y)
 
   override def size = data.size()
 
-  def containsKey(x: K) = data.containsKey(x)
 }
 
 object RedBlackTreeMap extends BuilderFactoryAB_EvA[RedBlackTreeMap, Order] {

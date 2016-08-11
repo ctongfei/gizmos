@@ -24,15 +24,9 @@ class AdjacencyMatrixGraph[E] private(
   def incomingKeySet(j: Int) = keySet filterKeys { i => edgeExists(i, j) }
   def outgoingKeySet(i: Int) = keySet filterKeys { j => edgeExists(i, j) }
 
-  def keys = Range(numNodes)
-
-  def ?(i: Int, j: Int) = if (edgeExists(i, j)) Some(edgeData(i, j)) else None
-
   override def keySet = Range(numNodes).asSet
 
-  def containsKey(i: Int) = 0 <= i && i < numNodes
-
-  def eqOnKeys = Eq[Int]
+  def ?(i: Int, j: Int) = if (edgeExists(i, j)) Some(edgeData(i, j)) else None
 
   override def containsArc(i: Int, j: Int) = edgeExists(i, j)
 

@@ -21,10 +21,7 @@ class DenseIntKeyedMap[T] private(
   private var n: Int = 0
 ) extends IntKeyedSortedMap[T] with KeyMutableMap[Int, T] {
 
-
-  def keys = state.keys
-
-  implicit override def orderOnKeys = std.IntStructure
+  def keySet: SortedSet[Int] = state
 
   def apply(x: Int): T = data(x)
 
@@ -42,8 +39,6 @@ class DenseIntKeyedMap[T] private(
   override def pairs = state.createMap(i => data(i)).pairs
 
   override def size: Int = n
-
-  def containsKey(x: Int): Boolean = state(x)
 
   def addInplace(x: Int, y: T): Unit = {
     if (x >= data.capacity) {

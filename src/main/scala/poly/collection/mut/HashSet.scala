@@ -15,7 +15,7 @@ class HashSet[T: Hashing] private(val data: OpenHashTable[T, HashSet.Entry[T]]) 
 
   import HashSet._
 
-  def eqOnKeys = implicitly[Hashing[T]]
+  def keyEq = implicitly[Hashing[T]]
 
   def addInplace(x: T) = if (!contains(x)) data.addEntry(new Entry(x)) // TODO: calculate hash function only once?
 

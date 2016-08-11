@@ -10,6 +10,9 @@ import poly.algebra.specgroup._
  */
 trait Bijection[@sp(Int, AnyRef) X, @sp(Int, AnyRef) Y] extends Func[X, Y] { self =>
 
+  /** Given a value ''x'' in the domain, returns the unique value ''y'' in the codomain that ''x'' maps to. */
+  def apply(x: X): Y
+
   /** Given a value ''y'' in the codomain, returns the unique value ''x'' in the domain that maps to ''y''. */
   def invert(y: Y): X
 

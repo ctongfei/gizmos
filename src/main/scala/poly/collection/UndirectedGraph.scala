@@ -30,11 +30,13 @@ trait UndirectedGraph[@sp(Int) K, +E] extends BiGraph[K, E] { self =>
   def containsArc(i: K, j: K) = containsEdge(i, j)
 
   def edgeMap: Map[UPair[K], E] = new AbstractMap[UPair[K], E] {
+    def keySet: Set[UPair[K]] = new AbstractSet[UPair[K]] {
+      def keyEq = UPair.Eq(self.keyEq)
+      def keys = edges map { e => UPair(e.key1, e.key2)(self.keyEq) }
+      def contains(k: UPair[K]) = self.containsArc(k._1, k._2)
+    }
     def ?(k: UPair[K]) = self ? (k._1, k._2)
-    def keys = edges map { e => UPair(e.key1, e.key2)(self.eqOnKeys) }
-    def containsKey(k: UPair[K]) = self.containsArc(k._1, k._2)
     def apply(k: UPair[K]) = self(k._1, k._2)
-    def eqOnKeys = UPair.Eq(self.eqOnKeys)
   }
 
   def adjacentKeySet(i: K): Set[K]
@@ -72,14 +74,14 @@ object UndirectedGraph {
     def node2 = graph.node(key2)
     override def equals(that: Any) = that match {
       case that: UndirectedGraph.EdgeProxy[K, E] =>
-        implicit val K = graph.eqOnKeys
+        implicit val K = graph.keyEq
         (this.graph eq that.graph) &&
           ((this.key1 === that.key1) && (this.key2 === that.key2)) ||
           ((this.key1 === that.key2) && (this.key2 === that.key1))
       case _ => false
     }
     override def toString = s"{$key1, $key2}"
-    override def hashCode = poly.algebra.Hashing.byRef.hash(graph) + (graph.eqOnKeys match {
+    override def hashCode = poly.algebra.Hashing.byRef.hash(graph) + (graph.keyEq match {
       case hk: Hashing[K] => hk.hash(key1) ^ hk.hash(key2)
       case _ => key1.## ^ key2.##
     })
@@ -91,44 +93,34 @@ abstract class AbstractUndirectedGraph[K, +E] extends AbstractBiGraph[K, E] with
 private[poly] object UndirectedGraphT {
 
   class Mapped[K, E, F](self: UndirectedGraph[K, E], f: E => F) extends AbstractUndirectedGraph[K, F] {
+    def keySet = self.keySet
     def adjacentKeySet(i: K) = self.adjacentKeySet(i)
-    implicit def eqOnKeys = self.eqOnKeys
     def apply(i: K, j: K) = f(self(i, j))
     def ?(i: K, j: K) = self ? (i, j) map f
-    def keys = self.keys
-    def containsKey(i: K) = self.containsKey(i)
     def containsEdge(i: K, j: K) = self.containsEdge(i, j)
   }
 
   class MappedWithKeys[K, E, F](self: UndirectedGraph[K, E], f: (UPair[K], E) => F) extends AbstractUndirectedGraph[K, F] {
+    def keySet = self.keySet
     def adjacentKeySet(i: K) = self.adjacentKeySet(i)
-    implicit def eqOnKeys = self.eqOnKeys
     def apply(i: K, j: K) = f(UPair(i, j), self(i, j))
     def ?(i: K, j: K) = self ? (i, j) map { u => f(UPair(i, j), u) }
-    def keys = self.keys
-    def containsKey(i: K) = self.containsKey(i)
     def containsEdge(i: K, j: K) = self.containsEdge(i, j)
   }
 
   class ZippedWith[K, E, F, H](self: UndirectedGraph[K, E], that: UndirectedGraph[K, F], f: (E, F) => H) extends AbstractUndirectedGraph[K, H] {
+    def keySet = self.keySet intersect that.keySet
     def adjacentKeySet(i: K) = self.adjacentKeySet(i) intersect that.adjacentKeySet(i)
-    implicit def eqOnKeys = self.eqOnKeys
     def apply(i: K, j: K) = f(self(i, j), that(i, j))
     def ?(i: K, j: K) = ((self ? (i, j)) zipWith (that ? (i, j)))(f)
-    def keys = self.keys intersect that.keys
-    def containsKey(i: K) = self.containsKey(i) && that.containsKey(i)
     def containsEdge(i: K, j: K) = self.containsEdge(i, j) && that.containsEdge(i, j)
   }
 
   class AsMultimap[K](self: UndirectedGraph[K, Any]) extends AbstractBiMultimap[K, K] {
     def apply(i: K) = self.adjacentKeySet(i)
     def invert(i: K) = self.adjacentKeySet(i)
-    def keys = self.keys
-    def values = self.keys
-    def containsKey(i: K) = self.containsKey(i)
-    def containsValue(i: K) = self.containsKey(i)
-    def eqOnKeys = self.eqOnKeys
-    def eqOnValues = self.eqOnKeys
+    def keySet = self.keySet
+    def valueSet = self.keySet
   }
 
 }

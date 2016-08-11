@@ -15,7 +15,7 @@ import poly.collection.mut._
  */
 class AllPairsShortestPath[K, E : OrderedAdditiveGroup : HasTop](val graph: Graph[K, E]) extends MetricSpace[K, E] {
 
-  private[this] implicit val eq = graph.eqOnKeys
+  private[this] implicit val eq = graph.keyEq
 
   private[this] val d = AutoMap[(K, K), E]().withDefaultUpdate(zero[E])
   private[this] val mid = AutoMap[(K, K), K]().withDefaultUpdate(default[K])

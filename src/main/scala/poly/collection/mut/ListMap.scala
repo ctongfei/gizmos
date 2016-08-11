@@ -15,12 +15,18 @@ import poly.collection.impl.linkedlist._
  * @since 0.1.0
  * @author Tongfei Chen
  */
-class ListMap[K, V] private(private val data: SinglyLinkedList[K, ListMap.Node[K, V]])(implicit val eqOnKeys: Eq[K]) extends KeyMutableMap[K, V] {
+class ListMap[K, V] private(private val data: SinglyLinkedList[K, ListMap.Node[K, V]])(implicit override val keyEq: Eq[K]) extends KeyMutableMap[K, V] { self =>
 
   type Node = ListMap.Node[K, V]
 
   data.dummy = new Node(default[K], default[V])
   data.dummy.next = data.dummy
+
+  def keySet: Set[K] = new AbstractSet[K] {
+    implicit def keyEq = self.keyEq
+    def keys = data.entries.map(_.data)
+    def contains(x: K) = locateKey(x) ne null
+  }
 
   override def size = data.len
 
@@ -36,7 +42,7 @@ class ListMap[K, V] private(private val data: SinglyLinkedList[K, ListMap.Node[K
   }
 
   /** @inheritdoc $On */
-  def containsKey(x: K) = locateKey(x) ne null
+  override def containsKey(x: K) = locateKey(x) ne null
 
   /** @inheritdoc $On */
   def ?(x: K) = {
@@ -79,7 +85,7 @@ class ListMap[K, V] private(private val data: SinglyLinkedList[K, ListMap.Node[K
 
   override def keys = data.entries.map(_.data)
 
-  def values = data.entries.map(_.value)
+  override def values = data.entries.map(_.value)
 
 }
 

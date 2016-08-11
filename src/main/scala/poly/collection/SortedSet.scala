@@ -1,18 +1,19 @@
 package poly.collection
 
 import poly.algebra._
+import poly.algebra.specgroup._
 
 /**
  * Represents a set whose keys are sorted when being iterated.
  * @since 0.1.0
  * @author Tongfei Chen
  */
-trait SortedSet[T] extends Set[T] { self =>
+trait SortedSet[@sp(Int) T] extends Set[T] { self =>
 
   /** Returns the order on keys. */
-  def orderOnKeys: Order[T]
+  def keyOrder: Order[T]
 
-  def eqOnKeys = orderOnKeys
+  def keyEq = keyOrder
 
   def keys: SortedIterable[T]
 
@@ -28,13 +29,11 @@ trait SortedSet[T] extends Set[T] { self =>
 
   //TODO: subsetBetween, subsetUpTo, subsetFrom?
 
-  override def createMap[V](f: T => V): SortedMap[T, V] = new SortedMap[T, V] {
+  override def createMap[V](f: T => V): SortedMap[T, V] = new AbstractSortedMap[T, V] {
     def apply(k: T) = f(k)
     def ?(k: T) = if (self contains k) Some(f(k)) else None
-    def keys = self.keys
     override def size = self.size
-    def orderOnKeys = self.orderOnKeys
-    def containsKey(x: T) = self.contains(x)
+    def keySet = self.keySet
   }
 
 }

@@ -37,7 +37,7 @@ trait ForwardNodeLike[+T, +N <: ForwardNodeLike[T, N]] extends NodeLike[T, N] { 
 
 object ForwardNodeLike {
   implicit def StateSpace[T, N <: ForwardNodeLike[T, N]]: EqStateSpace[N] = new AbstractEqStateSpace[N] {
-    def eqOnKeys = Eq.default[N]
+    def keyEq = Eq.default[N]
     def succ(x: N) = x.succ
   }
 }

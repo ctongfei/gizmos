@@ -18,7 +18,7 @@ trait EqStateSpace[@sp(Int) S] extends StateSpace[S] with Keyed[S] with Relation
   import EqStateSpace._
 
   /** Returns the equivalence relation on search states. */
-  implicit def eqOnKeys: Eq[S]
+  implicit def keyEq: Eq[S]
 
   def related(x: S, y: S) = succ(x) contains y
 
@@ -70,12 +70,12 @@ private[poly] object EqStateSpaceT {
 
   class BySucc[S](f: S => Traversable[S], val eq: Eq[S]) extends AbstractEqStateSpace[S] {
     /** Returns the equivalence relation on search states. */
-    def eqOnKeys = eq
+    def keyEq = eq
     def succ(x: S) = f(x)
   }
 
   class KeyFiltered[S](self: EqStateSpace[S], f: S => Boolean) extends AbstractEqStateSpace[S] {
-    def eqOnKeys = self.eqOnKeys
+    def keyEq = self.keyEq
     def succ(x: S) = self.succ(x) filter f
   }
 

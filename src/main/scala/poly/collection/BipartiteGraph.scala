@@ -11,9 +11,9 @@ import poly.collection.exception._
  */
 trait BipartiteGraph[A, B, E] extends Relation[A, B] with PartialFunction[(A, B), E] { self =>
 
-  def eqOnKeys1: Eq[A] = keySet1.eqOnKeys
+  def key1Eq: Eq[A] = keySet1.keyEq
 
-  def eqOnKeys2: Eq[B] = keySet2.eqOnKeys
+  def key2Eq: Eq[B] = keySet2.keyEq
 
   def keySet1: Set[A]
 
@@ -38,7 +38,14 @@ trait BipartiteGraph[A, B, E] extends Relation[A, B] with PartialFunction[(A, B)
   override def inverse: BipartiteGraph[B, A, E] = ???
 
   def asGraph: Graph[Either[A, B], E] = new AbstractGraph[Either[A, B], E] {
-    implicit def eqOnKeys = eqOnKeys1 coproduct eqOnKeys2
+    def keySet: Set[Either[A, B]] = new AbstractSet[Either[A, B]] {
+      def keyEq = key1Eq coproduct key2Eq
+      def keys = self.keySet1.elements.map(Left(_)) ++ self.keySet2.elements.map(Right(_))
+      def contains(x: Either[A, B]) = x match {
+        case Left(a) => self.keySet1.contains(a)
+        case Right(b) => self.keySet2.contains(b)
+      }
+    }
     def apply(i: Either[A, B], j: Either[A, B]) = (i, j) match {
       case (Left(a), Right(b)) => self.apply(a, b)
       case _ => throw new KeyNotFoundException(i, j)
@@ -46,11 +53,6 @@ trait BipartiteGraph[A, B, E] extends Relation[A, B] with PartialFunction[(A, B)
     def ?(i: Either[A, B], j: Either[A, B]) = (i, j) match {
       case (Left(a), Right(b)) => self ? (a, b)
       case _ => None
-    }
-    def keys = self.keySet1.elements.map(Left(_)) ++ self.keySet2.elements.map(Right(_))
-    def containsKey(i: Either[A, B]) = i match {
-      case Left(a) => self.keySet1.contains(a)
-      case Right(b) => self.keySet2.contains(b)
     }
     def containsArc(i: Either[A, B], j: Either[A, B]) = (i, j) match {
       case (Left(a), Right(b)) => self.adjacent(a, b)
@@ -63,14 +65,10 @@ trait BipartiteGraph[A, B, E] extends Relation[A, B] with PartialFunction[(A, B)
   }
 
   def asMultimap: BiMultimap[A, B] = new AbstractBiMultimap[A, B] {
-    def eqOnValues = self.eqOnKeys2
+    def keySet = self.keySet1
+    def valueSet = self.keySet2
     def apply(k: A) = self.adjacentKeySet1(k)
-    def containsKey(x: A) = self.keySet1.contains(x)
-    def keys = self.keySet1.elements
-    def eqOnKeys = self.eqOnKeys1
     def invert(b: B) = self.adjacentKeySet2(b)
-    def containsValue(b: B) = self.keySet2.contains(b)
-    def values = self.keySet2.elements
   }
 
 }

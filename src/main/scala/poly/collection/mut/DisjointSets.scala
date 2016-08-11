@@ -42,14 +42,14 @@ class DisjointSets[T] private(private val data: Map[T, DisjointSets.Node]) exten
 
   /** Joins the two sets in which the two specified elements resides. */
   def join(x: T, y: T): Unit = {
-    if (data.eqOnKeys.eq(x, y)) return
+    if (data.keyEq.eq(x, y)) return
     link(find(data(x)), find(data(y)))
     numSets -= 1
   }
 
   /** Tests if the two specified elements belong to the same set. */
   def eq(x: T, y: T) = {
-    if (data.eqOnKeys.eq(x, y)) true
+    if (data.keyEq.eq(x, y)) true
     else find(data(x)) == find(data(y))
   }
 

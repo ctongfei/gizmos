@@ -8,7 +8,7 @@ import poly.collection.impl._
 /**
  * @author Tongfei Chen
  */
-class SortedArraySeq[T] private(private[poly] val data: ResizableSeq[T])(implicit val orderOnElements: Order[T]) extends MutableSortedIndexedSeq[T] {
+class SortedArraySeq[T] private(private[poly] val data: ResizableSeq[T])(implicit val elementOrder: Order[T]) extends MutableSortedIndexedSeq[T] {
 
   def fastLength = data.fastLength
 

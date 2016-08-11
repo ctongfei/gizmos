@@ -72,13 +72,13 @@ trait Seq[+T] extends Iterable[T] with IntKeyedSortedMap[T] { self =>
 
   def newIterator: Iterator[T] = new SeqT.DefaultIterator(self)
 
-  def orderOnKeys = Order[Int]
-
-  def keys: SortedSeq[Int] = new SeqT.Keys(self)
+  def keySet: SortedSet[Int] = new AbstractSortedSet[Int] {
+    def keys = new SeqT.Keys(self)
+    def contains(i: Int) = i >= 0 && i < length //TODO: faster implementation; skip calculation of length
+    def keyOrder = Order[Int]
+  }
 
   def ?(i: Int) = if (i >= 0 && i < length) Some(this(i)) else None
-
-  def containsKey(i: Int) = i >= 0 && i < length
 
   override def pairs: SortedSeq[(Int, T @uv)] = new SeqT.Pairs(self)
 
@@ -364,7 +364,7 @@ trait Seq[+T] extends Iterable[T] with IntKeyedSortedMap[T] { self =>
 
 
   override def asIfSorted(implicit T: Order[T]): SortedSeq[T @uv] = new SortedSeq[T] {
-    def orderOnElements = T
+    def elementOrder = T
     def headNode: SeqNode[T] = self.headNode
   }
 
@@ -592,7 +592,7 @@ private[poly] object SeqT {
       def next = new SeqNodeWithIndex(outer.next, i + 1)
       def isDummy = outer.isDummy
     }
-    def orderOnElements = Order[Int] contramap first
+    def elementOrder = Order[Int] contramap first
     def headNode = new SeqNodeWithIndex(self.headNode, 0)
   }
 
@@ -603,7 +603,7 @@ private[poly] object SeqT {
       def isDummy = outer.isDummy
     }
     def headNode = new IndexNode(self.headNode, 0)
-    def orderOnElements = Order[Int]
+    def elementOrder = Order[Int]
   }
 
   class Mapped[T, U](self: Seq[T], f: T => U) extends AbstractSeq[U] {

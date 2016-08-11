@@ -25,9 +25,14 @@ trait Table[+T] extends Map[(Int, Int), T] { self =>
   def apply(pair: (Int, Int)): T = apply(pair._1, pair._2)
   def ?(x: (Int, Int)): Option[T] = if (containsKey(x)) Some(self(x)) else None
 
-  def eqOnKeys = Eq.default[(Int, Int)]
-
-  def keys = Range(numRows) monadicProduct Range(numCols)
+  def keySet: Set[(Int, Int)] = new AbstractSet[(Int, Int)] {
+    def keys = Range(numRows) monadicProduct Range(numCols)
+    def contains(x: (Int, Int)) = {
+      val (i, j) = x
+      i >= 0 && i < numRows && j >= 0 && j < numCols
+    }
+    implicit def keyEq = Eq.default[(Int, Int)]
+  }
 
   override def pairs = triples map { case (i, j, e) => ((i, j), e) }
 
@@ -56,10 +61,6 @@ trait Table[+T] extends Map[(Int, Int), T] { self =>
   def topLeftNode = new Table.NodeProxy(self, 0, 0)
   def bottomRightNode = new Table.NodeProxy(self, numRows - 1, numCols - 1)
 
-  def containsKey(x: (Int, Int)): Boolean = {
-    val (i, j) = x
-    i >= 0 && i < numRows && j >= 0 && j < numCols
-  }
 
   def row(i: Int): IndexedSeq[T] = Range(numCols) map (j => self(i, j))
 

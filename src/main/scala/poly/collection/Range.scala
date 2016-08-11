@@ -45,7 +45,7 @@ sealed trait Range extends SortedIndexedSeq[Int] { self =>
 
   def asSet: SortedSet[Int] = new AbstractSortedSet[Int] {
     override def size = self.fastLength
-    def orderOnKeys = self.orderOnElements
+    def keyOrder = self.elementOrder
     def keys = self
     def contains(x: Int) =
       if (step > 0) x >= left && x < right && (x - left) % step == 0
@@ -81,7 +81,7 @@ object Range {
       }
     }
 
-    def orderOnElements = Order[Int]
+    def elementOrder = Order[Int]
     override def tail = new Range.Ascending(left + step, right, step)
     override def reverse = new Range.Descending(left + step * (length - 1), left - math.signum(step), -step)
   }
@@ -97,7 +97,7 @@ object Range {
     }
 
     def fast = new FastTraversable(this)
-    def orderOnElements = Order[Int].reverse
+    def elementOrder = Order[Int].reverse
     def intersect(that: Range.Descending) = (this.reverse intersect that.reverse).reverse
     override def tail = new Range.Descending(left + step, right, step)
     override def reverse = new Range.Ascending(left + step * (length - 1), left - math.signum(step), -step)

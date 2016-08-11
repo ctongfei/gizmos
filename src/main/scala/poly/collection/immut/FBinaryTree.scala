@@ -6,7 +6,6 @@ import poly.collection.node._
 /**
  * @author Tongfei Chen
  */
-
 sealed abstract class FBinaryTree[+T] extends AbstractBinaryTree[T] with BinaryTreeNodeLike[T, FBinaryTree[T]] with BinaryTreeNode[T] { self =>
 
   import FBinaryTree._

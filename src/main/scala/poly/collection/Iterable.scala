@@ -327,7 +327,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
    * @note Actual orderedness is not guaranteed! The user should make sure that it is sorted.
    */
   def asIfSorted(implicit T: Order[T]): SortedIterable[T @uv] = new SortedIterable[T] {
-    def orderOnElements = T
+    def elementOrder = T
     def newIterator = self.newIterator
   }
 

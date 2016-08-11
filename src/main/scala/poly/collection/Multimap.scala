@@ -11,41 +11,35 @@ import poly.collection.mut._
  */
 trait Multimap[K, V] extends Relation[K, V] with KeyedLike[K, Multimap[K, V]] with PartialFunction[K, Set[V]] { self =>
 
-  def keys: Iterable[K]
+  def keySet: Set[K]
+
+  def keys: Iterable[K] = keySet.keys
 
   /** Returns all key-value pairs in this multimap. */
   def pairs: Iterable[(K, V)] = for (k <- keys; v <- apply(k).elements) yield (k, v)
 
+  implicit def keyEq: Eq[K] = keySet.keyEq
+
   /** Returns the equivalence relation on values. */
-  implicit def eqOnValues: Eq[V]
+  implicit def valueEq: Eq[V]
 
   /** Returns all values that are associated with the given key. */
   def apply(k: K): Set[V]
 
   /** Checks if a specific key is present in this multimap. */
-  def containsKey(x: K): Boolean
+  def containsKey(x: K) = keySet contains x
 
   def related(k: K, v: V) = apply(k) contains v
-
-  def keySet: Set[K] = new AbstractSet[K] {
-    def eqOnKeys = self.eqOnKeys
-    def keys = self.keys
-    def contains(x: K) = self.containsKey(x)
-  }
 
   def pairSet: Set[(K, V)] = new AbstractSet[(K, V)] {
     def keys = self.pairs
     def contains(x: (K, V)) = self(x._1) contains x._2
-    def eqOnKeys = self.eqOnKeys product self.eqOnValues
+    def keyEq = self.keyEq product self.valueEq
   }
-
-  /** $EAGER */
-  def valueSet: Set[V] = pairs map second to AutoSet
 
   def size = pairs.size
 
   def isDefinedAt(k: K) = containsKey(k)
-
 
   // HELPER FUNCTIONS
 
@@ -54,12 +48,12 @@ trait Multimap[K, V] extends Relation[K, V] with KeyedLike[K, Multimap[K, V]] wi
   def filterKeys(f: K => Boolean): Multimap[K, V] = new MultimapT.KeyFiltered(self, f)
 
   def union(that: Multimap[K, V]) = new Multimap[K, V] {
-    def keys = self.keys ++ that.keys.filterNot(self.containsKey)
-    def eqOnKeys = self.eqOnKeys
-    def eqOnValues = self.eqOnValues
+    def keySet = self.keySet union that.keySet
+    def valueEq = self.valueEq
     def apply(k: K) = self(k) union that(k)
-    def containsKey(k: K) = self.containsKey(k) | that.containsKey(k)
   }
+
+  //TODO: zip, intersect
 
   def product[L, W](that: Multimap[L, W]) = new MultimapT.Product(self, that)
 
@@ -81,11 +75,9 @@ trait Multimap[K, V] extends Relation[K, V] with KeyedLike[K, Multimap[K, V]] wi
    * Casts this multimap of type `Multimap[K, V]` to the equivalent map of type `Map[K, Set[V]]`.
    */
   def asMap: Map[K, Set[V]] = new AbstractMap[K, Set[V]] {
-    def keys = self.keys
+    def keySet = self.keySet
     def ?(k: K) = if (self containsKey k) Some(self(k)) else None
     def apply(k: K) = self(k)
-    def containsKey(k: K) = self containsKey k
-    def eqOnKeys = self.eqOnKeys
   }
 
 }
@@ -103,33 +95,32 @@ abstract class AbstractMultimap[K, V] extends Multimap[K, V]
 private[poly] object MultimapT {
 
   class KeySet[K](self: Multimap[K, _]) extends AbstractSet[K] {
-    def eqOnKeys = self.eqOnKeys
+    def keyEq = self.keyEq
     def keys = self.pairs map first
     def contains(x: K) = self containsKey x
   }
 
   class KeyFiltered[K, V](self: Multimap[K, V], f: K => Boolean) extends AbstractMultimap[K, V] {
     override def pairs = self.pairs filter { f compose first }
-    implicit def eqOnValues = self.eqOnValues
+    implicit def valueEq = self.valueEq
     def apply(k: K) = if (f(k)) self(k) else Set.empty[V]
-    def containsKey(x: K) = self.containsKey(x) && f(x)
-    def keys = self.keys filter f
-    def eqOnKeys = self.eqOnKeys
+    def keySet = self.keySet filter f
   }
 
   class Product[K, L, V, W](self: Multimap[K, V], that: Multimap[L, W]) extends AbstractMultimap[(K, L), (V, W)] {
     override def pairs = for ((k, v) <- self.pairs; (l, w) <- that.pairs) yield (k, l) -> (v, w)
-    def eqOnValues = self.eqOnValues product that.eqOnValues
+    def valueEq = self.valueEq product that.valueEq
     def apply(k: (K, L)) = self(k._1) product that(k._2)
-    def containsKey(k: (K, L)) = self.containsKey(k._1) && that.containsKey(k._2)
-    def keys = self.keys monadicProduct that.keys
-    def eqOnKeys = self.eqOnKeys product that.eqOnKeys
+    def keySet = self.keySet product that.keySet
   }
 
   class Composed[A, B, C](self: Multimap[B, C], that: Multimap[A, B]) extends AbstractMultimap[A, C] {
-    def keys = that.keys filter containsKey
-    implicit def eqOnKeys = that.eqOnKeys
-    implicit def eqOnValues = self.eqOnValues
+    def keySet = new AbstractSet[A] {
+      def keys = that.keys filter containsKey
+      implicit def keyEq = that.keyEq
+      def contains(k: A) = that(k).elements.flatMap((b: B) => self(b).elements).notEmpty
+    }
+    implicit def valueEq = self.valueEq
     override def pairSet = {
       for {
         a <- that.keySet
@@ -138,15 +129,12 @@ private[poly] object MultimapT {
       } yield (a, c)
     }
     def apply(k: A) = that(k) flatMap self
-    def containsKey(k: A) = that(k).elements.flatMap((b: B) => self(b).elements).notEmpty
   }
 
   class BijectivelyContramapped[K, V, J](self: Multimap[K, V], f: Bijection[J, K]) extends AbstractMultimap[J, V] {
-    def keys = self.keys map f.invert
-    def eqOnKeys = self.eqOnKeys contramap f
-    def eqOnValues = self.eqOnValues
+    def keySet = self.keySet contramap f
+    def valueEq = self.valueEq
     def apply(j: J) = self(f(j))
-    def containsKey(j: J) = self containsKey f(j)
   }
 
 }

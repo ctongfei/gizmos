@@ -11,7 +11,7 @@ import poly.collection.impl._
  */
 class SortedArraySet[T] private(private val data: SortedArraySeq[T]) extends SortedSet[T] with KeyMutableSet[T] {
 
-  override def orderOnKeys = data.orderOnElements
+  override def keyOrder = data.elementOrder
 
   def contains(x: T) = data.tryBinarySearch(x) >= 0
 

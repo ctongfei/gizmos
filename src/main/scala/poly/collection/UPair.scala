@@ -16,7 +16,7 @@ case class UPair[@sp(spTuple2) T: Eq](_1: T, _2: T) extends Set[T] {
 
   def keys = ListSeq(_1, _2)
 
-  def eqOnKeys = Eq[T]
+  def keyEq = Eq[T]
 
   override def size = 2
 

@@ -16,8 +16,8 @@ class Alphabet[T: Eq] private(
   extends BiMap[T, Int]
 {
 
-  def eqOnKeys = Eq[T]
-  def eqOnValues = Eq[Int]
+  def keySet = w2i.keySet
+  def valueSet = i2w.keySet
 
   def apply(x: T): Int = w2i ? x match {
     case Some(i) => i
@@ -32,19 +32,12 @@ class Alphabet[T: Eq] private(
 
   override def size = i2w.size
 
-  def keys: IndexedSeq[T] = Range(size) map i2w
-
-  def values = Range(size)
-
-  def invert(i: Int): T = i2w(i)
-  def invertOption(i: Int): Option[T] = i2w ? i
-
-  def containsKey(x: T): Boolean = w2i containsKey x
-  def containsValue(v: Int): Boolean = i2w containsKey v
+  def invert(i: Int) = i2w(i)
+  def invertOption(i: Int) = i2w ? i
 
   //TODO: freeze
 
-  override def pairs: Iterable[(T, Int)] = w2i.pairs
+  override def pairs = i2w.pairs.map(_.swap) // normally faster than traversing through i2w, and is ordered
 
   def clear(): Unit = {
     w2i.clear()
