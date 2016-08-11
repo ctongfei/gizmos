@@ -9,14 +9,14 @@ import poly.collection.mut._
  */
 trait BinaryTreeNodeLike[+T, +N <: BinaryTreeNodeLike[T, N]] extends ForwardNodeLike[T, N] { self: N =>
 
-  def left: N
-  def right: N
+  def leftNode: N
+  def rightNode: N
 
-  def children = ListSeq(left, right).filter(_.notDummy)
+  def children = ListSeq(leftNode, rightNode).filter(_.notDummy)
 
   override def succ: Iterable[N] = children
 
-  def isLeaf = left.isDummy && right.isDummy
+  def isLeaf = leftNode.isDummy && rightNode.isDummy
 
   def notLeaf = !isLeaf
 
@@ -24,15 +24,15 @@ trait BinaryTreeNodeLike[+T, +N <: BinaryTreeNodeLike[T, N]] extends ForwardNode
    * Performs pre-order traversal from this node.
    * @return A non-strict sequence of the pre-order traversal.
    */
-  def preOrder: Iterable[N] = Iterable.ofIterator {
+  def nodePreOrder: Iterable[N] = Iterable.ofIterator {
     new AbstractIterator[N] {
       private val s = ArrayStack[N](self)
       private var curr: N = default[N]
       def advance(): Boolean = {
         if (s.isEmpty) return false
         curr = s.pop()
-        if (curr.right.notDummy) s.push(curr.right)
-        if (curr.left.notDummy) s.push(curr.left)
+        if (curr.rightNode.notDummy) s.push(curr.rightNode)
+        if (curr.leftNode.notDummy) s.push(curr.leftNode)
         true
       }
       def current = curr
@@ -44,7 +44,7 @@ trait BinaryTreeNodeLike[+T, +N <: BinaryTreeNodeLike[T, N]] extends ForwardNode
    * Performs in-order traversal from this node. $LAZY
    * @return A non-strict sequence of the in-order traversal.
    */
-  def inOrder: BiIterable[N] = {
+  def nodeInOrder: BiIterable[N] = {
     class ForwardInOrderIterator extends Iterator[N] {
       private[this] val s = ArrayStack[N]()
       private[this] var v: N = default[N]
@@ -55,14 +55,14 @@ trait BinaryTreeNodeLike[+T, +N <: BinaryTreeNodeLike[T, N]] extends ForwardNode
         var node = n
         while (node.notDummy) {
           s.push(node)
-          node = node.left
+          node = node.leftNode
         }
       }
       def advance(): Boolean = {
         if (s.isEmpty) return false
         v = s.pop()
         curr = v
-        v = v.right
+        v = v.rightNode
         if (v.notDummy) pushLeft(v)
         true
       }
@@ -78,14 +78,14 @@ trait BinaryTreeNodeLike[+T, +N <: BinaryTreeNodeLike[T, N]] extends ForwardNode
         var node = n
         while (node.notDummy) {
           s.push(node)
-          node = node.right
+          node = node.rightNode
         }
       }
       def advance(): Boolean = {
         if (s.isEmpty) return false
         v = s.pop()
         curr = v
-        v = v.left
+        v = v.leftNode
         if (v.notDummy) pushRight(v)
         true
       }
@@ -98,7 +98,7 @@ trait BinaryTreeNodeLike[+T, +N <: BinaryTreeNodeLike[T, N]] extends ForwardNode
    * Performs post-order traversal from this node. $LAZY
    * @return A non-strict sequence of the post-order traversal.
    */
-  def postOrder: Iterable[N] = Iterable.ofIterator {
+  def nodePostOrder: Iterable[N] = Iterable.ofIterator {
     new AbstractIterator[N] {
       private[this] val s = ArrayStack[N]()
       private[this] var v: N = default[N]
@@ -109,15 +109,15 @@ trait BinaryTreeNodeLike[+T, +N <: BinaryTreeNodeLike[T, N]] extends ForwardNode
         var node = n
         while (node.notDummy) {
           s.push(node)
-          node = node.left
+          node = node.leftNode
         }
       }
       def advance(): Boolean = {
         if (s.isEmpty) return false
         v = s.pop()
         curr = v
-        if (s.notEmpty && (s.top.left == v)) {
-          v = s.top.right
+        if (s.notEmpty && (s.top.leftNode == v)) {
+          v = s.top.rightNode
           if (v.notDummy) pushLeft(v)
         }
         true
@@ -128,51 +128,19 @@ trait BinaryTreeNodeLike[+T, +N <: BinaryTreeNodeLike[T, N]] extends ForwardNode
 
 }
 
-trait BinaryTreeNode[+T] extends BinaryTreeNodeLike[T, BinaryTreeNode[T]] { self =>
-  def data: T
-  def left: BinaryTreeNode[T]
-  def right: BinaryTreeNode[T]
-
-  /**
-   * Returns a new binary tree node by applying a function to all nodes accessible from this node.
-   * @param f
-   * @tparam U
-   * @return
-   */
-  def map[U](f: T => U): BinaryTreeNode[U] = new BinaryTreeNode[U] {
-    def left = self.left.map(f)
-    def right = self.right.map(f)
-    def data = f(self.data)
-    override def isDummy = self.isDummy
-  }
-
-  def zip[U](that: BinaryTreeNode[U]): BinaryTreeNode[(T, U)] = new BinaryTreeNode[(T, U)] {
-    def left = self.left zip that.left
-    def right = self.right zip that.right
-    def data = (self.data, that.data)
-    override def isDummy = self.isDummy || that.isDummy
-  }
-
-  def reflect: BinaryTreeNode[T] = new BinaryTreeNode[T] {
-    def data = self.data
-    def left = self.right.reflect
-    def right = self.left.reflect
-    def isDummy = self.isDummy
-  }
-
-}
+trait BinaryTreeNode[+T] extends BinaryTreeNodeLike[T, BinaryTreeNode[T]]
 
 object BinaryTreeNode {
 
   object Dummy extends BinaryTreeNode[Nothing] {
     def data = throw new NoSuchElementException
-    def left = Dummy
-    def right = Dummy
+    def leftNode = Dummy
+    def rightNode = Dummy
     def isDummy = true
   }
 
   def unapply[T](t: BinaryTreeNode[T]): Option[(T, BinaryTreeNode[T], BinaryTreeNode[T])] = {
-    if (t.isDummy) None else Some((t.data, t.left, t.right))
+    if (t.isDummy) None else Some((t.data, t.leftNode, t.rightNode))
   }
 
 }

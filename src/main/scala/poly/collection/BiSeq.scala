@@ -144,7 +144,3 @@ object BiSeq {
 
 abstract class AbstractBiSeq[+T] extends AbstractSeq[T] with BiSeq[T]
 
-private[poly] object BiSeqT {
-
-
-}

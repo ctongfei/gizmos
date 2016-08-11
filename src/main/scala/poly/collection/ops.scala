@@ -128,8 +128,8 @@ trait ImplicitOperators {
     def unfoldToBinaryTree[A](f: T => (A, Option[T], Option[T])): BinaryTree[A] = {
       class UnfoldedNode2(val state: Option[T]) extends BinaryTreeNode[A] {
         private[this] val m = state map f
-        def left = new UnfoldedNode2(m.get._2)
-        def right = new UnfoldedNode2(m.get._3)
+        def leftNode = new UnfoldedNode2(m.get._2)
+        def rightNode = new UnfoldedNode2(m.get._3)
         def isDummy = m.isEmpty
         def data = m.get._1
       }
@@ -139,8 +139,8 @@ trait ImplicitOperators {
     def unfoldToBinaryTreeInfinitely[A](f: T => (A, T, T)): BinaryTree[A] = {
       class InfinitelyUnfoldedNode2(val state: T) extends BinaryTreeNode[A] {
         val (data, leftState, rightState) = f(state)
-        def left = new InfinitelyUnfoldedNode2(leftState)
-        def right = new InfinitelyUnfoldedNode2(rightState)
+        def leftNode = new InfinitelyUnfoldedNode2(leftState)
+        def rightNode = new InfinitelyUnfoldedNode2(rightState)
         def isDummy = false
       }
       BinaryTree.ofRootNode(new InfinitelyUnfoldedNode2(x))

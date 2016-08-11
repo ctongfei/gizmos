@@ -18,12 +18,4 @@ trait NodeWithParentLike[+T, +N <: NodeWithParentLike[T, N]] extends BackwardNod
 
 }
 
-trait NodeWithParent[+T] extends BackwardNode[T] with NodeWithParentLike[T, NodeWithParent[T]] { self =>
-
-  override def map[U](f: T => U): NodeWithParent[U] = new NodeWithParent[U] {
-    def parent = self.parent.map(f)
-    def data = f(self.data)
-    override def isDummy = self.isDummy
-  }
-
-}
+trait NodeWithParent[+T] extends BackwardNode[T] with NodeWithParentLike[T, NodeWithParent[T]]

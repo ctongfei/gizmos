@@ -15,8 +15,8 @@ trait IndexedBinaryTree[+T] extends BiBinaryTree[T] { self =>
     def isDummy = self.notContains(i)
     def data = self(i)
     def parent = new Node((i - 1) / 2)
-    def left = new Node(2 * i + 1)
-    def right = new Node(2 * i + 2)
+    def leftNode = new Node(2 * i + 1)
+    def rightNode = new Node(2 * i + 2)
 
     override def equals(that: Any) = that match {
       case that: Node => this.i == that.i

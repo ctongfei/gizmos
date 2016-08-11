@@ -26,11 +26,5 @@ trait BiNode[+T] extends ForwardNode[T] with BackwardNode[T] with BiNodeLike[T, 
     def isDummy = self.isDummy
   }
 
-  override def map[U](f: T => U): BiNode[U] = new BiNode[U] {
-    def data = f(self.data)
-    def pred = self.pred.map(_ map f)
-    def succ = self.succ.map(_ map f)
-    def isDummy = self.isDummy
-  }
 
 }

@@ -21,7 +21,14 @@ trait Tree[+T] { self =>
 
   def isEmpty = rootNode.isDummy
 
-  def map[U](f: T => U) = ofRootNode(rootNode map f)
+  def map[U](f: T => U) = {
+    class MappedNode(n: TreeNode[T]) extends TreeNode[U] {
+      def children = n.children.map(x => new MappedNode(x))
+      def data = f(n.data)
+      def isDummy = n.isDummy
+    }
+    ofRootNode(new MappedNode(self.rootNode))
+  }
 
   def fold[U](f: (T, Iterable[U]) => U): U =
     f(self.root, self.children.map(_ fold f)) //TODO: makes it non-recursive

@@ -14,15 +14,7 @@ trait SeqNodeLike[+T, +N <: SeqNodeLike[T, N]] extends ForwardNodeLike[T, N] { s
   def succ: Iterable[N] = ListSeq(next).filter(_.notDummy)
 }
 
-trait SeqNode[+T] extends ForwardNode[T] with SeqNodeLike[T, SeqNode[T]] { self =>
-
-  override def map[U](f: T => U): SeqNode[U] = new SeqNode[U] {
-    def next = self.next.map(f)
-    def data = f(self.data)
-    def isDummy = self.isDummy
-  }
-
-}
+trait SeqNode[+T] extends ForwardNode[T] with SeqNodeLike[T, SeqNode[T]]
 
 object SeqNode {
 

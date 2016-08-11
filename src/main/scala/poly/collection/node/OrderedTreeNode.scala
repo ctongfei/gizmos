@@ -12,17 +12,7 @@ trait OrderedTreeNodeLike[+T, +N <: OrderedTreeNodeLike[T, N]] extends TreeNodeL
 
 }
 
-trait OrderedTreeNode[+T] extends TreeNode[T] with OrderedTreeNodeLike[T, OrderedTreeNode[T]] { self =>
-
-  def children: Seq[OrderedTreeNode[T]]
-
-  override def map[U](f: T => U): OrderedTreeNode[U] = new OrderedTreeNode[U] {
-    def children = self.children.map(_ map f)
-    def data = f(self.data)
-    def isDummy = self.isDummy
-  }
-
-}
+trait OrderedTreeNode[+T] extends TreeNode[T] with OrderedTreeNodeLike[T, OrderedTreeNode[T]]
 
 object OrderedTreeNode {
 

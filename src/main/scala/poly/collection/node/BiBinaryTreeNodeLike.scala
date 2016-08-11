@@ -10,8 +10,8 @@ trait BiBinaryTreeNodeLike[+T, +N <: BiBinaryTreeNodeLike[T, N]]
   extends BinaryTreeNodeLike[T, N] with NodeWithParentLike[T, N]
 { self: N =>
 
-  def left: N
-  def right: N
+  def leftNode: N
+  def rightNode: N
   def parent: N
 
   override def pred: Iterable[N] = ListSeq(parent).filter(_.notDummy)
@@ -24,14 +24,4 @@ trait BiBinaryTreeNodeLike[+T, +N <: BiBinaryTreeNodeLike[T, N]]
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait BiBinaryTreeNode[+T] extends BiNode[T] with BinaryTreeNode[T] with BiBinaryTreeNodeLike[T, BiBinaryTreeNode[T]] { self =>
-
-  override def map[U](f: T => U): BiBinaryTreeNode[U] = new BiBinaryTreeNode[U] {
-    def left = self.left map f
-    def right = self.right map f
-    def parent = self.parent map f
-    def data = f(self.data)
-    override def isDummy = self.isDummy
-  }
-
-}
+trait BiBinaryTreeNode[+T] extends BiNode[T] with BinaryTreeNode[T] with BiBinaryTreeNodeLike[T, BiBinaryTreeNode[T]]

@@ -20,7 +20,14 @@ trait OrderedTree[+T] extends Tree[T] { self =>
 
   // HELPER FUNCTIONS
 
-  override def map[U](f: T => U): OrderedTree[U] = ofRootNode(self.rootNode map f)
+  override def map[U](f: T => U): OrderedTree[U] = {
+    class MappedNode(n: OrderedTreeNode[T]) extends OrderedTreeNode[U] {
+      def children = n.children.map(x => new MappedNode(x))
+      def data = f(n.data)
+      def isDummy = n.isDummy
+    }
+    ofRootNode(new MappedNode(self.rootNode))
+  }
 
   def zip[U](that: OrderedTree[U]) = (self zipWith that)((t, u) => (t, u))
 
@@ -51,8 +58,8 @@ trait OrderedTree[+T] extends Tree[T] { self =>
     class LcRsNode(val node: SeqNode[OrderedTreeNode[T]]) extends BinaryTreeNode[T] {
       override def isDummy = node.isDummy || node.data.isDummy
       def data = node.data.data
-      def left = new LcRsNode(node.data.children.headNode)
-      def right = new LcRsNode(node.next)
+      def leftNode = new LcRsNode(node.data.children.headNode)
+      def rightNode = new LcRsNode(node.next)
     }
     def rootNode = new LcRsNode(ListSeq(self.rootNode).headNode)
     override def inverseKnuthTransform = self

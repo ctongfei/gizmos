@@ -16,8 +16,8 @@ trait BinaryTree[+T] { self =>
 
   def dummy: BinaryTreeNode[T] = new BinaryTreeNode[T] {
     def data: T = throw new DummyNodeException
-    def left: BinaryTreeNode[T] = rootNode
-    def right: BinaryTreeNode[T] = rootNode
+    def leftNode: BinaryTreeNode[T] = rootNode
+    def rightNode: BinaryTreeNode[T] = rootNode
     def isDummy: Boolean = true
   }
 
@@ -27,21 +27,21 @@ trait BinaryTree[+T] { self =>
    * Returns the left subtree of this binary tree. $LAZY $CX_1
    * @return The left subtree
    */
-  def left: BinaryTree[T] = ofRootNode(rootNode.left)
+  def left: BinaryTree[T] = ofRootNode(rootNode.leftNode)
 
   /**
    * Returns the right subtree of this binary tree. $LAZY $CX_1
    * @return The right subtree
    */
-  def right: BinaryTree[T] = ofRootNode(rootNode.right)
+  def right: BinaryTree[T] = ofRootNode(rootNode.rightNode)
 
   def root: T = rootNode.data
 
   /** Returns the maximal height of this tree. */ //TODO: a recursive-free version?
-  def height: Int = foldBottomUp(0)((l, r, _) => math.max(l, r) + 1)
+  def height: Int = fold(0)((l, r, _) => math.max(l, r) + 1)
 
   /** Returns the number of nodes in this tree. */
-  def size: Int = rootNode.preOrder.size
+  def size: Int = rootNode.nodePreOrder.size
 
   def isEmpty = rootNode.isDummy
 
@@ -62,8 +62,8 @@ trait BinaryTree[+T] { self =>
     var depth = 1
     while (depth <= x) {
       x / depth match {
-        case 0 => curr = curr.left
-        case 1 => curr = curr.right
+        case 0 => curr = curr.leftNode
+        case 1 => curr = curr.rightNode
       }
       if (curr.isDummy) throw new KeyNotFoundException(i)
       x %= depth
@@ -76,17 +76,30 @@ trait BinaryTree[+T] { self =>
 
   // HELPER FUNCTIONS
 
-  def map[U](f: T => U): BinaryTree[U] = ofRootNode(rootNode.map(f))
+  def map[U](f: T => U): BinaryTree[U] = {
+    class MappedNode(n: BinaryTreeNode[T]) extends BinaryTreeNode[U] {
+      def data = f(n.data)
+      def leftNode = new MappedNode(n.leftNode)
+      def rightNode = new MappedNode(n.rightNode)
+      def isDummy = n.isDummy
+    }
+    ofRootNode(new MappedNode(self.rootNode))
+  }
 
   /** Folds a binary tree bottom-up. This is analogous to the sequence `foldRight` in that both
     * are catamorphisms on recursive structures.
-    */ //TODO: non-recursive version?
-  def foldBottomUp[U](z: U)(f: (U, U, T) => U): U = self match {
-    case BinaryTree.Empty() => z
-    case (l :/ n \: r) => f(l.foldBottomUp(z)(f), r.foldBottomUp(z)(f), n)
+    */
+  def fold[U](z: U)(f: (U, U, T) => U): U = {
+    val s = ArrayStack[U]()
+    for (n <- rootNode.nodePostOrder) {
+      if (n.leftNode .isDummy) s push z
+      if (n.rightNode.isDummy) s push z
+      val a = s.pop()
+      val b = s.pop()
+      s push f(a, b, n.data)
+    }
+    s.top
   }
-
-  def fold[U >: T](z: U)(f: (U, U, U) => U) = foldBottomUp(z)(f)
 
   /**
    * Zips two binary trees into one. $LAZY
@@ -98,7 +111,15 @@ trait BinaryTree[+T] { self =>
    *   └  d   e    ┘     └    4   5  ┘    └               ┘
    * }}}
    */
-  def zip[U](that: BinaryTree[U]) = ofRootNode(self.rootNode zip that.rootNode)
+  def zip[U](that: BinaryTree[U]) = {
+    class ZippedNode(m: BinaryTreeNode[T], n: BinaryTreeNode[U]) extends BinaryTreeNode[(T, U)] {
+      def leftNode = new ZippedNode(m.leftNode, n.leftNode)
+      def rightNode = new ZippedNode(m.rightNode, n.rightNode)
+      def data = (m.data, n.data)
+      def isDummy = m.isDummy || n.isDummy
+    }
+    ofRootNode(new ZippedNode(self.rootNode, that.rootNode))
+  }
 
   /**
    * '''Lazily''' traverses this binary tree in pre-order.
@@ -110,7 +131,7 @@ trait BinaryTree[+T] { self =>
    *    └  d   e    ┘
    * }}}
    */
-  def preOrder = rootNode.preOrder.map(_.data)
+  def preOrder = rootNode.nodePreOrder.map(_.data)
 
   /**
    * '''Lazily''' traverses this binary tree in in-order.
@@ -122,7 +143,7 @@ trait BinaryTree[+T] { self =>
    *    └  d   e    ┘
    * }}}
    */
-  def inOrder = rootNode.inOrder.map(_.data)
+  def inOrder = rootNode.nodeInOrder.map(_.data)
 
   /**
    * Returns the reflected mirror image of this binary tree.
@@ -134,9 +155,17 @@ trait BinaryTree[+T] { self =>
    *  └  d   e    ┘            └    e   d  ┘
    * }}}
    */
-  def reflect: BinaryTree[T] = new AbstractBinaryTree[T] {
-    def rootNode = self.rootNode.reflect
-    override def reflect = self
+  def reflect: BinaryTree[T] = {
+    class ReflectedNode(n: BinaryTreeNode[T]) extends BinaryTreeNode[T] {
+      def leftNode = new ReflectedNode(n.rightNode)
+      def rightNode = new ReflectedNode(n.leftNode)
+      def data = n.data
+      def isDummy = n.isDummy
+    }
+    new AbstractBinaryTree[T] {
+      def rootNode = new ReflectedNode(self.rootNode)
+      override def reflect = self
+    }
   }
 
   /**
@@ -149,7 +178,7 @@ trait BinaryTree[+T] { self =>
    *    └  d   e    ┘
    * }}}
    */
-  def postOrder = rootNode.postOrder.map(_.data)
+  def postOrder = rootNode.nodePostOrder.map(_.data)
 
   /**
    * '''Lazily''' traverses this binary tree in level-order.
@@ -163,7 +192,7 @@ trait BinaryTree[+T] { self =>
    */
   def levelOrder = rootNode.breadthFirstTreeTraversal.map(_.data)
 
-  def leaves = rootNode.preOrder.filter(_.isLeaf).map(_.data)
+  def leaves = rootNode.nodePreOrder.filter(_.isLeaf).map(_.data)
 
   /**
    * Performs inverse Knuth transform on this binary tree, i.e., recover the multi-way tree
@@ -182,7 +211,7 @@ trait BinaryTree[+T] { self =>
   def inverseKnuthTransform: OrderedTree[T] = new OrderedTree[T] {
     class InverseKnuthTransformedTreeNode(val node: BinaryTreeNode[T]) extends OrderedTreeNode[T] {
       override def isDummy = node.isDummy
-      def children = node.left.iterate(_.right).takeUntil(_.isDummy).map(btn => new InverseKnuthTransformedTreeNode(btn))
+      def children = node.leftNode.iterate(_.rightNode).takeUntil(_.isDummy).map(btn => new InverseKnuthTransformedTreeNode(btn))
       def data = node.data
     }
     def rootNode = new InverseKnuthTransformedTreeNode(self.rootNode)
@@ -192,8 +221,8 @@ trait BinaryTree[+T] { self =>
   def subtrees: BinaryTree[BinaryTree[T]] = {
     class SubtreeNode(n: BinaryTreeNode[T]) extends BinaryTreeNode[BinaryTree[T]] {
       def data = ofRootNode(n)
-      def left = new SubtreeNode(n.left)
-      def right = new SubtreeNode(n.right)
+      def leftNode = new SubtreeNode(n.leftNode)
+      def rightNode = new SubtreeNode(n.rightNode)
       def isDummy = n.isDummy
     }
     ofRootNode(new SubtreeNode(self.rootNode))
@@ -217,7 +246,7 @@ trait BinaryTree[+T] { self =>
 
   def asTree: OrderedTree[T] = {
     class BinaryTreeAsTreeNode(n: BinaryTreeNode[T]) extends OrderedTreeNode[T] {
-      def children = ListSeq(n.left, n.right).filter(_.notDummy).map(n => new BinaryTreeAsTreeNode(n))
+      def children = ListSeq(n.leftNode, n.rightNode).filter(_.notDummy).map(n => new BinaryTreeAsTreeNode(n))
       def data = n.data
       def isDummy = n.isDummy
     }
@@ -242,8 +271,8 @@ object BinaryTree {
   def infinite[T](x: => T): BinaryTree[T] = ofRootNode {
     new BinaryTreeNode[T] {
       def data = x
-      def left = this
-      def right = this
+      def leftNode = this
+      def rightNode = this
       def isDummy = false
     }
   }

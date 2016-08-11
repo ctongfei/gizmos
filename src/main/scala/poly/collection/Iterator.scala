@@ -60,8 +60,8 @@ trait Iterator[@sp(Int, Long, Double, Char) +T] { self =>
     while (self.advance()) f(self.current)
   }
 
-  private[poly] def asStream: immut.LazyFSeq[T] = {
-    if (self.advance()) immut.LazyFSeq.Cons(self.current, self.asStream)
+  private[poly] def asLazyFSeq: immut.LazyFSeq[T] = {
+    if (self.advance()) immut.LazyFSeq.Cons(self.current, self.asLazyFSeq)
     else immut.LazyFSeq.Empty
   }
 

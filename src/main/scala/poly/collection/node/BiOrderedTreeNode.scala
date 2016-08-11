@@ -14,13 +14,4 @@ trait BiOrderedTreeNodeLike[+T, +N <: BiOrderedTreeNodeLike[T, N]] extends BiNod
 
 }
 
-trait BiOrderedTreeNode[+T] extends BiNode[T] with OrderedTreeNode[T] with NodeWithParent[T] with BiOrderedTreeNodeLike[T, BiOrderedTreeNode[T]] { self =>
-
-  override def map[U](f: T => U): BiOrderedTreeNode[U] = new BiOrderedTreeNode[U] {
-    def isDummy = self.isDummy
-    def children = self.children.map(_.map(f))
-    def parent = self.parent.map(f)
-    def data = f(self.data)
-  }
-
-}
+trait BiOrderedTreeNode[+T] extends BiNode[T] with OrderedTreeNode[T] with NodeWithParent[T] with BiOrderedTreeNodeLike[T, BiOrderedTreeNode[T]]

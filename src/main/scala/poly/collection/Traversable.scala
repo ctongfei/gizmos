@@ -110,7 +110,7 @@ trait Traversable[+T] { self =>
     None
   }
 
-  def group[U >: T : Eq]: Map[U, Iterable[T]] = groupBy(x => x)
+  def group[U >: T : Eq]: Map[U, Iterable[T]] = groupBy(identity)
 
   /** $EAGER $On */
   def groupBy[K: Eq](f: T => K): Map[K, Iterable[T]] = {
@@ -499,7 +499,7 @@ trait Traversable[+T] { self =>
 
   /**
    * Converts this traversable sequence to any collection type given a factory that requires an additional evidence.
-   * @example {{{ xs to AutoSet }}}
+   * @example {{{ xs to HashSet }}}
    */
   def to[U >: T : Ev, C[_], Ev[_]](factory: FactoryA_EvA[C, Ev]): C[U] = factory from self
 
@@ -507,7 +507,7 @@ trait Traversable[+T] { self =>
   //def to[U >: T : EvU, V: EvV, C[_, _], EvU[_], EvV[_]](factory: FactoryEv2[C, EvU, EvV]): C[U, V] = build(factory.newBuilder[U, V])
 
   /**
-   * Converts this traversable sequence to an array.
+   * Converts this traversable sequence to an array. $EAGER
    * @example {{{ xs.toArray }}}
    */
   def toArray[U >: T : ClassTag]: Array[U] = {
@@ -746,7 +746,7 @@ private[poly] object TraversableT {
   }
 
   class Taken[T](self: Traversable[T], n: Int) extends AbstractTraversable[T] {
-    def foreach[U](f: T => U) = {
+    def foreach[U](f: T => U): Unit = {
       var i = 0
       for (x <- self) {
         f(x)

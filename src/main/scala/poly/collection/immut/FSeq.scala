@@ -9,18 +9,11 @@ import poly.collection.node._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-sealed abstract class FSeq[+T] extends AbstractSeq[T] with SeqNode[T] { self =>
+sealed abstract class FSeq[+T] extends AbstractSeq[T] with SeqNodeLike[T, FSeq[T]] with SeqNode[T] { self =>
 
   import FSeq._
 
   final def headNode = self
-
-  override def map[U](f: T => U): Seq[U] with SeqNode[U] = new AbstractSeq[U] with SeqNode[U] {
-    def next = self.next map f
-    def data = f(self.data)
-    def isDummy = self.isDummy
-    def headNode = self map f
-  }
 
   def mapE[U](f: T => U): FSeq[U] = self match {
     case Empty      => Empty
@@ -41,17 +34,18 @@ sealed abstract class FSeq[+T] extends AbstractSeq[T] with SeqNode[T] { self =>
       case Cons(h, t) => t drop (n - 1)
     }
 
+  override def toString = super[AbstractSeq].toString
 }
 
 object FSeq {
 
   case object Empty extends FSeq[Nothing] {
-    final def isDummy = true
+    def isDummy = true
     def next = Empty
     def data = throw new NoSuchElementException
   }
 
-  case class Cons[+T](h: T, t: FSeq[T]) extends FSeq[T] with NonEmptySeq[T] {
+  case class Cons[+T](h: T, t: FSeq[T] = Empty) extends FSeq[T] with NonEmptySeq[T] {
     final def isDummy = false
     def next = t
     def data = h

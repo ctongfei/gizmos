@@ -42,12 +42,4 @@ object ForwardNodeLike {
   }
 }
 
-trait ForwardNode[+T] extends Node[T] with ForwardNodeLike[T, ForwardNode[T]] { self =>
-
-  def map[U](f: T => U): ForwardNode[U] = new ForwardNode[U] {
-    def data = f(self.data)
-    def succ = self.succ.map(_.map(f))
-    def isDummy = self.isDummy
-  }
-
-}
+trait ForwardNode[+T] extends Node[T] with ForwardNodeLike[T, ForwardNode[T]]

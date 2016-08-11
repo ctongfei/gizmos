@@ -4,7 +4,7 @@ import poly.algebra._
 import poly.algebra.hkt._
 import poly.algebra.syntax._
 import poly.collection.exception._
-import poly.collection.immut.LazyFSeq$
+import poly.collection.immut._
 import poly.collection.mut._
 
 import scala.annotation.unchecked.{uncheckedVariance => uv}
@@ -465,7 +465,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
     override def size = s
   }
 
-  def asStream: LazyFSeq[T] = newIterator.asStream
+  def asLazyFSeq: LazyFSeq[T] = newIterator.asLazyFSeq
 
   //endregion
 

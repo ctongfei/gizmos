@@ -22,15 +22,15 @@ object LinkedBinaryTreeTest extends App {
     val n7 = new LinkedBinaryTree.Node(7, T.dummy, T.dummy, parent = n4)
     val n8 = new LinkedBinaryTree.Node(8, T.dummy, T.dummy, parent = n4)
     val n9 = new LinkedBinaryTree.Node(9, T.dummy, T.dummy, parent = n8)
-    n0.left = n1
-    n0.right = n2
-    n1.left = n3
-    n1.right = n4
-    n4.left = n7
-    n4.right = n8
-    n8.left = n9
-    n2.left = n5
-    n2.right = n6
+    n0.leftNode = n1
+    n0.rightNode = n2
+    n1.leftNode = n3
+    n1.rightNode = n4
+    n4.leftNode = n7
+    n4.rightNode = n8
+    n8.leftNode = n9
+    n2.leftNode = n5
+    n2.rightNode = n6
 
     val (l :/ n \: r) = T
 

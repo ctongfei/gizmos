@@ -27,12 +27,6 @@ trait BiSeqNode[+T] extends BiNode[T] with SeqNode[T] with NodeWithParent[T] wit
     override def reverse = self
     def isDummy = self.isDummy
   }
-  override def map[U](f: T => U): BiSeqNode[U] = new BiSeqNode[U] {
-    def isDummy = self.isDummy
-    def prev = self.prev map f
-    def next = self.next map f
-    def data = f(self.data)
-  }
 }
 
 object BiSeqNode {
