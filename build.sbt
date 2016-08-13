@@ -1,5 +1,5 @@
 name := "poly-collection"
-version := "0.0.7-SNAPSHOT"
+version := "0.0.8-SNAPSHOT"
 isSnapshot := true
 organization := "me.tongfei"
 scalaVersion := "2.11.8"

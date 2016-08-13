@@ -22,7 +22,7 @@ import scala.language.reflectiveCalls
  */
 trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K, V] with Func[K, V] { self =>
 
-  /** Returns the set of the keys of this map. $LAZY */
+  /** Returns the set of the keys in this map. $LAZY */
   def keySet: Set[K]
 
   /**

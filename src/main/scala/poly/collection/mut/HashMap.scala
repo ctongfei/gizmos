@@ -25,7 +25,7 @@ class HashMap[K: Hashing, V] private(private val data: OpenHashTable[K, HashMap.
 
   def apply(k: K): V = data.locate(k).value
 
-  def update(k: K, v: V): Unit = data.locate(k).value = v
+  def update(k: K, v: V) = data.locate(k).value = v
 
   def ?(k: K): Option[V] = {
     val e = data.locate(k)

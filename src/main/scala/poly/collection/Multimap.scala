@@ -2,6 +2,7 @@ package poly.collection
 
 import poly.algebra._
 import poly.algebra.hkt._
+import poly.collection.factory._
 import poly.collection.mut._
 
 /**
@@ -59,7 +60,7 @@ trait Multimap[K, V] extends Relation[K, V] with KeyedLike[K, Multimap[K, V]] wi
 
   def map[W](f: Multimap[V, W]): Multimap[K, W] = new MultimapT.Composed(f, self)
 
-  def map[W](f: Bijection[V, W]): Multimap[K, W] = ???
+  def map[W](f: Bijection[V, W]): Multimap[K, W] = new MultimapT.BijectivelyMapped(self, f)
 
   def contramap[J](f: Bijection[J, K]): Multimap[J, V] = new MultimapT.BijectivelyContramapped(self, f)
 
@@ -69,7 +70,7 @@ trait Multimap[K, V] extends Relation[K, V] with KeyedLike[K, Multimap[K, V]] wi
 
   def andThen[W](that: Multimap[V, W]): Multimap[K, W] = map(that)
 
-  override def inverse: Multimap[V, K] = ???
+  override def inverse: Multimap[V, K] = pairs map { _.swap } to AutoMultimap
 
   /**
    * Casts this multimap of type `Multimap[K, V]` to the equivalent map of type `Map[K, Set[V]]`.
@@ -82,12 +83,12 @@ trait Multimap[K, V] extends Relation[K, V] with KeyedLike[K, Multimap[K, V]] wi
 
 }
 
-object Multimap {
-
+object Multimap extends BuilderFactoryAB_EvAB[Multimap, Eq, Eq] {
   //implicit object Semicategory
   //TODO: semicategory. does not have id.
   //TODO: update poly.algebra.hkt.Semigroupoid
 
+  implicit def newBuilder[A: Eq, B: Eq] = AutoMultimap.newBuilder
 }
 
 abstract class AbstractMultimap[K, V] extends Multimap[K, V]
@@ -101,7 +102,7 @@ private[poly] object MultimapT {
   }
 
   class KeyFiltered[K, V](self: Multimap[K, V], f: K => Boolean) extends AbstractMultimap[K, V] {
-    override def pairs = self.pairs filter { f compose first }
+    override def pairs = self.pairs filter { x => f(x._1) }
     implicit def valueEq = self.valueEq
     def apply(k: K) = if (f(k)) self(k) else Set.empty[V]
     def keySet = self.keySet filter f
@@ -135,6 +136,12 @@ private[poly] object MultimapT {
     def keySet = self.keySet contramap f
     def valueEq = self.valueEq
     def apply(j: J) = self(f(j))
+  }
+
+  class BijectivelyMapped[K, V, W](self: Multimap[K, V], f: Bijection[V, W]) extends AbstractMultimap[K, W] {
+    def keySet = self.keySet
+    def valueEq = self.valueEq contramap f.invert
+    def apply(k: K) = self(k) map f
   }
 
 }

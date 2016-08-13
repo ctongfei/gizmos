@@ -21,8 +21,8 @@ class AdjacencyMatrixGraph[E] private(
   private val edgeData: ValueMutableTable[E]
 ) extends AbstractBiGraph[Int, E] with ValueMutableGraph[Int, E] {
 
-  def incomingKeySet(j: Int) = keySet filterKeys { i => edgeExists(i, j) }
-  def outgoingKeySet(i: Int) = keySet filterKeys { j => edgeExists(i, j) }
+  def incomingKeySet(j: Int) = keySet filter { edgeExists(_, j) }
+  def outgoingKeySet(i: Int) = keySet filter { edgeExists(i, _) }
 
   override def keySet = Range(numNodes).asSet
 

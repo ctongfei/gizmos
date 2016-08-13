@@ -75,7 +75,7 @@ trait Traversable[+T] { self =>
   }
 
   /** Selects the elements that do not satisfy the specified predicate. $LAZY */
-  def filterNot(f: T => Boolean): Traversable[T] = filter(x => !f(x))
+  def filterNot(f: T => Boolean): Traversable[T] = filter(!f)
 
   /**
    * Partitions this collection to two collections according to a predicate. $EAGER
@@ -639,6 +639,8 @@ object Traversable {
     def to[M[_, _]](factory: FactoryAB[M]) = factory from underlying
 
     def to[M[_, _], Ev[_]](factory: FactoryAB_EvA[M, Ev])(implicit A: Ev[A]) = factory from underlying
+
+    def to[M[_, _], EvA[_], EvB[_]](factory: FactoryAB_EvAB[M, EvA, EvB])(implicit A: EvA[A], B: EvB[B]) = factory from underlying
 
   }
 

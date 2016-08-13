@@ -339,14 +339,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
    * @example {{{(1, 2, 3) zip (-1, -2, -3, -4) == ((1, -1), (2, -2), (3, -3))}}}
    * @return Zipped sequence
    */
-  def zip[U](that: Iterable[U]): Iterable[(T, U)] = ofIterator {
-    new AbstractIterator[(T, U)] {
-      val ti = self.newIterator
-      val ui = that.newIterator
-      def advance(): Boolean = ti.advance() && ui.advance()
-      def current: (T, U) = (ti.current, ui.current)
-    }
-  }
+  def zip[U](that: Iterable[U]): Iterable[(T, U)] = zipWith(that) { (t, u) => (t, u) }
 
   /**
    * Equivalent to "`this zip that map f`" but may be more efficient.
@@ -600,7 +593,7 @@ abstract class AbstractIterable[+T] extends AbstractTraversable[T] with Iterable
 
 private[poly] object IterableT {
 
-  class Mapped[T, U](self: Iterable[T], f: T => U) extends  AbstractIterable[U] {
+  class Mapped[T, U](self: Iterable[T], f: T => U) extends AbstractIterable[U] {
     def newIterator = new AbstractIterator[U] {
       private[this] val i = self.newIterator
       def current = f(i.current)

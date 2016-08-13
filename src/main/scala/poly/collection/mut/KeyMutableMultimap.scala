@@ -1,10 +1,12 @@
 package poly.collection.mut
 
+import poly.collection._
+
 /**
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait KeyMutableMultimap[K, V] {
+trait KeyMutableMultimap[K, V] extends Multimap[K, V] {
 
   def addInplace(k: K, v: V): Unit
 

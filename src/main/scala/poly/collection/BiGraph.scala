@@ -35,7 +35,12 @@ trait BiGraph[@sp(Int) K, +E] extends Graph[K, E] { self =>
 
   //TODO: mapWithKeys, filterKeys, zip, zipWith
 
-  override def asMultimap: BiMultimap[K, K] = ???
+  override def asMultimap: BiMultimap[K, K] = new AbstractBiMultimap[K, K] {
+    def valueSet = self.keySet
+    def keySet = self.keySet
+    def invert(k: K) = self.incomingKeySet(k)
+    def apply(k: K) = self.outgoingKeySet(k)
+  }
 
 }
 

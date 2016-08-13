@@ -5,11 +5,10 @@ import poly.collection.exception._
 
 /**
  * Represents an undirected bipartite graph.
- *
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait BipartiteGraph[A, B, E] extends Relation[A, B] with PartialFunction[(A, B), E] { self =>
+trait BipartiteGraph[A, B, +E] extends Relation[A, B] with PartialFunction[(A, B), E] { self =>
 
   def key1Eq: Eq[A] = keySet1.keyEq
 
