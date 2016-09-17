@@ -20,13 +20,18 @@ class ListSeq[T] private() extends AbstractSeq[T] with KeyMutableSeq[T] {
   dummy.next = dummy
 
   private[poly] var len: Int = 0
-  private[poly] var lastNode: Node = dummy
+  private[poly] var ln: Node = dummy
 
   override def length = len
   override def size = len
   override def sizeKnown = true
 
   def headNode = dummy.next
+
+  def lastNode = ln
+
+  /** $EAGER $O1 */
+  override def last = ln.data // Mirroring SI-9906
 
   /**
    * Locates the ''i''th element in a singly linked list.
@@ -50,19 +55,17 @@ class ListSeq[T] private() extends AbstractSeq[T] with KeyMutableSeq[T] {
 
   /**
    * Appends an element to the end of the singly linked list. $O1
-   *
    * @param x The element to be appended
    */
   def appendInplace(x: T) = {
     val node = new Node(x, dummy)
-    lastNode.next = node
-    lastNode = node
+    ln.next = node
+    ln = node
     len += 1
   }
 
   /**
    * Prepends an element to the start of the doubly linked list. $O1
-   *
    * @param x The element to be prepended.
    */
   def prependInplace(x: T) = {

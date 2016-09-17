@@ -5,9 +5,9 @@ package poly.collection
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait BiSortedSet[T] extends SortedSet[T] {
+trait BidiSortedSet[T] extends SortedSet[T] {
 
-  def keys: BiSortedIterable[T]
+  def keys: BidiSortedIterable[T]
 
 }
 

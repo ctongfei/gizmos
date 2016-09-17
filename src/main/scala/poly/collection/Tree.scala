@@ -31,10 +31,10 @@ trait Tree[+T] { self =>
   }
 
   def fold[U](f: (T, Iterable[U]) => U): U =
-    f(self.root, self.children.map(_ fold f)) //TODO: makes it non-recursive
+    f(root, children.map(_ fold f)) //TODO: makes it non-recursive
 
   /**
-   * The comonadic operations on trees.
+   * The comonadic operation on trees.
    */
   def subtrees: Tree[Tree[T]] = {
     class TreeOfTreeNode(n: TreeNode[T]) extends TreeNode[Tree[T]] {
@@ -78,8 +78,8 @@ trait Tree[+T] { self =>
    *    │   / \     │.postOrder == (e, f, b, c, d, a)
    *    └  e   f    ┘
    * }}}
-   */
-  def postOrder = fold[Iterable[T]] { (n, cs) => cs.flatten :+ n } //TODO: a non-recursive lazy method
+   */ // == fold { (n, cs) => cs.flatten :+ n }
+  def postOrder = rootNode.postOrder.map { _.data }
 
   def leaves = rootNode.preOrder.filter(_.isLeaf).map(_.data)
 

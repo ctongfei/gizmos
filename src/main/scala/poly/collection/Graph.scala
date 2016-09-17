@@ -33,6 +33,7 @@ trait Graph[@sp(Int) K, @sp(Double) +E] extends EqStateSpace[K] with KeyedLike[K
   /** Gets the data on the arc indexed by the specific two keys. */
   def apply(i: K, j: K): E
 
+  /** Gets the data on the arc indexed by the specific two keys. */
   def apply(ij: (K, K)) = apply(ij._1, ij._2)
 
   /** Optionally retrieves the data on the edge indexed by the specific two keys. */
@@ -52,7 +53,6 @@ trait Graph[@sp(Int) K, @sp(Double) +E] extends EqStateSpace[K] with KeyedLike[K
   /** Returns the outgoing set of keys of a given key. */
   def outgoingKeySet(i: K): Set[K]
 
-  // NODES
   /** Gets the node with the specific key. */
   def node(i: K): GraphNode[K, E] = new NodeProxy(self, i)
 
@@ -109,10 +109,9 @@ trait Graph[@sp(Int) K, @sp(Double) +E] extends EqStateSpace[K] with KeyedLike[K
 
   /**
    * Returns the reverse/transpose graph of the original graph.
- *
    * @return The reverse graph, in which every edge is reversed
    */
-  def reverse: BiGraph[K, E] = AdjacencyListBiGraph from (arcs map { case (i, j, e) => (j, i, e) })
+  def reverse: BidiGraph[K, E] = AdjacencyListBidiGraph from (arcs map { case (i, j, e) => (j, i, e) })
 
   /** Casts this graph as a multimap that maps a key to the outgoing set of that key. */
   def asMultimap: Multimap[K, K] = new GraphT.AsMultimap(self)
@@ -136,7 +135,7 @@ object Graph {
       case that: NodeProxy[K, E] => (this.graph eq that.graph) && graph.keyEq.eq(this.key, that.key)
       case _ => false
     }
-    override def hashCode = poly.algebra.Hashing.byRef.hash(graph) + (graph.keyEq match {
+    override def hashCode = hashByRef(graph) + (graph.keyEq match {
       case hk: Hashing[K] => hk.hash(key)
       case _ => key.##
     })

@@ -17,7 +17,7 @@ class IterableTest extends FunSuite {
   test("Iterable equality") { s iterable_=== p }
 
   test("Iterable.map") { s.map(_ * 2) iterable_=== p.map(_ * 2) }
-  test("Iterable.flatMap") { s.flatMap(x => scala.Iterable.tabulate(x)(i => x)) iterable_=== p.flatMap(x => x.repeat(x)) }
+
   test("Iterable.product") { (for (x ← s; y ← s) yield (x, y)) iterable_=== (p monadicProduct p) }
 
   test("Iterable.filter") { s.filter(_ < 400) iterable_=== p.filter(_ < 400) }

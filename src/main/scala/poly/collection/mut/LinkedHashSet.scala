@@ -44,7 +44,7 @@ class LinkedHashSet[T: Hashing] private(val data: OpenHashTable[T, LinkedHashSet
 
   def keyEq = Hashing[T]
 
-  def keys: BiSeq[T] = BiSeq.ofDummyNode(dummy)
+  def keys: BidiSeq[T] = BidiSeq.ofDummyNode(dummy)
 
   override def elements = keys
 
@@ -54,7 +54,7 @@ class LinkedHashSet[T: Hashing] private(val data: OpenHashTable[T, LinkedHashSet
 object LinkedHashSet extends BuilderFactoryA_EvA[LinkedHashSet, Hashing] {
 
   private[poly] class Entry[K](val key: K, var prev: Entry[K], var next: Entry[K])
-    extends OpenHashEntryLike[K, Entry[K]] with BiSeqNode[K] {
+    extends OpenHashEntryLike[K, Entry[K]] with BidiSeqNode[K] {
     def data = key
     def isDummy = false
   }

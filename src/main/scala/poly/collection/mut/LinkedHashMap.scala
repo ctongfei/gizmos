@@ -71,7 +71,7 @@ class LinkedHashMap[K: Hashing, V] private(private[poly] val data: OpenHashTable
     def keyEq = Hashing[K]
   }
 
-  override def pairs: BiSeq[(K, V)] = BiSeq.ofDummyNode(dummy)
+  override def pairs: BidiSeq[(K, V)] = BidiSeq.ofDummyNode(dummy)
 
   override def values = pairs map second
 
@@ -80,7 +80,7 @@ class LinkedHashMap[K: Hashing, V] private(private[poly] val data: OpenHashTable
 object LinkedHashMap extends BuilderFactoryAB_EvA[LinkedHashMap, Hashing] {
 
   private[poly] class Entry[K, V](val key: K, var value: V, var prev: Entry[K, V], var next: Entry[K, V])
-    extends OpenHashEntryLike[K, Entry[K, V]] with BiSeqNode[(K, V)] {
+    extends OpenHashEntryLike[K, Entry[K, V]] with BidiSeqNode[(K, V)] {
     def data = (key, value)
     def isDummy = false
   }

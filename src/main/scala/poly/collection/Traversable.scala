@@ -302,7 +302,7 @@ trait Traversable[+T] { self =>
 
 
   /** Returns the reverse of this collection. $EAGER */
-  def reverse: BiIterable[T] = self.to(ArraySeq).reverse
+  def reverse: BidiIterable[T] = self.to(ArraySeq).reverse
 
   /** Returns a randomly shuffled version of this collection. $EAGER */
   def shuffle: IndexedSeq[T] = {

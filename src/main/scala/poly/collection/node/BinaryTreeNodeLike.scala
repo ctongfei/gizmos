@@ -24,7 +24,7 @@ trait BinaryTreeNodeLike[+T, +N <: BinaryTreeNodeLike[T, N]] extends ForwardNode
    * Performs pre-order traversal from this node.
    * @return A non-strict sequence of the pre-order traversal.
    */
-  def nodePreOrder: Iterable[N] = Iterable.ofIterator {
+  def preOrderTraversal: Iterable[N] = Iterable.ofIterator {
     new AbstractIterator[N] {
       private val s = ArrayStack[N](self)
       private var curr: N = default[N]
@@ -44,7 +44,7 @@ trait BinaryTreeNodeLike[+T, +N <: BinaryTreeNodeLike[T, N]] extends ForwardNode
    * Performs in-order traversal from this node. $LAZY
    * @return A non-strict sequence of the in-order traversal.
    */
-  def nodeInOrder: BiIterable[N] = {
+  def inOrderTraversal: BidiIterable[N] = {
     class ForwardInOrderIterator extends Iterator[N] {
       private[this] val s = ArrayStack[N]()
       private[this] var v: N = default[N]
@@ -91,14 +91,14 @@ trait BinaryTreeNodeLike[+T, +N <: BinaryTreeNodeLike[T, N]] extends ForwardNode
       }
       def current = curr
     }
-    BiIterable.ofIterator(new ForwardInOrderIterator, new BackwardInOrderIterator)
+    BidiIterable.ofIterator(new ForwardInOrderIterator, new BackwardInOrderIterator)
   }
 
   /**
    * Performs post-order traversal from this node. $LAZY
    * @return A non-strict sequence of the post-order traversal.
    */
-  def nodePostOrder: Iterable[N] = Iterable.ofIterator {
+  def postOrderTraversal: Iterable[N] = Iterable.ofIterator {
     new AbstractIterator[N] {
       private[this] val s = ArrayStack[N]()
       private[this] var v: N = default[N]

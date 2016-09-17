@@ -360,7 +360,7 @@ trait Seq[+T] extends Iterable[T] with IntKeyedSortedMap[T] { self =>
     ofHeadNode(new CycleNode(self.headNode))
   }
 
-  override def reverse: BiSeq[T] = self.to(ArraySeq).reverse
+  override def reverse: BidiSeq[T] = self.to(ArraySeq).reverse
 
 
   override def asIfSorted(implicit T: Order[T]): SortedSeq[T @uv] = new SortedSeq[T] {
@@ -563,7 +563,7 @@ object Seq extends FactoryA[Seq] {
   implicit object Comonad extends Comonad[Seq] {
     //TODO: actually should be Comonad[NonEmptySeq] ?
     def id[X](u: Seq[X]) = u.head
-    def extend[X, Y](wx: Seq[X])(f: Seq[X] => Y) = wx.suffixes.map(f)
+    def extend[X, Y](wx: Seq[X])(f: Seq[X] => Y) = wx.suffixes map f
   }
 }
 

@@ -20,14 +20,3 @@ trait GraphNode[K, +E] extends ForwardNodeLike[K, GraphNode[K, E]] {
 
   def isDummy: Boolean
 }
-
-
-
-trait GraphEdge[K, +E] {
-  def key1: K
-  def key2: K
-  def node1: GraphNode[K, E]
-  def node2: GraphNode[K, E]
-
-  def data: E
-}

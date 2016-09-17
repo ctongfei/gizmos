@@ -59,8 +59,8 @@ trait Table[+T] extends Map[(Int, Int), T] { self =>
   override def size = numRows * numCols
 
   def topLeftNode = new Table.NodeProxy(self, 0, 0)
-  def bottomRightNode = new Table.NodeProxy(self, numRows - 1, numCols - 1)
 
+  def bottomRightNode = new Table.NodeProxy(self, numRows - 1, numCols - 1)
 
   def row(i: Int): IndexedSeq[T] = Range(numCols) map (j => self(i, j))
 
@@ -72,25 +72,29 @@ trait Table[+T] extends Map[(Int, Int), T] { self =>
 
   def curry = rows
 
-  override def map[U](f: T => U): Table[U] = new AbstractTable[U] {
-    def numCols = self.numCols
-    def numRows = self.numRows
-    def apply(i: Int, j: Int) = f(self(i, j))
-  }
+  def slice(topLeftI: Int, topLeftJ: Int, botRightI: Int, botRightJ: Int): Table[T] =
+    new TableT.Sliced(self, topLeftI, topLeftJ, botRightI, botRightJ)
+
+  def takeRows(i: Int) = slice(0, 0, i, self.numCols)
+
+  def dropRows(i: Int) = slice(i, 0, self.numRows, self.numCols)
+
+  def takeCols(j: Int) = slice(0, 0, self.numRows, j)
+
+  def dropCols(j: Int) = slice(0, j, self.numRows, self.numCols)
+
+  override def map[U](f: T => U): Table[U] = new TableT.Mapped(self, f)
 
   /** Transposes this table. */
   def transpose: Table[T] = new TableT.Transposed(self)
 
-  def zip[U](that: Table[U]): Table[(T, U)] = new AbstractTable[(T, U)] {
-    def numRows = min(self.numRows, that.numRows)
-    def numCols = min(self.numRows, that.numRows)
-    def apply(i: Int, j: Int) = (self(i, j), that(i, j))
-  }
+  def zip[U](that: Table[U]) = zipWith(that) { (t, u) => (t, u) }
 
-  def sliding(i: Int, j: Int, rowStep: Int = 1, colStep: Int = 1): Table[Table[T]] = ???
+  def zipWith[U, V](that: Table[U])(f: (T, U) => V): Table[V] = new TableT.ZippedWith(self, that, f)
+
+  def sliding(i: Int, j: Int, rowStep: Int = 1, colStep: Int = 1): Table[Table[T]] = new TableT.Sliding(self, i, j, rowStep, colStep)
 
   // OVERRIDING JAVA METHODS
-
   override def equals(that: Any) = that match {
     case that: Table[T] => Table.Eq[T](Eq.default[T]).eq(self, that)
     case _ => false
@@ -109,7 +113,7 @@ trait Table[+T] extends Map[(Int, Int), T] { self =>
 
 object Table {
 
-  class NodeProxy[+T](val table: Table[T], val i: Int, val j: Int) extends BiNode[T] {
+  class NodeProxy[+T](val table: Table[T], val i: Int, val j: Int) extends BidiNode[T] {
     def right = new NodeProxy(table, i, j + 1)
     def left = new NodeProxy(table, i, j - 1)
     def up = new NodeProxy(table, i - 1, j)
@@ -153,11 +157,34 @@ private[poly] object TableT {
     }
   }
 
+  class Mapped[T, U](self: Table[T], f: T => U) extends AbstractTable[U] {
+    def numCols = self.numCols
+    def numRows = self.numRows
+    def apply(i: Int, j: Int) = f(self(i, j))
+  }
+
+  class ZippedWith[T, U, V](self: Table[T], that: Table[U], f: (T, U) => V) extends AbstractTable[V] {
+    val numRows = min(self.numRows, that.numRows)
+    val numCols = min(self.numRows, that.numRows)
+    def apply(i: Int, j: Int) = f(self(i, j), that(i, j))
+  }
+
   class Transposed[T](self: Table[T]) extends AbstractTable[T] {
-    def numCols = self.numRows
-    def numRows = self.numCols
+    val numCols = self.numRows
+    val numRows = self.numCols
     def apply(i: Int, j: Int) = self(j, i)
     override def transpose = self
   }
 
+  class Sliced[T](self: Table[T], topLeftI: Int, topLeftJ: Int, botRightI: Int, botRightJ: Int) extends AbstractTable[T] {
+    val numRows = botRightI - topLeftI
+    val numCols = botRightJ - topLeftJ
+    def apply(i: Int, j: Int) = self.apply(topLeftI + i, topLeftJ + j)
+  }
+
+  class Sliding[T](self: Table[T], i: Int, j: Int, rowStep: Int = 1, colStep: Int = 1) extends AbstractTable[Table[T]] {
+    val numRows = (self.numRows - i) / rowStep
+    val numCols = (self.numCols - j) / colStep
+    def apply(m: Int, n: Int) = self.slice(m * rowStep, n * colStep, m * rowStep + i, n * colStep + j)
+  }
 }

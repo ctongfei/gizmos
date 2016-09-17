@@ -43,8 +43,8 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
    */
   def apply(k: K): V
 
-  /** Returns the number of (key, value) pairs this map contains. */
-  def size: Int = pairs.size
+  /** Returns the number of key-value pairs that this map contains. */
+  def size: Int = keys.size
 
   /** Returns an iterable collection of the keys in this map. $LAZY */
   def keys = keySet.keys
@@ -66,6 +66,7 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
    * @note For performance reasons, this method should be overridden. */
   def pairs: Iterable[(K, V)] = keys map { k => (k, apply(k)) }
 
+  /** Returns all values associated with each key in this map. $LAZY */
   def values = keys map apply
 
   // HELPER FUNCTIONS
@@ -174,6 +175,8 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
 
   def asMultimap[W >: V](implicit W: Eq[W]): Multimap[K, W] = new MapT.AsMultimap(self, W)
 
+  def asMultiset[W >: V](implicit W: OrderedRing[W]): Multiset[K, W] = new MapT.AsMultiset(self, W)
+
   // SYMBOLIC ALIASES
   def ×[L, W](that: Map[L, W]) = self product that
 
@@ -220,7 +223,7 @@ object Map extends FactoryAB_EvA[Map, Eq] with MapLowPriorityTypeclassInstances 
      * }}}
      * @note The user should guarantee that the implicit equivalence relation of K and L
      *       conforms to the equivalence relation on pair (K, L) stored in this map. I.e.,
-     *       `(K product L)` should behave exactly the same as `m.eqOnKeys`.
+     *       `(K product L)` should behave exactly the same as [[Map.keyEq]].
      * @note This function incurs some overhead (traversing through the key set).
      */
     def curry(implicit K: Eq[K], L: Eq[L]): Map[K, Map[L, V]] = new AbstractMap[K, Map[L, V]] {
@@ -390,9 +393,6 @@ private[poly] object MapT {
       case (None, None) => None
       case res => Some(res)
     }
-    override def pairs =
-      (self.pairs map { case (k, v) => k -> (Some(v), that ? k) }) ++
-        (that.pairs filter { case (k, w) => self notContainsKey k } map { case (k, w) => k -> (None, Some(w)) })
   }
 
   class SymmetricDiff[K, V, W](self: Map[K, V], that: Map[K, W]) extends AbstractMap[K, Either[V, W]] {
@@ -424,7 +424,7 @@ private[poly] object MapT {
     override def pairs = self.pairs
   }
 
-  class AsMultimap[K, V](self: Map[K, V], implicit val valueEq: Eq[V]) extends Multimap[K, V] {
+  class AsMultimap[K, V](self: Map[K, V], implicit val valueEq: Eq[V]) extends AbstractMultimap[K, V] {
     def keySet = self.keySet
     override def pairs = self.pairs
     def apply(k: K) = self ? k match {
@@ -433,4 +433,9 @@ private[poly] object MapT {
     }
   }
 
+  class AsMultiset[K, R](self: Map[K, R], implicit val R: OrderedRing[R]) extends AbstractMultiset[K, R] {
+    implicit def weightRing = R
+    def keySet = self.keySet
+    def weight(k: K) = if (self.containsKey(k)) R.one else R.zero
+  }
 }

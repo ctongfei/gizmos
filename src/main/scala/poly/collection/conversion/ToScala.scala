@@ -98,6 +98,7 @@ object ToScala {
     }
   }
 
+  /* //TODO: 0.2.0
   implicit class PolySortedSetAsScala[T](val xs: SortedSet[T]) extends AnyVal {
     def asScalaSortedSet: sc.SortedSet[T] = new sc.AbstractSet[T] with sc.SortedSet[T] {
       implicit def ordering = xs.keyOrder.asScalaOrdering
@@ -109,5 +110,5 @@ object ToScala {
       def iterator = xs.elements.newIterator.asScalaIterator
     }
   }
-
+  */
 }

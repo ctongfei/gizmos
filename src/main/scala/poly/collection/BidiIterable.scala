@@ -6,21 +6,21 @@ package poly.collection
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait BiIterable[+T] extends Iterable[T] { self =>
+trait BidiIterable[+T] extends Iterable[T] { self =>
 
-  import BiIterable._
+  import BidiIterable._
 
   /** Returns an iterator that iterates through this collection in reverse order. */
   def newReverseIterator: Iterator[T]
 
   /** Returns the reverse of this iterable collection. $LAZY */
-  override def reverse: BiIterable[T] = new AbstractBiIterable[T] {
+  override def reverse: BidiIterable[T] = new AbstractBidiIterable[T] {
     def newReverseIterator = self.newIterator
     def newIterator = self.newReverseIterator
     override def reverse = self
   }
 
-  override def map[U](f: T => U): BiIterable[U] = new AbstractBiIterable[U] {
+  override def map[U](f: T => U): BidiIterable[U] = new AbstractBidiIterable[U] {
     def newIterator = new AbstractIterator[U] {
       private[this] val i = self.newIterator
       def current = f(i.current)
@@ -39,20 +39,20 @@ trait BiIterable[+T] extends Iterable[T] { self =>
 
   override def last = reverse.head
 
-  def asBiIterable = new AbstractBiIterable[T] {
+  def asBiIterable = new AbstractBidiIterable[T] {
     def newReverseIterator = self.newReverseIterator
     def newIterator = self.newIterator
   }
 
 }
 
-object BiIterable {
+object BidiIterable {
 
-  def ofIterator[T](forward: => Iterator[T], backward: => Iterator[T]): BiIterable[T] = new BiIterable[T] {
+  def ofIterator[T](forward: => Iterator[T], backward: => Iterator[T]): BidiIterable[T] = new BidiIterable[T] {
     def newReverseIterator = backward
     def newIterator = forward
   }
 
 }
 
-abstract class AbstractBiIterable[+T] extends AbstractIterable[T] with BiIterable[T]
+abstract class AbstractBidiIterable[+T] extends AbstractIterable[T] with BidiIterable[T]

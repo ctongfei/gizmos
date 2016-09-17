@@ -97,7 +97,7 @@ private[poly] object KeyMutableMapT {
     override def pairs = self.pairs
     def apply(k: K) = (this ? k) getOrElse {
       self.addInplace(k, default)
-      self(k) //TODO
+      self(k)
     }
     def ?(k: K) = self ? k
 }

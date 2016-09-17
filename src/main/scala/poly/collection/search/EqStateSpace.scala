@@ -34,30 +34,30 @@ trait EqStateSpace[@sp(Int) S] extends StateSpace[S] with Keyed[S] with Relation
     Iterable.ofIterator(new BreadthFirstIterator(this, start))
 
   /** Finds a path to a state that satisfy the given condition from a specified starting state using depth-first search. */
-  def depthFirstSearch(start: S)(goal: S => Boolean): BiSeq[S] =
+  def depthFirstSearch(start: S)(goal: S => Boolean): BidiSeq[S] =
     searchByIterator(new DepthFirstBacktrackableIterator(this, start), goal)
 
   /** Finds the path between two states using depth-first search. */
-  def depthFirstSearch(start: S, goal: S): BiSeq[S] =
+  def depthFirstSearch(start: S, goal: S): BidiSeq[S] =
     depthFirstSearch(start)(goal === _)
 
   /** Finds a path to a state that satisfy the given condition from a specified starting state using breadth-first search. */
-  def breadthFirstSearch(start: S)(goal: S => Boolean): BiSeq[S] =
+  def breadthFirstSearch(start: S)(goal: S => Boolean): BidiSeq[S] =
     searchByIterator(new BreadthFirstBacktrackableIterator(this, start), goal)
 
   /** Finds the path between two states using breadth-first search. */
-  def breadthFirstSearch(start: S, goal: S): BiSeq[S] =
+  def breadthFirstSearch(start: S, goal: S): BidiSeq[S] =
     breadthFirstSearch(start)(goal === _)
 
 }
 
 object EqStateSpace {
 
-  private[collection] def searchByIterator[S, N <: node.WithParent[S]](si: SearchIterator[N, S], goal: S => Boolean): BiSeq[S] = {
+  private[collection] def searchByIterator[S, N <: node.WithParent[S]](si: SearchIterator[N, S], goal: S => Boolean): BidiSeq[S] = {
     while (si.advance())
       if (goal(si.current))
         return si.currentNode.pathToRoot.map(_.data).reverse
-    BiSeq.empty
+    BidiSeq.empty
   }
 
   def apply[S: Eq](f: S => Traversable[S]): EqStateSpace[S] = new EqStateSpaceT.BySucc(f, Eq[S])

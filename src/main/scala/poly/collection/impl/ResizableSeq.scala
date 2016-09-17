@@ -29,7 +29,7 @@ final class ResizableSeq[T]
   private[poly] var data: Array[AnyRef] = Array.ofDim[AnyRef](math.max(nextPowerOfTwo(cap), Settings.ArrayInitialSize))
   private[poly] var len: Int = 0
 
-  case class Node(i: Int) extends BiSeqNode[T] {
+  case class Node(i: Int) extends BidiSeqNode[T] {
     override val isDummy = i < 0 || i >= len
     def data = self.data(i).asInstanceOf[T]
     def prev = new Node(i - 1)

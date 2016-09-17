@@ -1,6 +1,5 @@
 package poly.collection
 
-import poly.algebra._
 import poly.algebra.specgroup._
 
 /**

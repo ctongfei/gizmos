@@ -25,6 +25,10 @@ trait Func[@sp(spFunc1) -A, @sp(spFuncR) +B] extends (A => B) { self =>
     ac: (A, C) => (self(ac._1), that(ac._2))
   }
 
+  def zipWith[A1 <: A, C, D](that: A1 => C)(f: (B, C) => D): Func[A1, D] = (a: A1) => f(self(a), that(a))
+
+  def zip[A1 <: A, C](that: A1 => C) = (a: A1) => (self(a), that(a))
+
   /** Casts this binary function as a binary relation. */
   def asRelation[C >: B : Eq]: Relation[A, C] = new FuncT.AsRelation(self, Eq[C])
 
@@ -53,8 +57,8 @@ object Func {
 
 private[poly] object FuncT {
 
-  class AsRelation[A, B](self: A => B, e: Eq[B]) extends Relation[A, B] {
-    def related(a: A, b: B) = e.eq(self(a), b)
+  class AsRelation[A, B](self: A => B, B: Eq[B]) extends Relation[A, B] {
+    def related(a: A, b: B) = B.eq(self(a), b)
   }
 
 }

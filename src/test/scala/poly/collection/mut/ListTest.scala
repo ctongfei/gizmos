@@ -13,7 +13,7 @@ class ListTest extends FunSuite {
   }
 
   test("ListBiSeq") {
-    val lbs = ListBiSeq[Int](1, 2, 3, 4)
+    val lbs = ListBidiSeq[Int](1, 2, 3, 4)
 
     lbs.reverseInplace()
 

@@ -37,11 +37,11 @@ trait BinaryTree[+T] { self =>
 
   def root: T = rootNode.data
 
-  /** Returns the maximal height of this tree. */ //TODO: a recursive-free version?
-  def height: Int = fold(0)((l, r, _) => math.max(l, r) + 1)
+  /** Returns the maximal height of this tree. */
+  def height: Int = fold(0) { (l, r, _) => math.max(l, r) + 1 }
 
   /** Returns the number of nodes in this tree. */
-  def size: Int = rootNode.nodePreOrder.size
+  def size: Int = rootNode.preOrderTraversal.size
 
   def isEmpty = rootNode.isDummy
 
@@ -87,16 +87,16 @@ trait BinaryTree[+T] { self =>
   }
 
   /** Folds a binary tree bottom-up. This is analogous to the sequence `foldRight` in that both
-    * are catamorphisms on recursive structures.
-    */
+   * are catamorphisms on recursive structures.
+   */ // Deliberately implemented in a non-recursive manner to boost performance
   def fold[U](z: U)(f: (U, U, T) => U): U = {
     val s = ArrayStack[U]()
-    for (n <- rootNode.nodePostOrder) {
-      if (n.leftNode .isDummy) s push z
-      if (n.rightNode.isDummy) s push z
+    for (n <- rootNode.postOrderTraversal) {
+      if (n.leftNode .isDummy) s += z
+      if (n.rightNode.isDummy) s += z
       val a = s.pop()
       val b = s.pop()
-      s push f(a, b, n.data)
+      s += f(a, b, n.data)
     }
     s.top
   }
@@ -131,7 +131,7 @@ trait BinaryTree[+T] { self =>
    *    └  d   e    ┘
    * }}}
    */
-  def preOrder = rootNode.nodePreOrder.map(_.data)
+  def preOrder = rootNode.preOrderTraversal.map(_.data)
 
   /**
    * '''Lazily''' traverses this binary tree in in-order.
@@ -143,7 +143,7 @@ trait BinaryTree[+T] { self =>
    *    └  d   e    ┘
    * }}}
    */
-  def inOrder = rootNode.nodeInOrder.map(_.data)
+  def inOrder = rootNode.inOrderTraversal.map(_.data)
 
   /**
    * Returns the reflected mirror image of this binary tree.
@@ -178,7 +178,7 @@ trait BinaryTree[+T] { self =>
    *    └  d   e    ┘
    * }}}
    */
-  def postOrder = rootNode.nodePostOrder.map(_.data)
+  def postOrder = rootNode.postOrderTraversal.map(_.data)
 
   /**
    * '''Lazily''' traverses this binary tree in level-order.
@@ -192,7 +192,9 @@ trait BinaryTree[+T] { self =>
    */
   def levelOrder = rootNode.breadthFirstTreeTraversal.map(_.data)
 
-  def leaves = rootNode.nodePreOrder.filter(_.isLeaf).map(_.data)
+  def leafNodes = rootNode.preOrderTraversal.filter(_.isLeaf)
+
+  def leaves = leafNodes.map(_.data)
 
   /**
    * Performs inverse Knuth transform on this binary tree, i.e., recover the multi-way tree
@@ -246,7 +248,7 @@ trait BinaryTree[+T] { self =>
 
   def asTree: OrderedTree[T] = {
     class BinaryTreeAsTreeNode(n: BinaryTreeNode[T]) extends OrderedTreeNode[T] {
-      def children = ListSeq(n.leftNode, n.rightNode).filter(_.notDummy).map(n => new BinaryTreeAsTreeNode(n))
+      def children = n.children.map(n => new BinaryTreeAsTreeNode(n))
       def data = n.data
       def isDummy = n.isDummy
     }

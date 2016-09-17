@@ -2,8 +2,8 @@ package poly.collection
 
 import poly.algebra.specgroup._
 import poly.collection.exception._
+import poly.collection.immut._
 import poly.macroutil._
-
 import scala.annotation.unchecked.{uncheckedVariance => uv}
 
 /**
@@ -26,6 +26,7 @@ import scala.annotation.unchecked.{uncheckedVariance => uv}
  * @author Tongfei Chen
  * @since 0.1.0
  */
+// Specializes the types where a specialized iterator type exists in Java 8
 trait Iterator[@sp(Int, Long, Double, Char) +T] { self =>
 
   /** Returns the current element of this iterator. This method should be side-effect free. */
@@ -60,9 +61,9 @@ trait Iterator[@sp(Int, Long, Double, Char) +T] { self =>
     while (self.advance()) f(self.current)
   }
 
-  private[poly] def asLazyFSeq: immut.LazyFSeq[T] = {
-    if (self.advance()) immut.LazyFSeq.Cons(self.current, self.asLazyFSeq)
-    else immut.LazyFSeq.Empty
+  private[poly] def asLazyList: LazyList[T] = {
+    if (self.advance()) LazyList.Cons(self.current, self.asLazyList)
+    else LazyList.Empty
   }
 
   override def toString = try { s"⋯ $current ⋯" } catch {

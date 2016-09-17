@@ -1,6 +1,8 @@
 package poly.collection.immut
 
 import poly.collection._
+import poly.collection.builder._
+import poly.collection.factory._
 import poly.collection.node._
 
 /**
@@ -9,25 +11,26 @@ import poly.collection.node._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-sealed abstract class FSeq[+T] extends AbstractSeq[T] with SeqNodeLike[T, FSeq[T]] with SeqNode[T] { self =>
+sealed abstract class List[+T] extends AbstractSeq[T] with SeqNodeLike[T, List[T]] with SeqNode[T] { self =>
 
-  import FSeq._
+  import List._
 
   final def headNode = self
 
-  def mapE[U](f: T => U): FSeq[U] = self match {
+  /** The eager version of `map`. */
+  def mapE[U](f: T => U): List[U] = self match {
     case Empty      => Empty
     case Cons(h, t) => Cons(f(h), t mapE f)
   }
 
-  def next: FSeq[T]
+  def next: List[T]
   final override def tail = next
   final override def head = data
 
   /** The `Cons` operation on `FSeq`s. */
   def ::[U >: T](u: U) = Cons(u, self)
 
-  final override def drop(n: Int): FSeq[T] =
+  final override def drop(n: Int): List[T] =
     if (n <= 0) self
     else self match {
       case Empty      => Empty
@@ -37,15 +40,21 @@ sealed abstract class FSeq[+T] extends AbstractSeq[T] with SeqNodeLike[T, FSeq[T
   override def toString = super[AbstractSeq].toString
 }
 
-object FSeq {
+object List extends SeqFactory[List] {
 
-  case object Empty extends FSeq[Nothing] {
+  implicit def newBuilder[T]: Builder[T, List[T]] = new Builder[T, List[T]] {
+    private[this] var head: List[T] = List.Empty
+    def addInplace(x: T) = head = Cons(x, head)
+    def result = head
+  }
+
+  case object Empty extends List[Nothing] {
     def isDummy = true
     def next = Empty
     def data = throw new NoSuchElementException
   }
 
-  case class Cons[+T](h: T, t: FSeq[T] = Empty) extends FSeq[T] with NonEmptySeq[T] {
+  case class Cons[+T](h: T, t: List[T] = Empty) extends List[T] with NonEmptySeq[T] {
     final def isDummy = false
     def next = t
     def data = h

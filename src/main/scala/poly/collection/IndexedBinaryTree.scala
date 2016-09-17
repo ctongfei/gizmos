@@ -9,9 +9,9 @@ import poly.collection.node._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait IndexedBinaryTree[+T] extends BiBinaryTree[T] { self =>
+trait IndexedBinaryTree[+T] extends BidiBinaryTree[T] { self =>
 
-  class Node(val i: Int) extends BiBinaryTreeNode[T] {
+  class Node(val i: Int) extends BidiBinaryTreeNode[T] {
     def isDummy = self.notContains(i)
     def data = self(i)
     def parent = new Node((i - 1) / 2)

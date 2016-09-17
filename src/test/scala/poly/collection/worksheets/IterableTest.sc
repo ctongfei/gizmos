@@ -56,7 +56,7 @@ e.reduceLeft(_+_)
 
 e.to(ArraySeq)
 e.to(ListSeq)
-e.to(ListBiSeq)
+e.to(ListBidiSeq)
 e.reverse
 e
 e.map(_ + 1)

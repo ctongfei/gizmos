@@ -27,10 +27,10 @@ trait ForwardNodeLike[+T, +N <: ForwardNodeLike[T, N]] extends NodeLike[T, N] { 
   def depthFirstTraversal = StateSpace[T, N].depthFirstTraversal(self)
   def breadthFirstTraversal = StateSpace[T, N].breadthFirstTraversal(self)
 
-  def depthFirstSearch(goal: T => Boolean): BiSeq[N] = StateSpace[T, N].depthFirstSearch(self)(x => goal(x.data))
-  def breadthFirstSearch(goal: T => Boolean): BiSeq[N] = StateSpace[T, N].breadthFirstSearch(self)(x => goal(x.data))
-  def depthFirstSearch[U >: T : Eq](goal: U): BiSeq[N] = depthFirstSearch(goal === _)
-  def breadthFirstSearch[U >: T : Eq](goal: U): BiSeq[N] = breadthFirstSearch(goal === _)
+  def depthFirstSearch(goal: T => Boolean): BidiSeq[N] = StateSpace[T, N].depthFirstSearch(self)(x => goal(x.data))
+  def breadthFirstSearch(goal: T => Boolean): BidiSeq[N] = StateSpace[T, N].breadthFirstSearch(self)(x => goal(x.data))
+  def depthFirstSearch[U >: T : Eq](goal: U): BidiSeq[N] = depthFirstSearch(goal === _)
+  def breadthFirstSearch[U >: T : Eq](goal: U): BidiSeq[N] = breadthFirstSearch(goal === _)
 
   override def toString = s"[$dataString → ${succ map {_.data}}]"
 }

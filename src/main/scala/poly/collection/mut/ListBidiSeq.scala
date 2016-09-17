@@ -11,9 +11,9 @@ import poly.collection.node._
  * @since 0.1.0
  * @author Tongfei Chen
  */
-class ListBiSeq[T] private() extends AbstractBiSeq[T] with KeyMutableSeq[T] {
+class ListBidiSeq[T] private() extends AbstractBidiSeq[T] with KeyMutableSeq[T] {
 
-  type Node = ListBiSeq.Node[T]
+  type Node = ListBidiSeq.Node[T]
 
   override val dummy: Node = new Node(default[T], dummy, dummy) { override def isDummy = true }
 
@@ -115,7 +115,7 @@ class ListBiSeq[T] private() extends AbstractBiSeq[T] with KeyMutableSeq[T] {
   }
 }
 
-object ListBiSeq extends SeqFactory[ListBiSeq] {
+object ListBidiSeq extends SeqFactory[ListBidiSeq] {
 
   /**
    * Type of the internal node of a linked list.
@@ -124,12 +124,12 @@ object ListBiSeq extends SeqFactory[ListBiSeq] {
    * @param prev The previous node
    * @param next The next node
    */
-  private[poly] class Node[T](var data: T, var prev: Node[T], var next: Node[T]) extends BiSeqNode[T] {
+  private[poly] class Node[T](var data: T, var prev: Node[T], var next: Node[T]) extends BidiSeqNode[T] {
     def isDummy = false
   }
 
-  implicit def newBuilder[T]: Builder[T, ListBiSeq[T]] = new Builder[T, ListBiSeq[T]] {
-    private[this] val l = new ListBiSeq[T]()
+  implicit def newBuilder[T]: Builder[T, ListBidiSeq[T]] = new Builder[T, ListBidiSeq[T]] {
+    private[this] val l = new ListBidiSeq[T]()
     def result = l
     def addInplace(x: T) = l.appendInplace(x)
   }

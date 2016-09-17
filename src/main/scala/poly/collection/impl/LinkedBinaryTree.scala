@@ -149,7 +149,7 @@ object LinkedBinaryTree {
                   var leftNode: Node[T],
                   var rightNode: Node[T],
                   var parent: Node[T]
-  ) extends BiBinaryTreeNode[T] {
+  ) extends BidiBinaryTreeNode[T] {
     def isDummy = false
   }
 

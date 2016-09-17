@@ -1,5 +1,14 @@
 package poly.collection
 
+import poly.collection.immut._
+
+object :: {
+  def unapply[T](t: List[T]) = t match {
+    case List.Cons(h, t) => Some(h, t)
+    case _ => None
+  }
+}
+
 object +: {
 
   /** Decomposes a sequence into its head and its tail. */
@@ -7,6 +16,7 @@ object +: {
     if (t.isEmpty) None
     else Some((t.head, t.tail))
   }
+
 }
 
 object :+ {

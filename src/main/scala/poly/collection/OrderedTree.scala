@@ -6,7 +6,7 @@ import poly.collection.mut._
 import poly.collection.node._
 
 /**
- * Represents a multi-way tree in which the children of each node has an order (form a sequence).
+ * Represents a multi-way tree in which the children of each node are ordered (form a sequence instead of a set).
  * @author Tongfei Chen
  * @since 0.1.0
  */
@@ -41,7 +41,7 @@ trait OrderedTree[+T] extends Tree[T] { self =>
   }
 
   /**
-   * '''Lazily''' performs the Knuth transform on this tree, i.e. representing this multi-way tree
+   * '''Lazily''' performs the Knuth transform on this tree, i.e. representing this multi-way ordered tree
    * into its equivalent left-child-right-sibling (LC-RS) binary tree.
    * @example {{{
    *  ┌     a   ┐                   ┌     a   ┐
@@ -56,7 +56,7 @@ trait OrderedTree[+T] extends Tree[T] { self =>
    */
   def knuthTransform: BinaryTree[T] = new AbstractBinaryTree[T] {
     class LcRsNode(val node: SeqNode[OrderedTreeNode[T]]) extends BinaryTreeNode[T] {
-      override def isDummy = node.isDummy || node.data.isDummy
+      def isDummy = node.isDummy || node.data.isDummy
       def data = node.data.data
       def leftNode = new LcRsNode(node.data.children.headNode)
       def rightNode = new LcRsNode(node.next)
@@ -68,16 +68,12 @@ trait OrderedTree[+T] extends Tree[T] { self =>
   // Comonadic operation
   override def subtrees: OrderedTree[OrderedTree[T]] = {
     class TreeOfTreeNode(n: OrderedTreeNode[T]) extends OrderedTreeNode[OrderedTree[T]] {
-      def children: Seq[OrderedTreeNode[OrderedTree[T]]] = n.children.map(tn => new TreeOfTreeNode(tn))
-      def data: OrderedTree[T] = ofRootNode(n)
-      def isDummy: Boolean = n.isDummy
+      def children = n.children.map(tn => new TreeOfTreeNode(tn))
+      def data = ofRootNode(n)
+      def isDummy = n.isDummy
     }
     ofRootNode(new TreeOfTreeNode(self.rootNode))
   }
-
-
-  //def postOrder = knuthTransform.inOrder //TODO: a more efficient implementation?
-
 
   override def toString =
     "(" + root.toString +

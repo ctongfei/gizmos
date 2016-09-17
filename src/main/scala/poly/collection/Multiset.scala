@@ -18,12 +18,14 @@ import poly.algebra.specgroup._
  */
 trait Multiset[@sp(Int) K, @sp(Int, Double) R] extends KeyedLike[K, Multiset[K, R]] { self =>
 
-  implicit def keyEq: Eq[K]
+  def keySet: Set[K]
 
   /** Returns the ring structure endowed on the counts of this multiset. */
   implicit def weightRing: OrderedRing[R]
 
-  def contains(k: K): Boolean
+  implicit def keyEq: Eq[K] = keySet.keyEq
+
+  def contains(k: K) = keySet contains k
 
   final def notContains(k: K) = !contains(k)
 
@@ -32,7 +34,7 @@ trait Multiset[@sp(Int) K, @sp(Int, Double) R] extends KeyedLike[K, Multiset[K, 
   /** Returns the weight (multiplicity) of a specific element. */
   def weight(k: K): R
 
-  def keys: Iterable[K]
+  def keys = keySet.keys
 
   def keyWeightPairs = keys.map(k => k -> weight(k))
 
@@ -44,75 +46,36 @@ trait Multiset[@sp(Int) K, @sp(Int, Double) R] extends KeyedLike[K, Multiset[K, 
    * Casts this multiset as a map of keys to their corresponding weights.
    * @example {'a': 2, 'b': 3}.asMap == {'a' -> 2, 'b' -> 3}
    */
-  def asMap: Map[K, R] = new AbstractMap[K, R] {
-    def keySet = self.keySet
-    override def pairs = self.keyWeightPairs
-    def apply(k: K) = self(k)
-    def ?(k: K) = if (self.weight(k) == weightRing.zero) None else Some(self.weight(k))
-  }
+  def asMap: Map[K, R] = new MultisetT.AsMap(self)
 
-  def filterKeys(f: K => Boolean): Multiset[K, R] = new AbstractMultiset[K, R] {
-    def keyEq = self.keyEq
-    override def keyWeightPairs  = self.keyWeightPairs.filter { case (k, r) => f(k) }
-    def weight(k: K) = if (f(k)) self.weight(k) else zero[R]
-    implicit def weightRing = self.weightRing
-    def keys = self.keys.filter(f)
-    def contains(k: K) = f(k) && self.contains(k)
-  }
+  def filterKeys(f: K => Boolean): Multiset[K, R] = new MultisetT.KeyFiltered(self, f)
 
-  def keySet: Set[K] = new AbstractSet[K] {
-    def keyEq = self.keyEq
-    def keys = self.keys
-    def contains(k: K) = self.containsKey(k)
-  }
+  def scale(w: R): Multiset[K, R] = new MultisetT.Scaled(self, w)
 
-  def scale(w: R): Multiset[K, R] = new AbstractMultiset[K, R] {
-    def keyEq = self.keyEq
-    implicit def weightRing = self.weightRing
-    override def keyWeightPairs = self.keyWeightPairs.map { case (k, r) => k -> (r * w) }
-    def weight(k: K) = self.weight(k) * w
-    def keys = self.keys
-    def contains(k: K) = self.contains(k)
-  }
-
-  def intersect(that: Multiset[K, R]): Multiset[K, R] = new AbstractMultiset[K, R] {
-    implicit def keyEq = self.keyEq
-    implicit def weightRing = self.weightRing
-    def weight(k: K) = function.min(self.weight(k), that.weight(k))
-    def keys = self.keys intersect that.keys
-    def contains(k: K) = self.contains(k) && that.contains(k)
-  }
+  def intersect(that: Multiset[K, R]): Multiset[K, R] = new MultisetT.Intersection(self, that)
 
   def union(that: Multiset[K, R]): Multiset[K, R] = new AbstractMultiset[K, R] {
-    implicit def keyEq = self.keyEq
     implicit def weightRing = self.weightRing
     def weight(k: K) = function.max(self.weight(k), that.weight(k))
-    def keys = self.keys union that.keys
-    def contains(k: K) = self.contains(k) || that.contains(k)
+    def keySet = self.keySet union that.keySet
   }
 
   def multisetDiff(that: Multiset[K, R]): Multiset[K, R] = new AbstractMultiset[K, R] {
-    implicit def keyEq = self.keyEq
     implicit def weightRing = self.weightRing
     def weight(k: K) = function.max(zero[R], self.weight(k) - that.weight(k))
-    def keys = self.keys filter self.contains
-    def contains(k: K) = self.weight(k) > that.weight(k)
+    def keySet = self.keySet filter (x => self.weight(x) > that.weight(x))
   }
 
   def product[L](that: Multiset[L, R]): Multiset[(K, L), R] = new AbstractMultiset[(K, L), R] {
-    def keyEq = Eq.product(self.keyEq, that.keyEq)
     implicit def weightRing = self.weightRing
     def weight(k: (K, L)) = self.weight(k._1) * that.weight(k._2)
-    def keys = self.keys monadicProduct that.keys
-    def contains(k: (K, L)) = self.contains(k._1) && that.contains(k._2)
+    def keySet = self.keySet product that.keySet
   }
 
   def multisetAdd(that: Multiset[K, R]): Multiset[K, R] = new AbstractMultiset[K, R] {
-    implicit def keyEq = self.keyEq
     implicit def weightRing = self.weightRing
     def weight(k: K) = self.weight(k) + that.weight(k)
-    def keys = self.keys union that.keys
-    def contains(k: K) = self.contains(k) || that.contains(k)
+    def keySet = self.keySet union that.keySet
   }
 
   def subsetOf(that: Multiset[K, R]) = this.keys forall { k => this.weight(k) <= that.weight(k) }
@@ -165,13 +128,8 @@ trait Multiset[@sp(Int) K, @sp(Int, Double) R] extends KeyedLike[K, Multiset[K, 
 
 object Multiset {
 
-  def empty[K: Eq, R: OrderedRing]: Multiset[K, R] = new Multiset[K, R] {
-    def keyEq = Eq[K]
-    def weight(k: K) = OrderedRing[R].zero
-    def weightRing = OrderedRing[R]
-    def keys = Iterable.Empty
-    def contains(k: K) = false
-  }
+  /** Creates an empty multiset. */
+  def empty[K: Eq, R: OrderedRing]: Multiset[K, R] = new MultisetT.Empty[K, R]
 
   /** Returns the implicit module structure on multisets. */
   implicit def Module[K: Eq, R: OrderedRing]: Module[Multiset[K, R], R] = new Module[Multiset[K, R], R] {
@@ -194,3 +152,43 @@ object Multiset {
 }
 
 abstract class AbstractMultiset[@sp(Int) K, @sp(Int, Double) R] extends Multiset[K, R]
+
+private[poly] object MultisetT {
+
+  class Empty[K, R](implicit K: Eq[K], R: OrderedRing[R]) extends Multiset[K, R] {
+    def weight(k: K) = R.zero
+    def weightRing = R
+    def keySet = Set.empty[K]
+  }
+
+  class AsMap[K, R](self: Multiset[K, R]) extends AbstractMap[K, R] {
+    def keySet = self.keySet
+    override def pairs = self.keyWeightPairs
+    def apply(k: K) = self(k)
+    def ?(k: K) = if (self.weight(k) == self.weightRing.zero) None else Some(self.weight(k))
+  }
+
+  class KeyFiltered[K, R](self: Multiset[K, R], f: K => Boolean) extends AbstractMultiset[K, R] {
+    override def keyWeightPairs  = self.keyWeightPairs.filter { case (k, r) => f(k) }
+    def weight(k: K) = if (f(k)) self.weight(k) else zero[R]
+    implicit def weightRing = self.weightRing
+    def keySet = self.keySet filter f
+  }
+
+  class Scaled[K, R](self: Multiset[K, R], w: R) extends AbstractMultiset[K, R] {
+    implicit def weightRing = self.weightRing
+    override def keyWeightPairs = self.keyWeightPairs.map { case (k, r) => k -> (r * w) }
+    def weight(k: K) = self.weight(k) * w
+    def keySet = self.keySet
+  }
+
+  class Intersection[K, R](self: Multiset[K, R], that: Multiset[K, R]) extends AbstractMultiset[K, R] {
+    implicit def weightRing = self.weightRing
+    def weight(k: K) = function.min(self.weight(k), that.weight(k))
+    def keySet = self.keySet filter { k => weight(k) > self.weightRing.zero }
+  }
+
+
+
+
+}

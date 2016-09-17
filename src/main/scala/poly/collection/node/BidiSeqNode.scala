@@ -5,10 +5,10 @@ import poly.collection.mut._
 
 /**
  * Represents a node that has exactly one predecessor and one successor.
- * It is the type of nodes in a bidirectional sequence ([[poly.collection.BiSeq]]).
+ * It is the type of nodes in a bidirectional sequence ([[poly.collection.BidiSeq]]).
  * @since 0.1.0
  */
-trait BiSeqNodeLike[+T, +N <: BiSeqNodeLike[T, N]] extends BiNodeLike[T, N] with SeqNodeLike[T, N] with NodeWithParentLike[T, N] { self: N =>
+trait BidiSeqNodeLike[+T, +N <: BidiSeqNodeLike[T, N]] extends BidiNodeLike[T, N] with SeqNodeLike[T, N] with NodeWithParentLike[T, N] { self: N =>
   def prev: N
   def next: N
 
@@ -18,9 +18,9 @@ trait BiSeqNodeLike[+T, +N <: BiSeqNodeLike[T, N]] extends BiNodeLike[T, N] with
 
 }
 
-trait BiSeqNode[+T] extends BiNode[T] with SeqNode[T] with NodeWithParent[T] with BiSeqNodeLike[T, BiSeqNode[T]] { self =>
+trait BidiSeqNode[+T] extends BidiNode[T] with SeqNode[T] with NodeWithParent[T] with BidiSeqNodeLike[T, BidiSeqNode[T]] { self =>
 
-  override def reverse: BiSeqNode[T] = new BiSeqNode[T] {
+  override def reverse: BidiSeqNode[T] = new BidiSeqNode[T] {
     def next = self.prev.reverse
     def prev = self.next.reverse
     def data = self.data
@@ -29,8 +29,8 @@ trait BiSeqNode[+T] extends BiNode[T] with SeqNode[T] with NodeWithParent[T] wit
   }
 }
 
-object BiSeqNode {
-  object dummy extends BiSeqNode[Nothing] {
+object BidiSeqNode {
+  object dummy extends BidiSeqNode[Nothing] {
     def data = throw new NoSuchElementException
     def next = dummy
     def prev = dummy

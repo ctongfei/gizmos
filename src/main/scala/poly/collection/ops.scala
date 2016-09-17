@@ -94,12 +94,6 @@ trait ImplicitOperators {
     def infinitely = Seq.infinite(x)
 
     /**
-     * Constructs a lazy sequence that repeats the specific element for the given number of times.
-     * @example {{{4.repeat(5) == (4, 4, 4, 4, 4)}}}
-     */
-    def repeat(n: Int) = IndexedSeq.fill(n)(x) // TODO: consider name change! clash with Seq.repeat
-
-    /**
      * Constructs a lazy infinite sequence by iteratively applying a function from a starting element.
      * @example {{{0.iterate(_ + 2) == (0, 2, 4, 6, 8, ...)}}}
      * @return

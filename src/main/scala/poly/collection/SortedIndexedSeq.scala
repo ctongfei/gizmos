@@ -14,21 +14,9 @@ trait SortedIndexedSeq[T] extends SortedSeq[T] with IndexedSeq[T] { self =>
    * @param x The key to be found
    * @return Index of key. If not found, None.
    */
-  def binarySearch(x: T): Option[Int] = {
-    var l = 0
-    var r = length - 1
-    while (l <= r) {
-      val m = l + (r - l) / 2
-      val value = this(m)
-      if (x === value) return Some(m)
-      else {
-        if (value < x)
-          l = m + 1
-        else
-          r = m - 1
-      }
-    }
-    None
+  def binarySearch(x: T) = tryBinarySearch(x) match {
+    case x if x >= 0 => Some(x)
+    case _ => None
   }
 
   /**

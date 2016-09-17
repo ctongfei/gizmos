@@ -19,7 +19,7 @@ class AdjacencyMatrixGraph[E] private(
   override val numNodes: Int,
   private val edgeExists: SpArrayTable[Boolean],
   private val edgeData: ValueMutableTable[E]
-) extends AbstractBiGraph[Int, E] with ValueMutableGraph[Int, E] {
+) extends AbstractBidiGraph[Int, E] with ValueMutableGraph[Int, E] {
 
   def incomingKeySet(j: Int) = keySet filter { edgeExists(_, j) }
   def outgoingKeySet(i: Int) = keySet filter { edgeExists(i, _) }
@@ -36,8 +36,6 @@ class AdjacencyMatrixGraph[E] private(
     edgeExists(i, j) = true
     edgeData(i, j) = e
   }
-
-  // TODO: arcMap should be overridden
 
   def adjacencyMatrix: Table[Option[E]] = new AbstractTable[Option[E]] {
     def apply(i: Int, j: Int) = if (edgeExists(i, j)) Some(edgeData(i, j)) else None

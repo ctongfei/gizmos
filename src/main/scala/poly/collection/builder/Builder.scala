@@ -56,6 +56,8 @@ trait Builder[-T, +C] { self =>
     override def sizeHint(n: Int) = self sizeHint n
   }
 
+  def |>[D](f: C => D) = map(f)
+
 }
 
 object Builder {

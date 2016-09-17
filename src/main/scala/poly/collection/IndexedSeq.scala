@@ -18,7 +18,7 @@ import scala.language.implicitConversions
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait IndexedSeq[+T] extends BiSeq[T] { self =>
+trait IndexedSeq[+T] extends BidiSeq[T] { self =>
 
   /** Returns the length of this indexed sequence. */
   def fastLength: Int
@@ -45,11 +45,11 @@ trait IndexedSeq[+T] extends BiSeq[T] { self =>
     FastLoop.ascending(0, length, 1) { i => f(apply(i)) }
   }
 
-  class Node(val i: Int) extends BiSeqNode[T] {
+  class Node(val i: Int) extends BidiSeqNode[T] {
     def isDummy = (i < 0) || (i >= length)
     def data = self(i)
-    def next = if (i >= length - 1) BiSeqNode.dummy else new Node(i + 1)
-    def prev = if (i <= 0) BiSeqNode.dummy else new Node(i - 1)
+    def next = if (i >= length - 1) BidiSeqNode.dummy else new Node(i + 1)
+    def prev = if (i <= 0) BidiSeqNode.dummy else new Node(i - 1)
 
     override def equals(that: Any) = that match {
       case that: Node => this.i == that.i

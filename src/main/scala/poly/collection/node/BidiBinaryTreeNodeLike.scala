@@ -6,8 +6,8 @@ import poly.collection.mut._
 /**
  * @author Tongfei Chen
  */
-trait BiBinaryTreeNodeLike[+T, +N <: BiBinaryTreeNodeLike[T, N]]
-  extends BinaryTreeNodeLike[T, N] with NodeWithParentLike[T, N]
+trait BidiBinaryTreeNodeLike[+T, +N <: BidiBinaryTreeNodeLike[T, N]]
+  extends BinaryTreeNodeLike[T, N] with NodeWithParentLike[T, N] with BidiNodeLike[T, N]
 { self: N =>
 
   def leftNode: N
@@ -24,4 +24,4 @@ trait BiBinaryTreeNodeLike[+T, +N <: BiBinaryTreeNodeLike[T, N]]
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait BiBinaryTreeNode[+T] extends BiNode[T] with BinaryTreeNode[T] with BiBinaryTreeNodeLike[T, BiBinaryTreeNode[T]]
+trait BidiBinaryTreeNode[+T] extends BidiNode[T] with BinaryTreeNode[T] with BidiBinaryTreeNodeLike[T, BidiBinaryTreeNode[T]]

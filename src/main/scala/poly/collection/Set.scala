@@ -118,17 +118,14 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
 
   def map[U: Eq](f: T => U): Set[U] = elements map f to AutoSet
 
-  def map[U](f: Bijection[T, U]): Set[U] = new AbstractSet[U] {
-    def keyEq = self.keyEq contramap f.invert
-    def keys = self.elements map f
-    def contains(x: U) = self contains f.invert(x)
-  }
+  def map[U](f: Bijection[T, U]): Set[U] = new SetT.BijectivelyMapped(self, f)
 
   def flatMap[U: Eq](f: T => Set[U]): Set[U] = {
     elements flatMap { x: T => f(x).elements } to AutoSet
   }
 
   def zip(that: Set[T]): Set[T] = this intersect that
+
 
   //TODO: !
 //  def quotient(coarser: Eq[T]): Set[Set[T]] = new AbstractSet[Set[T]] {
@@ -187,19 +184,14 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
 
   def argmaxWithValue[U: Order](f: T => U) = elements.argmaxWithValue(f)
 
-  def powerSet: Set[Set[T]] = new SetT.PowerSet[T](self)
+  //def subsets: Set[Set[T]] = new SetT.PowerSet[T](self)
+
 
   /**
    * Casts this set as a multiset in which each element appears exactly once.
    * @tparam R Type of the counts of elements in the multiset, can be `Int`, `Double`, etc.
    */
-  def asMultiset[R: OrderedRing]: Multiset[T, R] = new AbstractMultiset[T, R] {
-    def keyEq = self.keyEq
-    def weightRing = OrderedRing[R]
-    def weight(k: T) = if (self.contains(k)) one[R] else zero[R]
-    def keys = self.keys
-    def contains(k: T) = self.contains(k)
-  }
+  def asMultiset[R: OrderedRing]: Multiset[T, R] = new SetT.AsMultiset(self)
 
   //Symbolic aliases
   def &(that: Set[T]) = this intersect that
@@ -228,35 +220,23 @@ object Set extends FactoryA_EvA[Set, Eq] {
 
   // CONSTRUCTORS
 
-  def from[T: Eq](xs: Traversable[T]) = AutoSet from xs
+  def from[T: Eq](xs: Traversable[T]): Set[T] = AutoSet from xs
 
-  /** Creates an empty set of a specific type. */
   override def empty[T: Eq]: Set[T] = new SetT.Empty[T]
 
   // TYPECLASSES INSTANCES
 
-  /** Returns the lattice on sets. */
-  implicit def Lattice[T: Eq]: Lattice[Set[T]] with BoundedLowerSemilattice[Set[T]] =
-    new Lattice[Set[T]] with BoundedLowerSemilattice[Set[T]] {
-      def bot = empty[T]
-      def inf(x: Set[T], y: Set[T]) = x ∩ y
-      def sup(x: Set[T], y: Set[T]) = x ∪ y
-  }
-
   implicit def Eq[T](implicit T: Eq[T]): Eq[Set[T]] = T match {
-    case th: Hashing[T] => Hashing[T](th)
+    case th: Hashing[T] => new SetT.SetHashing[T]()(th)
     case _ => new SetT.SetEq[T]
   }
 
-  def Hashing[T: Hashing]: Hashing[Set[T]] = new Hashing[Set[T]] {
-    def eq(x: Set[T], y: Set[T]) = (x ⊆ y) && (x ⊇ y)
-    def hash(x: Set[T]) = MurmurHash3.symmetricHash(x.elements)
-  }
+  def Hashing[T: Hashing]: Hashing[Set[T]] = new SetT.SetHashing[T]
 
-  def ContainmentOrder[T]: PartialOrder[Set[T]] = new PartialOrder[Set[T]] {
-    override def eq(x: Set[T], y: Set[T]) = (x ⊆ y) && (x ⊇ y)
-    def le(x: Set[T], y: Set[T]) = x ⊆ y
-  }
+  /** Returns the lattice on sets. */
+  implicit def Lattice[T]: Lattice[Set[T]] = new SetT.SetLattice[T]
+
+  def ContainmentOrder[T]: PartialOrder[Set[T]] = new SetT.ContainmentOrder[T]
 
 }
 
@@ -266,6 +246,20 @@ private[poly] object SetT {
 
   class SetEq[T] extends Eq[Set[T]] {
     def eq(x: Set[T], y: Set[T]) = (x ⊆ y) && (x ⊇ y)
+  }
+
+  class SetHashing[T: Hashing] extends SetT.SetEq[T] with Hashing[Set[T]] {
+    def hash(x: Set[T]) = MurmurHash3.symmetricHash(x.elements)
+  }
+
+  class SetLattice[T] extends Lattice[Set[T]] {
+    def inf(x: Set[T], y: Set[T]) = x ∩ y
+    def sup(x: Set[T], y: Set[T]) = x ∪ y
+  }
+
+  class ContainmentOrder[T] extends PartialOrder[Set[T]] {
+    override def eq(x: Set[T], y: Set[T]) = (x ⊆ y) && (x ⊇ y)
+    def le(x: Set[T], y: Set[T]) = x ⊆ y
   }
 
   class KeyFiltered[T](self: Set[T], f: T => Boolean) extends AbstractSet[T] {
@@ -295,12 +289,18 @@ private[poly] object SetT {
     override def pairs = for (k <- self.keys; v <- f(k)) yield (k, v)
   }
 
+  class BijectivelyMapped[T, U](self: Set[T], f: Bijection[T, U]) extends AbstractSet[U] {
+    def keyEq = self.keyEq contramap f.invert
+    def keys = self.elements map f
+    def contains(x: U) = self contains f.invert(x)
+  }
+/*
   class PowerSet[T](self: Set[T]) extends AbstractSet[Set[T]] {
     implicit def keyEq = new SetT.SetEq[T]
     def keys = ???
     def contains(x: Set[T]) = x subsetOf self
   }
-
+*/
   class GraphByOptionalFunc[T, U](self: Set[T], f: (T, T) => Option[U]) extends AbstractGraph[T, U] {
     def keySet = self.keySet
     def apply(i: T, j: T) = f(i, j).get
@@ -308,6 +308,12 @@ private[poly] object SetT {
     def containsArc(i: T, j: T) = self.contains(i) && self.contains(j) && f(i, j).isDefined
     def outgoingKeySet(i: T) = self filterKeys { j => f(i, j).isDefined }
     override def outgoingMap(i: T) = self createMapOptionally  { j => f(i, j) }
+  }
+
+  class AsMultiset[T, R: OrderedRing](self: Set[T]) extends AbstractMultiset[T, R] {
+    def weightRing = OrderedRing[R]
+    def weight(k: T) = if (self.contains(k)) one[R] else zero[R]
+    def keySet = self.keySet
   }
 
   class Empty[T: Eq] extends AbstractSet[T] {

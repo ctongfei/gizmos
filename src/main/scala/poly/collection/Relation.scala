@@ -1,6 +1,7 @@
 package poly.collection
 
 import poly.algebra._
+import poly.collection.immut._
 import poly.collection.mut._
 
 /**
@@ -17,9 +18,9 @@ trait Relation[-X, -Y] { self =>
 
   def complement: Relation[X, Y] = new RelationT.Complement(self)
 
-  def union[U <: X, V <: Y](that: Relation[U, V]): Relation[U, V] = new RelationT.Union(ListSeq(self, that))
+  def union[U <: X, V <: Y](that: Relation[U, V]): Relation[U, V] = new RelationT.Union(self :: that :: List.Empty)
 
-  def intersect[U <: X, V <: Y](that: Relation[U, V]): Relation[U, V] = new RelationT.Intersection(ListSeq(this, that))
+  def intersect[U <: X, V <: Y](that: Relation[U, V]): Relation[U, V] = new RelationT.Intersection(self :: that :: List.Empty)
 
   def product[U, V](that: Relation[U, V]): Relation[(X, U), (Y, V)] = new RelationT.Product(self, that)
 
@@ -46,14 +47,14 @@ private[poly] object RelationT {
     override def complement = self
   }
 
-  class Union[X, Y](rs: Seq[Relation[X, Y]]) extends Relation[X, Y] {
+  class Union[X, Y](rs: List[Relation[X, Y]]) extends Relation[X, Y] {
     def related(x: X, y: Y) = rs exists { r => r.related(x, y) }
-    override def union[U <: X, V <: Y](that: Relation[U, V]) = new Union(that +: rs)
+    override def union[U <: X, V <: Y](that: Relation[U, V]) = new Union(that :: rs)
   }
 
-  class Intersection[X, Y](rs: Seq[Relation[X, Y]]) extends Relation[X, Y] {
+  class Intersection[X, Y](rs: List[Relation[X, Y]]) extends Relation[X, Y] {
     def related(x: X, y: Y) = rs forall { r => r.related(x, y) }
-    override def intersect[U <: X, V <: Y](that: Relation[U, V]) = new Intersection(that +: rs)
+    override def intersect[U <: X, V <: Y](that: Relation[U, V]) = new Intersection(that :: rs)
   }
 
   class Inverse[X, Y](val self: Relation[X, Y]) extends Relation[Y, X] {

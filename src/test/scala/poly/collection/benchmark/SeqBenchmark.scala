@@ -63,7 +63,7 @@ object SeqBenchmark extends App {
     println(s"Poly-collection ListSeq: $t4")
 
     val t5 = conf measure {
-      val l5 = mut.ListBiSeq.tabulate(n)(i => i)
+      val l5 = mut.ListBidiSeq.tabulate(n)(i => i)
     }
     println(s"Poly-collection ListBiSeq: $t5")
 

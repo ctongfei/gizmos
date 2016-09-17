@@ -48,11 +48,6 @@ class TraversableTest extends FunSuite {
     }
   }
 
-  test("FlatMap") {
-    for (i ← 0 until n) {
-      val (s, p) = genVal
-      s.flatMap(i => scala.Traversable.fill(i)(i)) traversable_=== p.flatMap(i => i repeat i)
-    }
-  }
+
 
 }

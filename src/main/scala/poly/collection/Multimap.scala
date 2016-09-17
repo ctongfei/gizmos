@@ -24,6 +24,8 @@ trait Multimap[K, V] extends Relation[K, V] with KeyedLike[K, Multimap[K, V]] wi
   /** Returns the equivalence relation on values. */
   implicit def valueEq: Eq[V]
 
+  implicit def pairEq = keyEq product valueEq
+
   /** Returns all values that are associated with the given key. */
   def apply(k: K): Set[V]
 
@@ -48,15 +50,11 @@ trait Multimap[K, V] extends Relation[K, V] with KeyedLike[K, Multimap[K, V]] wi
 
   def filterKeys(f: K => Boolean): Multimap[K, V] = new MultimapT.KeyFiltered(self, f)
 
-  def union(that: Multimap[K, V]) = new Multimap[K, V] {
-    def keySet = self.keySet union that.keySet
-    def valueEq = self.valueEq
-    def apply(k: K) = self(k) union that(k)
-  }
+  def union(that: Multimap[K, V]): Multimap[K, V] = new MultimapT.Union(self, that)
 
-  //TODO: zip, intersect
+  def intersect(that: Multimap[K, V]): Multimap[K, V] = new MultimapT.Intersection(self, that)
 
-  def product[L, W](that: Multimap[L, W]) = new MultimapT.Product(self, that)
+  def product[L, W](that: Multimap[L, W]): Multimap[(K, L), (V, W)] = new MultimapT.Product(self, that)
 
   def map[W](f: Multimap[V, W]): Multimap[K, W] = new MultimapT.Composed(f, self)
 
@@ -75,20 +73,18 @@ trait Multimap[K, V] extends Relation[K, V] with KeyedLike[K, Multimap[K, V]] wi
   /**
    * Casts this multimap of type `Multimap[K, V]` to the equivalent map of type `Map[K, Set[V]]`.
    */
-  def asMap: Map[K, Set[V]] = new AbstractMap[K, Set[V]] {
-    def keySet = self.keySet
-    def ?(k: K) = if (self containsKey k) Some(self(k)) else None
-    def apply(k: K) = self(k)
-  }
+  def asMap: Map[K, Set[V]] = new MultimapT.AsMap(self)
 
 }
 
-object Multimap extends BuilderFactoryAB_EvAB[Multimap, Eq, Eq] {
+object Multimap extends FactoryAB_EvAB[Multimap, Eq, Eq] {
+
+  def from[K: Eq, V: Eq](xs: Traversable[(K, V)]): Multimap[K, V] = AutoMultimap from xs
+
   //implicit object Semicategory
   //TODO: semicategory. does not have id.
   //TODO: update poly.algebra.hkt.Semigroupoid
 
-  implicit def newBuilder[A: Eq, B: Eq] = AutoMultimap.newBuilder
 }
 
 abstract class AbstractMultimap[K, V] extends Multimap[K, V]
@@ -142,6 +138,25 @@ private[poly] object MultimapT {
     def keySet = self.keySet
     def valueEq = self.valueEq contramap f.invert
     def apply(k: K) = self(k) map f
+  }
+
+  class Union[K, V](self: Multimap[K, V], that: Multimap[K, V]) extends AbstractMultimap[K, V] {
+    def keySet = self.keySet union that.keySet
+    def valueEq = self.valueEq
+    def apply(k: K) = self(k) union that(k)
+  }
+
+  class Intersection[K, V](self: Multimap[K, V], that: Multimap[K, V]) extends AbstractMultimap[K, V] {
+    def keySet = (self.keySet intersect that.keySet) filter { k => (self(k) intersect that(k)).notEmpty }
+    def valueEq = self.valueEq
+    def apply(k: K) = self(k) intersect that(k)
+    override def pairs = (self.pairs intersect that.pairs)
+  }
+
+  class AsMap[K, V](self: Multimap[K, V]) extends AbstractMap[K, Set[V]] {
+    def keySet = self.keySet
+    def ?(k: K) = if (self containsKey k) Some(self(k)) else None
+    def apply(k: K) = self(k)
   }
 
 }

@@ -68,7 +68,7 @@ class GreedyBestFirstIterator[S, C: OrderedAdditiveGroup](val stateSpace: Weight
 class AStarIterator[S, C: OrderedAdditiveGroup](val stateSpace: WeightedStateSpace[S, C], start: S, val heuristic: S => C)
   extends WeightedSearcher[S, WithCostAndHeuristic[S, C], C](
     DistinctPriorityQueue[S, WithCostAndHeuristic[S, C]](BinaryHeap()(WithCostAndHeuristic.order), _.state)(stateSpace.keyEq),
-    start) { //TODO: contravariant typeclass implicit resolution bug
+    start) { //TODO: contravariant typeclass implicit resolution bug SI-2509
   def searchNodeInfo = WithCostAndHeuristic.WeightedSearchNodeInfo(heuristic)
   def prune(n: WithCostAndHeuristic[S, C]) = false
 }

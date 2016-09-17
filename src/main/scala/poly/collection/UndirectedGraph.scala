@@ -11,17 +11,17 @@ import poly.collection.node._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait UndirectedGraph[@sp(Int) K, +E] extends BiGraph[K, E] { self =>
+trait UndirectedGraph[@sp(Int) K, +E] extends BidiGraph[K, E] { self =>
 
   import UndirectedGraph._
 
-  def edge(i: K, j: K) = new EdgeProxy(self, i, j)
+  def edge(i: K, j: K) = (UPair(i, j), self(i, j))
 
   def edges = {
     val visited = AutoSet[K]()
     keys flatMap { i: K =>
       visited += i
-      adjacentEdges(i) filter { e => visited notContains e.key2 } //TODO: maybe wrong?
+      adjacentEdges(i) filter { e => visited notContains e._1._2 } //TODO: maybe wrong?
     }
   }
 
@@ -32,7 +32,7 @@ trait UndirectedGraph[@sp(Int) K, +E] extends BiGraph[K, E] { self =>
   def edgeMap: Map[UPair[K], E] = new AbstractMap[UPair[K], E] {
     def keySet: Set[UPair[K]] = new AbstractSet[UPair[K]] {
       def keyEq = UPair.Eq(self.keyEq)
-      def keys = edges map { e => UPair(e.key1, e.key2)(self.keyEq) }
+      def keys = edges map { e => e._1 }
       def contains(k: UPair[K]) = self.containsArc(k._1, k._2)
     }
     def ?(k: UPair[K]) = self ? (k._1, k._2)
@@ -46,8 +46,8 @@ trait UndirectedGraph[@sp(Int) K, +E] extends BiGraph[K, E] { self =>
   def adjacentNodes(i: K) = adjacentKeys(i) map node
   def adjacentEdges(i: K) = adjacentKeys(i) map { j => edge(i, j) }
 
-  def incomingKeySet(i: K) = adjacentKeySet(i)
-  def outgoingKeySet(i: K) = adjacentKeySet(i)
+  final def incomingKeySet(i: K) = adjacentKeySet(i)
+  final def outgoingKeySet(i: K) = adjacentKeySet(i)
 
   override def reverse = self
 
@@ -61,34 +61,14 @@ trait UndirectedGraph[@sp(Int) K, +E] extends BiGraph[K, E] { self =>
 
   override def asMultimap: BiMultimap[K, K] = new UndirectedGraphT.AsMultimap(self)
 
-  override def toString = "{" + edges.map(e => s"${e.key1} <-(${e.data})-> ${e.key2}").buildString(", ") + "}"
+  override def toString = "{" + edges.map(e => s"${e._1._1} <-(${e._2})-> ${e._1._2}").buildString(", ") + "}"
 }
 
 object UndirectedGraph {
 
-  class EdgeProxy[K, +E](val graph: UndirectedGraph[K, E], val key1: K, val key2: K) extends GraphEdge[K, E] {
-    def contains(x: K) = x == key1 || x == key2
-    def keys = ListSeq(key1, key2)
-    def data = graph(key1, key2)
-    def node1 = graph.node(key1)
-    def node2 = graph.node(key2)
-    override def equals(that: Any) = that match {
-      case that: UndirectedGraph.EdgeProxy[K, E] =>
-        implicit val K = graph.keyEq
-        (this.graph eq that.graph) &&
-          ((this.key1 === that.key1) && (this.key2 === that.key2)) ||
-          ((this.key1 === that.key2) && (this.key2 === that.key1))
-      case _ => false
-    }
-    override def toString = s"{$key1, $key2}"
-    override def hashCode = poly.algebra.Hashing.byRef.hash(graph) + (graph.keyEq match {
-      case hk: Hashing[K] => hk.hash(key1) ^ hk.hash(key2)
-      case _ => key1.## ^ key2.##
-    })
-  }
 }
 
-abstract class AbstractUndirectedGraph[K, +E] extends AbstractBiGraph[K, E] with UndirectedGraph[K, E]
+abstract class AbstractUndirectedGraph[K, +E] extends AbstractBidiGraph[K, E] with UndirectedGraph[K, E]
 
 private[poly] object UndirectedGraphT {
 

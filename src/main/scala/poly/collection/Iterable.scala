@@ -28,8 +28,6 @@ trait Iterable[+T] extends Traversable[T] { self =>
 
   def foreach[V](f: T => V) = newIterator run f
 
- // final def ringOnWeight = OrderedRing[Int]
-
   //region HELPER FUNCTIONS
 
   override def map[U](f: T => U): Iterable[U] = new IterableT.Mapped(self, f)
@@ -458,7 +456,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
     override def size = s
   }
 
-  def asLazyFSeq: LazyFSeq[T] = newIterator.asLazyFSeq
+  def asLazyFSeq: LazyList[T] = newIterator.asLazyList
 
   //endregion
 
@@ -575,10 +573,9 @@ object Iterable {
 
   implicit class IterableOfIterablesOps[T](val underlying: Iterable[Iterable[T]]) extends AnyVal {
     /**
-      * "Flattens" this collection of collection into one collection.
-     *
+     * "Flattens" this collection of collection into one collection.
      * @example {{{((1, 2, 3), (4, 5), (), (7)).flatten == (1, 2, 3, 4, 5, 7)}}}
-      */
+     */
     def flatten: Iterable[T] = underlying.flatMap(identity)
   }
 

@@ -11,7 +11,7 @@ import poly.collection.factory._
  * @since 0.1.0
  * @author Tongfei Chen
  */
-class AdjacencyListBiGraph[@sp(Int) K: Eq, E] private(private val r: KeyMutableMap[K, AdjacencyListBiGraph.VertexInfo[K, E]]) extends BiGraph[K, E] {
+class AdjacencyListBidiGraph[@sp(Int) K: Eq, E] private(private val r: KeyMutableMap[K, AdjacencyListBidiGraph.VertexInfo[K, E]]) extends BidiGraph[K, E] {
 
   def apply(i: K, j: K): E = r(i).succ(j)
 
@@ -25,22 +25,22 @@ class AdjacencyListBiGraph[@sp(Int) K: Eq, E] private(private val r: KeyMutableM
 
 }
 
-object AdjacencyListBiGraph extends BuilderFactoryAAB_EvA[AdjacencyListBiGraph, Eq] {
+object AdjacencyListBidiGraph extends BuilderFactoryAAB_EvA[AdjacencyListBidiGraph, Eq] {
 
   private[poly] class VertexInfo[K: Eq, E] {
     val pred = ListSet[K]()
     val succ = ListMap[K, E]()
   }
 
-  implicit def newBuilder[K: Eq, E]: Builder[(K, K, E), AdjacencyListBiGraph[K, E]] =
-    new Builder[(K, K, E), AdjacencyListBiGraph[K, E]] {
+  implicit def newBuilder[K: Eq, E]: Builder[(K, K, E), AdjacencyListBidiGraph[K, E]] =
+    new Builder[(K, K, E), AdjacencyListBidiGraph[K, E]] {
       private[this] val r = AutoMap[K, VertexInfo[K, E]]().withDefaultUpdate(new VertexInfo[K, E])
       def addInplace(x: (K, K, E)) = {
         val (i, j, e) = x
         r(i).succ += (j, e)
         r(j).pred += i
       }
-      def result = new AdjacencyListBiGraph(r)
+      def result = new AdjacencyListBidiGraph(r)
     }
 
 

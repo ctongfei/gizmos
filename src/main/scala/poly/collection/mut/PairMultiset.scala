@@ -2,8 +2,10 @@ package poly.collection.mut
 
 import poly.algebra._
 import poly.algebra.syntax._
+import poly.collection.AbstractSet
 import poly.collection.builder._
 import poly.collection.factory._
+
 import scala.language.reflectiveCalls
 import scala.language.higherKinds
 
@@ -14,7 +16,8 @@ import scala.language.higherKinds
  */
 class PairMultiset[K, R: OrderedRing] private[poly](private val data: KeyMutableMap[K, R]) extends KeyMutableMultiset[K, R] {
 
-  def keyEq = data.keyEq
+  def keySet = data.keySet
+
   def weightRing = OrderedRing[R]
 
   def removeInplace(x: K, w: R = weightRing.one) = {
@@ -28,10 +31,6 @@ class PairMultiset[K, R: OrderedRing] private[poly](private val data: KeyMutable
   }
 
   def weight(k: K) = data(k)
-
-  def keys = data.keys
-
-  def contains(k: K) = data.containsKey(k)
 
   def addInplace(x: K, w: R = weightRing.one) = {
     if (data containsKey x) data(x) += w

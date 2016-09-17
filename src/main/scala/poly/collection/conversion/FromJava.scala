@@ -108,8 +108,8 @@ object FromJava {
     def keyOrder = xs.comparator()
   }
 
-  implicit class javaNavigableSetAsPoly[T](xs: ju.NavigableSet[T]) extends AbstractSortedSet[T] with BiSortedSet[T] {
-    def keys: BiSortedIterable[T] = new BiSortedIterable[T] {
+  implicit class javaNavigableSetAsPoly[T](xs: ju.NavigableSet[T]) extends AbstractSortedSet[T] with BidiSortedSet[T] {
+    def keys: BidiSortedIterable[T] = new BidiSortedIterable[T] {
       implicit def elementOrder = xs.comparator()
       def newReverseIterator = xs.descendingIterator()
       def newIterator = xs.iterator()

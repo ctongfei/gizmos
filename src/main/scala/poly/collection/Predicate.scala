@@ -3,12 +3,12 @@ package poly.collection
 import poly.algebra._
 import poly.algebra.hkt._
 import poly.algebra.specgroup._
-
+import poly.collection.immut._
 import scala.language.implicitConversions
 
 /**
  * Represents a pure, mathematical set (equivalent to a predicate).
- * A predicate set is contravariant on its type parameter and cannot be iterated.
+ * A predicate set is contravariant on its type parameter and cannot be iterated over.
  *
  * @author Tongfei Chen
  * @since 0.1.0
@@ -23,16 +23,16 @@ trait Predicate[@sp(Int) -T] extends Func[T, Boolean] { self =>
   def unary_! : Predicate[T] = new PredicateT.Complement(self)
 
   /** Returns the conjunction/intersection of two predicates. */
-  def union[U <: T](that: Predicate[U]): Predicate[U] = new PredicateT.Intersection[U](Seq(self, that)) //TODO: FSeq?
+  def union[U <: T](that: Predicate[U]): Predicate[U] = new PredicateT.Intersection[U](self :: that :: List.Empty)
 
   /** Returns the disjunction/union of two predicates. */
-  def intersect[U <: T](that: Predicate[U]): Predicate[U] = new PredicateT.Union[U](Seq(self, that))
+  def intersect[U <: T](that: Predicate[U]): Predicate[U] = new PredicateT.Union[U](self :: that :: List.Empty)
 
   /** Returns the set-difference of two predicates. */
   def setDiff[U <: T](that: Predicate[U]): Predicate[U] = new PredicateT.Diff(self, that)
 
   /** Returns the xor/symmetric-difference of two predicates. */
-  def symmetricDiff[U <: T](that: Predicate[U]): Predicate[U] = new PredicateT.SymmetricDiff[U](Seq(self, that))
+  def symmetricDiff[U <: T](that: Predicate[U]): Predicate[U] = new PredicateT.SymmetricDiff[U](self :: that :: List.Empty)
 
   def implies[U <: T](that: Predicate[U]) = !self intersect that
 
@@ -82,23 +82,23 @@ private[poly] object PredicateT {
     def apply(x: T) = !self(x)
   }
 
-  class Intersection[T](ps: Seq[Predicate[T]]) extends Predicate[T] {
-    def apply(x: T) = ps forall { p => p(x) }
-    override def union[U <: T](that: Predicate[U]) = new Intersection[U](that +: ps)
+  class Intersection[T](ps: List[Predicate[T]]) extends Predicate[T] {
+    def apply(x: T) = ps forall { _(x) }
+    override def union[U <: T](that: Predicate[U]) = new Intersection[U](that :: ps)
   }
 
-  class Union[T](ps: Seq[Predicate[T]]) extends Predicate[T] {
-    def apply(x: T) = ps exists { p => p(x) }
-    override def intersect[U <: T](that: Predicate[U]) = new Union[U](that +: ps)
+  class Union[T](ps: List[Predicate[T]]) extends Predicate[T] {
+    def apply(x: T) = ps exists { _(x) }
+    override def intersect[U <: T](that: Predicate[U]) = new Union[U](that :: ps)
   }
 
   class Diff[T](self: Predicate[T], that: Predicate[T]) extends Predicate[T] {
     def apply(x: T) = self(x) && !that(x)
   }
 
-  class SymmetricDiff[T](ps: Seq[Predicate[T]]) extends Predicate[T] {
-    def apply(x: T) = ps map { p => p(x) } reduce { _^_ }
-    override def symmetricDiff[U <: T](that: Predicate[U]) = new SymmetricDiff[U](that +: ps)
+  class SymmetricDiff[T](ps: List[Predicate[T]]) extends Predicate[T] {
+    def apply(x: T) = ps map { _(x) } reduce { _^_ }
+    override def symmetricDiff[U <: T](that: Predicate[U]) = new SymmetricDiff[U](that :: ps)
   }
 
   class Contramapped[T, S](self: Predicate[T], f: S => T) extends Predicate[S] {
