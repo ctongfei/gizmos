@@ -8,7 +8,7 @@ import poly.collection.impl._
 /**
  * @author Tongfei Chen
  */
-class SortedArraySeq[T] private(private[poly] val data: ResizableSeq[T])(implicit val elementOrder: Order[T]) extends MutableSortedIndexedSeq[T] {
+class SortedArraySeq[T] private[poly](private[poly] val data: ResizableSeq[T])(implicit val elementOrder: Order[T]) extends MutableSortedIndexedSeq[T] {
 
   def fastLength = data.fastLength
 
@@ -19,6 +19,8 @@ class SortedArraySeq[T] private(private[poly] val data: ResizableSeq[T])(implici
   def remove(x: T) = binarySearch(x) foreach data.deleteInplace
 
   def deleteAt(i: Int) = data.deleteInplace(i)
+
+  def clear() = data.clear()
 
 }
 

@@ -12,7 +12,7 @@ import poly.collection.impl._
  * @since 0.1.0
  * @author Tongfei Chen
  */
-class ListSet[T] private(private val data: SinglyLinkedList[T])(implicit val keyEq: Eq[T]) extends KeyMutableSet[T] {
+class ListSet[T] private(private val data: ListSeq[T])(implicit val keyEq: Eq[T]) extends KeyMutableSet[T] {
 
   override def size = data.len
 
@@ -50,7 +50,7 @@ class ListSet[T] private(private val data: SinglyLinkedList[T])(implicit val key
 object ListSet extends BuilderFactoryA_EvA[ListSet, Eq] {
 
   implicit def newBuilder[K: Eq]: Builder[K, ListSet[K]] = new Builder[K, ListSet[K]] {
-    private[this] val s = new ListSet(new SinglyLinkedList[K]())
+    private[this] val s = new ListSet(ListSeq[K]())
     def addInplace(x: K) = s addInplace x
     def result = s
   }

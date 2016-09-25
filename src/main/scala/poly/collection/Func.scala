@@ -43,7 +43,7 @@ object Func {
 
   def of[A, B](f: A => B): Func[A, B] = ScalaFunctionAsPoly(f)
 
-  implicit class ScalaFunctionAsPoly[A, B](f: A => B) extends Func[A, B] {
+  implicit class ScalaFunctionAsPoly[A, B](f: A => B) extends AbstractFunc[A, B] {
     def apply(a: A) = f(a)
   }
 
@@ -54,6 +54,8 @@ object Func {
   }
 
 }
+
+abstract class AbstractFunc[@sp(spFunc1) -A, @sp(spFuncR) +B] extends Func[A, B]
 
 private[poly] object FuncT {
 

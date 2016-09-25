@@ -22,13 +22,15 @@ Poly-collection is a Scala collection framework that aims to provide an alternat
   
   - A fully-fledged `search` subpackage that enables the execution of common search algorithms (BFS, DFS, A*, etc.) on very
    generic state spaces (of course lazily!).
+   
+   - `Map`s and `Set`s are not `Iterable`s. The nonsensical behavior of `zip`/`tail` etc. for Sets/Maps in Scala is removed.
 
   
-Implicit conversions from/to Scala & from Java collections to Poly collections are provided by importing the
+Implicit conversions from/to Scala & from Java collections to Poly-collections are provided by importing the
 objects `poly.collection.conversion.{FromJava, FromScala, ToScala}`.
 
 Poly-collection is currently in alpha stage and is progressing into the 0.1 release.
-The current version is 0.1.0 Milestone 1.
+The current version is 0.1 Milestone 1.
 
 ## Installation
 

@@ -15,7 +15,7 @@ class HashSet[T: Hashing] private(val data: OpenHashTable[T, HashSet.Entry[T]]) 
 
   import HashSet._
 
-  def keyEq = implicitly[Hashing[T]]
+  def keyEq = Hashing[T]
 
   def addInplace(x: T) = if (!contains(x)) data.addEntry(new Entry(x)) // TODO: calculate hash function only once?
 
@@ -29,7 +29,7 @@ class HashSet[T: Hashing] private(val data: OpenHashTable[T, HashSet.Entry[T]]) 
 
   override def foreach[U](f: T => U) = data.foreachEntry(e => f(e.key))
 
-  override def size: Int = data.size
+  override def size = data.size
 }
 
 object HashSet extends BuilderFactoryA_EvA[HashSet, Hashing] {

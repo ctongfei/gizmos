@@ -13,4 +13,6 @@ trait MutableSortedIndexedSeq[T] extends SortedIndexedSeq[T] {
 
   def deleteAt(i: Int): Unit
 
+  def clear(): Unit
+
 }

@@ -49,7 +49,7 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
   /** Returns an iterable collection of the keys in this map. $LAZY */
   def keys = keySet.keys
 
-  def keyEq = keySet.keyEq
+  implicit def keyEq = keySet.keyEq
 
   /** Checks if the specified key is present in this map. */
   def containsKey(x: K) = keySet contains x
@@ -175,7 +175,7 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
 
   def asMultimap[W >: V](implicit W: Eq[W]): Multimap[K, W] = new MapT.AsMultimap(self, W)
 
-  def asMultiset[W >: V](implicit W: OrderedRing[W]): Multiset[K, W] = new MapT.AsMultiset(self, W)
+  def asMultiset[W >: V](implicit W: OrderedRing[W]): WeightedSet[K, W] = new MapT.AsWeightedSet(self, W)
 
   // SYMBOLIC ALIASES
   def ×[L, W](that: Map[L, W]) = self product that
@@ -206,10 +206,10 @@ object Map extends FactoryAB_EvA[Map, Eq] with MapLowPriorityTypeclassInstances 
 
   def from[K: Eq, V](kvs: Traversable[(K, V)]) = AutoMap from kvs
 
-  def empty[K: Eq]: Map[K, Nothing] = new AbstractMap[K, Nothing] {
+  def empty[K](implicit K: Eq[K]): Map[K, Nothing] = new AbstractMap[K, Nothing] {
     def apply(k: K) = throw new KeyNotFoundException[K](k)
     def ?(k: K) = None
-    def keySet = Set.empty[K]
+    def keySet = Set.empty(K)
   }
 
   // IMPLICIT CONVERSIONS
@@ -223,12 +223,13 @@ object Map extends FactoryAB_EvA[Map, Eq] with MapLowPriorityTypeclassInstances 
      * }}}
      * @note The user should guarantee that the implicit equivalence relation of K and L
      *       conforms to the equivalence relation on pair (K, L) stored in this map. I.e.,
-     *       `(K product L)` should behave exactly the same as [[Map.keyEq]].
+     *       `(K product L)` should behave exactly the same as [[Map.keyEq]] (of type
+     *       `Eq[(K, L)]`).
      * @note This function incurs some overhead (traversing through the key set).
      */
     def curry(implicit K: Eq[K], L: Eq[L]): Map[K, Map[L, V]] = new AbstractMap[K, Map[L, V]] {
-      private[this] val domK = AutoSet[K]()
-      private[this] val domL = AutoSet[L]()
+      private[this] val domK = AutoSet[K]()(K)
+      private[this] val domL = AutoSet[L]()(L)
       for ((k, l) <- m.keys) {
         domK += k
         domL += l
@@ -266,15 +267,7 @@ object Map extends FactoryAB_EvA[Map, Eq] with MapLowPriorityTypeclassInstances 
 
   implicit def __dynamicEq[K, V](implicit V: Eq[V]): Eq[Map[K, V]] = V match {
     case vh: Hashing[V] => ???
-
-    case ve => new Eq[Map[K, V]] {
-      def eq(x: Map[K, V], y: Map[K, V]) = (x, y) match {
-        case (x: IndexedSeq[V], y: IndexedSeq[V]) => IndexedSeq.Eq[V].eq(x, y)
-        case (x: Seq[V], y: Seq[V]) => Seq.Eq[V].eq(x, y)
-        case (x: Table[V], y: Table[V]) => Table.Eq[V].eq(x, y)
-        case _ => Map.Eq[K, V].eq(x, y)
-      }
-    }
+    case ve => new MapT.DynamicEq[K, V]
   }
 
   //TODO: should be implicit, but contravariant typeclass implicit resolution is buggy (SI-2509)
@@ -322,6 +315,19 @@ trait MapLowPriorityTypeclassInstances {
 abstract class AbstractMap[@sp(Int) K, +V] extends Map[K, V]
 
 private[poly] object MapT {
+
+  class DynamicEq[K, V: Eq] extends AbstractEq[Map[K, V]] {
+    def eq(x: Map[K, V], y: Map[K, V]) = (x, y) match {
+      case (x: IndexedSeq[V], y: IndexedSeq[V]) => IndexedSeq.Eq[V].eq(x, y)
+      case (x: Seq[V], y: Seq[V]) => Seq.Eq[V].eq(x, y)
+      case (x: Table[V], y: Table[V]) => Table.Eq[V].eq(x, y)
+      case _ => Map.Eq[K, V].eq(x, y)
+    }
+  }
+
+  class MapHashing[K: Hashing, V: Hashing] extends MapEq[K, V] with Hashing[Map[K, V]] {
+    def hash(x: Map[K, V]) = MurmurHash3.symmetricHash(x.pairs)(Hashing.onTuple2[K, V])
+  }
 
   class MapEq[K, V: Eq] extends Eq[Map[K, V]] {
     def eq(x: Map[K, V], y: Map[K, V]) =
@@ -433,7 +439,7 @@ private[poly] object MapT {
     }
   }
 
-  class AsMultiset[K, R](self: Map[K, R], implicit val R: OrderedRing[R]) extends AbstractMultiset[K, R] {
+  class AsWeightedSet[K, R](self: Map[K, R], implicit val R: OrderedRing[R]) extends AbstractWeightedSet[K, R] {
     implicit def weightRing = R
     def keySet = self.keySet
     def weight(k: K) = if (self.containsKey(k)) R.one else R.zero

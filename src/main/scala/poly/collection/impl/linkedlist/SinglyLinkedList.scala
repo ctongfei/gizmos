@@ -15,7 +15,6 @@ import poly.collection.node._
  *  - Removing at any index: O(''n'') (searching) + O(1) (removing)
  * @author Tongfei Chen
  */
-
 class SinglyLinkedList[T, N >: Null <: SinglyLinkedNodeLike[T, N]] {
 
   var dummy: N = null

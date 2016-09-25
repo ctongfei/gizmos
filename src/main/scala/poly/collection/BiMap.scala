@@ -1,6 +1,7 @@
 package poly.collection
 
 import poly.algebra._
+import poly.algebra.syntax._
 
 /**
  * Represents a bijective map whose key-value pairs can be iterated.
@@ -14,7 +15,7 @@ trait BiMap[K, V] extends Map[K, V] with Bijection[K, V] with Relation[K, V] { s
   def valueSet: Set[V]
 
   /** Returns the equivalence relation on the value set of this bijective map. */
-  def valueEq: Eq[V] = valueSet.keyEq
+  implicit def valueEq: Eq[V] = valueSet.keyEq
 
   /** Gets the corresponding key of a given value. */
   def invert(v: V): K
@@ -31,7 +32,7 @@ trait BiMap[K, V] extends Map[K, V] with Bijection[K, V] with Relation[K, V] { s
 
   override def values = valueSet.keys
 
-  def related(k: K, v: V) = valueEq.eq(self(k), v)
+  def related(k: K, v: V) = (apply(k) === v) && (k === invert(v))
 
   // HELPER FUNCTIONS
 
@@ -133,7 +134,5 @@ object BiMapT {
     def keySet = self.keySet contramap f
     def ?(k: J) = self ? f(k)
   }
-
-
 
 }

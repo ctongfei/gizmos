@@ -67,8 +67,8 @@ class ArrayQueue[T] private(private val data: ResizableArray[T]) extends Queue[T
 object ArrayQueue extends BuilderFactoryA[ArrayQueue] {
 
   implicit def newBuilder[T]: Builder[T, ArrayQueue[T]] = new Builder[T, ArrayQueue[T]] {
-    var a = new ResizableArray[T]()
-    var n = 0
+    private[this] val a = new ResizableArray[T]()
+    private[this] var n = 0
     override def sizeHint(n: Int) = a.ensureCapacity(n)
     def addInplace(x: T) = {
       a(n) = x

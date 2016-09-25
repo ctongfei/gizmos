@@ -14,7 +14,7 @@ import scala.language.higherKinds
  * @author Tongfei Chen
  * @since 0.1.0
  */
-class PairMultiset[K, R: OrderedRing] private[poly](private val data: KeyMutableMap[K, R]) extends KeyMutableMultiset[K, R] {
+class PairWeightedSet[K, R: OrderedRing] private[poly](private val data: KeyMutableMap[K, R]) extends KeyMutableWeightedSet[K, R] {
 
   def keySet = data.keySet
 
@@ -38,15 +38,15 @@ class PairMultiset[K, R: OrderedRing] private[poly](private val data: KeyMutable
   }
 }
 
-object PairMultiset extends BuilderFactoryA_EvAB[PairMultiset, Eq, OrderedRing] {
+object PairWeightedSet extends BuilderFactoryA_EvAB[PairWeightedSet, Eq, OrderedRing] {
 
-  /** Creates a factory of [[PairMultiset]]s given the type on counts. Normally [[R]] should be [[Int]]. */
-  def of[R: OrderedRing]: BuilderFactoryA_EvA[({type λ[K] = PairMultiset[K, R]})#λ, Eq] = new BuilderFactoryA_EvA[({type λ[K] = PairMultiset[K, R]})#λ, Eq] {
-    implicit def newBuilder[K: Eq] = PairMultiset.newBuilder[K, R]
+  /** Creates a factory of [[PairWeightedSet]]s given the type on counts. Normally [[R]] should be [[Int]]. */
+  def of[R: OrderedRing]: BuilderFactoryA_EvA[({type λ[K] = PairWeightedSet[K, R]})#λ, Eq] = new BuilderFactoryA_EvA[({type λ[K] = PairWeightedSet[K, R]})#λ, Eq] {
+    implicit def newBuilder[K: Eq] = PairWeightedSet.newBuilder[K, R]
   }
 
-  implicit def newBuilder[K: Eq, R: OrderedRing]: Builder[K, PairMultiset[K, R]] = new Builder[K, PairMultiset[K, R]] {
-    private[this] val ms = new PairMultiset[K, R](AutoMap[K, R]())
+  implicit def newBuilder[K: Eq, R: OrderedRing]: Builder[K, PairWeightedSet[K, R]] = new Builder[K, PairWeightedSet[K, R]] {
+    private[this] val ms = new PairWeightedSet[K, R](AutoMap[K, R]())
     def addInplace(x: K) = ms.addInplace(x)
     def result = ms
   }

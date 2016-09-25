@@ -9,6 +9,8 @@ import poly.algebra.syntax._
  */
 trait SortedIndexedSeq[T] extends SortedSeq[T] with IndexedSeq[T] { self =>
 
+  def contains(x: T) = tryBinarySearch(x) >= 0
+
   /**
    * Finds the key in a sorted sequence using binary search. The complexity of this operation is O(log n).
    * @param x The key to be found
@@ -89,6 +91,12 @@ trait SortedIndexedSeq[T] extends SortedSeq[T] with IndexedSeq[T] { self =>
       if (i < 0) self.head
       else self(i)
     else self.last
+  }
+
+  def asWeightedSet: WeightedSet[T, Int] = new AbstractWeightedSet[T, Int] {
+    def keySet = ???
+    implicit def weightRing = poly.algebra.std.IntStructure
+    def weight(k: T) = ???
   }
 
 }

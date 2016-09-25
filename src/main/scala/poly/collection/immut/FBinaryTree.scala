@@ -4,7 +4,9 @@ import poly.collection._
 import poly.collection.node._
 
 /**
+ * A functional binary tree.
  * @author Tongfei Chen
+ * @since 0.1.0
  */
 sealed abstract class FBinaryTree[+T] extends AbstractBinaryTree[T] with BinaryTreeNodeLike[T, FBinaryTree[T]] with BinaryTreeNode[T] { self =>
 

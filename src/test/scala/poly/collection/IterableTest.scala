@@ -1,6 +1,7 @@
 package poly.collection
 
 import org.scalatest._
+import poly.algebra.syntax._
 import poly.collection.testutil._
 
 /**

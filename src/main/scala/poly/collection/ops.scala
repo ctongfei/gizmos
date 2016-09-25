@@ -74,10 +74,10 @@ trait ImplicitOperators {
     def ∉[U >: T](set: Set[U]) = set notContains x
 
     /** Checks if this element belongs to the specific multiset. */
-    def in[U >: T](mSet: Multiset[U, _]) = mSet contains x
+    def in[U >: T](mSet: WeightedSet[U, _]) = mSet contains x
 
     /** Checks if this element does not belong to the specific multiset. */
-    def notIn[U >: T](mSet: Multiset[U, _]) = mSet notContains x
+    def notIn[U >: T](mSet: WeightedSet[U, _]) = mSet notContains x
 
     /**
      * Constructs a sequence of length 1 with this specific element.

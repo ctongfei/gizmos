@@ -101,8 +101,6 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
   /** Returns the cartesian product of two sets. */
   def product[U](that: Set[U]): Set[(T, U)] = new SetT.Product(self, that)
 
-  def mapWithKeys[V](f: T => V): Map[T, V] = createMap(f)
-
   /** Using this set as the key set, construct a map by the given function. */
   def createMap[V](f: T => V): Map[T, V] = new SetT.MapByFunc(self, f)
 
@@ -120,12 +118,10 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
 
   def map[U](f: Bijection[T, U]): Set[U] = new SetT.BijectivelyMapped(self, f)
 
-  def flatMap[U: Eq](f: T => Set[U]): Set[U] = {
+  def flatMap[U: Eq](f: T => Set[U]): Set[U] =
     elements flatMap { x: T => f(x).elements } to AutoSet
-  }
 
   def zip(that: Set[T]): Set[T] = this intersect that
-
 
   //TODO: !
 //  def quotient(coarser: Eq[T]): Set[Set[T]] = new AbstractSet[Set[T]] {
@@ -191,7 +187,7 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
    * Casts this set as a multiset in which each element appears exactly once.
    * @tparam R Type of the counts of elements in the multiset, can be `Int`, `Double`, etc.
    */
-  def asMultiset[R: OrderedRing]: Multiset[T, R] = new SetT.AsMultiset(self)
+  def asMultiset[R: OrderedRing]: WeightedSet[T, R] = new SetT.AsWeightedSet(self)
 
   //Symbolic aliases
   def &(that: Set[T]) = this intersect that
@@ -310,7 +306,7 @@ private[poly] object SetT {
     override def outgoingMap(i: T) = self createMapOptionally  { j => f(i, j) }
   }
 
-  class AsMultiset[T, R: OrderedRing](self: Set[T]) extends AbstractMultiset[T, R] {
+  class AsWeightedSet[T, R: OrderedRing](self: Set[T]) extends AbstractWeightedSet[T, R] {
     def weightRing = OrderedRing[R]
     def weight(k: T) = if (self.contains(k)) one[R] else zero[R]
     def keySet = self.keySet

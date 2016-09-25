@@ -133,6 +133,40 @@ trait Iterable[+T] extends Traversable[T] { self =>
     }
   }
 
+
+  def groupConsecutivelyBy[K: Eq](f: T => K): Iterable[Iterable[T]] = ofIterator {
+    new AbstractIterator[Iterable[T]] {
+      private[this] val it = self.newIterator
+      private[this] var key: K = default[K]
+      private[this] var g: ArraySeq[T] = null
+      private[this] var buf = ArraySeq[T]()
+      def current = g
+      def advance(): Boolean = {
+        while (it.advance()) {
+          val curr = it.current
+          val currKey = f(curr)
+          if (key === currKey || buf.isEmpty)
+            buf :+= curr
+          else {
+            g = buf to ArraySeq
+            buf.clear()
+            buf :+= curr
+            key = currKey
+            return true
+          }
+        }
+        if (buf.notEmpty) {
+          g = buf to ArraySeq
+          buf.clear()
+          true
+        }
+        else false
+      }
+    }
+  }
+
+  def groupConsecutively[U >: T : Eq]: Iterable[Iterable[T]] = groupConsecutivelyBy(identity)
+
   override def scanLeft[U](z: U)(f: (U, T) => U) = ofIterator {
     new AbstractIterator[U] {
       private[this] val i = self.newIterator
@@ -208,7 +242,6 @@ trait Iterable[+T] extends Traversable[T] { self =>
 
   /**
    * Advances this iterator past the first ''n'' elements.
-   *
    * @param n The number of elements to be skipped
    */
   override def drop(n: Int): Iterable[T] = ofIterator {
@@ -401,7 +434,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
    */
   def sliding(windowSize: Int, step: Int = 1) = ofIterator { //TODO: bug! not working when step > 1
     new AbstractIterator[IndexedSeq[T]] {
-      val it = self.newIterator
+      private[this] val it = self.newIterator
       private[this] var window = ArraySeq.withSizeHint[T](windowSize)
       private[this] var first = true
       def advance(): Boolean = {

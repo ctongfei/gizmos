@@ -32,5 +32,5 @@ trait ValueMutableSeq[T] extends Seq[T] { self =>
       update(i, f(apply(i)))
   }
 
-  //def inplaceReverse(): Unit
+  def reverseInplace(): Unit
 }

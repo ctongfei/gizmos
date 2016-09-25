@@ -1,39 +1,40 @@
 package poly.collection.mut
 
-import poly.collection._
 import poly.collection.builder._
 import poly.collection.factory._
-import poly.collection.impl._
+import poly.collection.immut._
 
 /**
  * A stack backed by a singly-linked list.
  * @author Tongfei Chen
  * @since 0.1.0
  */
-class ListStack[T] private(private var data: SinglyLinkedList[T]) extends Queue[T] {
+class ListStack[T] private(private var data: List[T]) extends Queue[T] {
 
-  override def size = data.len
+  private[this] var s = 0
 
-  def push(x: T): Unit = data.prependInplace(x)
+  override def size = s
 
-  def top: T = data.dummy.next.data
+  def push(x: T): Unit = {
+    s += 1
+    data = x :: data
+  }
+
+  def top: T = data.head
 
   def pop(): T = {
-    val t = top
-    data.deleteInplace(0)
+    val t = data.head
+    data = data.tail
+    s -= 1
     t
   }
 
-  def elements: Iterable[T] = data
+  def elements = data
 
 }
 
 object ListStack extends BuilderFactoryA[ListStack] {
 
-  implicit def newBuilder[T]: Builder[T, ListStack[T]] = new Builder[T, ListStack[T]] {
-    var data: SinglyLinkedList[T] = null
-    def addInplace(x: T) = data.prependInplace(x)
-    def result = new ListStack[T](data)
-  }
+  implicit def newBuilder[T]: Builder[T, ListStack[T]] = List.newBuilder[T] map { l => new ListStack(l) }
 
 }

@@ -11,7 +11,7 @@ import poly.macroutil._
  * @since 0.1.0
  * @author Tongfei Chen
  */
-class ArraySeq[T] private(private var data: ResizableSeq[T]) extends AbstractIndexedSeq[T] with ValueMutableIndexedSeq[T] with KeyMutableSeq[T] {
+class ArraySeq[T] private(private[poly] var data: ResizableSeq[T]) extends AbstractIndexedSeq[T] with ValueMutableIndexedSeq[T] with KeyMutableSeq[T] {
 
   def fastLength = data.fastLength
 

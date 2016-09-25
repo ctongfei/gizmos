@@ -31,7 +31,7 @@ class ListSeq[T] private() extends AbstractSeq[T] with KeyMutableSeq[T] {
   def lastNode = ln
 
   /** $EAGER $O1 */
-  override def last = ln.data // Mirroring SI-9906
+  override def last = ln.data // Mirroring the fix in SI-9906
 
   /**
    * Locates the ''i''th element in a singly linked list.
@@ -115,8 +115,6 @@ class ListSeq[T] private() extends AbstractSeq[T] with KeyMutableSeq[T] {
 
   /**
    * Removes the ''i''-th element.
-   *
-   * @param i Index
    */
   def deleteInplace(i: Int) = {
     val (prev, curr) = locate(i)

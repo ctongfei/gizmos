@@ -4,6 +4,7 @@ import poly.collection._
 import poly.collection.builder._
 import poly.collection.factory._
 import poly.collection.node._
+import scala.annotation._
 
 /**
  * Represents a functional sequence with structural sharing.
@@ -27,10 +28,10 @@ sealed abstract class List[+T] extends AbstractSeq[T] with SeqNodeLike[T, List[T
   final override def tail = next
   final override def head = data
 
-  /** The `Cons` operation on `FSeq`s. */
+  /** The `Cons` operation on `List`s. */
   def ::[U >: T](u: U) = Cons(u, self)
 
-  final override def drop(n: Int): List[T] =
+  @tailrec final override def drop(n: Int): List[T] =
     if (n <= 0) self
     else self match {
       case Empty      => Empty

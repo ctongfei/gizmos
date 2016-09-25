@@ -120,6 +120,10 @@ trait Traversable[+T] { self =>
     m
   }
 
+  //TODO: def groupConsecutivelyBy[K: Eq](f: T => K): Iterable[Iterable[T]] = ???
+
+  //TODO: def groupConsecutively[U >: T : Eq]: Iterable[Iterable[T]]
+
   //endregion
 
   /**
@@ -507,7 +511,7 @@ trait Traversable[+T] { self =>
   //def to[U >: T : EvU, V: EvV, C[_, _], EvU[_], EvV[_]](factory: FactoryEv2[C, EvU, EvV]): C[U, V] = build(factory.newBuilder[U, V])
 
   /**
-   * Converts this traversable sequence to an array. $EAGER
+   * Converts this traversable sequence to an array. The data are always copied. $EAGER
    * @example {{{ xs.toArray }}}
    */
   def toArray[U >: T : ClassTag]: Array[U] = {
