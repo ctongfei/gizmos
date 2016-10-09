@@ -27,6 +27,8 @@ trait EqStateSpace[@sp(Int) S] extends StateSpace[S] with Keyed[S] with Relation
   /** Constraints this state space by selecting only the states that satisfy the given predicate. */
   override def filterKeys(f: S => Boolean): EqStateSpace[S] = new EqStateSpaceT.KeyFiltered(self, f)
 
+  override def filter(f: S => Boolean) = filterKeys(f)
+
   def depthFirstTraversal(start: S) =
     Iterable.ofIterator(new DepthFirstIterator(this, start))
 

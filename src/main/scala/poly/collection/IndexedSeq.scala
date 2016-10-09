@@ -78,8 +78,8 @@ trait IndexedSeq[+T] extends BidiSeq[T] { self =>
 
   /**
    * Returns the Cartesian product of two indexed sequences. The returning value is a table.
-   */ //TODO: consider revising?
-  def productToTable[U](that: IndexedSeq[U]): Table[(T, U)] = new IndexedSeqT.TableProduct(self, that)
+   */
+  def product[U](that: IndexedSeq[U]): Table[(T, U)] = new IndexedSeqT.TableProduct(self, that)
 
   def concat[U >: T](that: IndexedSeq[U]): IndexedSeq[U] = new IndexedSeqT.Concatenated(self, that)
 
@@ -133,12 +133,11 @@ trait IndexedSeq[+T] extends BidiSeq[T] { self =>
   def interleave[U >: T](that: IndexedSeq[U]): IndexedSeq[U] = new IndexedSeqT.Interleaved(self, that)
 
   /**
-    * Rearranges the elements in this indexed sequence according to a permutation. $LAZY
-   *
+   * Rearranges the elements in this indexed sequence according to a permutation. $LAZY
    * @param p A permutation which is of the same length as this sequence
-    * @return A permuted sequence
-    * @example {{{('a', 'b', 'c') permuteBy Permutation(1, 2, 0) == ('b', 'c', 'a')}}}
-    */
+   * @return A permuted sequence
+   * @example {{{('a', 'b', 'c') permuteBy Permutation(1, 2, 0) == ('b', 'c', 'a')}}}
+   */
   def permuteBy(p: Permutation): IndexedSeq[T] = new IndexedSeqT.Permuted(self, p)
 
   override def asIfSorted(implicit T: Order[T]): SortedIndexedSeq[T @uv] = new IndexedSeqT.AsIfSorted(self, T)
@@ -152,13 +151,13 @@ trait IndexedSeq[+T] extends BidiSeq[T] { self =>
   def ++[U >: T](that: IndexedSeq[U]) = this concat that
   def ∗[U](that: IndexedSeq[U]) = self monadicProduct that
   def ⋈[U](that: IndexedSeq[U]) = self zip that
-  def ×[U](that: IndexedSeq[U]) = self productToTable that
+  def ×[U](that: IndexedSeq[U]) = self product that
 
 }
 
 object IndexedSeq {
 
-  object empty extends IndexedSeq[Nothing] {
+  object Empty extends IndexedSeq[Nothing] {
     def fastApply(i: Int): Nothing = throw new NoSuchElementException
     def fastLength: Int = 0
   }

@@ -98,7 +98,7 @@ trait WeightedSet[@sp(Int) K, @sp(Int, Double) R] extends KeyedLike[K, WeightedS
   def exists(f: K => Boolean) = keys exists f
   def max(implicit K: Order[K]) = keys.max
   def min(implicit K: Order[K]) = keys.min
-  def minAndMax(implicit K: Order[K]) = keys.minAndMax
+  def minAndMax(implicit K: Order[K]) = keys.minMax
   def argmax[L: Order](f: K => L) = keys.argmax(f)
   def argmin[L: Order](f: K => L) = keys.argmin(f)
   def minBy[L: Order](f: K => L) = argmin(f)
@@ -188,8 +188,5 @@ private[poly] object MultisetT {
     def weight(k: K) = function.min(self.weight(k), that.weight(k))
     def keySet = self.keySet filter { k => weight(k) > self.weightRing.zero }
   }
-
-
-
 
 }

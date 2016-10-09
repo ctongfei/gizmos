@@ -26,8 +26,8 @@ import scala.annotation.unchecked.{uncheckedVariance => uv}
  * @author Tongfei Chen
  * @since 0.1.0
  */
-// Specializes the types where a specialized iterator type exists in Java 8
-trait Iterator[@sp(Int, Long, Double, Char) +T] { self =>
+// Specializes the types where a specialized iterator type (including InputStream / Reader) exists in Java 8
+trait Iterator[@sp(Int, Long, Double, Char, Byte) +T] { self =>
 
   /** Returns the current element of this iterator. This method should be side-effect free. */
   def current: T
@@ -75,10 +75,10 @@ trait Iterator[@sp(Int, Long, Double, Char) +T] { self =>
 object Iterator {
 
   /** An empty iterator. */
-  object empty extends Iterator[Nothing] {
+  object Empty extends Iterator[Nothing] {
     def advance() = false
     def current = throw new InvalidIteratorPositionException
   }
 }
 
-abstract class AbstractIterator[@sp(Int, Long, Double, Char) +T] extends Iterator[T]
+abstract class AbstractIterator[@sp(Int, Long, Double, Char, Byte) +T] extends Iterator[T]

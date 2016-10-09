@@ -17,8 +17,8 @@ import scala.reflect._
  * Represents a collection whose elements can be traversed through.
  * @author Tongfei Chen
  * @since 0.1.0
- * @define LAZY '''[LAZY]'''
- * @define EAGER '''[EAGER]'''
+ * @define LAZY <p>The returning collection is '''lazily''' evaluated.</p>
+ * @define EAGER <p>The returning collection is '''eagerly''' evaluated.</p>
  * @define Onlogn '''O(''n'' log ''n'')'''
  * @define On '''O(''n'')'''
  * @define Ologn '''O(log ''n'')'''
@@ -120,10 +120,6 @@ trait Traversable[+T] { self =>
     m
   }
 
-  //TODO: def groupConsecutivelyBy[K: Eq](f: T => K): Iterable[Iterable[T]] = ???
-
-  //TODO: def groupConsecutively[U >: T : Eq]: Iterable[Iterable[T]]
-
   //endregion
 
   /**
@@ -200,7 +196,7 @@ trait Traversable[+T] { self =>
   def foldByMonoid[U >: T : Monoid]: U = foldLeft(id)(_ <> _)
 
   /** $On */
-  def reduceLeft[U >: T](f: (U, T) => U): U = { //TODO: Action[U, T]
+  def reduceLeft[U >: T](f: (U, T) => U): U = {
     var empty = true
     var res = default[U]
     for (x <- self) {
@@ -238,7 +234,7 @@ trait Traversable[+T] { self =>
   def consecutive[U](f: (T, T) => U): Traversable[U] = new TraversableT.Consecutive(self, f)
 
   /** $LAZY $O1 */
-  def diffByGroup[U >: T](implicit U: Group[U]) = consecutive((x, y) => U.op(x, U.inv(y)))
+  def diffByGroup[U >: T](implicit U: Group[U]) = consecutive(U.invOp)
 
   /** $EAGER $O1 */
   def head: T = {
@@ -302,8 +298,9 @@ trait Traversable[+T] { self =>
     (this concat that).distinct
 
   def intersect[U >: T : Eq](that: Traversable[U]): Traversable[U] =
-    (this filter that.to(AutoSet)).distinct
-
+    if (this.sizeKnown && that.sizeKnown && this.size < that.size) // short circuit!
+      (that filter (this: Traversable[U]).to(AutoSet)).distinct
+    else (this filter that.to(AutoSet)).distinct
 
   /** Returns the reverse of this collection. $EAGER */
   def reverse: BidiIterable[T] = self.to(ArraySeq).reverse
@@ -408,15 +405,16 @@ trait Traversable[+T] { self =>
 
   /**
    * Returns the top-''k'' elements in this collection.
+   * '''O(''n'' log ''k'')'''
    */
   def top(k: Int)(implicit T: Order[T]) = {
-    val beam = Beam.ofWidth[T](k)(T.reverse)
+    val beam = Beam.ofSize[T](k)(T.reverse)
     self foreach beam.push
     beam.elements
   }
 
   def topBy[U: Order](f: T => U)(k: Int) = {
-    val beam = Beam.ofWidth(k)((Order by second[T, U]).reverse)
+    val beam = Beam.ofSize(k)((Order by second[T, U]).reverse)
     for (x <- self) beam.push(x -> f(x))
     beam.elements map first
   }
@@ -441,7 +439,7 @@ trait Traversable[+T] { self =>
 
   def maxBy[U: Order](f: T => U) = argmax(f)
 
-  def minAndMax(implicit T: Order[T]): (T, T) = {
+  def minMax(implicit T: Order[T]): (T, T) = {
     var minVal = default[T]
     var maxVal = default[T]
     var first = true
@@ -523,19 +521,6 @@ trait Traversable[+T] { self =>
       i += 1
     }
     a
-  }
-
-  /**
-   * Builds a structure based on this traversable sequence given an implicit builder.
-   * @param builder An implicit builder
-   * @tparam S Type of the structure to be built
-   * @return A new structure of type `S`
-   */
-  def build[S](implicit builder: Builder[T, S]): S = {
-    val b = builder
-    if (self.sizeKnown) b.sizeHint(self.size)
-    b addAllInplace self
-    b.result
   }
 
   def buildString(delimiter: String): String = {

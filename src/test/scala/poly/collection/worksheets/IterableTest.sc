@@ -7,9 +7,10 @@ val e = Iterable.iterate(0)(_ + 1).take(5)
 val f = Iterable.iterate(0)(x => 0).take(10)
 val em = Iterable.Empty
 
-val s = Iterable.iterate(0)(_ + 1).asLazyFSeq
+val s = Iterable.iterate(0)(_ + 1).asLazyList
 
 
+e.chunk(2)
 
 e.split(2)
 
@@ -79,7 +80,6 @@ e.init
 
 0.infinitely.take(10)
 
-0.repeat(10)
 e.repeat(4)
 
 e.cycle.take(12)

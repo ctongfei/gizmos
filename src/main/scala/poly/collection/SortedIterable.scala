@@ -1,7 +1,7 @@
 package poly.collection
 
 import poly.algebra._
-import poly.algebra.ops._
+import poly.algebra.syntax._
 import poly.collection.exception._
 import poly.collection.mut._
 
@@ -23,7 +23,25 @@ trait SortedIterable[T] extends Iterable[T] { self =>
    * Returns the unique elements of this iterable collection while retaining their original order.
    * The equivalence function is this sorted iterable collection's inherent order.
    */
-  def distinct: Iterable[T] = self.distinct(elementOrder)
+  def distinct: SortedIterable[T] = new AbstractSortedIterable[T] {
+    implicit def elementOrder = self.elementOrder
+    def newIterator = new AbstractIterator[T] {
+      private[this] val it = self.newIterator
+      private[this] var curr = default[T]
+      private[this] var first = true
+      def current = curr
+      def advance(): Boolean = {
+        while (it.advance()) {
+          if (first || (it.current !== curr)) {
+            first = false
+            curr = it.current
+            return true
+          }
+        }
+        false
+      }
+    }
+  }
 
   /**
    * Merges two sorted iterable collection into one sorted iterable collection. $LAZY
@@ -69,7 +87,7 @@ trait SortedIterable[T] extends Iterable[T] { self =>
 
   def max = self.last
 
-  def mergeEagerly(that: SortedIterable[T]): SortedSeq[T] = {
+  def mergeE(that: SortedIterable[T]): SortedSeq[T] = {
     val ai = this.newIterator
     val bi = that.newIterator
     val c = ArraySeq[T]()

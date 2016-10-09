@@ -19,7 +19,7 @@ object FromJava {
     def newIterator = javaIteratorAsPoly[T](xs.iterator())
   }
 
-  implicit class javaIteratorAsPoly[T](xs: ju.Iterator[T]) extends Iterator[T] {
+  implicit class javaIteratorAsPoly[T](xs: ju.Iterator[T]) extends AbstractIterator[T] {
     private[this] var curr: T = default[T]
     def advance() = {
       if (xs.hasNext) {
@@ -31,7 +31,7 @@ object FromJava {
     def current = curr
   }
 
-  implicit class javaIntIteratorAsPoly(xs: ju.PrimitiveIterator.OfInt) extends Iterator[Int] {
+  implicit class javaIntIteratorAsPoly(xs: ju.PrimitiveIterator.OfInt) extends AbstractIterator[Int] {
     private[this] var curr: Int = 0
     def advance() = {
       if (xs.hasNext) {
@@ -43,7 +43,7 @@ object FromJava {
     def current = curr
   }
 
-  implicit class javaDoubleIteratorAsPoly(xs: ju.PrimitiveIterator.OfDouble) extends Iterator[Double] {
+  implicit class javaDoubleIteratorAsPoly(xs: ju.PrimitiveIterator.OfDouble) extends AbstractIterator[Double] {
     private[this] var curr: Double = 0.0
     def advance() = {
       if (xs.hasNext) {
@@ -55,7 +55,7 @@ object FromJava {
     def current = curr
   }
 
-  implicit class javaLongIteratorAsPoly(xs: ju.PrimitiveIterator.OfLong) extends Iterator[Long] {
+  implicit class javaLongIteratorAsPoly(xs: ju.PrimitiveIterator.OfLong) extends AbstractIterator[Long] {
     private[this] var curr: Long = 0l
     def advance() = {
       if (xs.hasNext) {
@@ -83,13 +83,13 @@ object FromJava {
     def newIterator = xs.iterator()
   }
   
-  implicit class javaListAsPoly[T](xs: ju.List[T]) extends ValueMutableIndexedSeq[T] {
+  implicit class javaListAsPoly[T](xs: ju.List[T]) extends AbstractIndexedSeq[T] with ValueMutableIndexedSeq[T] {
     def fastLength = xs.size
     def fastApply(i: Int) = xs.get(i)
     def update(i: Int, x: T) = xs.set(i, x)
   }
 
-  implicit class javaSetAsPoly[T](xs: ju.Set[T]) extends KeyMutableSet[T] {
+  implicit class javaSetAsPoly[T](xs: ju.Set[T]) extends AbstractSet[T] with KeyMutableSet[T] {
     def removeInplace(x: T) = xs.remove(x)
     def addInplace(x: T) = xs.add(x)
     def keyEq = Eq.default[T]

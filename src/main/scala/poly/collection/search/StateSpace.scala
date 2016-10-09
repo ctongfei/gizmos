@@ -15,6 +15,8 @@ trait StateSpace[S] { self =>
   /** Constraints this state space by selecting only the states that satisfy the given predicate. */
   def filterKeys(f: S => Boolean): StateSpace[S] = new StateSpaceT.KeyFiltered(self, f)
 
+  def filter(f: S => Boolean) = filterKeys(f)
+
   /**
    * Depth-first traverses this state space from the given starting state.
    * $LAZY */

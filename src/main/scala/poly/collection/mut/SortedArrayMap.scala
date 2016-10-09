@@ -14,7 +14,7 @@ import poly.collection.impl._
 class SortedArrayMap[K, V] private(
   private[poly] val keyArray: SortedArraySeq[K],
   private[poly] val valArray: ResizableSeq[V]
-) extends SortedMap[K, V] with KeyMutableMap[K, V] {
+) extends KeySortedMap[K, V] with KeyMutableMap[K, V] {
 
   def keySet: SortedSet[K] = new AbstractSortedSet[K] {
     def keyOrder = keyArray.elementOrder

@@ -40,6 +40,6 @@ object Beam {
    * Constructs an empty beam with the specified width ''k''.
    * It keeps the ''k'' smallest elements under the given implicit order.
    */
-  def ofWidth[T](k: Int)(implicit T: Order[T]): Beam[T] = new Beam(k, BinaryHeap()(T.reverse))
+  def ofSize[T](k: Int)(implicit T: Order[T]): Beam[T] = new Beam(k, BinaryHeap()(T.reverse))
 
 }

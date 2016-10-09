@@ -21,9 +21,9 @@ import scala.reflect._
  */
 object AutoMap extends BuilderFactoryAB_EvA[KeyMutableMap, Eq] {
   implicit def newBuilder[K, V](implicit K: Eq[K]): Builder[(K, V), KeyMutableMap[K, V]] = K match {
-    case kh: Hashing[K] => HashMap.newBuilder[K, V](kh)
+    case kh: Hashing[K] => HashMap        .newBuilder[K, V](kh)
     case ko: Order[K]   => RedBlackTreeMap.newBuilder[K, V](ko)
-    case ke             => ListMap.newBuilder[K, V](ke)
+    case ke             => ListMap        .newBuilder[K, V](ke)
   }
 
   object Dense extends BuilderFactoryAB_EvAA[KeyMutableMap, Eq, ClassTag] {

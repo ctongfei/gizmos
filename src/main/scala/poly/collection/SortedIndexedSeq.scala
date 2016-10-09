@@ -9,10 +9,14 @@ import poly.algebra.syntax._
  */
 trait SortedIndexedSeq[T] extends SortedSeq[T] with IndexedSeq[T] { self =>
 
+  /**
+   * Checks if this sorted sequence contains the specific element.
+   * The equivalence relation used for checking is the order of this sequence. $Ologn
+   */
   def contains(x: T) = tryBinarySearch(x) >= 0
 
   /**
-   * Finds the key in a sorted sequence using binary search. The complexity of this operation is O(log n).
+   * Finds the key in a sorted sequence using binary search. $Ologn
    * @param x The key to be found
    * @return Index of key. If not found, None.
    */
@@ -23,7 +27,7 @@ trait SortedIndexedSeq[T] extends SortedSeq[T] with IndexedSeq[T] { self =>
 
   /**
    * Finds the key in a sorted sequence using binary search.
-   * If not found, returns the complement (~x) of its lower bound.
+   * If not found, returns the complement (~x) of its lower bound. $Ologn
    * @param x The key to be found
    * @return Index of key. If not found, complement of the index at which it should be inserted
    */
@@ -45,7 +49,7 @@ trait SortedIndexedSeq[T] extends SortedSeq[T] with IndexedSeq[T] { self =>
   }
 
   /**
-   * Finds the first element that is greater than the key and returns its index.
+   * Finds the first element that is greater than the key and returns its index. $Ologn
    * @param key The key to be found
    * @return The index of the first element that is greater than the key.
    */
@@ -65,7 +69,7 @@ trait SortedIndexedSeq[T] extends SortedSeq[T] with IndexedSeq[T] { self =>
   }
 
   /**
-   * Finds the first element that is not less than the key and returns its index.
+   * Finds the first element that is not less than the key and returns its index. $Ologn
    * @param key The key to be found
    * @return The index of the first element that is not less than the key.
    */
@@ -84,7 +88,7 @@ trait SortedIndexedSeq[T] extends SortedSeq[T] with IndexedSeq[T] { self =>
     first
   }
 
-  /** Returns the ''q''-quantile of this sequence under the current sorted order. */
+  /** Returns the ''q''-quantile of this sequence under the current sorted order. $O1 */
   def quantile(q: Double) = {
     val i = math.floor(self.length * q).toInt
     if (i < self.length)
@@ -93,12 +97,34 @@ trait SortedIndexedSeq[T] extends SortedSeq[T] with IndexedSeq[T] { self =>
     else self.last
   }
 
-  def asWeightedSet: WeightedSet[T, Int] = new AbstractWeightedSet[T, Int] {
-    def keySet = ???
-    implicit def weightRing = poly.algebra.std.IntStructure
-    def weight(k: T) = ???
-  }
+  def asWeightedSet: WeightedSet[T, Int] = new SortedIndexedSeqT.AsWeightedSet(self)
+
+  def asSet: SortedSet[T] = new SortedIndexedSeqT.AsSet(self)
 
 }
 
 abstract class AbstractSortedIndexedSeq[T] extends AbstractIndexedSeq[T] with SortedIndexedSeq[T]
+
+private[poly] object SortedIndexedSeqT {
+
+  class AsSet[T](self: SortedIndexedSeq[T]) extends AbstractSortedSet[T] {
+    def keyOrder = self.elementOrder
+    def keys = self.distinct
+    def contains(x: T) = self.contains(x)
+  }
+
+  class AsWeightedSet[T](self: SortedIndexedSeq[T]) extends AbstractWeightedSet[T, Int] {
+    def keySet: SortedSet[T] = new AsSet(self)
+    def weightRing = poly.algebra.std.IntStructure
+    def weight(k: T) = {
+      val l = self.lowerBound(k)
+      if (self(l) !== k) 0
+      else {
+        var r = l
+        while (self(r) === k) r += 1
+        r - l
+      }
+    }
+  }
+
+}

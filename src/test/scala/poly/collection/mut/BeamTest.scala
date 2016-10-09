@@ -10,7 +10,7 @@ import org.scalatest._
 class BeamTest extends FunSuite {
 
   test("Beam") {
-    val b = Beam.ofWidth[Int](3)
+    val b = Beam.ofSize[Int](3)
     b += 3
     b += 4
     b += 5

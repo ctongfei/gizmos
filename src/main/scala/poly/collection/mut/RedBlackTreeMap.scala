@@ -13,7 +13,7 @@ import poly.collection.factory._
  *  @since 0.1.0
   */
 class RedBlackTreeMap[K, V] private(private val data: java.util.TreeMap[K, V])
-  extends AbstractMap[K, V] with KeyMutableMap[K, V] with SortedMap[K, V] { self =>
+  extends AbstractMap[K, V] with KeyMutableMap[K, V] with KeySortedMap[K, V] { self =>
 
   def apply(k: K) = data get k
 

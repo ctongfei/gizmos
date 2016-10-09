@@ -29,7 +29,7 @@ trait SortedSet[@sp(Int) T] extends Set[T] { self =>
 
   //TODO: subsetBetween, subsetUpTo, subsetFrom?
 
-  override def createMap[V](f: T => V): SortedMap[T, V] = new AbstractSortedMap[T, V] {
+  override def createMap[V](f: T => V): KeySortedMap[T, V] = new AbstractKeySortedMap[T, V] {
     def apply(k: T) = f(k)
     def ?(k: T) = if (self contains k) Some(f(k)) else None
     override def size = self.size

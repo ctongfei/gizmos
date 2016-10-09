@@ -73,7 +73,7 @@ object FromScala {
     def contains(x: K) = sset contains x
   }
 
-  implicit class scalaSortedMapAsPoly[K, V](smap: sc.SortedMap[K, V]) extends AbstractMap[K, V] with SortedMap[K, V] {
+  implicit class scalaSortedMapAsPoly[K, V](smap: sc.SortedMap[K, V]) extends AbstractMap[K, V] with KeySortedMap[K, V] {
     def keySet = smap.keySet
     override def pairs = scalaIterableAsPoly(smap).asIfSorted(smap.ordering contramap first)
     def apply(k: K) = smap(k)

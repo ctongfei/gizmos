@@ -76,7 +76,7 @@ object Permutation {
       bs(xs(i)) = true
     }
     // Requires that this is essentially a true bijection: all bits should be set as true
-    require(bs forall {x => x} )
+    require(bs forall {x => x})
     new Permutation(xs.clone, ys)
   }
 
@@ -107,7 +107,8 @@ object Permutation {
     new Permutation(a, a)
   }
 
-  def GroupAction[T]: Action[IndexedSeq[T], Permutation] = new Action[IndexedSeq[T], Permutation] {
+  def GroupAction[T](n: Int): GroupAction[IndexedSeq[T], Permutation] = new GroupAction[IndexedSeq[T], Permutation] {
+    def actorGroup: Group[Permutation] = Group(n)
     def act(x: IndexedSeq[T], p: Permutation) = x permuteBy p
   }
 
@@ -159,7 +160,8 @@ object Permutation {
     }
   }
 
-  implicit object LexicographicOrder extends SequentialOrder[Permutation] {
+  //TODO: SequentialOrder
+  implicit object LexicographicOrder extends Order[Permutation] {
     def cmp(x: Permutation, y: Permutation): Int = {
       FastLoop.ascending(0, x.size, 1) { i =>
         if (x(i) < y(i)) return -1
@@ -167,10 +169,6 @@ object Permutation {
       }
       0
     }
-
-    def pred(x: Permutation) = ???
-
-    def succ(x: Permutation) = ???
   }
 
 }

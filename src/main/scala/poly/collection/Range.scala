@@ -43,14 +43,7 @@ sealed trait Range extends SortedIndexedSeq[Int] { self =>
 
   def sum = (head + last) * length / 2
 
-  def asSet: SortedSet[Int] = new AbstractSortedSet[Int] {
-    override def size = self.fastLength
-    def keyOrder = self.elementOrder
-    def keys = self
-    def contains(x: Int) =
-      if (step > 0) x >= left && x < right && (x - left) % step == 0
-      else x <= left && x > right && (left - x) % (-step) == 0
-  }
+  override def asSet: SortedSet[Int] = new RangeT.AsSet(self)
 }
 
 object Range {
@@ -83,6 +76,7 @@ object Range {
 
     def elementOrder = Order[Int]
     override def tail = new Range.Ascending(left + step, right, step)
+    override def init = new Range.Ascending(left, right - step, step)
     override def reverse = new Range.Descending(left + step * (length - 1), left - math.signum(step), -step)
   }
 
@@ -100,6 +94,7 @@ object Range {
     def elementOrder = Order[Int].reverse
     def intersect(that: Range.Descending) = (this.reverse intersect that.reverse).reverse
     override def tail = new Range.Descending(left + step, right, step)
+    override def init = new Range.Descending(left, right - step, step)
     override def reverse = new Range.Ascending(left + step * (length - 1), left - math.signum(step), -step)
   }
 
@@ -171,4 +166,17 @@ object Range {
     new InlineUtil[c.type](c).inlineAndReset[Unit](tree)
   }
 
+}
+
+private[poly] object RangeT {
+  class AsSet(self: Range) extends AbstractSortedSet[Int] {
+    override def size = self.fastLength
+    def keyOrder = self.elementOrder
+    def keys = self
+    def contains(x: Int) = {
+      import self._
+      if (step > 0) x >= left && x < right && (x - left) % step == 0
+      else x <= left && x > right && (left - x) % (-step) == 0
+    }
+  }
 }

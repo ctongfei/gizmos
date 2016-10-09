@@ -21,15 +21,13 @@ class AdjacencyListGraph[@sp(Int) K, E] private(private val r: KeyMutableMap[K, 
 
 }
 
-object AdjacencyListGraph extends BuilderFactoryAAB_EvA[AdjacencyListGraph, Eq] {
+object AdjacencyListGraph extends GraphFactory[AdjacencyListGraph] {
 
-  implicit def newBuilder[K: Eq, E]: Builder[(K, K, E), AdjacencyListGraph[K, E]] =
-    new Builder[(K, K, E), AdjacencyListGraph[K, E]] {
+  implicit def newBuilder[K: Eq, E]: GraphBuilder[K, E, AdjacencyListGraph[K, E]] =
+    new GraphBuilder[K, E, AdjacencyListGraph[K, E]] {
       private[this] val r = AutoMap[K, ListMap[K, E]]().withDefaultUpdate(ListMap[K, E]())
-      def addInplace(x: (K, K, E)) = {
-        val (i, j, e) = x
-        r(i) += (j, e)
-      }
+      def addNodeInplace(i: K) = r += i -> ListMap()
+      def addEdgeInplace(i: K, j: K, e: E) = r(i) += j -> e
       def result = new AdjacencyListGraph(r)
     }
 

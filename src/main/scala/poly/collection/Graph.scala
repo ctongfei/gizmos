@@ -111,7 +111,7 @@ trait Graph[@sp(Int) K, @sp(Double) +E] extends EqStateSpace[K] with KeyedLike[K
    * Returns the reverse/transpose graph of the original graph.
    * @return The reverse graph, in which every edge is reversed
    */
-  def reverse: BidiGraph[K, E] = AdjacencyListBidiGraph from (arcs map { case (i, j, e) => (j, i, e) })
+  def reverse: BidiGraph[K, E] = AdjacencyListBidiGraph fromEdges (arcs map { case (i, j, e) => (j, i, e) })
 
   /** Casts this graph as a multimap that maps a key to the outgoing set of that key. */
   def asMultimap: Multimap[K, K] = new GraphT.AsMultimap(self)

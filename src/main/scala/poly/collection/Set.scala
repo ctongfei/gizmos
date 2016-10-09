@@ -166,7 +166,7 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
 
   def min(implicit T: Order[T]) = elements.min
 
-  def minAndMax(implicit T: Order[T]) = elements.minAndMax
+  def minAndMax(implicit T: Order[T]) = elements.minMax
 
   def argmin[U: Order](f: T => U): T = elements.argmin(f)
 

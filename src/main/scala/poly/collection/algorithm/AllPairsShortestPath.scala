@@ -39,6 +39,10 @@ class AllPairsShortestPath[K, E : OrderedAdditiveGroup : HasTop](val graph: Grap
 
   def dist(i: K, j: K): E = distanceBetween(i, j).getOrElse(top[E])
 
+  /**
+   * Returns the distance between two nodes in the graph.
+   * @return [[None]] if not connected
+   */
   def distanceBetween(i: K, j: K) = d ? (i, j)
 
   /**

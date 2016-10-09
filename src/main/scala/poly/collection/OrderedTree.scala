@@ -129,7 +129,7 @@ object OrderedTree {
 
   implicit object ZipIdiom extends Idiom[OrderedTree] {
     def id[X](u: X) = OrderedTree.infinite(u)
-    def liftedMap[X, Y](mx: OrderedTree[X])(mf: OrderedTree[X => Y]) = ???
+    def liftedMap[X, Y](mx: OrderedTree[X])(mf: OrderedTree[X => Y]) = (mx zipWith mf) { (x, f) => f(x) }
   }
 
 }

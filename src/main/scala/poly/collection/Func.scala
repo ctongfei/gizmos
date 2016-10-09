@@ -30,7 +30,7 @@ trait Func[@sp(spFunc1) -A, @sp(spFuncR) +B] extends (A => B) { self =>
   def zip[A1 <: A, C](that: A1 => C) = (a: A1) => (self(a), that(a))
 
   /** Casts this binary function as a binary relation. */
-  def asRelation[C >: B : Eq]: Relation[A, C] = new FuncT.AsRelation(self, Eq[C])
+  def asRelation[B1 >: B : Eq]: Relation[A, B1] = new FuncT.AsRelation(self, Eq[B1])
 
   def |>[C](that: B => C) = andThen(that)
   def |>:[C](that: C => A) = compose(that)
@@ -47,10 +47,12 @@ object Func {
     def apply(a: A) = f(a)
   }
 
-  //TODO: Profunctor + Arrow
-  implicit object Category extends Category[Func] {
+  implicit object Arrow extends Arrow[Func] {
     def id[X] = (x: X) => x
     def compose[X, Y, Z](g: Func[Y, Z], f: Func[X, Y]) = g compose f
+    def lift[X, Y](f: X => Y) = f
+    def apply1[X, Y, Z](f: Func[X, Y]): Func[(X, Z), (Y, Z)] = { case (x, z) => (f(x), z) }
+    def apply2[X, Y, Z](f: Func[X, Y]): Func[(Z, X), (Z, Y)] = { case (z, x) => (z, f(x)) }
   }
 
 }

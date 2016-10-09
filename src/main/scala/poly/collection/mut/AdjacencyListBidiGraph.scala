@@ -25,23 +25,24 @@ class AdjacencyListBidiGraph[@sp(Int) K: Eq, E] private(private val r: KeyMutabl
 
 }
 
-object AdjacencyListBidiGraph extends BuilderFactoryAAB_EvA[AdjacencyListBidiGraph, Eq] {
+object AdjacencyListBidiGraph extends GraphFactory[AdjacencyListBidiGraph] {
 
   private[poly] class VertexInfo[K: Eq, E] {
     val pred = ListSet[K]()
     val succ = ListMap[K, E]()
   }
 
-  implicit def newBuilder[K: Eq, E]: Builder[(K, K, E), AdjacencyListBidiGraph[K, E]] =
-    new Builder[(K, K, E), AdjacencyListBidiGraph[K, E]] {
+  implicit def newBuilder[K: Eq, E]: GraphBuilder[K, E, AdjacencyListBidiGraph[K, E]] =
+    new GraphBuilder[K, E, AdjacencyListBidiGraph[K, E]] {
       private[this] val r = AutoMap[K, VertexInfo[K, E]]().withDefaultUpdate(new VertexInfo[K, E])
-      def addInplace(x: (K, K, E)) = {
-        val (i, j, e) = x
+      def addNodeInplace(i: K) = {
+        r += i -> new VertexInfo[K, E]()
+      }
+      def addEdgeInplace(i: K, j: K, e: E) = {
         r(i).succ += (j, e)
         r(j).pred += i
       }
       def result = new AdjacencyListBidiGraph(r)
     }
-
-
+  
 }

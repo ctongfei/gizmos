@@ -12,8 +12,6 @@ import poly.collection._
  */
 object MurmurHash3 {
 
-  scala.util.hashing.MurmurHash3
-
   @inline final def mix(hash: Int, data: Int): Int = {
     var h = mixLast(hash, data)
     h = Integer.rotateLeft(h, 13)

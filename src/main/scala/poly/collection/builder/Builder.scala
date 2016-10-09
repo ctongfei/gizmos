@@ -1,7 +1,6 @@
 package poly.collection.builder
 
 import poly.algebra.mut._
-import poly.algebra.specgroup._
 import poly.collection._
 import poly.collection.mut._
 
@@ -15,7 +14,7 @@ import scala.language.higherKinds
   * @author Tongfei Chen
   * @since 0.1.0
   */
-@implicitNotFound("Cannot find a builder to build ${C} from elements of type ${T}.")
+@implicitNotFound("Cannot find a builder to build a ${C} from elements of type ${T}.")
 trait Builder[-T, +C] { self =>
 
   /**
@@ -50,11 +49,7 @@ trait Builder[-T, +C] { self =>
    * Returns a new builder which wraps around this builder. The difference
    * is that the result is mapped by the specified function.
    */
-  def map[D](f: C => D): Builder[T, D] = new Builder[T, D] {
-    def addInplace(x: T) = self addInplace x
-    def result = f(self.result)
-    override def sizeHint(n: Int) = self sizeHint n
-  }
+  def map[D](f: C => D): Builder[T, D] = new BuilderT.Mapped(self, f)
 
   def |>[D](f: C => D) = map(f)
 
@@ -79,5 +74,15 @@ object Builder {
   def ofMutableSeq[T, S <: KeyMutableSeq[T]](s: S): Builder[T, S] = new Builder[T, S] {
     def addInplace(x: T) = s appendInplace x
     def result = s
+  }
 }
+
+private[poly] object BuilderT {
+
+  class Mapped[T, C, D](self: Builder[T, C], f: C => D) extends Builder[T, D] {
+    def addInplace(x: T) = self addInplace x
+    def result = f(self.result)
+    override def sizeHint(n: Int) = self sizeHint n
+  }
+
 }

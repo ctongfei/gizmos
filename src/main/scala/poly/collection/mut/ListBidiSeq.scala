@@ -34,7 +34,7 @@ class ListBidiSeq[T] private() extends AbstractBidiSeq[T] with KeyMutableSeq[T] 
    *
    * @param i Index
    * @return The node that contains the ''i''-th element.
-   */ //TODO: negative indices
+   */
   def locate(i: Int): Node = { //TODO: for i >= length / 2, find backwards for faster speed
     if (i < 0 || i >= len) throw new IndexOutOfBoundsException
     var curr = dummy.next

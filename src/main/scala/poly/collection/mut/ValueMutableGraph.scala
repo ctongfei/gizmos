@@ -13,3 +13,4 @@ trait ValueMutableGraph[K, E] extends Graph[K, E] {
   def update(i: K, j: K, e: E): Unit
 
 }
+

@@ -7,7 +7,7 @@ import poly.collection.search._
 
 /**
  * Represents a node in the fringe / open set of a searching algorithm.
- *
+ * @since 0.1.0
  * @author Yuhuan Jiang
  * @author Tongfei Chen
  */

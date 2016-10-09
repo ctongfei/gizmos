@@ -44,20 +44,13 @@ trait Seq[+T] extends Iterable[T] with IntKeyedSortedMap[T] { self =>
    * @return The ''i''-th element of this sequence
    */
   def apply(i: Int): T = {
-    if (i < 0) {
-      val l = length
-      if (i < -l) throw new KeyNotFoundException(i)
-      else apply(i + l)
+    var node = headNode
+    var j = 0
+    while (j < i) {
+      node = node.next
+      j += 1
     }
-    else {
-      var node = headNode
-      var j = 0
-      while (j < i) {
-        node = node.next
-        j += 1
-      }
-      node.data
-    }
+    node.data
   }
 
   override def size = length
@@ -75,7 +68,7 @@ trait Seq[+T] extends Iterable[T] with IntKeyedSortedMap[T] { self =>
   def keySet: SortedSet[Int] = new AbstractSortedSet[Int] {
     def keys = new SeqT.Keys(self)
     def contains(i: Int) = i >= 0 && i < length //TODO: faster implementation; skip calculation of length
-    def keyOrder = Order[Int]
+    def keyOrder = poly.algebra.std.IntStructure
   }
 
   def ?(i: Int) = if (i >= 0 && i < length) Some(this(i)) else None
@@ -616,6 +609,5 @@ private[poly] object SeqT {
     override def sizeKnown = self.sizeKnown // map preserves size
     override def size = self.size
   }
-
 
 }

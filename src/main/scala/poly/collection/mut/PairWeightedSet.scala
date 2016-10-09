@@ -20,6 +20,8 @@ class PairWeightedSet[K, R: OrderedRing] private[poly](private val data: KeyMuta
 
   def weightRing = OrderedRing[R]
 
+  override def keyWeightPairs = data.pairs
+
   def removeInplace(x: K, w: R = weightRing.one) = {
     val u = data(x) - w
     if (u == weightRing.zero) data.removeInplace(x)

@@ -5,7 +5,9 @@ import poly.algebra.syntax._
 import poly.collection._
 
 /**
+ * A keyed priority queue that keeps its keys distinct.
  * @author Tongfei Chen
+ * @since 0.1.0
  */
 class DistinctPriorityQueue[K: Eq, T] private(private val inner: PriorityQueue[T], val keySelector: T => K)
   extends KeyedPriorityQueue[K, T] {

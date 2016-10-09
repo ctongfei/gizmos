@@ -1,24 +1,13 @@
 package poly.collection
 
-import poly.collection.node._
-
 /**
+ * Represents a sequence whose elements are sorted.
  * @author Tongfei Chen
+ * @since 0.1.0
  */
 trait SortedSeq[T] extends Seq[T] with SortedIterable[T] { self =>
 
-  override def filter(f: T => Boolean): SortedSeq[T] = {
-    class FilteredSeqNode(val node: SeqNode[T]) extends SeqNode[T] {
-      override def isDummy = node.isDummy
-      def data = node.data
-      def next = {
-        var nextNode = node.next
-        while (nextNode.notDummy && !f(nextNode.data)) nextNode = nextNode.next
-        new FilteredSeqNode(nextNode)
-      }
-    }
-    Seq.ofDummyNode(new FilteredSeqNode(dummy)).asIfSorted(elementOrder)
-  }
+  override def filter(f: T => Boolean): SortedSeq[T] = super[Seq].filter(f).asIfSorted(self.elementOrder)
 
   override def filterNot(f: T => Boolean) = filter(x => !f(x))
 

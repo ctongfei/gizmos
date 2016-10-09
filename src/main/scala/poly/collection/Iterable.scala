@@ -32,72 +32,17 @@ trait Iterable[+T] extends Traversable[T] { self =>
 
   override def map[U](f: T => U): Iterable[U] = new IterableT.Mapped(self, f)
 
-  def flatMap[U](f: T => Iterable[U]) = ofIterator {
-    new AbstractIterator[U] {
-      private[this] val outer: Iterator[T] = self.newIterator
-      private[this] var inner: Iterator[U] = Iterator.empty
-      def current = inner.current
-      def advance(): Boolean = {
-        if (inner.advance()) true
-        else {
-          while (outer.advance()) {
-            inner = f(outer.current).newIterator
-            if (inner.advance()) return true
-          }
-          false
-        }
-      }
-    }
-  }
+  def flatMap[U](f: T => Iterable[U]) = ofIterator(new IterableT.FlatMappedIterator(self, f))
 
   def monadicProduct[U](that: Iterable[U]): Iterable[(T, U)] = self.flatMap(t => that.map(u => (t, u)))
 
-  override def filter(f: T => Boolean) = ofIterator {
-    new AbstractIterator[T] {
-      private[this] val i = self.newIterator
-      def current: T = i.current
-      def advance(): Boolean = {
-        do {
-          val hasNext = i.advance()
-          if (!hasNext) return false
-        } while (!f(i.current))
-        true
-      }
-    }
-  }
+  override def filter(f: T => Boolean) = ofIterator(new IterableT.FilteredIterator(self, f))
 
-  override def collect[U](pf: PartialFunction[T, U]) = ofIterator {
-    new AbstractIterator[U] {
-      private[this] val i = self.newIterator
-      private[this] var c = default[U]
-      def advance(): Boolean = {
-        do {
-          if (!i.advance()) return false
-        } while (!(pf runWith { c = _ })(i.current))
-        true
-      }
-      def current = c
-    }
-  }
+  override def collect[U](pf: PartialFunction[T, U]) = ofIterator(new IterableT.CollectedIterator(self, pf))
 
   override def filterNot(f: T => Boolean) = filter(x => !f(x))
 
-  def concat[U >: T](that: Iterable[U]): Iterable[U] = ofIterator {
-    new AbstractIterator[U] {
-      private[this] var e: Iterator[U] = self.newIterator
-      private[this] var first = true
-      def advance() = {
-        if (e.advance()) true
-        else if (first) {
-          e = that.newIterator
-          first = false
-          e.advance()
-        }
-        else false
-      }
-      def current = e.current
-    }
-  }
+  def concat[U >: T](that: Iterable[U]): Iterable[U] = ofIterator(new IterableT.ConcatedIterator(self, that))
 
   override def prepend[U >: T](u: U): Iterable[U] = ofIterator {
     new AbstractIterator[U] {
@@ -133,7 +78,15 @@ trait Iterable[+T] extends Traversable[T] { self =>
     }
   }
 
-
+  /**
+   * Groups the elements into groups if the consecutive elements
+   * are mapped to the same value using the given predicate. $LAZY
+   * @note This is similar to the Python `itertools.groupby`.
+   * @example {{{
+   *   (1, 4, 7, 2, 5, 2, 0, 3, 1).groupConsecutivelyBy(_ % 3) ==
+   *   ((1, 4, 7), (2, 5, 2), (0, 3), (1))
+   * }}}
+   */
   def groupConsecutivelyBy[K: Eq](f: T => K): Iterable[Iterable[T]] = ofIterator {
     new AbstractIterator[Iterable[T]] {
       private[this] val it = self.newIterator
@@ -165,6 +118,14 @@ trait Iterable[+T] extends Traversable[T] { self =>
     }
   }
 
+  /**
+   * Groups the elements into groups if the consecutive elements are the same under the specified
+   * equivalence relation. $LAZY
+   * @note This is similar to the Unix `uniq` and the Python `itertools.groupby`.
+   * @example {{{
+   *   (1, 1, 2, 2, 2, 0).groupConsecutively == ((1, 1), (2, 2, 2), (0))
+   * }}}
+   */
   def groupConsecutively[U >: T : Eq]: Iterable[Iterable[T]] = groupConsecutivelyBy(identity)
 
   override def scanLeft[U](z: U)(f: (U, T) => U) = ofIterator {
@@ -321,7 +282,11 @@ trait Iterable[+T] extends Traversable[T] { self =>
 
   def union[U >: T : Eq](that: Iterable[U]): Iterable[U] = (this concat that).distinct
 
-  def intersect[U >: T : Eq](that: Iterable[U]): Iterable[U] = (this filter that.to(AutoSet)).distinct
+  def intersect[U >: T : Eq](that: Iterable[U]): Iterable[U] = {
+    if (this.sizeKnown && that.sizeKnown && this.size < that.size) // short circuit!
+      (that filter (this: Iterable[U]).to(AutoSet)).distinct
+    else (this filter that.to(AutoSet)).distinct
+  }
 
   override def rotate(n: Int): Iterable[T] = self.drop(n) ++ self.take(n)
 
@@ -423,7 +388,27 @@ trait Iterable[+T] extends Traversable[T] { self =>
     }
   }
 
-  //def chunk(chunkSize: Int) =
+  def chunk(chunkSize: Int) = ofIterator {
+    new AbstractIterator[IndexedSeq[T]] {
+      private[this] val it = self.newIterator
+      private[this] var buf: ArraySeq[T] = null
+      private[this] var lastChunk = false
+      def current = buf
+      def advance(): Boolean = {
+        if (lastChunk) return false
+        val newBuf = ArraySeq.withSizeHint[T](chunkSize)
+        buf = newBuf
+        var i = 0
+        var last = false
+        while (i < chunkSize && { val t = it.advance(); if (!t) last = true; t }) {
+          buf :+= it.current
+          i += 1
+        }
+        if (last) lastChunk = true
+        true
+      }
+    }
+  }
 
   /**
    * Groups elements in fixed size blocks by passing a sliding window over them.
@@ -489,7 +474,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
     override def size = s
   }
 
-  def asLazyFSeq: LazyList[T] = newIterator.asLazyList
+  def asLazyList: LazyList[T] = newIterator.asLazyList
 
   //endregion
 
@@ -631,6 +616,61 @@ private[poly] object IterableT {
     }
     override def sizeKnown = self.sizeKnown // map preserves size
     override def size = self.size
+  }
+
+  class FlatMappedIterator[T, U](self: Iterable[T], f: T => Iterable[U]) extends AbstractIterator[U] {
+    private[this] val outer: Iterator[T] = self.newIterator
+    private[this] var inner: Iterator[U] = Iterator.Empty
+    def current = inner.current
+    def advance(): Boolean = {
+      if (inner.advance()) true
+      else {
+        while (outer.advance()) {
+          inner = f(outer.current).newIterator
+          if (inner.advance()) return true
+        }
+        false
+      }
+    }
+  }
+
+  class FilteredIterator[T](self: Iterable[T], f: T => Boolean) extends AbstractIterator[T] {
+    private[this] val i = self.newIterator
+    def current: T = i.current
+    def advance(): Boolean = {
+      do {
+        val hasNext = i.advance()
+        if (!hasNext) return false
+      } while (!f(i.current))
+      true
+    }
+  }
+
+  class CollectedIterator[T, U](self: Iterable[T], pf: PartialFunction[T, U]) extends AbstractIterator[U] {
+    private[this] val i = self.newIterator
+    private[this] var c = default[U]
+    def advance(): Boolean = {
+      do {
+        if (!i.advance()) return false
+      } while (!(pf runWith { c = _ })(i.current))
+      true
+    }
+    def current = c
+  }
+
+  class ConcatedIterator[U](self: Iterable[U], that: Iterable[U]) extends AbstractIterator[U] {
+    private[this] var e: Iterator[U] = self.newIterator
+    private[this] var first = true
+    def advance() = {
+      if (e.advance()) true
+      else if (first) {
+        e = that.newIterator
+        first = false
+        e.advance()
+      }
+      else false
+    }
+    def current = e.current
   }
 
 }

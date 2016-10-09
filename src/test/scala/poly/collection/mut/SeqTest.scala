@@ -10,8 +10,12 @@ object SeqTest {
 
   def main(args: Array[String]): Unit = {
 
-    val a = ArraySeq[Int](1, 2, 3, 4, 5, 6)
-    val b = ListSeq[Int](1, 2, 3)
+    val a = ArraySeq(1, 2, 3, 4, 5, 6)
+    val b = ListSeq(1, 2, 3)
+    val z = SortedArraySeq(1, 2, 3, 4, 5, 6)
+
+    println(z.contains(8))
+    println(z.contains(3))
 
     b.reverseInplace()
 

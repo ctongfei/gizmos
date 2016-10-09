@@ -4,7 +4,7 @@ import poly.algebra._
 import poly.collection._
 
 /**
- *
+ * Represents a multimap whose internal implementation is a map of keys to sets of values.
  * @author Tongfei Chen
  * @since 0.1.0
  */

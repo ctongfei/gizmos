@@ -1,16 +1,15 @@
 package poly.collection
 
-import poly.algebra._
 import poly.algebra.specgroup._
 import scala.annotation.unchecked.{uncheckedVariance => uv}
 
 /**
- * Represents a map that is sorted by key when enumerated.
+ * Represents a map that is sorted by key when iterated.
  *
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait SortedMap[@sp(Int) K, +V] extends Map[K, V] { self =>
+trait KeySortedMap[@sp(Int) K, +V] extends Map[K, V] { self =>
 
   def keySet: SortedSet[K]
 
@@ -23,9 +22,8 @@ trait SortedMap[@sp(Int) K, +V] extends Map[K, V] { self =>
 
 }
 
-abstract class AbstractSortedMap[K, +V] extends AbstractMap[K, V] with SortedMap[K, V]
+abstract class AbstractKeySortedMap[K, +V] extends AbstractMap[K, V] with KeySortedMap[K, V]
 
 // TODO: This trait is a workaround to enforce that the case K=Int in `Seq[V] extends SortedMap[K, V]` is specialized.
 // TODO: I don't know why specialization does not work if I write `Seq[T] extends SortedMap[Int, T]`.
-private[poly] trait IntKeyedSortedMap[+V] extends SortedMap[Int, V]
-
+private[poly] trait IntKeyedSortedMap[+V] extends KeySortedMap[Int, V]
