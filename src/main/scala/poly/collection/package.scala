@@ -2,6 +2,9 @@ package poly
 
 import poly.algebra.specgroup._
 import poly.collection.builder._
+import poly.collection.conversion.FromScala._
+import poly.collection.mut._
+
 import scala.language.implicitConversions
 
 package object collection extends ImplicitOperators {
@@ -46,6 +49,7 @@ package object collection extends ImplicitOperators {
    */
   private[poly] def getArrayFromVarargs[T](xs: scala.Seq[T]): Array[T] = xs match {
     case xs: scala.collection.mutable.WrappedArray[T] => xs.array
+    case _ => scalaIterableAsPoly(xs).to(ArraySeq).data.data.asInstanceOf[Array[T]] // this cast is safe!
   }
 
 

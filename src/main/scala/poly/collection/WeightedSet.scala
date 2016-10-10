@@ -8,7 +8,7 @@ import poly.algebra.specgroup._
  * A weighted set (aka multiset) in which elements can appear more than once.
  *
  * The weight/multiplicity in Poly-collection's `WeightedSet` can be real-valued
- * (as opposed to various `Multiset` implementations similar to the ones in Guava / Apache Commons Collections):
+ * (as opposed to various `Multiset` implementations similar to the ones in C++ / Guava / Apache Commons Collections):
  * as long as it forms an ordered ring ([[poly.algebra.OrderedRing]]), it can be used as a type for the
  * weights for the elements.
  *
@@ -92,13 +92,13 @@ trait WeightedSet[@sp(Int) K, @sp(Int, Double) R] extends KeyedLike[K, WeightedS
 
   // FOLDING
 
-  def sum[L >: K](implicit m: Module[L, R]) = keyWeightPairs.map { case (k, w) => m.scale(k, w) }.sum(m)
+  def sum[L >: K](implicit L: Module[L, R]) = keyWeightPairs.map { case (k, w) => L.scale(k, w) }.sum(L)
 
   def forall(f: K => Boolean) = keys forall f
   def exists(f: K => Boolean) = keys exists f
   def max(implicit K: Order[K]) = keys.max
   def min(implicit K: Order[K]) = keys.min
-  def minAndMax(implicit K: Order[K]) = keys.minMax
+  def minMax(implicit K: Order[K]) = keys.minMax
   def argmax[L: Order](f: K => L) = keys.argmax(f)
   def argmin[L: Order](f: K => L) = keys.argmin(f)
   def minBy[L: Order](f: K => L) = argmin(f)

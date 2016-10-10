@@ -29,7 +29,7 @@ class LinkedBinaryTree[T] extends BinaryTree[T] {
   }
 
   /** Locates the binary tree node at the given index. */
-  def findNode(i: Int): Node = {
+  def findNode(i: Int): Node = { //TODO: Wrong!
     var x = i + 1
     var curr: Node = dummy
     var depth = 1

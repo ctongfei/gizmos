@@ -5,7 +5,6 @@ import scala.annotation.unchecked.{uncheckedVariance => uv}
 
 /**
  * Represents a map that is sorted by key when iterated.
- *
  * @author Tongfei Chen
  * @since 0.1.0
  */

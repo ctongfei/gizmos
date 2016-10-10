@@ -3,7 +3,7 @@ package poly.collection
 import poly.algebra._
 import poly.algebra.specgroup._
 import poly.algebra.syntax._
-import poly.collection.mut._
+import poly.collection.immut._
 
 /**
  * Represents an unordered pair.
@@ -14,11 +14,11 @@ case class UPair[@sp(spTuple2) T: Eq](_1: T, _2: T) extends Set[T] {
 
   def contains(x: T) = x === _1 || x === _2
 
-  def keys = ListSeq(_1, _2)
+  def keys = List(_1, _2)
 
   def keyEq = Eq[T]
 
-  override def size = 2
+  override final def size = 2
 
   override def equals(that: Any) = that match {
     case that: UPair[T] =>
@@ -30,7 +30,7 @@ case class UPair[@sp(spTuple2) T: Eq](_1: T, _2: T) extends Set[T] {
   override def hashCode = {
     val a = _1.##
     val b = _2.##
-    (a * b) + (a ^ b)
+    (a * b) + (a ^ b) // commutative!
   }
 
   override def toString = s"{${_1}, ${_2}}"

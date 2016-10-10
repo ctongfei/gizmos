@@ -1,8 +1,6 @@
 import poly.collection._
 import poly.collection.mut._
 
-
-
 val a = ArraySeq(1, 2, 3).asBiSeq
 
 a.reverse

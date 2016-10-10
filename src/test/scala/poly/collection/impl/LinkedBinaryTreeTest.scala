@@ -40,6 +40,7 @@ object LinkedBinaryTreeTest extends App {
 
     T.rootNode.depthFirstSearch(9) foreach println
 
+    println(T(2))
 
     val breakpoint = 0
 

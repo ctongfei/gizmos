@@ -56,23 +56,31 @@ trait BinaryTree[+T] { self =>
    * @param i Index
    * @return The ''i''th node with the index defined above
    */
-  def apply(i: Int): T = { //TODO: currently wrong
-    var x = i + 1
-    var curr = rootNode
-    var depth = 1
-    while (depth <= x) {
-      x / depth match {
+  def node(i: Int): BinaryTreeNode[T] = {
+    val x = i + 1
+    var curr = dummy
+    var mask = nextPowerOfTwo(x)
+    if (mask > x) mask >>= 1
+
+    while (mask != 0) {
+      (x & mask) match {
         case 0 => curr = curr.leftNode
-        case 1 => curr = curr.rightNode
+        case _ => curr = curr.rightNode
       }
-      if (curr.isDummy) throw new KeyNotFoundException(i)
-      x %= depth
-      depth <<= 1
+      if (curr.isDummy) return dummy
+      mask >>= 1
     }
-    curr.data
+    curr
   }
 
-  def isDefinedAt(i: Int): Boolean = ???
+  /** Returns the element on the ''i''th node of this binary tree. */
+  def apply(i: Int): T = {
+    val n = node(i)
+    if (n.isDummy) throw new KeyNotFoundException(i)
+    else n.data
+  }
+
+  def isDefinedAt(i: Int): Boolean = !(node(i).isDummy)
 
   // HELPER FUNCTIONS
 
