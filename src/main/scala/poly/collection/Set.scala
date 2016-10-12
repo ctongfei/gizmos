@@ -234,6 +234,9 @@ object Set extends FactoryA_EvA[Set, Eq] {
 
   def ContainmentOrder[T]: PartialOrder[Set[T]] = new SetT.ContainmentOrder[T]
 
+  /** Returns an instance that can compute the Jaccard similarity / distance between two sets. */
+  def Jaccard[T] = new SetT.Jaccard[T]
+
 }
 
 abstract class AbstractSet[@sp(Int) T] extends Set[T]
@@ -323,5 +326,15 @@ private[poly] object SetT {
     override def subsetOf(that: Set[T]) = true
     override def properSubsetOf(that: Set[T]) = that.size != 0
   }
+
+  class Jaccard[T] extends Similarity[Set[T], Double] with MetricSpace[Set[T], Double] {
+    implicit def similarityOrder = poly.algebra.std.DoubleStructure
+    def sim(x: Set[T], y: Set[T]) = {
+      val n = (x intersect y).size
+      n / (x.size + y.size - n)
+    }
+    def dist(x: Set[T], y: Set[T]) = 1.0 - sim(x, y)
+  }
+
 
 }
