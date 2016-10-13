@@ -123,7 +123,6 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
 
   def zip(that: Set[T]): Set[T] = this intersect that
 
-  //TODO: !
 //  def quotient(coarser: Eq[T]): Set[Set[T]] = new AbstractSet[Set[T]] {
 //    private[this] val m = AutoMap[T, KeyMutableSet[T]]()(coarser)
 //    def eqOnKeys = Set.Eq[T]

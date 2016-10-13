@@ -70,7 +70,7 @@ object ArrayQueue extends BuilderFactoryA[ArrayQueue] {
     private[this] val a = new ResizableArray[T]()
     private[this] var n = 0
     override def sizeHint(n: Int) = a.ensureCapacity(n)
-    def addInplace(x: T) = {
+    def add(x: T) = {
       a(n) = x
       n += 1
     }

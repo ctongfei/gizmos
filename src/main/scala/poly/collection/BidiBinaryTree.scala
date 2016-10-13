@@ -11,6 +11,5 @@ trait BidiBinaryTree[+T] extends BinaryTree[T] { self =>
 
   def rootNode: BidiBinaryTreeNode[T]
 
-
 }
 

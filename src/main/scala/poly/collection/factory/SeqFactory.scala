@@ -24,7 +24,7 @@ trait SeqFactory[+C[_]] extends BuilderFactoryA[C] {
   /** Creates a collection by adding the non-null arguments into it. */
   def applyNotNull[T](xs: T*): C[T] = {
     val b = newBuilder[T]
-    for (x <- xs if x != null) b addInplace x
+    for (x <- xs if x != null) b add x
     b.result
   }
 
@@ -33,7 +33,7 @@ trait SeqFactory[+C[_]] extends BuilderFactoryA[C] {
     val b = newBuilder[T]
     b.sizeHint(n)
     while (i > 0) {
-      b addInplace x
+      b add x
       i -= 1
     }
     b.result
@@ -44,7 +44,7 @@ trait SeqFactory[+C[_]] extends BuilderFactoryA[C] {
     val b = newBuilder[T]
     b.sizeHint(n)
     while (i < n) {
-      b addInplace f(i)
+      b add f(i)
       i += 1
     }
     b.result
@@ -56,11 +56,11 @@ trait SeqFactory[+C[_]] extends BuilderFactoryA[C] {
     b.sizeHint(n)
     if (i > 0) {
       var x = start
-      b addInplace x
+      b add x
       i -= 1
       while (i > 0) {
         x = f(x)
-        b addInplace x
+        b add x
         i -= 1
       }
     }
@@ -71,10 +71,10 @@ trait SeqFactory[+C[_]] extends BuilderFactoryA[C] {
     val b = newBuilder[T]
     var x = start
     while (!goal(x)) {
-      b addInplace x
+      b add x
       x = f(x)
     }
-    b addInplace x
+    b add x
     b.result
   }
 
@@ -82,7 +82,7 @@ trait SeqFactory[+C[_]] extends BuilderFactoryA[C] {
     val b = newBuilder[T]
     var x = start
     while (!goal(x)) {
-      b addInplace x
+      b add x
       x = f(x)
     }
     b.result

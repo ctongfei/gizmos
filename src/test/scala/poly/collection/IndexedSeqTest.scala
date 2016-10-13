@@ -18,7 +18,7 @@ object IndexedSeqTest extends App {
 
   a.permuteBy(Permutation(0, 2, 1))
 
-  val c = a product b
+  val c = a monadicProduct b
 
   val ah = a.headNode
   val ahh = a.headNode

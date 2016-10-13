@@ -18,13 +18,13 @@ class BitSet private(private final var data: LongResizableArray)
 
   implicit def keyOrder = std.IntStructure
 
-  def addInplace(x: Int) = {
+  def add_!(x: Int) = {
     val idx = x >> LongBits
     data.ensureCapacity(idx + 1)
     data(idx) |= (1l << x)
   }
 
-  def removeInplace(x: Int) = {
+  def remove_!(x: Int) = {
     val idx = x >> LongBits
     if (idx < data.capacity) {
       data(idx) &= ~(1l << x)
@@ -77,7 +77,7 @@ class BitSet private(private final var data: LongResizableArray)
     }
   }
 
-  def clear() = data.fillInplace(0l)
+  def clear_!() = data.fillInplace(0l)
 
   //TODO: eager version of union, intersect, setDiff, symmetricDiff
 
@@ -92,7 +92,7 @@ object BitSet {
 
   implicit def newBuilder: Builder[Int, BitSet] = new Builder[Int, BitSet] {
     private[this] val bs = BitSet()
-    def addInplace(x: Int) = bs addInplace x
+    def add(x: Int) = bs add_! x
     def result = bs
   }
 

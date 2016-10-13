@@ -45,7 +45,7 @@ object List extends SeqFactory[List] {
 
   implicit def newBuilder[T]: Builder[T, List[T]] = new Builder[T, List[T]] {
     private[this] var head: List[T] = List.Empty
-    def addInplace(x: T) = head = Cons(x, head)
+    def add(x: T) = head = Cons(x, head)
     def result = head
   }
 

@@ -22,21 +22,21 @@ class PairWeightedSet[K, R: OrderedRing] private[poly](private val data: KeyMuta
 
   override def keyWeightPairs = data.pairs
 
-  def removeInplace(x: K, w: R = weightRing.one) = {
+  def remove_!(x: K, w: R = weightRing.one) = {
     val u = data(x) - w
-    if (u == weightRing.zero) data.removeInplace(x)
+    if (u == weightRing.zero) data.remove_!(x)
     data(x) = function.max(weightRing.zero, u)
   }
 
-  def removeKeyInplace(x: K) = {
-    data.removeInplace(x)
+  def removeKey_!(x: K) = {
+    data.remove_!(x)
   }
 
   def weight(k: K) = data(k)
 
-  def addInplace(x: K, w: R = weightRing.one) = {
+  def add_!(x: K, w: R = weightRing.one) = {
     if (data containsKey x) data(x) += w
-    else data addInplace(x, w)
+    else data add_!(x, w)
   }
 }
 
@@ -49,7 +49,7 @@ object PairWeightedSet extends BuilderFactoryA_EvAB[PairWeightedSet, Eq, Ordered
 
   implicit def newBuilder[K: Eq, R: OrderedRing]: Builder[K, PairWeightedSet[K, R]] = new Builder[K, PairWeightedSet[K, R]] {
     private[this] val ms = new PairWeightedSet[K, R](AutoMap[K, R]())
-    def addInplace(x: K) = ms.addInplace(x)
+    def add(x: K) = ms.add_!(x)
     def result = ms
   }
 }

@@ -16,11 +16,11 @@ import poly.collection.factory._
 class RedBlackTreeSet[K] private(private val data: java.util.TreeSet[K])
   extends AbstractSortedSet[K] with BidiSortedSet[K] with KeyMutableSet[K] { self =>
 
-  def addInplace(x: K) = data.add(x)
+  def add_!(x: K) = data.add(x)
 
-  def clear() = data.clear()
+  def clear_!() = data.clear()
 
-  def removeInplace(x: K) = data.remove(x)
+  def remove_!(x: K) = data.remove(x)
 
   def keyOrder = data.comparator()
 
@@ -39,7 +39,7 @@ object RedBlackTreeSet extends BuilderFactoryA_EvA[RedBlackTreeSet, Order] {
       private[this] val data = new java.util.TreeSet[K](new java.util.Comparator[K] {
         def compare(a: K, b: K) = K.cmp(a, b)
       })
-      def addInplace(x: K) = data.add(x)
+      def add(x: K) = data.add(x)
       def result = new RedBlackTreeSet(data)
     }
 }

@@ -26,16 +26,16 @@ class LinkedHashSet[T: Hashing] private(val data: OpenHashTable[T, LinkedHashSet
   dummy.prev = dummy
   dummy.next = dummy
 
-  def clear() = data.clear()
+  def clear_!() = data.clear()
 
-  def addInplace(x: T) = {
+  def add_!(x: T) = {
     val e = new Entry(x, dummy.prev, dummy)
     e.prev.next = e
     e.next.prev = e
     data.addEntry(e)
   }
 
-  def removeInplace(x: T) = {
+  def remove_!(x: T) = {
     val e = data.locate(x)
     e.prev.next = e.next
     e.next.prev = e.prev
@@ -61,7 +61,7 @@ object LinkedHashSet extends BuilderFactoryA_EvA[LinkedHashSet, Hashing] {
 
   implicit def newBuilder[T: Hashing]: Builder[T, LinkedHashSet[T]] = new Builder[T, LinkedHashSet[T]] {
     private[this] val s = new LinkedHashSet[T](new OpenHashTable[T, Entry[T]]())
-    def addInplace(x: T) = s.addInplace(x)
+    def add(x: T) = s.add_!(x)
     def result = s
     override def sizeHint(n: Int) = s.data.grow(n)
   }

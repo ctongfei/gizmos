@@ -90,13 +90,13 @@ object FromJava {
   }
 
   implicit class javaSetAsPoly[T](xs: ju.Set[T]) extends AbstractSet[T] with KeyMutableSet[T] {
-    def removeInplace(x: T) = xs.remove(x)
-    def addInplace(x: T) = xs.add(x)
+    def remove_!(x: T) = xs.remove(x)
+    def add_!(x: T) = xs.add(x)
     def keyEq = Eq.default[T]
     def contains(x: T) = xs.contains(x)
     override def size = xs.size()
     def keys = Iterable.ofIterator(xs.iterator())
-    def clear() = xs.clear()
+    def clear_!() = xs.clear()
   }
 
   implicit class javaSortedSetAsPoly[T](xs: ju.SortedSet[T]) extends AbstractSortedSet[T] {
@@ -139,9 +139,9 @@ object FromJava {
 
   implicit class javaMapAsPoly[K, V](jm: ju.Map[K, V]) extends AbstractMap[K, V] with KeyMutableMap[K, V] {
     def keySet = jm.keySet
-    def addInplace(x: K, y: V) = jm.put(x, y)
-    def clear() = jm.clear()
-    def removeInplace(x: K) = jm.remove(x)
+    def add_!(x: K, y: V) = jm.put(x, y)
+    def clear_!() = jm.clear()
+    def remove_!(x: K) = jm.remove(x)
     def update(x: K, y: V) = jm.put(x, y)
     def ?(x: K) = Option(jm.get(x))
     override def size = jm.size

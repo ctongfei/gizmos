@@ -7,10 +7,10 @@ package poly.collection.mut;
  */
 trait KeyMutableGraph[K, E] extends ValueMutableGraph[K, E] {
 
-  def addNode(i: K): Unit
-  def removeNode(i: K): Unit
+  def addNode_!(i: K): Unit
+  def removeNode_!(i: K): Unit
 
-  def addArc(i: K, j: K, e: E): Unit
-  def removeArc(i: K, j: K): Unit
+  def addArc_!(i: K, j: K, e: E): Unit
+  def removeArc_!(i: K, j: K): Unit
 
 }

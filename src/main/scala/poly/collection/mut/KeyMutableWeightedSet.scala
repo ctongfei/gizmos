@@ -7,16 +7,16 @@ import poly.collection._
  */
 trait KeyMutableWeightedSet[K, R] extends WeightedSet[K, R] {
 
-  def addInplace(x: K, w: R = weightRing.one)
+  def add_!(x: K, w: R = weightRing.one)
 
-  def removeInplace(x: K, w: R = weightRing.one)
+  def remove_!(x: K, w: R = weightRing.one)
 
-  def removeKeyInplace(x: K)
+  def removeKey_!(x: K)
 
-  def multisetAddInplace(that: WeightedSet[K, R]) = for ((k, r) <- that.keyWeightPairs) addInplace(k, r)
+  def multisetAdd_!(that: WeightedSet[K, R]) = for ((k, r) <- that.keyWeightPairs) add_!(k, r)
 
-  def diffInplace(that: WeightedSet[K, R]) = for ((k, r) <- that.keyWeightPairs) removeInplace(k, r)
+  def diff_!(that: WeightedSet[K, R]) = for ((k, r) <- that.keyWeightPairs) remove_!(k, r)
 
-  final def +=(x: K, w: R = weightRing.one) = addInplace(x, w)
-  final def -=(x: K, w: R = weightRing.one) = removeInplace(x, w)
+  final def +=(x: K, w: R = weightRing.one) = add_!(x, w)
+  final def -=(x: K, w: R = weightRing.one) = remove_!(x, w)
 }

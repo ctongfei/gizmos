@@ -8,37 +8,37 @@ import poly.collection._
  */
 trait KeyMutableSet[@sp(Int) T] extends Set[T] {
 
-  def addInplace(x: T)
+  def add_!(x: T)
 
-  def removeInplace(x: T)
+  def remove_!(x: T)
 
-  def clear()
+  def clear_!()
 
-  def addAllInplace(xs: Traversable[T]) = xs foreach addInplace
+  def addAll_!(xs: Traversable[T]) = xs foreach add_!
 
-  def removeAllInplace(xs: Traversable[T]) = xs foreach removeInplace
+  def removeAll_!(xs: Traversable[T]) = xs foreach remove_!
 
-  def unionInplace(xs: Set[T]) = xs.elements foreach addInplace
+  def union_!(xs: Set[T]) = xs.elements foreach add_!
 
-  def diffInplace(xs: Set[T]) = xs.elements foreach removeInplace
+  def diff_!(xs: Set[T]) = xs.elements foreach remove_!
 
-  def intersectInplace(xs: Set[T]) = this.elements filter xs.notContains foreach removeInplace
+  def intersect_!(xs: Set[T]) = this.elements filter xs.notContains foreach remove_!
 
-  @inline final def +=(x: T) = addInplace(x)
+  @inline final def +=(x: T) = add_!(x)
 
-  @inline final def -=(x: T) = removeInplace(x)
+  @inline final def -=(x: T) = remove_!(x)
 
-  @inline final def ++=(xs: Traversable[T]) = addAllInplace(xs)
+  @inline final def ++=(xs: Traversable[T]) = addAll_!(xs)
 
-  @inline final def --=(xs: Traversable[T]) = removeAllInplace(xs)
+  @inline final def --=(xs: Traversable[T]) = removeAll_!(xs)
 
-  @inline final def |=(xs: Set[T]) = unionInplace(xs)
+  @inline final def |=(xs: Set[T]) = union_!(xs)
 
-  @inline final def &=(xs: Set[T]) = intersectInplace(xs)
+  @inline final def &=(xs: Set[T]) = intersect_!(xs)
 
-  @inline final def ∪=(xs: Set[T]) = unionInplace(xs)
-  
-  @inline final def ∩=(xs: Set[T]) = intersectInplace(xs)
+  @inline final def ∪=(xs: Set[T]) = union_!(xs)
+
+  @inline final def ∩=(xs: Set[T]) = intersect_!(xs)
 
 
 }

@@ -17,7 +17,7 @@ class ArrayStack[T] private(private var data: ResizableSeq[T]) extends Queue[T] 
 
   override def size = data.fastLength
 
-  def push(x: T): Unit = data.appendInplace(x)
+  def push(x: T): Unit = data.append_!(x)
 
   override def pushAll(xs: Traversable[T]) = {
     xs.reverse foreach push // retain the node visiting sequence for DFS
@@ -30,7 +30,7 @@ class ArrayStack[T] private(private var data: ResizableSeq[T]) extends Queue[T] 
 
   def pop(): T = {
     val x = top
-    data.deleteInplace(data.fastLength - 1)
+    data.delete_!(data.fastLength - 1)
     x
   }
 
@@ -41,7 +41,7 @@ object ArrayStack extends BuilderFactoryA[ArrayStack] {
   implicit def newBuilder[T]: Builder[T, ArrayStack[T]] = new Builder[T, ArrayStack[T]] {
     var data = new ResizableSeq[T]()
     override def sizeHint(n: Int) = data.ensureCapacity(n)
-    def addInplace(x: T) = data.appendInplace(x)
+    def add(x: T) = data.append_!(x)
     def result = new ArrayStack(data)
   }
 

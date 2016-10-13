@@ -51,14 +51,14 @@ class ListBidiSeq[T] private() extends AbstractBidiSeq[T] with KeyMutableSeq[T] 
    *
    * @param x The element to be appended
    */
-  def appendInplace(x: T) = {
+  def append_!(x: T) = {
     val node = new Node(x, dummy.prev, dummy)
     node.prev.next = node
     node.next.prev = node
     len += 1
   }
 
-  def prependInplace(x: T) = {
+  def prepend_!(x: T) = {
     val node = new Node(x, dummy, dummy.next)
     node.prev.next = node
     node.next.prev = node
@@ -72,7 +72,7 @@ class ListBidiSeq[T] private() extends AbstractBidiSeq[T] with KeyMutableSeq[T] 
     node.data = x
   }
 
-  def insertInplace(i: Int, x: T) = {
+  def insert_!(i: Int, x: T) = {
     val p = locate(i)
     val node = new Node(x, p.prev, p)
     node.prev.next = node
@@ -80,13 +80,13 @@ class ListBidiSeq[T] private() extends AbstractBidiSeq[T] with KeyMutableSeq[T] 
     len += 1
   }
 
-  def clear() = {
+  def clear_!() = {
     dummy.prev = dummy
     dummy.next = dummy
     // leave the other nodes to GC!
   }
 
-  def deleteInplace(i: Int) = {
+  def delete_!(i: Int) = {
     val p = locate(i)
     p.prev.next = p.next
     p.next.prev = p.prev
@@ -131,6 +131,6 @@ object ListBidiSeq extends SeqFactory[ListBidiSeq] {
   implicit def newBuilder[T]: Builder[T, ListBidiSeq[T]] = new Builder[T, ListBidiSeq[T]] {
     private[this] val l = new ListBidiSeq[T]()
     def result = l
-    def addInplace(x: T) = l.appendInplace(x)
+    def add(x: T) = l.append_!(x)
   }
 }

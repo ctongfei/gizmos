@@ -57,7 +57,7 @@ class ListSeq[T] private() extends AbstractSeq[T] with KeyMutableSeq[T] {
    * Appends an element to the end of the singly linked list. $O1
    * @param x The element to be appended
    */
-  def appendInplace(x: T) = {
+  def append_!(x: T) = {
     val node = new Node(x, dummy)
     ln.next = node
     ln = node
@@ -68,7 +68,7 @@ class ListSeq[T] private() extends AbstractSeq[T] with KeyMutableSeq[T] {
    * Prepends an element to the start of the doubly linked list. $O1
    * @param x The element to be prepended.
    */
-  def prependInplace(x: T) = {
+  def prepend_!(x: T) = {
     val node = new Node(x, dummy.next)
     dummy.next = node
     len += 1
@@ -99,7 +99,7 @@ class ListSeq[T] private() extends AbstractSeq[T] with KeyMutableSeq[T] {
    * @param i Index
    * @param x New element
    */
-  def insertInplace(i: Int, x: T) = {
+  def insert_!(i: Int, x: T) = {
     val (prev, curr) = locate(i)
     val node = new Node(x, curr)
     prev.next = node
@@ -109,14 +109,14 @@ class ListSeq[T] private() extends AbstractSeq[T] with KeyMutableSeq[T] {
   /**
    * Clears this singly linked list.
    */
-  def clear() = {
+  def clear_!() = {
     dummy.next = dummy
   }
 
   /**
    * Removes the ''i''-th element.
    */
-  def deleteInplace(i: Int) = {
+  def delete_!(i: Int) = {
     val (prev, curr) = locate(i)
     prev.next = curr.next
     len -= 1
@@ -152,7 +152,7 @@ object ListSeq extends SeqFactory[ListSeq] {
 
   implicit def newBuilder[T]: Builder[T, ListSeq[T]] = new Builder[T, ListSeq[T]] {
     val a = new ListSeq[T]()
-    def addInplace(x: T) = a appendInplace x
+    def add(x: T) = a append_! x
     def result = a
   }
 }

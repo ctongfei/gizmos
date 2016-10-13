@@ -56,16 +56,16 @@ final class ResizableSeq[T]
 
   def update(i: Int, x: T) = data(i) = x.asInstanceOf[AnyRef]
 
-  def clear() = len = 0
+  def clear_!() = len = 0
 
-  def insertInplace(i: Int, x: T) = {
+  def insert_!(i: Int, x: T) = {
     if (cap < len + 1) ensureCapacity(len + 1)
     System.arraycopy(data, i, data, i + 1, len - i)
     data(i) = x.asInstanceOf[AnyRef]
     len += 1
   }
 
-  def deleteInplace(i: Int): Unit = {
+  def delete_!(i: Int): Unit = {
     System.arraycopy(data, i + 1, data, i, len - i - 1)
     len -= 1
   }
@@ -74,9 +74,9 @@ final class ResizableSeq[T]
     System.arraycopy(data, i, data, k, j - i)
   }
 
-  def prependInplace(x: T) = insertInplace(0, x)
+  def prepend_!(x: T) = insert_!(0, x)
 
-  def appendInplace(x: T) = {
+  def append_!(x: T) = {
     if (cap < len + 1) ensureCapacity(len + 1)
     data(len) = x.asInstanceOf[AnyRef]
     len += 1
@@ -92,7 +92,7 @@ object ResizableSeq extends SeqFactory[ResizableSeq] {
   def newBuilder[T]: Builder[T, ResizableSeq[T]] = new Builder[T, ResizableSeq[T]] {
     val a = new ResizableSeq[T]()
     override def sizeHint(n: Int) = a.ensureCapacity(n)
-    def addInplace(x: T) = a.appendInplace(x)
+    def add(x: T) = a.append_!(x)
     def result = a
   }
 

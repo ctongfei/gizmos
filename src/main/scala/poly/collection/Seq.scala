@@ -305,7 +305,7 @@ trait Seq[+T] extends Iterable[T] with IntKeyedSortedMap[T] { self =>
         while (n.notDummy) {
           val u = f(n.data)
           if (set notContains u) {
-            set addInplace u
+            set add_! u
             return new DistinctByNode(n)
           }
           n = n.next

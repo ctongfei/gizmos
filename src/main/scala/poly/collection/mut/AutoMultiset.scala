@@ -10,7 +10,7 @@ import poly.collection.builder._
 object AutoMultiset extends BuilderFactoryA_EvAB[KeyMutableWeightedSet, Eq, OrderedRing] {
   implicit def newBuilder[K, R](implicit K: Eq[K], R: OrderedRing[R]): Builder[K, KeyMutableWeightedSet[K, R]] = new Builder[K, KeyMutableWeightedSet[K, R]] {
     private[this] val ms = new PairWeightedSet[K, R](AutoMap[K, R]())
-    def addInplace(x: K) = ms += x
+    def add(x: K) = ms += x
     def result = ms
   }
 }

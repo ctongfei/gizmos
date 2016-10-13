@@ -33,7 +33,7 @@ trait BuilderFactoryA[+C[_]] extends FactoryA[C] {
   def from[T](xs: Traversable[T]): C[T] = {
     val b = newBuilder[T]
     if (xs.sizeKnown) b.sizeHint(xs.size)
-    b addAllInplace xs
+    b addAll xs
     b.result
   }
 

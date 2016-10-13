@@ -28,13 +28,13 @@ class ListSet[T] private(private val data: ListSeq[T])(implicit val keyEq: Eq[T]
   }
 
 
-  def clear() = data.clear()
+  def clear_!() = data.clear_!()
 
-  def addInplace(x: T) = {
-    if (!contains(x)) data.prependInplace(x)
+  def add_!(x: T) = {
+    if (!contains(x)) data.prepend_!(x)
   }
 
-  def removeInplace(x: T) = {
+  def remove_!(x: T) = {
     var p = data.dummy
     var c = data.dummy.next
     while (c ne data.dummy) {
@@ -51,7 +51,7 @@ object ListSet extends BuilderFactoryA_EvA[ListSet, Eq] {
 
   implicit def newBuilder[K: Eq]: Builder[K, ListSet[K]] = new Builder[K, ListSet[K]] {
     private[this] val s = new ListSet(ListSeq[K]())
-    def addInplace(x: K) = s addInplace x
+    def add(x: K) = s add_! x
     def result = s
   }
 

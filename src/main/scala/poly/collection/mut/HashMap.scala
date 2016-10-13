@@ -32,15 +32,15 @@ class HashMap[K: Hashing, V] private(private val data: OpenHashTable[K, HashMap.
     if (e != null) Some(e.value) else None
   }
 
-  def addInplace(k: K, v: V): Unit = {
+  def add_!(k: K, v: V): Unit = {
     val e = data.locate(k)
     if (e != null) e.value = v
     else data.addEntry(new Entry(k, v))
   }
 
-  def removeInplace(k: K): Unit = data.removeEntry(k)
+  def remove_!(k: K): Unit = data.removeEntry(k)
 
-  def clear(): Unit = data.clear()
+  def clear_!(): Unit = data.clear()
 
   override def size = data.size
 
@@ -56,7 +56,7 @@ object HashMap extends BuilderFactoryAB_EvA[HashMap, Hashing] {
     private[this] val ht = new OpenHashTable[K, Entry[K, V]]()
     private[this] val m = new HashMap(ht)
     override def sizeHint(n: Int) = ht.grow(n)
-    def addInplace(x: (K, V)) = m.addInplace(x)
+    def add(x: (K, V)) = m.add_!(x)
     def result = m
   }
 }

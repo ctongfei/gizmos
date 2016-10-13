@@ -23,7 +23,7 @@ trait BuilderFactoryA_EvAB[+C[_, _], EvA[_], EvB[_]] {
   /** Creates a collection by adding all the elements in the specific traversable sequence. */
   def from[A: EvA, B: EvB](xs: Traversable[A]): C[A, B] = {
     val b = newBuilder[A, B]
-    b addAllInplace xs
+    b addAll xs
     b.result
   }
 

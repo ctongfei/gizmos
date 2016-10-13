@@ -95,17 +95,17 @@ trait SortedIterable[T] extends Iterable[T] { self =>
     var bNotComplete = bi.advance()
     while (aNotComplete && bNotComplete) {
       if (ai.current <= bi.current) {
-        c.appendInplace(ai.current)
+        c.append_!(ai.current)
         aNotComplete = ai.advance()
       } else {
-        c.appendInplace(bi.current)
+        c.append_!(bi.current)
         bNotComplete = bi.advance()
       }
     }
 
     // Appends remaining elements
-    if (aNotComplete) do c.appendInplace(ai.current) while (ai.advance())
-    if (bNotComplete) do c.appendInplace(bi.current) while (bi.advance())
+    if (aNotComplete) do c.append_!(ai.current) while (ai.advance())
+    if (bNotComplete) do c.append_!(bi.current) while (bi.advance())
     c.asIfSorted(this.elementOrder)
   }
 

@@ -12,15 +12,15 @@ class SortedArraySeq[T] private[poly](private[poly] val data: ResizableSeq[T])(i
 
   def fastLength = data.fastLength
 
-  def add(x: T) = data.insertInplace(lowerBound(x), x)
+  def add(x: T) = data.insert_!(lowerBound(x), x)
 
   def fastApply(i: Int) = data.apply(i)
 
-  def remove(x: T) = binarySearch(x) foreach data.deleteInplace
+  def remove(x: T) = binarySearch(x) foreach data.delete_!
 
-  def deleteAt(i: Int) = data.deleteInplace(i)
+  def deleteAt(i: Int) = data.delete_!(i)
 
-  def clear() = data.clear()
+  def clear() = data.clear_!()
 
 }
 
@@ -29,7 +29,7 @@ object SortedArraySeq extends BuilderFactoryA_EvA[SortedArraySeq, Order] {
   def newBuilder[T: Order]: Builder[T, SortedArraySeq[T]] = new Builder[T, SortedArraySeq[T]] {
     val ra = new ResizableSeq[T]()
     override def sizeHint(n: Int) = ra.ensureCapacity(n)
-    def addInplace(x: T) = ra.appendInplace(x)
+    def add(x: T) = ra.append_!(x)
     def result: SortedArraySeq[T] = {
       ra.sortInplace()
       new SortedArraySeq[T](ra)

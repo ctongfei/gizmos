@@ -16,7 +16,7 @@ trait BuilderFactoryAB_EvAB[+C[_, _], EvA[_], EvB[_]] extends FactoryAB_EvAB[C, 
   def from[A: EvA, B: EvB](xs: Traversable[(A, B)]): C[A, B] = {
     val b = newBuilder[A, B]
     if (xs.sizeKnown) b.sizeHint(xs.size)
-    b addAllInplace xs
+    b addAll xs
     b.result
   }
 

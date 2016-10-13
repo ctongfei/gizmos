@@ -6,9 +6,9 @@ import poly.collection._
  * @author Tongfei Chen
  */
 trait KeyMutableTable[T] extends ValueMutableTable[T] {
-  def clear(): Unit
-  def appendRowInplace(row: Seq[T]): Unit
-  def appendColInplace(col: Seq[T]): Unit
-  def removeRowAt(i: Int): Unit
-  def removeColAt(j: Int): Unit
+  def clear_!(): Unit
+  def appendRow_!(row: Seq[T]): Unit
+  def appendCol_!(col: Seq[T]): Unit
+  def removeRow_!(i: Int): Unit
+  def removeCol_!(j: Int): Unit
 }

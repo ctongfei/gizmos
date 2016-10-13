@@ -54,7 +54,7 @@ class ListMap[K, V] private(private val data: SinglyLinkedList[K, ListMap.Node[K
     }
   }
 
-  def addInplace(x: K, y: V) = {
+  def add_!(x: K, y: V) = {
     val pc = locateKey(x)
     if (pc eq null) data.prependInplace(new Node(x, y))
     else {
@@ -63,9 +63,9 @@ class ListMap[K, V] private(private val data: SinglyLinkedList[K, ListMap.Node[K
     }
   }
 
-  def clear() = data.clear()
+  def clear_!() = data.clear()
 
-  def removeInplace(x: K) = {
+  def remove_!(x: K) = {
     val pc = locateKey(x)
     if (pc ne null) {
       data.deleteNodeAfter(pc._1)
@@ -98,7 +98,7 @@ object ListMap extends BuilderFactoryAB_EvA[ListMap, Eq] {
   implicit def newBuilder[K: Eq, V]: Builder[(K, V), ListMap[K, V]] = new Builder[(K, V), ListMap[K, V]] {
     private[this] val r = new ListMap[K, V](new SinglyLinkedList[K, Node[K, V]])
     def result = r
-    def addInplace(x: (K, V)) = r addInplace x
+    def add(x: (K, V)) = r add_! x
   }
 
 }

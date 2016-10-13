@@ -17,16 +17,16 @@ class MapOfSetsMultimap[K: Eq, V: Eq] private[collection] (private val data: Key
   /** Returns all values that are associated with the given key. */
   def apply(k: K): Set[V] = data(k)
 
-  def addInplace(k: K, v: V) =
+  def add_!(k: K, v: V) =
     if (data notContainsKey k) data += (k, AutoSet(v))
     else data(k) += v
 
-  def removeInplace(k: K, v: V) =
-    if (data containsKey k) data(k).removeInplace(v)
+  def remove_!(k: K, v: V) =
+    if (data containsKey k) data(k).remove_!(v)
 
-  def removeAllInplace(k: K) =
-    data.removeInplace(k)
+  def removeAll_!(k: K) =
+    data.remove_!(k)
 
-  def clear() = data.clear()
+  def clear_!() = data.clear_!()
 
 }

@@ -40,7 +40,7 @@ class DenseIntKeyedMap[T] private(
 
   override def size: Int = n
 
-  def addInplace(x: Int, y: T): Unit = {
+  def add_!(x: Int, y: T): Unit = {
     if (x >= data.capacity) {
       data.ensureCapacity(x + 1)
     }
@@ -49,9 +49,9 @@ class DenseIntKeyedMap[T] private(
     n += 1
   }
 
-  def clear(): Unit = state.clear()
+  def clear_!(): Unit = state.clear_!()
 
-  def removeInplace(x: Int): Unit = {
+  def remove_!(x: Int): Unit = {
     if (state(x)) n -= 1
     state -= x
   }
@@ -65,7 +65,7 @@ object DenseIntKeyedMap extends BuilderFactoryIntA[DenseIntKeyedMap] {
     private[this] val state = BitSet()
     private[this] var n = 0
     override def sizeHint(n: Int) = data.ensureCapacity(n)
-    def addInplace(x: (Int, V)) = {
+    def add(x: (Int, V)) = {
       state += x._1
       data(x._1) = x._2
       n += 1

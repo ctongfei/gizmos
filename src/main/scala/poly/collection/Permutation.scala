@@ -15,7 +15,11 @@ import poly.macroutil._
  * @since 0.1.0
  */
 class Permutation private(private val a1: Array[Int], private val a2: Array[Int])
-  extends BiMap[Int, Int] with IndexedSeq[Int] { self =>
+  extends BiMap[Int, Int] { self =>
+
+  def apply(x: Int) = a1(x)
+
+  def ?(k: Int) = if (k < 0 || k >= size) None else Some(a1(k))
 
   def fastLength = a1.length
 
@@ -51,7 +55,7 @@ class Permutation private(private val a1: Array[Int], private val a2: Array[Int]
   /** Returns the inverse of this permutation. */
   override def inverse: Permutation = new Permutation(a2, a1)
 
-  override def reverse: Permutation = {
+  def reverse: Permutation = {
     val n = size
     val b1 = Array.ofDim[Int](n)
     val b2 = Array.ofDim[Int](n)

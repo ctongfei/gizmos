@@ -27,13 +27,13 @@ trait Builder[-T, +C] { self =>
     * Adds a single element to this builder.
     * @param x The element to be added
     */
-  def addInplace(x: T)
+  def add(x: T)
 
   /**
     * Adds all elements provided to this builder.
     * @param xs The elements to be added
     */
-  def addAllInplace(xs: Traversable[T]) = xs foreach addInplace
+  def addAll(xs: Traversable[T]) = xs foreach add
 
   /**
    * Returns the structure built from this builder.
@@ -41,9 +41,9 @@ trait Builder[-T, +C] { self =>
    */
   def result: C
 
-  @inline final def +=(x: T) = addInplace(x)
+  @inline final def +=(x: T) = add(x)
 
-  @inline final def ++=(xs: Traversable[T]) = xs foreach addInplace
+  @inline final def ++=(xs: Traversable[T]) = xs foreach add
 
   /**
    * Returns a new builder which wraps around this builder. The difference
@@ -58,21 +58,21 @@ trait Builder[-T, +C] { self =>
 object Builder {
 
   implicit def InplaceAction[T, C]: InplaceAdditiveAction[T, Builder[T, C]] = new InplaceAdditiveAction[T, Builder[T, C]] {
-    def addInplace(x: T, s: Builder[T, C]) = s addInplace x
+    def addInplace(x: T, s: Builder[T, C]) = s add x
   }
 
   def ofMutableSet[T, S <: KeyMutableSet[T]](s: S): Builder[T, S] = new Builder[T, S] {
-    def addInplace(x: T) = s addInplace x
+    def add(x: T) = s add_! x
     def result = s
   }
 
   def ofMutableMap[K, V, M <: KeyMutableMap[K, V]](m: M): Builder[(K, V), M] = new Builder[(K, V), M] {
-    def addInplace(kv: (K, V)) = m addInplace kv
+    def add(kv: (K, V)) = m add_! kv
     def result = m
   }
 
   def ofMutableSeq[T, S <: KeyMutableSeq[T]](s: S): Builder[T, S] = new Builder[T, S] {
-    def addInplace(x: T) = s appendInplace x
+    def add(x: T) = s append_! x
     def result = s
   }
 }
@@ -80,7 +80,7 @@ object Builder {
 private[poly] object BuilderT {
 
   class Mapped[T, C, D](self: Builder[T, C], f: C => D) extends Builder[T, D] {
-    def addInplace(x: T) = self addInplace x
+    def add(x: T) = self add x
     def result = f(self.result)
     override def sizeHint(n: Int) = self sizeHint n
   }

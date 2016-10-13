@@ -14,11 +14,10 @@ object SeqTest extends App {
   val cc = aa intersect bb
 
   val a = ListSeq[Int](3, 3, 2)
-  a appendInplace 0
-  a appendInplace 2
-  a appendInplace 3
-  a appendInplace 4
-
+  a append_! 0
+  a append_! 2
+  a append_! 3
+  a append_! 4
 
   val b = ArraySeq(5, 6, 7)
 

@@ -24,7 +24,7 @@ object HashSetTest extends App {
   for (i ← 0 until 10000) {
     val x = r.nextGaussian()
     s += x
-    p addInplace x
+    p add_! x
     if ({s set_=== p; true}) println(s"CHECKED $i")
     else throw new RuntimeException()
   }
@@ -36,7 +36,7 @@ object HashSetTest extends App {
   var i = 10000
   for (x ← ss) {
     s -= x
-    p removeInplace x
+    p remove_! x
     i -= 1
     if ({s set_=== p; true}) println(s"CHECKED $i")
     else throw new RuntimeException

@@ -8,19 +8,19 @@ import poly.collection._
  */
 trait KeyMutableMultimap[K, V] extends Multimap[K, V] {
 
-  def addInplace(k: K, v: V): Unit
+  def add_!(k: K, v: V): Unit
 
-  def addInplace(kv: (K, V)): Unit = addInplace(kv._1, kv._2)
+  def add_!(kv: (K, V)): Unit = add_!(kv._1, kv._2)
 
-  def removeInplace(k: K, v: V): Unit
+  def remove_!(k: K, v: V): Unit
 
-  def removeAllInplace(k: K): Unit
+  def removeAll_!(k: K): Unit
 
-  def clear(): Unit
+  def clear_!(): Unit
 
-  final def +=(k: K, v: V) = addInplace(k, v)
-  final def +=(kv: (K, V)) = addInplace(kv)
-  final def -=(k: K, v: V) = removeInplace(k, v)
-  final def -=(k: K) = removeAllInplace(k)
+  final def +=(k: K, v: V) = add_!(k, v)
+  final def +=(kv: (K, V)) = add_!(kv)
+  final def -=(k: K, v: V) = remove_!(k, v)
+  final def -=(k: K) = removeAll_!(k)
 
 }

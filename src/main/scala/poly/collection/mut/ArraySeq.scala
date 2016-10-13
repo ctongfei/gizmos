@@ -19,15 +19,15 @@ class ArraySeq[T] private(private[poly] var data: ResizableSeq[T]) extends Abstr
 
   def update(i: Int, x: T) = data.update(i, x)
 
-  def insertInplace(i: Int, x: T) = data.insertInplace(i, x)
+  def insert_!(i: Int, x: T) = data.insert_!(i, x)
 
-  def deleteInplace(i: Int) = data.deleteInplace(i)
+  def delete_!(i: Int) = data.delete_!(i)
 
-  def prependInplace(x: T) = data.prependInplace(x)
+  def prepend_!(x: T) = data.prepend_!(x)
 
-  def appendInplace(x: T) = data.appendInplace(x)
+  def append_!(x: T) = data.append_!(x)
 
-  def clear() = data.clear()
+  def clear_!() = data.clear_!()
 
 }
 
@@ -36,7 +36,7 @@ object ArraySeq extends SeqFactory[ArraySeq] {
   implicit def newBuilder[T]: Builder[T, ArraySeq[T]] = new Builder[T, ArraySeq[T]] {
     val a = new ResizableSeq[T]()
     override def sizeHint(n: Int) = a.ensureCapacity(n)
-    def addInplace(x: T) = a.appendInplace(x)
+    def add(x: T) = a.append_!(x)
     def result = new ArraySeq[T](a)
   }
 

@@ -98,7 +98,7 @@ trait Traversable[+T] { self =>
     val l = ArraySeq.fill(fs.length)(ArraySeq[T]())
     for (x <- self)
       FastLoop.ascending(0, fs.length, 1) { i =>
-        if (fs(i)(x)) l(i) appendInplace x
+        if (fs(i)(x)) l(i) append_! x
       }
     l
   }
@@ -619,8 +619,8 @@ object Traversable {
       val ak = ArraySeq.newBuilder[A]
       val av = ArraySeq.newBuilder[B]
       for ((k, v) <- underlying) {
-        ak addInplace k
-        av addInplace v
+        ak add k
+        av add v
       }
       (ak.result, av.result)
     }

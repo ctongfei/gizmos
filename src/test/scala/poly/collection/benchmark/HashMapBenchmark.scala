@@ -45,7 +45,7 @@ object HashMapBenchmark extends App {
       val l2 = poly.collection.mut.HashMap[Int, String]()
       for (i ← Range(n)) {
         val x = r.nextInt()
-        l2.addInplace(x → x.toString)
+        l2.add_!(x → x.toString)
       }
     }
     print(s"$tPolyHashMap \n")

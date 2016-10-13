@@ -40,8 +40,8 @@ class Alphabet[T: Eq] private(
   override def pairs = i2w.pairs.map(_.swap) // normally faster than traversing through i2w, and is ordered
 
   def clear(): Unit = {
-    w2i.clear()
-    i2w.clear()
+    w2i.clear_!()
+    i2w.clear_!()
   }
 
 }

@@ -102,7 +102,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
             buf :+= curr
           else {
             g = buf to ArraySeq
-            buf.clear()
+            buf.clear_!()
             buf :+= curr
             key = currKey
             return true
@@ -110,7 +110,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
         }
         if (buf.notEmpty) {
           g = buf to ArraySeq
-          buf.clear()
+          buf.clear_!()
           true
         }
         else false
@@ -253,7 +253,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
       def advance(): Boolean = {
         while (i.advance()) {
           if (set notContains i.current) {
-            set addInplace i.current
+            set add_! i.current
             return true
           }
         }
@@ -271,7 +271,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
         while (i.advance()) {
           val u = f(i.current)
           if (set notContains u) {
-            set addInplace u
+            set add_! u
             return true
           }
         }
@@ -426,7 +426,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
         if (first) {
           var i = 0
           while (i < windowSize && { val t = it.advance(); if (!t) return false; t }) {
-            window.appendInplace(it.current)
+            window.append_!(it.current)
             i += 1
           }
           first = false
@@ -435,11 +435,11 @@ trait Iterable[+T] extends Traversable[T] { self =>
           val newWindow = ArraySeq.withSizeHint[T](windowSize)
           var i = 0
           while (i + 1 < windowSize) {
-            newWindow.appendInplace(window(i + step))
+            newWindow.append_!(window(i + step))
             i += 1
           }
           while (i < windowSize && { val t = it.advance(); if (!t) return false; t }) {
-            newWindow.appendInplace(it.current)
+            newWindow.append_!(it.current)
             i += 1
           }
           window = newWindow

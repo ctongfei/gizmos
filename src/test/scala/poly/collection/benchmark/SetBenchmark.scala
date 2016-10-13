@@ -40,7 +40,7 @@ object SetBenchmark extends App {
     val tPolyHashSet = conf measure {
       val l2 = poly.collection.mut.HashSet[Int]()
       for (i ← Range(n))
-        l2 addInplace r.nextInt()
+        l2 add_! r.nextInt()
     }
     print(s"$tPolyHashSet \n")
   }

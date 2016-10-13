@@ -8,21 +8,21 @@ import poly.algebra.syntax._
 object ListSetTest extends App {
 
   val l = ListSet(1, 2, 3, 4, 5)
-  l.addInplace(8)
+  l.add_!(8)
   println(l.elements.buildString(" "))
-  l.removeInplace(1)
+  l.remove_!(1)
 
   println(l.elements.buildString(" "))
-  l.removeInplace(4)
+  l.remove_!(4)
 
   println(l.elements.buildString(" "))
-  l.removeInplace(7)
+  l.remove_!(7)
 
   println(l.elements.buildString(" "))
-  l.addInplace(3)
+  l.add_!(3)
 
   println(l.elements.buildString(" "))
-  l.addInplace(4)
+  l.add_!(4)
 
   println(l.elements.buildString(" "))
 

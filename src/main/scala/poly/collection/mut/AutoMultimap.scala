@@ -13,7 +13,7 @@ object AutoMultimap extends BuilderFactoryAB_EvAB[KeyMutableMultimap, Eq, Eq] {
 
     private[this] val m = AutoMap[A, KeyMutableSet[B]]()
 
-    def addInplace(x: (A, B)) = {
+    def add(x: (A, B)) = {
       val (a, b) = x
       if (m containsKey a) m(a) += b
       else m += a -> AutoSet(b)

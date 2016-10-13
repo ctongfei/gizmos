@@ -37,7 +37,7 @@ class DistinctQueue[Q[α] <: Queue[α], T: Eq] private(private val inner: Q[T]) 
 
 object DistinctQueue {
   def apply[Q[α] <: Queue[α], T: Eq](xs: T*)(implicit b: Builder[T, Q[T]]): DistinctQueue[Q, T] = {
-    xs foreach b.addInplace
+    xs foreach b.add
     new DistinctQueue[Q, T](b.result)
   }
 }

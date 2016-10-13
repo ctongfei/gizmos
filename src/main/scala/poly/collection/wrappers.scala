@@ -24,13 +24,13 @@ class BooleanFunctionAsPredicate[T](val underlying: T => Boolean) extends Predic
 
 private[collection]
 class StringBuilderAsBuilder(val underlying: StringBuilder) extends Builder[Char, String] {
-  def addInplace(x: Char) = underlying.append(x)
+  def add(x: Char) = underlying.append(x)
   def result = underlying.result()
   override def sizeHint(n: Int) = underlying.sizeHint(n)
 }
 
 private[collection]
 class JavaStringBuilderAsBuilder(val underlying: java.lang.StringBuilder) extends Builder[Char, String] {
-  def addInplace(x: Char) = underlying.append(x)
+  def add(x: Char) = underlying.append(x)
   def result = underlying.toString
 }

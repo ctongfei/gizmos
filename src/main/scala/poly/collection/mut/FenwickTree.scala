@@ -74,7 +74,7 @@ object FenwickTree extends BuilderFactoryA_EvA[FenwickTree, AdditiveGroup] {
 
   implicit def newBuilder[T: AdditiveGroup]: Builder[T, FenwickTree[T]] = new Builder[T, FenwickTree[T]] {
     private[this] val data = ResizableSeq[T](zero[T])
-    def addInplace(x: T) = {
+    def add(x: T) = {
       var i = data.len
       var sum = x
       val z = i - lowBit(i)
@@ -83,7 +83,7 @@ object FenwickTree extends BuilderFactoryA_EvA[FenwickTree, AdditiveGroup] {
         sum += data(i)
         i -= lowBit(i)
       }
-      data.appendInplace(sum)
+      data.append_!(sum)
     }
     override def sizeHint(n: Int) = data.ensureCapacity(n)
     def result = new FenwickTree[T](data)

@@ -47,14 +47,14 @@ class BinaryHeap[T] private(private val data: ResizableSeq[T])(implicit val orde
   }
 
   def push(x: T) = {
-    data.appendInplace(x)
+    data.append_!(x)
     siftUp(data.fastLength - 1)
   }
 
   def pop() = {
     val front = data(0)
     data.swapInplace(0, data.length - 1)
-    data.deleteInplace(data.length - 1)
+    data.delete_!(data.length - 1)
     if (data.length > 1) siftDown(0)
     front
   }
@@ -72,7 +72,7 @@ object BinaryHeap extends BuilderFactoryA_EvA[BinaryHeap, Order] {
   implicit def newBuilder[T: Order]: Builder[T, BinaryHeap[T]] = new Builder[T, BinaryHeap[T]] {
     private[this] val data = new ResizableSeq[T]()
     override def sizeHint(n: Int) = data.ensureCapacity(n)
-    def addInplace(x: T) = data.appendInplace(x)
+    def add(x: T) = data.append_!(x)
 
     // heap building algorithm
     def result = {

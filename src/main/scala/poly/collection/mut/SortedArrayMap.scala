@@ -28,28 +28,28 @@ class SortedArrayMap[K, V] private(
 
   def apply(k: K) = valArray(keyArray.binarySearch(k).get)
 
-  def addInplace(k: K, v: V) = {
+  def add_!(k: K, v: V) = {
     val i = keyArray.lowerBound(k)
-    keyArray.data.insertInplace(i, k)
-    valArray.insertInplace(i, v)
+    keyArray.data.insert_!(i, k)
+    valArray.insert_!(i, v)
   }
 
-  def removeInplace(k: K) = for (i <- keyArray.binarySearch(k)) {
-    keyArray.data.deleteInplace(i)
-    valArray.deleteInplace(i)
+  def remove_!(k: K) = for (i <- keyArray.binarySearch(k)) {
+    keyArray.data.delete_!(i)
+    valArray.delete_!(i)
   }
 
-  def clear() = {
+  def clear_!() = {
     keyArray.clear()
-    valArray.clear()
+    valArray.clear_!()
   }
 
   def update(k: K, v: V) = {
     val i = keyArray.tryBinarySearch(k)
     if (i >= 0) valArray(i) = v
     else {
-      keyArray.data.insertInplace(~i, k)
-      valArray.insertInplace(~i, v)
+      keyArray.data.insert_!(~i, k)
+      valArray.insert_!(~i, v)
     }
   }
 
@@ -58,7 +58,7 @@ class SortedArrayMap[K, V] private(
 object SortedArrayMap extends BuilderFactoryAB_EvA[SortedArrayMap, Order] {
   implicit def newBuilder[K: Order, V] = new Builder[(K, V), SortedArrayMap[K, V]] {
     private[this] val kva = ArraySeq[(K, V)]()
-    def addInplace(x: (K, V)) = kva :+= x
+    def add(x: (K, V)) = kva :+= x
     def result = {
       kva.sortInplace()(Order by first)
       val ka = ArraySeq[K]()

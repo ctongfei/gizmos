@@ -37,20 +37,20 @@ class LinkedHashMap[K: Hashing, V] private(private[poly] val data: OpenHashTable
   }
 
 
-  def addInplace(x: K, y: V) = {
+  def add_!(x: K, y: V) = {
     val e = new Entry(x, y, dummy.prev, dummy)
     e.prev.next = e
     e.next.prev = e
     data.addEntry(e)
   }
 
-  def clear() = {
+  def clear_!() = {
     data.clear()
     dummy.prev = dummy
     dummy.next = dummy
   }
 
-  def removeInplace(x: K) = {
+  def remove_!(x: K) = {
     val e = data.locate(x)
     if (e != null) {
       e.prev.next = e.next
@@ -62,7 +62,7 @@ class LinkedHashMap[K: Hashing, V] private(private[poly] val data: OpenHashTable
   def update(x: K, y: V) = {
     val e = data.locate(x)
     if (e != null) e.value = y
-    else addInplace(x, y)
+    else add_!(x, y)
   }
 
   def keySet: Set[K] = new AbstractSet[K] {
@@ -87,7 +87,7 @@ object LinkedHashMap extends BuilderFactoryAB_EvA[LinkedHashMap, Hashing] {
 
   implicit def newBuilder[K: Hashing, V]: Builder[(K, V), LinkedHashMap[K, V]] = new Builder[(K, V), LinkedHashMap[K, V]] {
     private[this] val m = new LinkedHashMap[K, V](new OpenHashTable[K, Entry[K, V]])
-    def addInplace(x: (K, V)) = m.addInplace(x)
+    def add(x: (K, V)) = m.add_!(x)
     def result = m
     override def sizeHint(n: Int) = m.data.grow(n)
   }

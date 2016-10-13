@@ -19,11 +19,11 @@ class RedBlackTreeMap[K, V] private(private val data: java.util.TreeMap[K, V])
 
   def ?(k: K) = if (data containsKey k) Some(data get k) else None
 
-  def addInplace(x: K, y: V) = data.put(x, y)
+  def add_!(x: K, y: V) = data.put(x, y)
 
-  def clear() = data.clear()
+  def clear_!() = data.clear()
 
-  def removeInplace(x: K) = data.remove(x)
+  def remove_!(x: K) = data.remove(x)
 
 
   def keySet: SortedSet[K] = new AbstractSortedSet[K] {
@@ -54,6 +54,6 @@ object RedBlackTreeMap extends BuilderFactoryAB_EvA[RedBlackTreeMap, Order] {
         def compare(a: K, b: K) = K.cmp(a, b)
       })
       def result = new RedBlackTreeMap(data)
-      def addInplace(x: (K, V)) = data.put(x._1, x._2)
+      def add(x: (K, V)) = data.put(x._1, x._2)
     }
 }
