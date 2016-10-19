@@ -93,7 +93,7 @@ class ListBidiSeq[T] private() extends AbstractBidiSeq[T] with KeyMutableSeq[T] 
     len -= 1
   }
 
-  def reverseInplace(): Unit = {
+  def reverse_!(): Unit = {
     var p = dummy.prev
     var c = dummy
     var n = dummy.next
@@ -106,7 +106,7 @@ class ListBidiSeq[T] private() extends AbstractBidiSeq[T] with KeyMutableSeq[T] 
     } while (c != dummy)
   }
 
-  override def mapInplace(f: T => T): Unit = {
+  override def map_!(f: T => T): Unit = {
     var c = dummy.next
     while (c != dummy) {
       c.data = f(c.data)

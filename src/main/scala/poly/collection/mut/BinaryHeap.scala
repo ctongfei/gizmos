@@ -53,7 +53,7 @@ class BinaryHeap[T] private(private val data: ResizableSeq[T])(implicit val orde
 
   def pop() = {
     val front = data(0)
-    data.swapInplace(0, data.length - 1)
+    data.swap_!(0, data.length - 1)
     data.delete_!(data.length - 1)
     if (data.length > 1) siftDown(0)
     front

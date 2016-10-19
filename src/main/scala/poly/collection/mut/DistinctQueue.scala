@@ -8,7 +8,7 @@ import scala.language.higherKinds
 /**
   * @author Tongfei Chen
   */
-class DistinctQueue[Q[α] <: Queue[α], T: Eq] private(private val inner: Q[T]) extends Queue[T] {
+class DistinctQueue[T: Eq] private(private val inner: Queue[T]) extends Queue[T] {
 
   private[this] val seen = AutoSet[T]()
 
@@ -36,8 +36,7 @@ class DistinctQueue[Q[α] <: Queue[α], T: Eq] private(private val inner: Q[T]) 
 }
 
 object DistinctQueue {
-  def apply[Q[α] <: Queue[α], T: Eq](xs: T*)(implicit b: Builder[T, Q[T]]): DistinctQueue[Q, T] = {
-    xs foreach b.add
-    new DistinctQueue[Q, T](b.result)
+  def apply[T: Eq](inner: Queue[T]): DistinctQueue[T] = {
+    new DistinctQueue(inner)
   }
 }

@@ -8,7 +8,7 @@ import poly.collection.mut._
   */
 object DistinctQueueTest extends App {
 
-  val a = DistinctQueue[ArrayStack, Int]()
+  val a = DistinctQueue(ArrayStack[Int]())
 
   a push 0
   a push 3

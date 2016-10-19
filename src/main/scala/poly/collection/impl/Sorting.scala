@@ -20,7 +20,7 @@ object Sorting {
         while (a(l) < pivot) l += 1
         while (a(r) > pivot) r -= 1
         if (l <= r) {
-          a.swapInplace(l, r)
+          a.swap_!(l, r)
           l += 1
           r -= 1
         }
@@ -41,7 +41,7 @@ object Sorting {
         while (w(l) < pivot) l += 1
         while (w(r) > pivot) r -= 1
         if (l <= r) {
-          a.swapInplace(l, r)
+          a.swap_!(l, r)
           l += 1
           r -= 1
         }

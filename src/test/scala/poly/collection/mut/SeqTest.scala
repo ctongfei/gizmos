@@ -17,7 +17,7 @@ object SeqTest {
     println(z.contains(8))
     println(z.contains(3))
 
-    b.reverseInplace()
+    b.reverse_!()
 
     val aa = a.sort
     val amin = aa.min
@@ -37,9 +37,9 @@ object SeqTest {
 
     val d = ArraySeq.tabulate(10)(x => util.Random.nextInt(500))
 
-    d.sortInplace()
+    d.sort_!()
 
-    d.reverseInplace()
+    d.reverse_!()
 
     val e = ArraySeq.tabulate(10)(x => x)
 

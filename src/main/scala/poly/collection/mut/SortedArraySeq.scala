@@ -31,7 +31,7 @@ object SortedArraySeq extends BuilderFactoryA_EvA[SortedArraySeq, Order] {
     override def sizeHint(n: Int) = ra.ensureCapacity(n)
     def add(x: T) = ra.append_!(x)
     def result: SortedArraySeq[T] = {
-      ra.sortInplace()
+      ra.sort_!()
       new SortedArraySeq[T](ra)
     }
   }

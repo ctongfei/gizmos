@@ -7,13 +7,13 @@ package poly.collection.mut
  */
 trait KeyMutableSeq[T] extends ValueMutableSeq[T] {
   /**
-   * Prepends the specific element to the start of the sequence.
+   * Prepends the specific element to the start of the sequence in-place.
    * @param x The element to be prepended
    */
   def prepend_!(x: T): Unit
 
   /**
-   * Appends the specific element to the end of the sequence.
+   * Appends the specific element to the end of the sequence in-place.
    * @param x The element to be appended
    */
   def append_!(x: T): Unit

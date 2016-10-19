@@ -308,7 +308,7 @@ trait Traversable[+T] { self =>
   /** Returns a randomly shuffled version of this collection. $EAGER */
   def shuffle: IndexedSeq[T] = {
     val a = self.to(ArraySeq)
-    a.shuffleInplace()
+    a.shuffle_!()
     a
   }
 
@@ -329,14 +329,14 @@ trait Traversable[+T] { self =>
    */
   def sort(implicit T: Order[T]): SortedIndexedSeq[T @uv] = {
     val seq = self to ArraySeq
-    seq.sortInplace()(T)
+    seq.sort_!()(T)
     seq.asIfSorted(T)
   }
 
   def sortBy[U: Order](f: T => U): SortedIndexedSeq[T @uv] = {
     val seq = self to ArraySeq
     val w = ArraySeq.tabulate(seq.length)(i => f(seq(i))) // cache the weights of each term!
-    seq sortInplaceUsing w
+    seq sortUsing_! w
     seq asIfSorted (Order by f)
   }
 

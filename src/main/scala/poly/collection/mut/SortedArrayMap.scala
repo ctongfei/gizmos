@@ -60,7 +60,7 @@ object SortedArrayMap extends BuilderFactoryAB_EvA[SortedArrayMap, Order] {
     private[this] val kva = ArraySeq[(K, V)]()
     def add(x: (K, V)) = kva :+= x
     def result = {
-      kva.sortInplace()(Order by first)
+      kva.sort_!()(Order by first)
       val ka = ArraySeq[K]()
       val va = ArraySeq[V]()
       for ((k, v) <- kva) {

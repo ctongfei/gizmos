@@ -56,28 +56,28 @@ class BreadthFirstTreeIterator[S](val stateSpace: StateSpace[S], start: S) exten
 }
 
 class DepthFirstIterator[S](val stateSpace: EqStateSpace[S], start: S) extends Searcher[S, S](
-  DistinctQueue[ArrayStack, S]()(stateSpace.keyEq, ArrayStack.newBuilder), start
+  DistinctQueue[S](ArrayStack())(stateSpace.keyEq), start
 ) {
   def prune(n: S) = false
   def searchNodeInfo = SearchNodeInfo.None
 }
 
 class BreadthFirstIterator[S](val stateSpace: EqStateSpace[S], start: S) extends Searcher[S, S](
-  DistinctQueue[ArrayQueue, S]()(stateSpace.keyEq, ArrayQueue.newBuilder), start
+  DistinctQueue[S](ArrayQueue())(stateSpace.keyEq), start
 ) {
   def prune(n: S) = false
   def searchNodeInfo = SearchNodeInfo.None
 }
 
 class DepthFirstBacktrackableIterator[S](val stateSpace: EqStateSpace[S], start: S) extends Searcher[S, WithParent[S]](
-  DistinctQueue[ArrayStack, WithParent[S]]()(stateSpace.keyEq contramap { _.state }, ArrayStack.newBuilder), start
+  DistinctQueue[WithParent[S]](ArrayStack())(stateSpace.keyEq contramap { _.state }), start
 ) {
   def prune(n: WithParent[S]) = false
   def searchNodeInfo = WithParent.SearchNodeInfo[S]
 }
 
 class BreadthFirstBacktrackableIterator[S](val stateSpace: EqStateSpace[S], start: S) extends Searcher[S, WithParent[S]](
-  DistinctQueue[ArrayQueue, WithParent[S]]()(stateSpace.keyEq contramap { _.state }, ArrayQueue.newBuilder), start
+  DistinctQueue[WithParent[S]](ArrayQueue())(stateSpace.keyEq contramap { _.state }), start
 ) {
   def prune(n: WithParent[S]) = false
   def searchNodeInfo = WithParent.SearchNodeInfo[S]

@@ -15,11 +15,11 @@ class ListTest extends FunSuite {
   test("ListBiSeq") {
     val lbs = ListBidiSeq[Int](1, 2, 3, 4)
 
-    lbs.reverseInplace()
+    lbs.reverse_!()
 
     assert(lbs == Seq(4, 3, 2, 1))
 
-    lbs.mapInplace(5-_)
+    lbs.map_!(5-_)
     assert(lbs == Seq(1, 2, 3, 4))
 
   }

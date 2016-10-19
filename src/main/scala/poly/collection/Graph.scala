@@ -71,9 +71,8 @@ trait Graph[@sp(Int) K, @sp(Double) +E] extends EqStateSpace[K] with KeyedLike[K
   /** Returns the number of edges in this graph. */
   def numArcs: Int = arcs.size
 
-  //TODO: compiler bug here: writing j <- outgoingKeySet(i) results in NPE in compiler phase patmat
-  //TODO: minimize bug and report to SI
   def arcs: Iterable[(K, K, E)] = for (i <- keys; (j, e) <- outgoingMap(i).pairs) yield (i, j, e)
+  // for (i <- keys; j: K <- outgoingKeySet(i)) yield (i, j, arc(i, j)) failed: SI-9963
 
   def arcMap: Map[(K, K), E] = (keySet createMap outgoingMap).uncurry
 

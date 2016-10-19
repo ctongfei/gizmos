@@ -122,7 +122,7 @@ class ListSeq[T] private() extends AbstractSeq[T] with KeyMutableSeq[T] {
     len -= 1
   }
 
-  override def mapInplace(f: T => T) = {
+  override def map_!(f: T => T) = {
     var n = dummy.next
     while (n.notDummy) {
       n.data = f(n.data)
@@ -130,7 +130,7 @@ class ListSeq[T] private() extends AbstractSeq[T] with KeyMutableSeq[T] {
     }
   }
 
-  def reverseInplace() = {
+  def reverse_!() = {
     var p = dummy
     var c = dummy.next
     var n = dummy.next.next
