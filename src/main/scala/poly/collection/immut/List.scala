@@ -43,8 +43,6 @@ sealed abstract class List[+T] extends AbstractSeq[T] with SeqNodeLike[T, List[T
 
 object List extends SeqFactory[List] {
 
-  scala.List
-
   implicit def newBuilder[T]: Builder[T, List[T]] = new Builder[T, List[T]] { //TODO: Wrong!
     private[this] var head: List[T] = List.Empty
     private[this] var last = head

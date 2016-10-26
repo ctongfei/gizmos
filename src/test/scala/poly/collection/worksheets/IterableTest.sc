@@ -34,7 +34,7 @@ e :+ 0
 
 e.scanLeft(0)(_+_)
 e.scanByMonoid(AdditiveMonoid[Int].asMonoidWithAdd)
-e.consecutive(_-_)
+e.slidingPairsWith(_-_)
 
 
 

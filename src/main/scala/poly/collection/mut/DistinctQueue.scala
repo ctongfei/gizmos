@@ -6,8 +6,9 @@ import poly.collection.builder._
 import scala.language.higherKinds
 
 /**
-  * @author Tongfei Chen
-  */
+ * Represents a queue whose elements are kept distinct.
+ * @author Tongfei Chen
+ */
 class DistinctQueue[T: Eq] private(private val inner: Queue[T]) extends Queue[T] {
 
   private[this] val seen = AutoSet[T]()

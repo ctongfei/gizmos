@@ -47,8 +47,8 @@ a.foldRight(-1)(_+_)
 
 
 a.scan(0)(_+_)
-a.consecutive(_-_)
-a.scan(0)(_+_).consecutive(_-_)
+a.slidingPairsWith(_-_)
+a.scan(0)(_+_).slidingPairsWith(_-_)
 //l.sliding(3)
 a.prefixSums
 a.prefixSums.differences

@@ -152,7 +152,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
 
   override def scanByMonoid[U >: T : Monoid] = scanLeft(id)(_ <> _)
 
-  override def consecutive[U](f: (T, T) => U) = ofIterator {
+  override def slidingPairsWith[U](f: (T, T) => U) = ofIterator {
     new AbstractIterator[U] {
       private[this] val i = self.newIterator
       private[this] var a = default[T]
@@ -168,7 +168,9 @@ trait Iterable[+T] extends Traversable[T] { self =>
     }
   }
 
-  override def diffByGroup[U >: T](implicit U: Group[U]) = consecutive((x, y) => U.op(y, U.inv(x)))
+  override def slidingPairs = slidingPairsWith { (x, y) => (x, y) }
+
+  override def diffByGroup[U >: T](implicit U: Group[U]) = slidingPairsWith((x, y) => U.op(y, U.inv(x)))
 
   override def tail = {
     val tailIterator = self.newIterator
@@ -417,7 +419,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
    * @param step Step size. The default value is 1.
    * @example {{{(1, 2, 3, 4).sliding(2) == ((1, 2), (2, 3), (3, 4))}}}
    */
-  def sliding(windowSize: Int, step: Int = 1) = ofIterator { //TODO: bug! not working when step > 1
+  override def sliding(windowSize: Int, step: Int = 1) = ofIterator { //TODO: bug! not working when step > 1
     new AbstractIterator[IndexedSeq[T]] {
       private[this] val it = self.newIterator
       private[this] var window = ArraySeq.withSizeHint[T](windowSize)

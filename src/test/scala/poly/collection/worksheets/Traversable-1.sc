@@ -6,6 +6,8 @@ val c = ListSeq(2, 3, 5, 6).asTraversable
 val b = ListSeq("A a", "B b", "C c").asTraversable
 val e = ArraySeq().asTraversable
 
+a.sliding(2)
+
 a map { _ * 2 }
 b map { _.length }
 e map { _.## }

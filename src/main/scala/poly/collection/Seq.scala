@@ -180,7 +180,7 @@ trait Seq[+T] extends Iterable[T] with IntKeyedSortedMap[T] { self =>
 
   override def scanByMonoid[U >: T : Monoid] = scanLeft(id[U])(_ <> _)
 
-  override def consecutive[U](f: (T, T) => U): Seq[U] = {
+  override def slidingPairsWith[U](f: (T, T) => U): Seq[U] = {
     class DiffNode(val a: SeqNode[T], val b: SeqNode[T]) extends SeqNode[U] {
       def data = f(b.data, a.data)
       def next = new DiffNode(b, b.next)
@@ -189,7 +189,9 @@ trait Seq[+T] extends Iterable[T] with IntKeyedSortedMap[T] { self =>
     ofDummyNode(new DiffNode(self.dummy, self.headNode))
   }
 
-  override def diffByGroup[U >: T](implicit U: Group[U]) = consecutive((x, y) => U.op(y, U.inv(x)))
+  override def slidingPairs = slidingPairsWith { (x, y) => (x, y) }
+
+  override def diffByGroup[U >: T](implicit U: Group[U]) = slidingPairsWith((x, y) => U.op(y, U.inv(x)))
 
   override def head = headNode.data
 

@@ -229,12 +229,14 @@ trait Traversable[+T] { self =>
 
   /**
    * Returns the consecutive differences of the sequences. $LAZY
-   * @example {{{ (0, 1, 3, 6, 10).consecutive(_ - _) == (1, 2, 3, 4) }}}
+   * @example {{{ (0, 1, 3, 6, 10).consecutive((x, y) => y - x) == (1, 2, 3, 4) }}}
    */
-  def consecutive[U](f: (T, T) => U): Traversable[U] = new TraversableT.Consecutive(self, f)
+  def slidingPairsWith[U](f: (T, T) => U): Traversable[U] = new TraversableT.Consecutive(self, f)
+
+  def slidingPairs: Traversable[(T, T)] = slidingPairsWith((x, y) => (x, y))
 
   /** $LAZY $O1 */
-  def diffByGroup[U >: T](implicit U: Group[U]) = consecutive(U.invOp)
+  def diffByGroup[U >: T](implicit U: Group[U]) = slidingPairsWith(U.invOp)
 
   /** $EAGER $O1 */
   def head: T = {
@@ -375,6 +377,14 @@ trait Traversable[+T] { self =>
   }
 
   /**
+   * Groups elements in fixed size blocks by passing a sliding window over them.
+   * @param n The size of the sliding window
+   * @param step Step size. The default value is 1.
+   * @example {{{(1, 2, 3, 4).sliding(2) == ((1, 2), (2, 3), (3, 4))}}}
+   */
+  def sliding(n: Int, step: Int = 1): Traversable[IndexedSeq[T]] = new TraversableT.Sliding(self, n, step)
+
+  /**
    * Returns the prefix sums of this collection.
    * @example {{{(1, 2, 3, 4).prefixSums == (0, 1, 3, 6, 10)}}}
    * @tparam X Supertype of the type of elements: must be endowed with an additive monoid
@@ -395,7 +405,7 @@ trait Traversable[+T] { self =>
    * @tparam X Supertype of the type of elements: must be endowed with an additive group (to enable the `sub(-)` operation).
    * @return The consecutive differences sequence
    */
-  def differences[X >: T](implicit X: AdditiveGroup[X]) = consecutive(X.sub)
+  def differences[X >: T](implicit X: AdditiveGroup[X]) = slidingPairsWith((x, y) => X.sub(y, x))
 
   /** Returns the minimum element in this collection. */
   def min(implicit T: Order[T]): T = reduce(T.min[T])
@@ -707,7 +717,7 @@ private[poly] object TraversableT {
           first = false
         }
         else {
-          g(f(x, prev))
+          g(f(prev, x))
           prev = x
         }
       }
@@ -824,6 +834,19 @@ private[poly] object TraversableT {
   class Cycled[T](self: Traversable[T]) extends AbstractTraversable[T] {
     def foreach[V](f: T => V) = {
       while (true) for (x <- self) f(x)
+    }
+  }
+
+  class Sliding[T](self: Traversable[T], n: Int, step: Int) extends AbstractTraversable[IndexedSeq[T]] {
+    def foreach[V](f: IndexedSeq[T] => V) = {
+      var buf = ArraySeq.withSizeHint[T](n)
+      for (x <- self) {
+        buf :+= x
+        if (buf.size == n) {
+          f(buf)
+          buf = buf drop step to ArraySeq
+        }
+      }
     }
   }
 

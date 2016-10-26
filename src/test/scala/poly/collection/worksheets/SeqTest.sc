@@ -37,7 +37,7 @@ a append -1
 a reduce (_+_)
 a.scan(0)(_+_)
 a.scanRight(0)(_+_)
-a.consecutive(_-_)
+a.slidingPairsWith(_-_)
 a.head
 a.tail
 a.init

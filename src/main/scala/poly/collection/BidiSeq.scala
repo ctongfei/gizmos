@@ -65,7 +65,7 @@ trait BidiSeq[+T] extends Seq[T] with BidiIterable[T] { self =>
     ofDummyNode(new MappedNode(self.dummy))
   }
 
-  override def consecutive[U](f: (T, T) => U): BidiSeq[U] = {
+  override def slidingPairsWith[U](f: (T, T) => U): BidiSeq[U] = {
     class ConsecutiveNode(val n0: BidiSeqNode[T], val n1: BidiSeqNode[T]) extends BidiSeqNode[U] {
       def data = f(n1.data, n0.data)
       def next = new ConsecutiveNode(n1, n1.next)
@@ -81,6 +81,8 @@ trait BidiSeq[+T] extends Seq[T] with BidiIterable[T] { self =>
       }
     }
   }
+
+  override def slidingPairs = slidingPairsWith { (x, y) => (x, y) }
 
   override def tail = ofHeadAndLastNode(headNode.next, lastNode)
 
