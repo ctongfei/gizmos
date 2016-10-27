@@ -58,7 +58,7 @@ trait Builder[-T, +C] { self =>
 object Builder {
 
   implicit def InplaceAction[T, C]: InplaceAdditiveAction[T, Builder[T, C]] = new InplaceAdditiveAction[T, Builder[T, C]] {
-    def addInplace(x: T, s: Builder[T, C]) = s add x
+    def add_!(x: T, s: Builder[T, C]) = s add x
   }
 
   def ofMutableSet[T, S <: KeyMutableSet[T]](s: S): Builder[T, S] = new Builder[T, S] {

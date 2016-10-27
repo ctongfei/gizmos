@@ -73,6 +73,8 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
 
   def isEmpty = size != 0
 
+  def notEmpty = !isEmpty
+
   def filterKeys(f: K => Boolean): Map[K, V] = new MapT.KeyFiltered(self, f)
 
   /**
@@ -102,7 +104,9 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
    *       (2, false) -> ('B', 0) }
    * }}}
    */
-  def product[L, W](that: Map[L, W]): Map[(K, L), (V, W)] = new MapT.Product(self, that)
+  def product[L, W](that: Map[L, W]): Map[(K, L), (V, W)] = productWith(that)((v, w) => (v, w))
+
+  def productWith[L, W, X](that: Map[L, W])(f: (V, W) => X): Map[(K, L), X] = new MapT.ProductWith(self, that, f)
 
   /**
    * Zips two maps with the same key type into one map that maps keys to a pair of values. $LAZY
@@ -169,7 +173,7 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
    * Wraps around this map and modified its behavior:
    * When an absent key is accessed, returns the given default value. But this key would not be added to the map.
    */
-  def withDefault[W >: V](default: => W): Map[K, W] = new MapT.WithDefault[K, V, W](self, default)
+  def withDefaultValue[W >: V](default: => W): Map[K, W] = new MapT.WithDefault[K, V, W](self, default)
 
   def asMap: Map[K, V] = new MapT.Bare(self)
 
@@ -363,11 +367,11 @@ private[poly] object MapT {
     def ?(k: J) = self ? f(k)
   }
 
-  class Product[K, L, V, W](self: Map[K, V], that: Map[L, W]) extends AbstractMap[(K, L), (V, W)] {
+  class ProductWith[K, L, V, W, X](self: Map[K, V], that: Map[L, W], f: (V, W) => X) extends AbstractMap[(K, L), X] {
     def keySet = self.keySet product that.keySet
-    def ?(k: (K, L)) = for (v <- self ? k._1; v1 <- that ? k._2) yield (v, v1)
-    def apply(k: (K, L)) = (self(k._1), that(k._2))
-    override def pairs = for ((k, v) <- self.pairs; (l, w) <- that.pairs) yield ((k, l) -> (v, w))
+    def ?(k: (K, L)) = for (v <- self ? k._1; w <- that ? k._2) yield f(v, w)
+    def apply(k: (K, L)) = f(self(k._1), that(k._2))
+    override def pairs = for ((k, v) <- self.pairs; (l, w) <- that.pairs) yield ((k, l) -> f(v, w))
     override def size = self.size * that.size
   }
 

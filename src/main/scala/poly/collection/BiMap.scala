@@ -39,7 +39,6 @@ trait BiMap[K, V] extends Map[K, V] with Bijection[K, V] with Relation[K, V] { s
   /** Returns the inverse map that maps values to keys. $LAZY */
   override def inverse: BiMap[V, K] = new BiMapT.Inverse(self)
 
-
   /**
    * Pipes two bijective maps, this coming first.
    * {{{

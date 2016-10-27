@@ -63,9 +63,9 @@ trait IndexedSeq[+T] extends BidiSeq[T] { self =>
 
   override def sizeKnown = true
 
-  override def keys = Range(fastLength)
+  def indices = Range(fastLength)
 
-  override def pairs: SortedIndexedSeq[(Int, T @uv)] =
+  override def withIndex: SortedIndexedSeq[(Int, T @uv)] =
     IndexedSeq.tabulate(self.length)(i => i -> self(i)).asIfSorted(Order by first)
 
   // HELPER FUNCTIONS

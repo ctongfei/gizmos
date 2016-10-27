@@ -14,6 +14,9 @@ class TraversableTest extends FunSuite {
 
   val n = 1000
 
+  val a = ArraySeq(1, 2, 3, 4).asTraversable
+  a.chunk(2) foreach println
+
   def sampleArray = {
     val r = new Random()
     val n = r.nextInt(100)

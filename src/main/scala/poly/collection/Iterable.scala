@@ -28,7 +28,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
 
   def foreach[V](f: T => V) = newIterator run f
 
-  //region HELPER FUNCTIONS
+  //region MONADIC OPS
 
   override def map[U](f: T => U): Iterable[U] = new IterableT.Mapped(self, f)
 
@@ -36,12 +36,48 @@ trait Iterable[+T] extends Traversable[T] { self =>
 
   def monadicProduct[U](that: Iterable[U]): Iterable[(T, U)] = self.flatMap(t => that.map(u => (t, u)))
 
-  override def filter(f: T => Boolean) = ofIterator(new IterableT.FilteredIterator(self, f))
+  def monadicProductWith[U, X](that: Iterable[U])(f: (T, U) => X): Iterable[X] = self.flatMap(t => that.map(u => f(t, u))  )
+  //endregion
 
-  override def collect[U](pf: PartialFunction[T, U]) = ofIterator(new IterableT.CollectedIterator(self, pf))
+  //region IDIOMATIC OPS
+
+  /**
+   * Returns a collection formed from this collection and another iterable collection by combining
+   * corresponding elements in pairs. `|~|` is a symbolic alias of this method.
+   *
+   * @param that Another iterable collection
+   * @example {{{(1, 2, 3) zip (-1, -2, -3, -4) == ((1, -1), (2, -2), (3, -3))}}}
+   * @return Zipped sequence
+   */
+  def zip[U](that: Iterable[U]): Iterable[(T, U)] = zipWith(that) { (t, u) => (t, u) }
+
+  /**
+   * Equivalent to "`this zip that map f`" but may be more efficient.
+   *
+   * @example {{{
+   *   (1, 2, 3) zipWith (2, 3, 4) (_+_) == (3, 5, 7)
+   * }}}
+   */
+  def zipWith[U, V](that: Iterable[U])(f: (T, U) => V): Iterable[V] = ofIterator {
+    new AbstractIterator[V] {
+      val ti = self.newIterator
+      val ui = that.newIterator
+      def current = f(ti.current, ui.current)
+      def advance() = ti.advance() && ui.advance()
+    }
+  }
+  //endregion
+
+  //region FILTERING OPS
+
+  override def filter(f: T => Boolean) = ofIterator(new IterableT.FilteredIterator(self, f))
 
   override def filterNot(f: T => Boolean) = filter(x => !f(x))
 
+  override def collect[U](pf: PartialFunction[T, U]) = ofIterator(new IterableT.CollectedIterator(self, pf))
+  //endregion
+
+  //region SEQUENCE OPS
   def concat[U >: T](that: Iterable[U]): Iterable[U] = ofIterator(new IterableT.ConcatedIterator(self, that))
 
   override def prepend[U >: T](u: U): Iterable[U] = ofIterator {
@@ -192,7 +228,6 @@ trait Iterable[+T] extends Traversable[T] { self =>
     }
   }
 
-  override def suffixes: Iterable[Iterable[T]] = Iterable.iterate(self)(_.tail).takeTo(_.isEmpty)
 
   override def take(n: Int): Iterable[T] = ofIterator {
     new AbstractIterator[T] {
@@ -329,31 +364,6 @@ trait Iterable[+T] extends Traversable[T] { self =>
     def newIterator = self.newIterator
   }
 
-  /**
-   * Returns a collection formed from this collection and another iterable collection by combining
-   * corresponding elements in pairs. `|~|` is a symbolic alias of this method.
-   *
-   * @param that Another iterable collection
-   * @example {{{(1, 2, 3) zip (-1, -2, -3, -4) == ((1, -1), (2, -2), (3, -3))}}}
-   * @return Zipped sequence
-   */
-  def zip[U](that: Iterable[U]): Iterable[(T, U)] = zipWith(that) { (t, u) => (t, u) }
-
-  /**
-   * Equivalent to "`this zip that map f`" but may be more efficient.
-   *
-   * @example {{{
-   *   (1, 2, 3) zipWith (2, 3, 4) (_+_) == (3, 5, 7)
-   * }}}
-   */
-  def zipWith[U, V](that: Iterable[U])(f: (T, U) => V): Iterable[V] = ofIterator {
-    new AbstractIterator[V] {
-      val ti = self.newIterator
-      val ui = that.newIterator
-      def current = f(ti.current, ui.current)
-      def advance() = ti.advance() && ui.advance()
-    }
-  }
 
   override def withIndex: SortedIterable[(Int, T @uv)] = {
     val paired = ofIterator {
@@ -390,7 +400,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
     }
   }
 
-  def chunk(chunkSize: Int) = ofIterator {
+  override def chunk(chunkSize: Int) = ofIterator {
     new AbstractIterator[IndexedSeq[T]] {
       private[this] val it = self.newIterator
       private[this] var buf: ArraySeq[T] = null

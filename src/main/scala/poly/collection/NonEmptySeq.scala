@@ -9,6 +9,6 @@ package poly.collection
  */
 trait NonEmptySeq[+T] extends Seq[T] {
 
-  override def isEmpty = false
+  override final def isEmpty = false
 
 }

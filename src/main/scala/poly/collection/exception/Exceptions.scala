@@ -9,9 +9,6 @@ class DummyNodeException
 class KeyNotFoundException[K](key: K)
   extends Exception(s"Key $key is not found in the specific collection.")
 
-class NotSupportedException(msg: String)
-  extends Exception(msg)
-
 class QueueEmptyException
   extends Exception("Attempted to pop an empty queue.")
 

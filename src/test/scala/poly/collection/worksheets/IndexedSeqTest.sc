@@ -28,9 +28,9 @@ a.dummy
 b.dummy
 e.dummy
 
-a.pairs
-b.pairs
-e.pairs
+a.withIndex
+b.withIndex
+e.withIndex
 
 a.keys
 b.keys

@@ -8,6 +8,8 @@ val e = ArraySeq().asTraversable
 
 a.sliding(2)
 
+a dropUntil { _ == 1 }
+
 a map { _ * 2 }
 b map { _.length }
 e map { _.## }

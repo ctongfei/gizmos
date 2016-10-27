@@ -14,7 +14,7 @@ a startsWith ListSeq(0, 1, 2, 3, 4, 3, 2, 0)
 
 a endsWith ListSeq()
 
-a.pairs to Map
+a.withIndex to Map
 
 a.take(3)
 a.takeWhile(_ < 3)

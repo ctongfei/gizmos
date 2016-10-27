@@ -11,7 +11,7 @@ import poly.macroutil._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait Table[+T] extends Map[(Int, Int), T] { self =>
+trait Table[+T] extends ((Int, Int) => T) { self =>
 
   /** Returns the element at the ''i''-th row and ''j''-th column in this table. */
   def apply(i: Int, j: Int): T
@@ -23,9 +23,8 @@ trait Table[+T] extends Map[(Int, Int), T] { self =>
   def numCols: Int
 
   def apply(pair: (Int, Int)): T = apply(pair._1, pair._2)
-  def ?(x: (Int, Int)): Option[T] = if (containsKey(x)) Some(self(x)) else None
 
-  def keySet: Set[(Int, Int)] = new AbstractSet[(Int, Int)] {
+  def indexSet: Set[(Int, Int)] = new AbstractSet[(Int, Int)] {
     def keys = Range(numRows) monadicProduct Range(numCols)
     def contains(x: (Int, Int)) = {
       val (i, j) = x
@@ -34,7 +33,6 @@ trait Table[+T] extends Map[(Int, Int), T] { self =>
     implicit def keyEq = Eq.default[(Int, Int)]
   }
 
-  override def pairs = triples map { case (i, j, e) => ((i, j), e) }
 
   /**
    * Returns all the (row, col, elem) triples in this table.
@@ -56,7 +54,7 @@ trait Table[+T] extends Map[(Int, Int), T] { self =>
 
   def elements = triples map third
 
-  override def size = numRows * numCols
+  def size = numRows * numCols
 
   def topLeftNode = new Table.NodeProxy(self, 0, 0)
 
@@ -83,7 +81,7 @@ trait Table[+T] extends Map[(Int, Int), T] { self =>
 
   def dropCols(j: Int) = slice(0, j, self.numRows, self.numCols)
 
-  override def map[U](f: T => U): Table[U] = new TableT.Mapped(self, f)
+  def map[U](f: T => U): Table[U] = new TableT.Mapped(self, f)
 
   /** Transposes this table. */
   def transpose: Table[T] = new TableT.Transposed(self)
@@ -93,6 +91,9 @@ trait Table[+T] extends Map[(Int, Int), T] { self =>
   def zipWith[U, V](that: Table[U])(f: (T, U) => V): Table[V] = new TableT.ZippedWith(self, that, f)
 
   def sliding(i: Int, j: Int, rowStep: Int = 1, colStep: Int = 1): Table[Table[T]] = new TableT.Sliding(self, i, j, rowStep, colStep)
+
+
+  def asMap: Map[(Int, Int), T] = new TableT.AsMap(self)
 
   // OVERRIDING JAVA METHODS
   override def equals(that: Any) = that match {
@@ -143,6 +144,13 @@ object Table {
 abstract class AbstractTable[T] extends Table[T]
 
 private[poly] object TableT {
+
+  class AsMap[T](self: Table[T]) extends AbstractMap[(Int, Int), T] {
+    def keySet: Set[(Int, Int)] = self.indexSet
+    def ?(k: (Int, Int)): Option[T] = if (containsKey(k)) Some(self(k)) else None
+    def apply(k: (Int, Int)): T = self(k)
+    override def pairs = self.triples map { case (i, j, e) => ((i, j), e) }
+  }
 
   class TableEq[T](implicit T: Eq[T]) extends Eq[Table[T]] {
     def eq(x: Table[T], y: Table[T]): Boolean = {

@@ -17,7 +17,7 @@ import scala.annotation.unchecked.{uncheckedVariance => uv}
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait Seq[+T] extends Iterable[T] with IntKeyedSortedMap[T] { self =>
+trait Seq[+T] extends Iterable[T] with (Int => T) { self =>
 
   import Seq._
 
@@ -55,6 +55,8 @@ trait Seq[+T] extends Iterable[T] with IntKeyedSortedMap[T] { self =>
 
   override def size = length
 
+  override def notEmpty = !isEmpty
+
   override def foreach[V](f: T => V): Unit = {
     var node = headNode
     while (node.notDummy) {
@@ -65,15 +67,13 @@ trait Seq[+T] extends Iterable[T] with IntKeyedSortedMap[T] { self =>
 
   def newIterator: Iterator[T] = new SeqT.DefaultIterator(self)
 
-  def keySet: SortedSet[Int] = new AbstractSortedSet[Int] {
+  def indexSet: SortedSet[Int] = new AbstractSortedSet[Int] {
     def keys = new SeqT.Keys(self)
     def contains(i: Int) = i >= 0 && i < length //TODO: faster implementation; skip calculation of length
     def keyOrder = poly.algebra.std.IntStructure
   }
 
-  def ?(i: Int) = if (i >= 0 && i < length) Some(this(i)) else None
-
-  override def pairs: SortedSeq[(Int, T @uv)] = new SeqT.Pairs(self)
+  override def withIndex: SortedSeq[(Int, T @uv)] = new SeqT.Pairs(self)
 
   // HELPER FUNCTIONS
 
@@ -432,6 +432,8 @@ trait Seq[+T] extends Iterable[T] with IntKeyedSortedMap[T] { self =>
 
   def asSeq: Seq[T] = ofHeadNode(headNode)
 
+  def asMap: KeySortedMap[Int, T] = new SeqT.AsMap(self)
+
   // SYMBOLIC ALIASES
 
   override def |>[U](f: T => U) = this map f
@@ -508,7 +510,7 @@ object Seq extends FactoryA[Seq] {
   // TYPECLASS INSTANCES
 
   //TODO: should be implicit, but results in ambiguous implicits because of problems with contravariant typeclass (SI-2509)
-  def Eq[T: Eq]: Eq[Seq[T]] = new Eq[Seq[T]] {
+  implicit def Eq[T: Eq]: Eq[Seq[T]] = new Eq[Seq[T]] {
     def eq(x: Seq[T], y: Seq[T]): Boolean = {
       //TODO: faster implementation using iterators?
       var xn = x.headNode
@@ -565,6 +567,12 @@ object Seq extends FactoryA[Seq] {
 abstract class AbstractSeq[+T] extends AbstractIterable[T] with Seq[T]
 
 private[poly] object SeqT {
+
+  class AsMap[T](self: Seq[T]) extends IntKeyedSortedMap[T] {
+    def keySet = self.indexSet
+    def ?(i: Int) = if (i >= 0 && i < self.length) Some(this(i)) else None
+    def apply(k: Int) = self(k)
+}
 
   class DummyNode[T](self: Seq[T]) extends SeqNode[T] {
     def next = self.headNode
