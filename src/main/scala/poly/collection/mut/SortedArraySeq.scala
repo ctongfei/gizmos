@@ -1,7 +1,7 @@
 package poly.collection.mut
 
 import poly.algebra._
-import poly.collection.builder._
+import poly.collection._
 import poly.collection.factory._
 import poly.collection.impl._
 
@@ -24,7 +24,7 @@ class SortedArraySeq[T] private[poly](private[poly] val data: ResizableSeq[T])(i
 
 }
 
-object SortedArraySeq extends BuilderFactoryA_EvA[SortedArraySeq, Order] {
+object SortedArraySeq extends BuilderFactory1Ev1[SortedArraySeq, Order] {
 
   def newBuilder[T: Order]: Builder[T, SortedArraySeq[T]] = new Builder[T, SortedArraySeq[T]] {
     val ra = new ResizableSeq[T]()

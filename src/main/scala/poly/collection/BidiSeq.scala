@@ -25,27 +25,6 @@ trait BidiSeq[+T] extends Seq[T] with BidiIterable[T] { self =>
     def isDummy = true
   }
 
-  override def apply(i: Int): T = {
-    if (i >= 0) {
-      var node = headNode
-      var j = 0
-      while (j < i) {
-        node = node.next
-        j += 1
-      }
-      node.data
-    }
-    else { // negative indices
-      var node = lastNode
-      var j = -1
-      while (j > i) {
-        node = node.prev
-        j -= 1
-      }
-      node.data
-    }
-  }
-
   def newReverseIterator = reverse.newIterator
 
   def headNode: BidiSeqNode[T]
@@ -53,7 +32,7 @@ trait BidiSeq[+T] extends Seq[T] with BidiIterable[T] { self =>
   /** Returns the last node of this sequence. */
   def lastNode: BidiSeqNode[T]
 
-  //region HELPER FUNCTIONS
+  //region MONADIC OPS
 
   override def map[U](f: T => U): BidiSeq[U] = {
     class MappedNode(outer: BidiSeqNode[T]) extends BidiSeqNode[U] {
@@ -64,25 +43,8 @@ trait BidiSeq[+T] extends Seq[T] with BidiIterable[T] { self =>
     }
     ofDummyNode(new MappedNode(self.dummy))
   }
+  //endregion
 
-  override def slidingPairsWith[U](f: (T, T) => U): BidiSeq[U] = {
-    class ConsecutiveNode(val n0: BidiSeqNode[T], val n1: BidiSeqNode[T]) extends BidiSeqNode[U] {
-      def data = f(n1.data, n0.data)
-      def next = new ConsecutiveNode(n1, n1.next)
-      def prev = new ConsecutiveNode(n0.prev, n0)
-      def isDummy = n0.isDummy || n1.isDummy
-    }
-    ofDummyNode {
-      new BidiSeqNode[U] {
-        def data = throw new DummyNodeException
-        def next = new ConsecutiveNode(self.headNode, self.headNode.next)
-        def prev = new ConsecutiveNode(self.lastNode.prev, self.lastNode)
-        def isDummy = true
-      }
-    }
-  }
-
-  override def slidingPairs = slidingPairsWith { (x, y) => (x, y) }
 
   override def tail = ofHeadAndLastNode(headNode.next, lastNode)
 
@@ -110,6 +72,28 @@ trait BidiSeq[+T] extends Seq[T] with BidiIterable[T] { self =>
     ofHeadAndLastNode(new Until(self.lastNode), new Until(self.headNode))
   }
 
+  override def slidingPairsWith[U](f: (T, T) => U): BidiSeq[U] = {
+    class ConsecutiveNode(val n0: BidiSeqNode[T], val n1: BidiSeqNode[T]) extends BidiSeqNode[U] {
+      def data = f(n1.data, n0.data)
+      def next = new ConsecutiveNode(n1, n1.next)
+      def prev = new ConsecutiveNode(n0.prev, n0)
+      def isDummy = n0.isDummy || n1.isDummy
+    }
+    ofDummyNode {
+      new BidiSeqNode[U] {
+        def data = throw new DummyNodeException
+        def next = new ConsecutiveNode(self.headNode, self.headNode.next)
+        def prev = new ConsecutiveNode(self.lastNode.prev, self.lastNode)
+        def isDummy = true
+      }
+    }
+  }
+
+  override def slidingPairs = slidingPairsWith { (x, y) => (x, y) }
+
+  /**
+   * Reverses this collection. $LAZY
+   */
   override def reverse: BidiSeq[T] = new BidiSeqT.Reversed(self)
 
   def asBiSeq: BidiSeq[T] = new AbstractBidiSeq[T] {

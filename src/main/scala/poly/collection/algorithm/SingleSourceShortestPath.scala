@@ -11,9 +11,9 @@ import poly.collection.search._
  */
 class SingleSourceShortestPath[K, E: OrderedAdditiveGroup](val graph: Graph[K, E], val source: K) {
 
-  private[this] val i = new UniformCostIterator(graph, source)
-  i run { _ => }
-  private[this] val fringe = i.fringe
+  private[this] val searcher = new UniformCostIterator(graph, source)
+  searcher run { _ => }
+  private[this] val fringe = searcher.fringe
 
   /** Returns the shortest distance from source to the given target. */
   def distanceTo(target: K) = fringe.keyElementMap(target).g

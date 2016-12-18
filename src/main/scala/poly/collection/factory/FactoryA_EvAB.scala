@@ -3,14 +3,13 @@ package poly.collection.factory
 import poly.algebra._
 import poly.collection._
 import poly.collection.conversion.FromScala._
-import poly.collection.builder._
 import scala.language.higherKinds
 
 /**
  * For factories that builds on a stream of A, but requiring evidences of type A and B.
  * @author Tongfei Chen
  */
-trait BuilderFactoryA_EvAB[+C[_, _], EvA[_], EvB[_]] {
+trait BuilderFactory1Ev12[+C[_, _], EvA[_], EvB[_]] {
   /** Returns a new builder of this collection type. */
   implicit def newBuilder[A: EvA, B: EvB]: Builder[A, C[A, B]]
 

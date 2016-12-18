@@ -28,20 +28,18 @@ trait Bijection[@sp(Int, AnyRef) X, @sp(Int, AnyRef) Y] extends Func[X, Y] { sel
   /** Returns the Cartesian product of two bijections. */
   def product[U, V](that: Bijection[U, V]): Bijection[(X, U), (Y, V)] = new BijectionT.Product(self, that)
 
-  def map[Z](f: Bijection[Y, Z]) = andThen(f)
+  def map[Z](f: Bijection[Y, Z]): Bijection[X, Z] = andThen(f)
 
-  def contramap[W](f: Bijection[W, X]) = compose(f)
+  def contramap[W](f: Bijection[W, X]): Bijection[W, Y] = compose(f)
 
-  def |>[Z](f: Bijection[Y, Z]) = andThen(f)
-  def |>:[W](f: Bijection[W, X]) = compose(f)
-  final def ∘[W](that: Bijection[W, X]) = compose(that)
-  final def ×[U, V](that: Bijection[U, V]) = product(that)
+  final def ∘[W](that: Bijection[W, X]): Bijection[W, Y] = compose(that)
+  final def ×[U, V](that: Bijection[U, V]): Bijection[(X, U), (Y, V)] = product(that)
 
 }
 
 object Bijection {
 
-  private type <=>[X, Y] = Bijection[X, Y]
+  type <=>[X, Y] = Bijection[X, Y]
 
   def apply[X, Y](f1: X => Y, f2: Y => X): X <=> Y = new AbstractBijection[X, Y] {
     def invert(y: Y) = f2(y)

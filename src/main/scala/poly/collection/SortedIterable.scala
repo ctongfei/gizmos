@@ -17,7 +17,7 @@ trait SortedIterable[T] extends Iterable[T] { self =>
 
   override def filter(f: T => Boolean): SortedIterable[T] = super.filter(f).asIfSorted(elementOrder)
 
-  override def filterNot(f: T => Boolean) = filter(x => !f(x))
+  override def filterNot(f: T => Boolean) = filter(!f)
 
   /**
    * Returns the unique elements of this iterable collection while retaining their original order.
@@ -56,7 +56,7 @@ trait SortedIterable[T] extends Iterable[T] { self =>
       private[this] var curr: T = _
       private[this] var aNotComplete = ai.advance()
       private[this] var bNotComplete = bi.advance()
-      def advance(): Boolean = {
+      def advance() = {
         if (aNotComplete && bNotComplete) {
           if (ai.current <= bi.current) {
             curr = ai.current
@@ -79,7 +79,7 @@ trait SortedIterable[T] extends Iterable[T] { self =>
         else false
       }
 
-      def current: T = curr
+      def current = curr
     }
   }
 
@@ -104,8 +104,8 @@ trait SortedIterable[T] extends Iterable[T] { self =>
     }
 
     // Appends remaining elements
-    if (aNotComplete) do c.append_!(ai.current) while (ai.advance())
-    if (bNotComplete) do c.append_!(bi.current) while (bi.advance())
+    if (aNotComplete) do c :+= ai.current while (ai.advance())
+    if (bNotComplete) do c :+= bi.current while (bi.advance())
     c.asIfSorted(this.elementOrder)
   }
 

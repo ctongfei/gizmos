@@ -34,21 +34,21 @@ class TraversableTest extends FunSuite {
   test("Equality") {
     for (i ← 0 until n) {
       val (s, p) = genVal
-      s traversable_=== p
+      checkTraversable(s, p)
     }
   }
 
   test("Map") {
     for (i ← 0 until n) {
       val (s, p) = genVal
-      s.map(_ * 2) traversable_=== p.map(_ * 2)
+      checkTraversable(s.map(_ * 2), p.map(_ * 2))
     }
   }
 
   test("Filter") {
     for (i ← 0 until n) {
       val (s, p) = genVal
-      s.filter(_ % 2 == 1) traversable_=== p.filter(_ % 2 == 1)
+      checkTraversable(s.filter(_ % 2 == 1), p.filter(_ % 2 == 1))
     }
   }
 

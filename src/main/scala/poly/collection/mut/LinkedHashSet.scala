@@ -2,7 +2,6 @@ package poly.collection.mut
 
 import poly.algebra._
 import poly.collection._
-import poly.collection.builder._
 import poly.collection.exception._
 import poly.collection.factory._
 import poly.collection.impl.hashtable._
@@ -51,7 +50,7 @@ class LinkedHashSet[T: Hashing] private(val data: OpenHashTable[T, LinkedHashSet
   def contains(x: T) = data.locate(x) != null
 }
 
-object LinkedHashSet extends BuilderFactoryA_EvA[LinkedHashSet, Hashing] {
+object LinkedHashSet extends BuilderFactory1Ev1[LinkedHashSet, Hashing] {
 
   private[poly] class Entry[K](val key: K, var prev: Entry[K], var next: Entry[K])
     extends OpenHashEntryLike[K, Entry[K]] with BidiSeqNode[K] {

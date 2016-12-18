@@ -39,7 +39,7 @@ trait BidiIterable[+T] extends Iterable[T] { self =>
 
   override def last = reverse.head
 
-  def asBiIterable = new AbstractBidiIterable[T] {
+  def asBidiIterable = new AbstractBidiIterable[T] {
     def newReverseIterator = self.newReverseIterator
     def newIterator = self.newIterator
   }

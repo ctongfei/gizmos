@@ -30,7 +30,7 @@ object RangeBenchmark extends App {
 
     val tPoly = conf measure {
       val l1 = Array.ofDim[Int](n)
-      for (i ← 0 ~~< n)
+      for (i ← 0 ~~> n)
         l1(i) = i * 2
       //print(l1.head)
     }
@@ -38,7 +38,7 @@ object RangeBenchmark extends App {
 
     val tPolyFast = conf measure {
       val l1 = Array.ofDim[Int](n)
-      for (i ← (0 ~~< n).fast) {
+      for (i ← (0 ~~> n).fast) {
         l1(i) = i * 2
       }
       //print(l1.head)

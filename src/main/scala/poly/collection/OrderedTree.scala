@@ -117,11 +117,6 @@ object OrderedTree {
     }
   }
 
-  def KnuthTransform[T]: Bijection[OrderedTree[T], BinaryTree[T]] = new Bijection[OrderedTree[T], BinaryTree[T]] {
-    def apply(x: OrderedTree[T]) = x.knuthTransform
-    def invert(y: BinaryTree[T]) = y.inverseKnuthTransform
-  }
-
   implicit object Comonad extends Comonad[OrderedTree] {
     def id[X](u: OrderedTree[X]): X = u.root
     def extend[X, Y](wx: OrderedTree[X])(f: OrderedTree[X] => Y): OrderedTree[Y] = wx.subtrees.map(f)
@@ -130,6 +125,8 @@ object OrderedTree {
   implicit object ZipIdiom extends Idiom[OrderedTree] {
     def id[X](u: X) = OrderedTree.infinite(u)
     def liftedMap[X, Y](mx: OrderedTree[X])(mf: OrderedTree[X => Y]) = (mx zipWith mf) { (x, f) => f(x) }
+    override def product[X, Y](mx: OrderedTree[X])(my: OrderedTree[Y]) = mx zip my
+    override def productMap[X, Y, Z](mx: OrderedTree[X], my: OrderedTree[Y])(f: (X, Y) => Z) = (mx zipWith my)(f)
   }
 
 }

@@ -4,12 +4,14 @@ isSnapshot := true
 organization := "me.tongfei"
 scalaVersion := "2.11.8"
 
+crossScalaVersions := Seq("2.11.8", "2.12.0")
+
 resolvers += Resolver.sonatypeRepo("snapshots")
 
-libraryDependencies += "me.tongfei"        %% "poly-algebra"    % "0.3.14-SNAPSHOT"
+libraryDependencies += "me.tongfei"        %% "poly-algebra"    % "0.4.0-SNAPSHOT"
 
-libraryDependencies += "org.scalatest"     %% "scalatest"       % "2.2.6"           % Test
-libraryDependencies += "com.storm-enroute" %% "scalameter-core" % "0.7"             % Test
+libraryDependencies += "org.scalatest"     %% "scalatest"       % "3.0.0"           % Test
+libraryDependencies += "com.storm-enroute" %% "scalameter-core" % "0.8.2"           % Test
 
 //scalacOptions += "-Ymacro-debug-lite"
 scalacOptions ++= Seq("-deprecation", "-feature")

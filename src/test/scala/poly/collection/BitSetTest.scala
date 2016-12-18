@@ -8,18 +8,10 @@ import poly.collection.mut._
 object BitSetTest extends App {
 
 
-  val bs = BitSet()
+  val a = BitSet(3, 4, 5)
+  val b = BitSet(5, 6, 7)
 
-
-  bs.add_!(3)
-  bs.add_!(4)
-  bs.add_!(5)
-
-  bs.remove_!(3)
-  bs.add_!(3)
-
-
-  for (i ← bs.keys) println(i)
+  val bp = 0
 
 
 }

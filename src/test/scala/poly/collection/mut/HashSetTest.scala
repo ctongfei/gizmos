@@ -25,7 +25,7 @@ object HashSetTest extends App {
     val x = r.nextGaussian()
     s += x
     p add_! x
-    if ({s set_=== p; true}) println(s"CHECKED $i")
+    if ({checkSet(s, p); true}) println(s"CHECKED $i")
     else throw new RuntimeException()
   }
 
@@ -38,7 +38,7 @@ object HashSetTest extends App {
     s -= x
     p remove_! x
     i -= 1
-    if ({s set_=== p; true}) println(s"CHECKED $i")
+    if ({checkSet(s, p); true}) println(s"CHECKED $i")
     else throw new RuntimeException
   }
 

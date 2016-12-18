@@ -19,6 +19,8 @@ object GraphTest extends App {
     (1, 5, 5)
   )
 
+  val g2 = g to AdjacencyListUndirectedGraph
+
   g.breadthFirstTraversal(1) foreach println
 
   println(g)
@@ -27,7 +29,9 @@ object GraphTest extends App {
 
   println(gr)
 
-  val apsp = new AllPairsShortestPath(g)
+  val apsp = new AllPairsShortestPath(g2)
+
+  val map = g2.keySet product g2.keySet createMap { case (i, j) => apsp.dist(i, j) }
 
   apsp.pathBetween(2, 5) foreach println
 

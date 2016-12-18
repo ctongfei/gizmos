@@ -1,7 +1,6 @@
 package poly.collection.factory
 
 import poly.collection._
-import poly.collection.builder._
 import poly.collection.conversion.FromScala._
 import scala.language.higherKinds
 
@@ -10,7 +9,7 @@ import scala.language.higherKinds
   * This trait should be inherited by companion objects of sequence implementation classes.
   * @author Tongfei Chen
  */
-trait SeqFactory[+C[_]] extends BuilderFactoryA[C] {
+trait SeqFactory[+C[_]] extends BuilderFactory1[C] {
 
   /** Returns a new builder of this collection type. */
   implicit def newBuilder[T]: Builder[T, C[T]]

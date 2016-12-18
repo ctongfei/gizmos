@@ -3,7 +3,6 @@ package poly.collection.mut
 import poly.algebra._
 import poly.algebra.syntax._
 import poly.collection._
-import poly.collection.builder._
 import poly.collection.exception._
 import poly.collection.factory._
 import poly.collection.impl._
@@ -11,15 +10,15 @@ import poly.macroutil._
 
 /**
  * An implementation of a binary min-heap.
- * The least element under the specific order will surface to the top of the heap.
+ * The least element under the specific order will always surface to the top of the heap.
  * @since 0.1.0
  * @author Tongfei Chen
  */
-class BinaryHeap[T] private(private val data: ResizableSeq[T])(implicit val orderOnElements: Order[T]) extends PriorityQueue[T] {
+class BinaryHeap[T] private(private val data: ResizableSeq[T])(implicit val elementOrder: Order[T]) extends PriorityQueue[T] {
 
   import BinaryTree._
 
-  @inline private def smallerChildIndex(x: Int) = {
+  private def smallerChildIndex(x: Int) = {
     val l = 2 * x + 1
     if (l < data.fastLength - 1 && data(l + 1) < data(l)) l + 1 else l
   }
@@ -67,7 +66,7 @@ class BinaryHeap[T] private(private val data: ResizableSeq[T])(implicit val orde
 
 }
 
-object BinaryHeap extends BuilderFactoryA_EvA[BinaryHeap, Order] {
+object BinaryHeap extends BuilderFactory1Ev1[BinaryHeap, Order] {
 
   implicit def newBuilder[T: Order]: Builder[T, BinaryHeap[T]] = new Builder[T, BinaryHeap[T]] {
     private[this] val data = new ResizableSeq[T]()

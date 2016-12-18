@@ -8,8 +8,7 @@ import poly.collection.mut._
  */
 object ShuffleTest extends App {
 
-
-  val b = Seq(1, 2, 3, 4).shuffle.infinitely.take(240000).to(PairWeightedSet.of[Int])
+  val b = Seq(1, 2, 3, 4, 5).shuffle.infinitely.take(120000).occCounts
 
   val bp = 0
 

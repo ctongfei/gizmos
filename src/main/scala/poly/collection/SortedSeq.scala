@@ -9,7 +9,7 @@ trait SortedSeq[T] extends Seq[T] with SortedIterable[T] { self =>
 
   override def filter(f: T => Boolean): SortedSeq[T] = super[Seq].filter(f).asIfSorted(self.elementOrder)
 
-  override def filterNot(f: T => Boolean) = filter(x => !f(x))
+  override def filterNot(f: T => Boolean) = filter(!f)
 
   //TODO: thenSortBy
 }

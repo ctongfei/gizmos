@@ -1,7 +1,7 @@
 package poly.collection.mut
 
 import poly.algebra._
-import poly.collection.builder._
+import poly.collection._
 import poly.collection.factory._
 
 import scala.reflect._
@@ -19,14 +19,14 @@ import scala.reflect._
  * @since 0.1.0
  * @author Tongfei Chen
  */
-object AutoMap extends BuilderFactoryAB_EvA[KeyMutableMap, Eq] {
+object AutoMap extends BuilderFactory2Ev1[KeyMutableMap, Eq] {
   implicit def newBuilder[K, V](implicit K: Eq[K]): Builder[(K, V), KeyMutableMap[K, V]] = K match {
     case kh: Hashing[K] => HashMap        .newBuilder[K, V](kh)
     case ko: Order[K]   => RedBlackTreeMap.newBuilder[K, V](ko)
     case ke             => ListMap        .newBuilder[K, V](ke)
   }
 
-  object Dense extends BuilderFactoryAB_EvAA[KeyMutableMap, Eq, ClassTag] {
+  object Dense extends BuilderFactory2Ev11[KeyMutableMap, Eq, ClassTag] {
     implicit def newBuilder[K, V](implicit K: Eq[K], ct: ClassTag[K]): Builder[(K, V), KeyMutableMap[K, V]] = (K, ct) match {
       case (std.IntStructure, ClassTag.Int) => DenseIntKeyedMap.newBuilder[V].asInstanceOf[Builder[(K, V), KeyMutableMap[K, V]]] // this cast is safe because K =:= Int
       case _                                => AutoMap.newBuilder(K)

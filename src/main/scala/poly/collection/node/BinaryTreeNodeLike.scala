@@ -39,7 +39,6 @@ trait BinaryTreeNodeLike[+T, +N <: BinaryTreeNodeLike[T, N]] extends ForwardNode
     }
   }
 
-
   /**
    * Performs in-order traversal from this node. $LAZY
    * @return A non-strict sequence of the in-order traversal.

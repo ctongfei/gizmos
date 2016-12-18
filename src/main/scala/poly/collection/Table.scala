@@ -7,11 +7,10 @@ import poly.macroutil._
 
 /**
  * Represents a table, which is a rectangular (not jagged) indexed 2-D array.
- *
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait Table[+T] extends ((Int, Int) => T) { self =>
+trait Table[+T] extends PartialFunction[(Int, Int), T] { self =>
 
   /** Returns the element at the ''i''-th row and ''j''-th column in this table. */
   def apply(i: Int, j: Int): T
@@ -24,8 +23,13 @@ trait Table[+T] extends ((Int, Int) => T) { self =>
 
   def apply(pair: (Int, Int)): T = apply(pair._1, pair._2)
 
+  def isDefinedAt(x: (Int, Int)) = {
+    val (i, j) = x
+    0 <= i && i < numRows && 0 <= j && j < numCols
+  }
+
   def indexSet: Set[(Int, Int)] = new AbstractSet[(Int, Int)] {
-    def keys = Range(numRows) monadicProduct Range(numCols)
+    def keys = Range(numRows) product Range(numCols)
     def contains(x: (Int, Int)) = {
       val (i, j) = x
       i >= 0 && i < numRows && j >= 0 && j < numCols

@@ -1,6 +1,6 @@
 package poly.collection.mut
 
-import poly.collection.builder._
+import poly.collection._
 import poly.collection.factory._
 import poly.collection.immut._
 
@@ -33,7 +33,7 @@ class ListStack[T] private(private var data: List[T]) extends Queue[T] {
 
 }
 
-object ListStack extends BuilderFactoryA[ListStack] {
+object ListStack extends BuilderFactory1[ListStack] {
 
   implicit def newBuilder[T]: Builder[T, ListStack[T]] = List.newBuilder[T] map { l => new ListStack(l) }
 

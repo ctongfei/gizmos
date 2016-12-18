@@ -36,8 +36,6 @@ trait Predicate[@sp(spFunc1) -T] extends Func[T, Boolean] { self =>
   /** Returns the xor/symmetric-difference of two predicates. */
   def symmetricDiff[U <: T](that: Predicate[U]): Predicate[U] = new PredicateT.SymmetricDiff[U](self :: that :: List.Empty)
 
-  def implies[U <: T](that: Predicate[U]) = !self intersect that
-
   override def contramap[S](f: S => T): Predicate[S] = new PredicateT.Contramapped(self, f)
 
   def unary_! : Predicate[T] = complement

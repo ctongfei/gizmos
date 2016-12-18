@@ -14,7 +14,7 @@ case class UPair[@sp(spTuple2) T: Eq](_1: T, _2: T) extends Set[T] {
 
   def contains(x: T) = x === _1 || x === _2
 
-  def keys = List(_1, _2)
+  def keys = _1 :: _2 :: List.Empty
 
   def keyEq = Eq[T]
 
@@ -50,7 +50,11 @@ object UPair {
     def eq(x: UPair[T], y: UPair[T]) =
       ((x._1 === y._1) && (x._2 === y._2)) ||
         ((x._1 === y._2) && (x._2 === y._1))
-    def hash(x: UPair[T]) = x._1.### ^ x._2.###
+    def hash(x: UPair[T]) = {
+      val a = x._1.###
+      val b = x._2.###
+      (a * b) + (a ^ b)
+    }
   }
 
   implicit def Eq[@sp(spTuple2) T](implicit T: Eq[T]): Eq[UPair[T]] = T match {

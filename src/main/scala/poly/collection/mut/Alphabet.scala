@@ -16,16 +16,21 @@ class Alphabet[T: Eq] private(
   extends BiMap[T, Int]
 {
 
+  private[this] var frozen = false
+
   def keySet = w2i.keySet
   def valueSet = i2w.keySet
 
-  def apply(x: T): Int = w2i ? x match {
-    case Some(i) => i
-    case None =>
-      val newIndex = w2i.size
-      w2i += (x, newIndex)
-      i2w += (newIndex, x)
-      newIndex
+  def apply(x: T): Int = synchronized {
+    if (frozen) return w2i ? x getOrElse 0
+    w2i ? x match {
+      case Some(i) => i
+      case None =>
+        val newIndex = w2i.size
+        w2i += (x, newIndex)
+        i2w += (newIndex, x)
+        newIndex
+    }
   }
 
   def ?(x: T): Option[Int] = w2i ? x
@@ -35,11 +40,17 @@ class Alphabet[T: Eq] private(
   def invert(i: Int) = i2w(i)
   def invertOption(i: Int) = i2w ? i
 
-  //TODO: freeze
+  def freeze() = synchronized {
+    frozen = true
+  }
+
+  def unfreeze() = synchronized {
+    frozen = false
+  }
 
   override def pairs = i2w.pairs.map(_.swap) // normally faster than traversing through i2w, and is ordered
 
-  def clear(): Unit = {
+  def clear_!(): Unit = {
     w2i.clear_!()
     i2w.clear_!()
   }
@@ -47,9 +58,6 @@ class Alphabet[T: Eq] private(
 }
 
 object Alphabet {
-
-  /** Creates an empty alphabet. */
-  def apply[T: Eq] = new Alphabet(AutoMap[T, Int](), DenseIntKeyedMap[T]())
 
   /**
    * Creates an alphabet with a `nil` element. This element will be mapped to index `0`.

@@ -9,7 +9,7 @@ import poly.collection.node._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-sealed abstract class LazyList[+T] extends AbstractSeq[T] with SeqNode[T] { self =>
+sealed abstract class LazyList[+T] extends AbstractSeq[T] with SeqNodeLike[T, LazyList[T]] with SeqNode[T] { self =>
 
   import LazyList._
 

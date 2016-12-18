@@ -103,7 +103,7 @@ object FromScala {
 
   implicit class scalaPriorityQueueAsPoly[T](spq: scm.PriorityQueue[T]) extends PriorityQueue[T] {
     def elements = scalaIterableAsPoly(spq)
-    def orderOnElements = spq.ord
+    def elementOrder = spq.ord
     def push(x: T) = spq += x
     def top = spq.head
     def pop() = spq.dequeue()

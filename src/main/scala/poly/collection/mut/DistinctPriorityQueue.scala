@@ -18,7 +18,7 @@ class DistinctPriorityQueue[K: Eq, T] private(private val inner: PriorityQueue[T
 
   def eqOnKeys = Eq[K]
 
-  implicit def orderOnElements = inner.orderOnElements
+  implicit def elementOrder = inner.elementOrder
 
   def push(x: T) = {
     val k = keySelector(x)

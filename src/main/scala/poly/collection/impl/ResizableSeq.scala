@@ -1,12 +1,9 @@
 package poly.collection.impl
 
 import poly.collection._
-import poly.collection.builder._
-import poly.collection.conversion._
 import poly.collection.factory._
 import poly.collection.mut._
 import poly.collection.node._
-import scala.reflect._
 
 /**
  * A resizable array. This serves as the implementation container of `ArrayX` classes.

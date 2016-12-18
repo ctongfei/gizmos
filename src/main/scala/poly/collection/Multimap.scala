@@ -24,6 +24,7 @@ trait Multimap[K, V] extends Relation[K, V] with KeyedLike[K, Multimap[K, V]] wi
   /** Returns the equivalence relation on values. */
   implicit def valueEq: Eq[V]
 
+  /** Returns the equivalence relation on key-value pairs. */
   implicit def pairEq = keyEq product valueEq
 
   /** Returns all values that are associated with the given key. */
@@ -34,6 +35,7 @@ trait Multimap[K, V] extends Relation[K, V] with KeyedLike[K, Multimap[K, V]] wi
 
   def related(k: K, v: V) = apply(k) contains v
 
+  /** Returns a set that contains all key-value pairs in this multimap. */
   def pairSet: Set[(K, V)] = new AbstractSet[(K, V)] {
     def keys = self.pairs
     def contains(x: (K, V)) = self(x._1) contains x._2
@@ -71,13 +73,13 @@ trait Multimap[K, V] extends Relation[K, V] with KeyedLike[K, Multimap[K, V]] wi
   override def inverse: Multimap[V, K] = pairs map { _.swap } to AutoMultimap
 
   /**
-   * Casts this multimap of type `Multimap[K, V]` to the equivalent map of type `Map[K, Set[V]]`.
+   * Casts this multimap of type `Multimap[K, V]` to the equivalent map of type `Map[ K, Set[V] ]`.
    */
   def asMap: Map[K, Set[V]] = new MultimapT.AsMap(self)
 
 }
 
-object Multimap extends FactoryAB_EvAB[Multimap, Eq, Eq] {
+object Multimap extends Factory2Ev12[Multimap, Eq, Eq] {
 
   def from[K: Eq, V: Eq](xs: Traversable[(K, V)]): Multimap[K, V] = AutoMultimap from xs
 

@@ -1,7 +1,7 @@
 package poly.collection.mut
 
 import poly.algebra._
-import poly.collection.builder._
+import poly.collection._
 import poly.collection.factory._
 
 import scala.reflect._
@@ -19,14 +19,14 @@ import scala.reflect._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-object AutoSet extends BuilderFactoryA_EvA[KeyMutableSet, Eq] {
+object AutoSet extends BuilderFactory1Ev1[KeyMutableSet, Eq] {
   implicit def newBuilder[K](implicit K: Eq[K]): Builder[K, KeyMutableSet[K]] = K match {
     case kh: Hashing[K] => HashSet.newBuilder(kh)
     case ko: Order[K]   => RedBlackTreeSet.newBuilder(ko)
     case ke             => ListSet.newBuilder(ke)
   }
 
-  object Dense extends BuilderFactoryA_EvAA[KeyMutableSet, Eq, ClassTag] {
+  object Dense extends BuilderFactory1Ev11[KeyMutableSet, Eq, ClassTag] {
     implicit def newBuilder[K](implicit K: Eq[K], ct: ClassTag[K]): Builder[K, KeyMutableSet[K]] = (K, ct) match {
       case (std.IntStructure, ClassTag.Int) => BitSet.newBuilder.asInstanceOf[Builder[K, KeyMutableSet[K]]] // the cast is safe: K =:= Int
       case _                                => AutoSet.newBuilder(K)

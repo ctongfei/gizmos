@@ -3,7 +3,6 @@ package poly.collection.mut
 import poly.algebra._
 import poly.algebra.syntax._
 import poly.collection._
-import poly.collection.builder._
 import poly.collection.exception._
 import poly.collection.factory._
 import poly.collection.impl.linkedlist._
@@ -89,7 +88,7 @@ class ListMap[K, V] private(private val data: SinglyLinkedList[K, ListMap.Node[K
 
 }
 
-object ListMap extends BuilderFactoryAB_EvA[ListMap, Eq] {
+object ListMap extends BuilderFactory2Ev1[ListMap, Eq] {
 
   private[poly] class Node[K, V](var data: K, var value: V) extends SinglyLinkedNodeLike[K, Node[K, V]] {
     var next: Node[K, V] = _

@@ -47,13 +47,13 @@ trait WeightedSet[@sp(Int) K, @sp(Int, Double) R] extends KeyedLike[K, WeightedS
    * Casts this multiset as a map of keys to their corresponding weights.
    * @example {'a': 2, 'b': 3}.asMap == {'a' -> 2, 'b' -> 3}
    */
-  def asMap: Map[K, R] = new MultisetT.AsMap(self)
+  def asMap: Map[K, R] = new WeightedSetT.AsMap(self)
 
-  def filterKeys(f: K => Boolean): WeightedSet[K, R] = new MultisetT.KeyFiltered(self, f)
+  def filterKeys(f: K => Boolean): WeightedSet[K, R] = new WeightedSetT.KeyFiltered(self, f)
 
-  def scale(w: R): WeightedSet[K, R] = new MultisetT.Scaled(self, w)
+  def scale(w: R): WeightedSet[K, R] = new WeightedSetT.Scaled(self, w)
 
-  def intersect(that: WeightedSet[K, R]): WeightedSet[K, R] = new MultisetT.Intersection(self, that)
+  def intersect(that: WeightedSet[K, R]): WeightedSet[K, R] = new WeightedSetT.Intersection(self, that)
 
   def union(that: WeightedSet[K, R]): WeightedSet[K, R] = new AbstractWeightedSet[K, R] {
     implicit def weightRing = self.weightRing
@@ -130,7 +130,20 @@ trait WeightedSet[@sp(Int) K, @sp(Int, Double) R] extends KeyedLike[K, WeightedS
 object WeightedSet {
 
   /** Creates an empty multiset. */
-  def empty[K: Eq, R: OrderedRing]: WeightedSet[K, R] = new MultisetT.Empty[K, R]
+  def empty[K: Eq, R: OrderedRing]: WeightedSet[K, R] = new WeightedSetT.Empty[K, R]
+
+  implicit class IntWeightedSetOps[K](val ws: WeightedSet[K, Int]) extends AnyVal {
+
+    /**
+     * Returns all elements of an Int-weighted set. Elements appearing multiple times
+     * are repeated.
+     * @example {{{
+     *   {1: 2, 2: 3}.elements == (1, 1, 2, 2, 2)
+     * }}}
+     */
+    def elements = ws.keys flatMap { k: K => Iterable.repeat(k)(ws(k)) }
+
+  }
 
   /** Returns the implicit module structure on multisets. */
   implicit def Module[K: Eq, R: OrderedRing]: Module[WeightedSet[K, R], R] = new Module[WeightedSet[K, R], R] {
@@ -154,7 +167,7 @@ object WeightedSet {
 
 abstract class AbstractWeightedSet[@sp(Int) K, @sp(Int, Double) R] extends WeightedSet[K, R]
 
-private[poly] object MultisetT {
+private[poly] object WeightedSetT {
 
   class Empty[K, R](implicit K: Eq[K], R: OrderedRing[R]) extends WeightedSet[K, R] {
     def weight(k: K) = R.zero

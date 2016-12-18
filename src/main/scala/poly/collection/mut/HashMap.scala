@@ -2,11 +2,8 @@ package poly.collection.mut
 
 import poly.algebra._
 import poly.collection._
-import poly.collection.builder._
-import poly.collection.conversion.FromScala._
 import poly.collection.factory._
 import poly.collection.impl.hashtable._
-import scala.collection.JavaConverters._
 
 /**
  * Represents a map backed by an open hash table.
@@ -48,7 +45,7 @@ class HashMap[K: Hashing, V] private(private val data: OpenHashTable[K, HashMap.
 
 }
 
-object HashMap extends BuilderFactoryAB_EvA[HashMap, Hashing] {
+object HashMap extends BuilderFactory2Ev1[HashMap, Hashing] {
 
   private[poly] class Entry[K, V](val key: K, var value: V) extends OpenHashEntryLike[K, Entry[K, V]]
 

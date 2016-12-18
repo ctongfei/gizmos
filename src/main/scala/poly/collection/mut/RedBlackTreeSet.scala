@@ -3,8 +3,7 @@ package poly.collection.mut
 import poly.algebra._
 import poly.algebra.conversion.FromJava._
 import poly.collection._
-import poly.collection.builder._
-import poly.collection.conversion.FromJava._
+import poly.collection.conversion.ImplicitlyFromJava._
 import poly.collection.factory._
 
 /**
@@ -14,7 +13,7 @@ import poly.collection.factory._
  * @since 0.1.0
  */
 class RedBlackTreeSet[K] private(private val data: java.util.TreeSet[K])
-  extends AbstractSortedSet[K] with BidiSortedSet[K] with KeyMutableSet[K] { self =>
+  extends AbstractSortedSet[K] with SortedSet[K] with KeyMutableSet[K] { self =>
 
   def add_!(x: K) = data.add(x)
 
@@ -32,7 +31,7 @@ class RedBlackTreeSet[K] private(private val data: java.util.TreeSet[K])
 
 }
 
-object RedBlackTreeSet extends BuilderFactoryA_EvA[RedBlackTreeSet, Order] {
+object RedBlackTreeSet extends BuilderFactory1Ev1[RedBlackTreeSet, Order] {
 
   implicit def newBuilder[K](implicit K: Order[K]): Builder[K, RedBlackTreeSet[K]] =
     new Builder[K, RedBlackTreeSet[K]] {

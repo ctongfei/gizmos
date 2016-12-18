@@ -10,7 +10,7 @@ import poly.algebra.specgroup._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait Func[@sp(spFunc1) -A, @sp(spFuncR) +B] extends (A => B) { self =>
+trait Func[@sp(Int) -A, @sp(Int) +B] extends (A => B) { self =>
 
   import Func._
 
@@ -32,8 +32,6 @@ trait Func[@sp(spFunc1) -A, @sp(spFuncR) +B] extends (A => B) { self =>
   /** Casts this binary function as a binary relation. */
   def asRelation[B1 >: B : Eq]: Relation[A, B1] = new FuncT.AsRelation(self, Eq[B1])
 
-  def |>[C](that: B => C) = andThen(that)
-  def |>:[C](that: C => A) = compose(that)
   def ∘[C](that: C => A) = compose(that)
   def ×[C, D](that: C => D) = product(that)
 
@@ -57,7 +55,7 @@ object Func {
 
 }
 
-abstract class AbstractFunc[@sp(spFunc1) -A, @sp(spFuncR) +B] extends Func[A, B]
+abstract class AbstractFunc[-A, +B] extends Func[A, B]
 
 private[poly] object FuncT {
 

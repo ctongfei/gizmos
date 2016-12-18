@@ -3,7 +3,6 @@ package poly.collection.mut
 import poly.algebra._
 import poly.algebra.syntax._
 import poly.collection._
-import poly.collection.builder._
 import poly.collection.factory._
 import poly.collection.impl.specialized._
 
@@ -37,10 +36,8 @@ class AdjacencyMatrixGraph[E] private(
     edgeData(i, j) = e
   }
 
-  def adjacencyMatrix: Table[Option[E]] = new AbstractTable[Option[E]] {
-    def apply(i: Int, j: Int) = if (edgeExists(i, j)) Some(edgeData(i, j)) else None
-    def numRows = numNodes
-    def numCols = numNodes
+  def adjacencyMatrix: Table[Option[E]] = Table.tabulate(numNodes, numNodes) { (i, j) =>
+    if (edgeExists(i, j)) Some(edgeData(i, j)) else None
   }
 
 }

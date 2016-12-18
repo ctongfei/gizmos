@@ -34,9 +34,9 @@ trait Iterable[+T] extends Traversable[T] { self =>
 
   def flatMap[U](f: T => Iterable[U]) = ofIterator(new IterableT.FlatMappedIterator(self, f))
 
-  def monadicProduct[U](that: Iterable[U]): Iterable[(T, U)] = self.flatMap(t => that.map(u => (t, u)))
+  def product[U](that: Iterable[U]): Iterable[(T, U)] = self.flatMap(t => that.map(u => (t, u)))
 
-  def monadicProductWith[U, X](that: Iterable[U])(f: (T, U) => X): Iterable[X] = self.flatMap(t => that.map(u => f(t, u))  )
+  def productWith[U, X](that: Iterable[U])(f: (T, U) => X): Iterable[X] = self.flatMap(t => that.map(u => f(t, u)))
   //endregion
 
   //region IDIOMATIC OPS
@@ -75,212 +75,12 @@ trait Iterable[+T] extends Traversable[T] { self =>
   override def filterNot(f: T => Boolean) = filter(x => !f(x))
 
   override def collect[U](pf: PartialFunction[T, U]) = ofIterator(new IterableT.CollectedIterator(self, pf))
+
+  override def collectOption[U](f: T => Option[U]): Iterable[U] = collect(Function.unlift(f))
   //endregion
 
-  //region SEQUENCE OPS
-  def concat[U >: T](that: Iterable[U]): Iterable[U] = ofIterator(new IterableT.ConcatedIterator(self, that))
+  //region SET OPS
 
-  override def prepend[U >: T](u: U): Iterable[U] = ofIterator {
-    new AbstractIterator[U] {
-      private[this] val i = self.newIterator
-      private[this] var first = true
-      private[this] var curr: U = _
-      def advance() = if (first) {
-        curr = u
-        first = false
-        true
-      } else {
-        val r = i.advance()
-        curr = i.current
-        r
-      }
-      def current = curr
-    }
-  }
-
-  override def append[U >: T](u: U): Iterable[U] = ofIterator {
-    new AbstractIterator[U] {
-      private[this] val i = self.newIterator
-      private[this] var last = false
-      def advance() = {
-        if (last) false
-        else {
-          val r = i.advance()
-          if (!r) last = true
-          true
-        }
-      }
-      def current = if (!last) i.current else u
-    }
-  }
-
-  /**
-   * Groups the elements into groups if the consecutive elements
-   * are mapped to the same value using the given predicate. $LAZY
-   * @note This is similar to the Python `itertools.groupby`.
-   * @example {{{
-   *   (1, 4, 7, 2, 5, 2, 0, 3, 1).groupConsecutivelyBy(_ % 3) ==
-   *   ((1, 4, 7), (2, 5, 2), (0, 3), (1))
-   * }}}
-   */
-  def groupConsecutivelyBy[K: Eq](f: T => K): Iterable[Iterable[T]] = ofIterator {
-    new AbstractIterator[Iterable[T]] {
-      private[this] val it = self.newIterator
-      private[this] var key: K = default[K]
-      private[this] var g: ArraySeq[T] = null
-      private[this] var buf = ArraySeq[T]()
-      def current = g
-      def advance(): Boolean = {
-        while (it.advance()) {
-          val curr = it.current
-          val currKey = f(curr)
-          if (key === currKey || buf.isEmpty)
-            buf :+= curr
-          else {
-            g = buf to ArraySeq
-            buf.clear_!()
-            buf :+= curr
-            key = currKey
-            return true
-          }
-        }
-        if (buf.notEmpty) {
-          g = buf to ArraySeq
-          buf.clear_!()
-          true
-        }
-        else false
-      }
-    }
-  }
-
-  /**
-   * Groups the elements into groups if the consecutive elements are the same under the specified
-   * equivalence relation. $LAZY
-   * @note This is similar to the Unix `uniq` and the Python `itertools.groupby`.
-   * @example {{{
-   *   (1, 1, 2, 2, 2, 0).groupConsecutively == ((1, 1), (2, 2, 2), (0))
-   * }}}
-   */
-  def groupConsecutively[U >: T : Eq]: Iterable[Iterable[T]] = groupConsecutivelyBy(identity)
-
-  override def scanLeft[U](z: U)(f: (U, T) => U) = ofIterator {
-    new AbstractIterator[U] {
-      private[this] val i = self.newIterator
-      private[this] var accum = z
-      private[this] var first = true
-      def advance() = {
-        if (first) {
-          first = false
-          true
-        }
-        else {
-          val r = i.advance()
-          if (r) accum = f(accum, i.current)
-          r
-        }
-      }
-      def current = accum
-    }
-  }
-
-  override def scan[U >: T](z: U)(f: (U, U) => U) = scanLeft(z)(f)
-
-  override def scanByMonoid[U >: T : Monoid] = scanLeft(id)(_ <> _)
-
-  override def slidingPairsWith[U](f: (T, T) => U) = ofIterator {
-    new AbstractIterator[U] {
-      private[this] val i = self.newIterator
-      private[this] var a = default[T]
-      private[this] var finished = i.advance()
-      private[this] var b = i.current
-      def advance() = {
-        a = b
-        finished = i.advance()
-        b = i.current
-        finished
-      }
-      def current = f(b, a)
-    }
-  }
-
-  override def slidingPairs = slidingPairsWith { (x, y) => (x, y) }
-
-  override def diffByGroup[U >: T](implicit U: Group[U]) = slidingPairsWith((x, y) => U.op(y, U.inv(x)))
-
-  override def tail = {
-    val tailIterator = self.newIterator
-    tailIterator.advance()
-    ofIterator(tailIterator)
-  }
-
-  override def init = ofIterator {
-    new AbstractIterator[T] {
-      private[this] val i = self.newIterator
-      i.advance()
-      private[this] var prev = default[T]
-      def advance() = {
-        prev = i.current
-        val res = i.advance()
-        res
-      }
-      def current = prev
-    }
-  }
-
-
-  override def take(n: Int): Iterable[T] = ofIterator {
-    new AbstractIterator[T] {
-      private[this] val i = self.newIterator
-      private[this] var remaining = n
-      def advance() = remaining > 0 && { remaining -= 1; i.advance() }
-      def current = i.current
-    }
-  }
-
-  /**
-   * Advances this iterator past the first ''n'' elements.
-   * @param n The number of elements to be skipped
-   */
-  override def drop(n: Int): Iterable[T] = ofIterator {
-    val skippedIterator = self.newIterator
-    var i = 0
-    while (i < n && skippedIterator.advance()) i += 1
-    skippedIterator
-  }
-
-  override def dropWhile(f: T => Boolean) = ofIterator {
-    val skippedIterator = self.newIterator
-    while (skippedIterator.advance() && f(skippedIterator.current)) {}
-    skippedIterator
-  }
-
-  override def takeWhile(f: T => Boolean) = ofIterator {
-    new AbstractIterator[T] {
-      private[this] val i = self.newIterator
-      def advance() = i.advance() && f(i.current)
-      def current = i.current
-    }
-  }
-
-  override def takeTo(f: T => Boolean) = ofIterator {
-    new AbstractIterator[T] {
-      private[this] val i = self.newIterator
-      private[this] var satisfied = false
-      def advance() = {
-        val r = (!satisfied) && i.advance()
-        if (r) satisfied = f(current)
-        r
-      }
-      def current = i.current
-    }
-  }
-
-  override def takeUntil(f: T => Boolean) = takeWhile(!f)
-
-  override def dropUntil(f: T => Boolean) = dropWhile(!f)
-
-  override def slice(i: Int, j: Int) = self.drop(i).take(j - i)
 
   override def distinct[U >: T : Eq]: Iterable[U] = ofIterator {
     new AbstractIterator[T] {
@@ -325,45 +125,126 @@ trait Iterable[+T] extends Traversable[T] { self =>
     else (this filter that.to(AutoSet)).distinct
   }
 
-  override def rotate(n: Int): Iterable[T] = self.drop(n) ++ self.take(n)
 
-  /**
-   * Lazily splits this collection into multiple subsequences using the given delimiter predicate.
-   * @param delimiter Predicate that determines whether an element is a delimiter.
-   */
-  def splitBy(delimiter: T => Boolean): Iterable[Seq[T]] = ofIterator {
-    new AbstractIterator[Seq[T]] {
+  //endregion
+
+  //region SEQUENCE OPS
+
+  def concat[U >: T](that: Iterable[U]): Iterable[U] = ofIterator(new IterableT.ConcatedIterator(self, that))
+
+  override def prepend[U >: T](u: U): Iterable[U] = ofIterator {
+    new AbstractIterator[U] {
       private[this] val i = self.newIterator
-      private[this] var buf: ArraySeq[T] = null
-      private[this] var complete = false
-      def current = buf
-      def advance(): Boolean = {
-        if (complete) return false
-        buf = ArraySeq[T]()
-        while (i.advance()) {
-          if (delimiter(i.current)) return true
-          else buf :+= i.current
-        }
-        complete = true
+      private[this] var first = true
+      private[this] var curr: U = _
+      def advance() = if (first) {
+        curr = u
+        first = false
         true
+      } else {
+        val r = i.advance()
+        curr = i.current
+        r
       }
+      def current = curr
     }
   }
 
-  /** Lazily splits this collection into multiple subsequences using the given delimiter. */
-  def split[U >: T : Eq](delimiter: U) = splitBy(x => delimiter === x)
-
-  /**
-   * Pretends that this sequence is sorted under the given implicit order.
-   *
-   * @param T The implicit order
-   * @note Actual orderedness is not guaranteed! The user should make sure that it is sorted.
-   */
-  def asIfSorted(implicit T: Order[T]): SortedIterable[T @uv] = new SortedIterable[T] {
-    def elementOrder = T
-    def newIterator = self.newIterator
+  override def append[U >: T](u: U): Iterable[U] = ofIterator {
+    new AbstractIterator[U] {
+      private[this] val i = self.newIterator
+      private[this] var last = false
+      def advance() = {
+        if (last) false
+        else {
+          val r = i.advance()
+          if (!r) last = true
+          true
+        }
+      }
+      def current = if (!last) i.current else u
+    }
+  }
+  override def tail = {
+    val tailIterator = self.newIterator
+    tailIterator.advance()
+    ofIterator(tailIterator)
   }
 
+  override def init = ofIterator {
+    new AbstractIterator[T] {
+      private[this] val i = self.newIterator
+      i.advance()
+      private[this] var prev = default[T]
+      def advance() = {
+        prev = i.current
+        val res = i.advance()
+        res
+      }
+      def current = prev
+    }
+  }
+
+
+  override def take(n: Int): Iterable[T] = ofIterator {
+    new AbstractIterator[T] {
+      private[this] val i = self.newIterator
+      private[this] var remaining = n
+      def advance() = remaining > 0 && { remaining -= 1; i.advance() }
+      def current = i.current
+    }
+  }
+
+  override def takeWhile(f: T => Boolean) = ofIterator {
+    new AbstractIterator[T] {
+      private[this] val i = self.newIterator
+      def advance() = i.advance() && f(i.current)
+      def current = i.current
+    }
+  }
+
+  override def takeTo(f: T => Boolean) = ofIterator {
+    new AbstractIterator[T] {
+      private[this] val i = self.newIterator
+      private[this] var satisfied = false
+      def advance() = {
+        val r = (!satisfied) && i.advance()
+        if (r) satisfied = f(current)
+        r
+      }
+      def current = i.current
+    }
+  }
+
+  override def takeUntil(f: T => Boolean) = takeWhile(!f)
+
+  /**
+   * Drops the first ''n'' elements from this collection.
+   * @param n The number of elements to be skipped
+   */
+  override def drop(n: Int): Iterable[T] = ofIterator {
+    val skippedIterator = self.newIterator
+    var i = 0
+    while (i < n && skippedIterator.advance()) i += 1
+    skippedIterator
+  }
+
+  override def dropWhile(f: T => Boolean) = ofIterator {
+    val skippedIterator = self.newIterator
+    while (skippedIterator.advance() && f(skippedIterator.current)) {}
+    skippedIterator
+  }
+
+  override def dropTo(f: T => Boolean) = ofIterator {
+    val skippedIterator = self.newIterator
+    while (skippedIterator.advance() && !f(skippedIterator.current)) {}
+    skippedIterator.advance()
+    skippedIterator
+  }
+
+  override def dropUntil(f: T => Boolean) = dropWhile(!f)
+
+  override def slice(i: Int, j: Int) = self.drop(i).take(j - i)
 
   override def withIndex: SortedIterable[(Int, T @uv)] = {
     val paired = ofIterator {
@@ -378,6 +259,23 @@ trait Iterable[+T] extends Traversable[T] { self =>
       }
     }
     paired.asIfSorted(Order by first)
+  }
+
+  override def repeat(n: Int): Iterable[T] = Range(n).flatMap((i: Int) => self)
+
+  override def cycle: Iterable[T] = ofIterator {
+    new AbstractIterator[T] {
+      private[this] var outer = self.newIterator
+      def current = outer.current
+      def advance() = {
+        val notComplete = outer.advance()
+        if (!notComplete) {
+          outer = self.newIterator
+          outer.advance()
+        }
+        true
+      }
+    }
   }
 
   /**
@@ -399,26 +297,55 @@ trait Iterable[+T] extends Traversable[T] { self =>
       def current = if (!first) ti.current else ui.current
     }
   }
+  //endregion
 
-  override def chunk(chunkSize: Int) = ofIterator {
-    new AbstractIterator[IndexedSeq[T]] {
-      private[this] val it = self.newIterator
-      private[this] var buf: ArraySeq[T] = null
-      private[this] var lastChunk = false
-      def current = buf
-      def advance(): Boolean = {
-        if (lastChunk) return false
-        val newBuf = ArraySeq.withSizeHint[T](chunkSize)
-        buf = newBuf
-        var i = 0
-        var last = false
-        while (i < chunkSize && { val t = it.advance(); if (!t) last = true; t }) {
-          buf :+= it.current
-          i += 1
+  //region FOLDING/SCANNING OPS
+
+  override def scanLeft[U](z: U)(f: (U, T) => U) = ofIterator {
+    new AbstractIterator[U] {
+      private[this] val i = self.newIterator
+      private[this] var accum = z
+      private[this] var first = true
+      def advance() = {
+        if (first) {
+          first = false
+          true
         }
-        if (last) lastChunk = true
-        true
+        else {
+          val r = i.advance()
+          if (r) accum = f(accum, i.current)
+          r
+        }
       }
+      def current = accum
+    }
+  }
+
+  override def scan[U >: T](z: U)(f: (U, U) => U) = scanLeft(z)(f)
+
+  override def scanByMonoid[U >: T : Monoid] = scanLeft(id)(_ <> _)
+
+  override def diffByGroup[U >: T](implicit U: Group[U]) = slidingPairsWith((x, y) => U.op(y, U.inv(x)))
+
+  //endregion
+
+  //region SEQUENTIAL GROUPING OPS
+
+  override def slidingPairs = slidingPairsWith { (x, y) => (x, y) }
+
+  override def slidingPairsWith[U](f: (T, T) => U) = ofIterator {
+    new AbstractIterator[U] {
+      private[this] val i = self.newIterator
+      private[this] var a = default[T]
+      private[this] var finished = i.advance()
+      private[this] var b = i.current
+      def advance() = {
+        a = b
+        finished = i.advance()
+        b = i.current
+        finished
+      }
+      def current = f(b, a)
     }
   }
 
@@ -462,22 +389,125 @@ trait Iterable[+T] extends Traversable[T] { self =>
     }
   }
 
-  override def repeat(n: Int): Iterable[T] = Range(n).flatMap((i: Int) => self)
-
-  override def cycle: Iterable[T] = ofIterator {
-    new AbstractIterator[T] {
-      private[this] var outer = self.newIterator
-      def current = outer.current
-      def advance() = {
-        val notComplete = outer.advance()
-        if (!notComplete) {
-          outer = self.newIterator
-          outer.advance()
+  override def chunk(chunkSize: Int) = ofIterator {
+    new AbstractIterator[IndexedSeq[T]] {
+      private[this] val it = self.newIterator
+      private[this] var buf: ArraySeq[T] = null
+      private[this] var lastChunk = false
+      def current = buf
+      def advance(): Boolean = {
+        if (lastChunk) return false
+        val newBuf = ArraySeq.withSizeHint[T](chunkSize)
+        buf = newBuf
+        var i = 0
+        var last = false
+        while (i < chunkSize && {
+          val t = it.advance(); if (!t) last = true; t
+        }) {
+          buf :+= it.current
+          i += 1
         }
+        if (last) lastChunk = true
         true
       }
     }
   }
+
+  /**
+   * Groups the elements into groups if the consecutive elements are the same under the specified
+   * equivalence relation. $LAZY
+   * @note This is similar to the Unix `uniq` and the Python `itertools.groupby`.
+   * @example {{{
+   *   (1, 1, 2, 2, 2, 0).groupConsecutively == ((1, 1), (2, 2, 2), (0))
+   * }}}
+   */
+  def groupConsecutively[U >: T : Eq]: Iterable[Iterable[T]] = groupConsecutivelyBy(identity)
+
+  /**
+   * Groups the elements into groups if the consecutive elements
+   * are mapped to the same value using the given predicate. $LAZY
+   * @note This is similar to the Python `itertools.groupby`.
+   * @example {{{
+   *   (1, 4, 7, 2, 5, 2, 0, 3, 1).groupConsecutivelyBy(_ % 3) ==
+   *   ((1, 4, 7), (2, 5, 2), (0, 3), (1))
+   * }}}
+   */
+  def groupConsecutivelyBy[K: Eq](f: T => K): Iterable[Iterable[T]] = ofIterator {
+    new AbstractIterator[Iterable[T]] {
+      private[this] val it = self.newIterator
+      private[this] var key: K = default[K]
+      private[this] var g: ArraySeq[T] = null
+      private[this] var buf = ArraySeq[T]()
+      def current = g
+      def advance(): Boolean = {
+        while (it.advance()) {
+          val curr = it.current
+          val currKey = f(curr)
+          if (key === currKey || buf.isEmpty)
+            buf :+= curr
+          else {
+            g = buf to ArraySeq
+            buf.clear_!()
+            buf :+= curr
+            key = currKey
+            return true
+          }
+        }
+        if (buf.notEmpty) {
+          g = buf to ArraySeq
+          buf.clear_!()
+          true
+        }
+        else false
+      }
+    }
+  }
+
+  /**
+   * Lazily splits this collection into multiple subsequences using the given delimiter predicate.
+   * @param delimiter Predicate that determines whether an element is a delimiter.
+   */
+  def splitBy(delimiter: T => Boolean): Iterable[Seq[T]] = ofIterator {
+    new AbstractIterator[Seq[T]] {
+      private[this] val i = self.newIterator
+      private[this] var buf: ArraySeq[T] = null
+      private[this] var complete = false
+      def current = buf
+      def advance(): Boolean = {
+        if (complete) return false
+        buf = ArraySeq[T]()
+        while (i.advance()) {
+          if (delimiter(i.current)) return true
+          else buf :+= i.current
+        }
+        complete = true
+        true
+      }
+    }
+  }
+
+  /** Lazily splits this collection into multiple subsequences using the given delimiter. */
+  def split[U >: T : Eq](delimiter: U) = splitBy(x => delimiter === x)
+  //endregion
+
+  //region REORDERING OPS
+
+  override def rotate(n: Int): Iterable[T] = self.drop(n) ++ self.take(n)
+
+  //endregion
+
+  //region DECORATION OPS
+  /**
+   * Pretends that this sequence is sorted under the given implicit order.
+   *
+   * @param T The implicit order
+   * @note Actual orderedness is not guaranteed! The user should make sure that it is sorted.
+   */
+  def asIfSorted(implicit T: Order[T]): SortedIterable[T @uv] = new SortedIterable[T] {
+    def elementOrder = T
+    def newIterator = self.newIterator
+  }
+
 
   override def asIfSizeKnown(s: Int): Iterable[T] = new AbstractIterable[T] {
     def newIterator = self.newIterator
@@ -485,26 +515,33 @@ trait Iterable[+T] extends Traversable[T] { self =>
     override def sizeKnown = true
     override def size = s
   }
+  //endregion
+
+  //region CASTING OPS
+
+  def asIterable: Iterable[T] = ofIterator(self.newIterator)
 
   def asLazyList: LazyList[T] = newIterator.asLazyList
 
   //endregion
 
-  //region symbolic aliases
+  //region SYMBOLIC ALIASES
+
   override def +:[U >: T](u: U): Iterable[U] = this prepend u
   override def :+[U >: T](u: U): Iterable[U] = this append u
   def ++[U >: T](that: Iterable[U]) = this concat that
   //def *(n: Int) = this repeat n
-  def |*|[U](that: Iterable[U]) = this monadicProduct that
+  def |*|[U](that: Iterable[U]) = this product that
   def ⋈[U](that: Iterable[U]) = this zip that
   //endregion
 
-  def asIterable: Iterable[T] = ofIterator(self.newIterator)
+  //region JAVA/SCALA CONFORMATION
 
   override def withFilter(f: T => Boolean) = filter(f)
   // toString: inherit from Traversable
   // hashCode: by reference
   // equals: by reference
+  //endregion
 
 }
 
@@ -567,6 +604,17 @@ object Iterable {
     new AbstractIterator[T] {
       def current = x
       def advance() = true
+    }
+  }
+
+  def repeat[T](x: => T)(n: Int) = ofIterator {
+    new AbstractIterator[T] {
+      private[this] var r = n
+      def current = x
+      def advance() = {
+        r -= 1
+        r > 0
+      }
     }
   }
 

@@ -182,10 +182,7 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
   def asMultiset[W >: V](implicit W: OrderedRing[W]): WeightedSet[K, W] = new MapT.AsWeightedSet(self, W)
 
   // SYMBOLIC ALIASES
-  def ×[L, W](that: Map[L, W]) = self product that
-
-  override def |>[W](f: V => W) = self map f
-  def |>:[J](f: Bijection[J, K]) = self contramap f
+  def ×[L, W](that: Map[L, W]): Map[(K, L), (V, W)] = self product that
 
   def ⋈[W](that: Map[K, W]) = self innerJoin that
   def ⟕[W](that: Map[K, W]) = self leftOuterJoin that
@@ -204,7 +201,7 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
 
 }
 
-object Map extends FactoryAB_EvA[Map, Eq] with MapLowPriorityTypeclassInstances {
+object Map extends Factory2Ev1[Map, Eq] with MapLowPriorityTypeclassInstances {
 
   // CONSTRUCTORS
 

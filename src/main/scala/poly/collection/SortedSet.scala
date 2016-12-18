@@ -21,6 +21,10 @@ trait SortedSet[@sp(Int) T] extends Set[T] { self =>
 
   override def elements = keys
 
+  override def filterKeys(f: T => Boolean): SortedSet[T] = new SortedSetT.Filtered(self, f)
+
+  override def filter(f: T => Boolean) = filterKeys(f)
+
   /** Returns the minimum element of this sorted set under the inherent order of this sorted set. */
   def min = keys.head
 
@@ -39,3 +43,13 @@ trait SortedSet[@sp(Int) T] extends Set[T] { self =>
 }
 
 abstract class AbstractSortedSet[T] extends AbstractSet[T] with SortedSet[T]
+
+private[poly] object SortedSetT {
+
+  class Filtered[T](self: SortedSet[T], f: T => Boolean) extends AbstractSortedSet[T] {
+    def keyOrder = self.keyOrder
+    def contains(x: T) = self.contains(x) && f(x)
+    def keys = self.keys filter f
+  }
+
+}

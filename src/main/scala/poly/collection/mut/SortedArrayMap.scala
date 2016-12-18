@@ -2,7 +2,6 @@ package poly.collection.mut
 
 import poly.algebra._
 import poly.collection._
-import poly.collection.builder._
 import poly.collection.factory._
 import poly.collection.impl._
 
@@ -55,7 +54,7 @@ class SortedArrayMap[K, V] private(
 
 }
 
-object SortedArrayMap extends BuilderFactoryAB_EvA[SortedArrayMap, Order] {
+object SortedArrayMap extends BuilderFactory2Ev1[SortedArrayMap, Order] {
   implicit def newBuilder[K: Order, V] = new Builder[(K, V), SortedArrayMap[K, V]] {
     private[this] val kva = ArraySeq[(K, V)]()
     def add(x: (K, V)) = kva :+= x

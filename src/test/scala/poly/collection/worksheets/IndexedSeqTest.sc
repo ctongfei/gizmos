@@ -40,10 +40,10 @@ a.map(_ * 2)
 b.map(_.length)
 e.map(_ => 1)
 
-a monadicProduct b
-a monadicProduct e
-
 a product b
+a product e
+
+a tableProduct b
 
 // PCOLL-1 (a product e)
 

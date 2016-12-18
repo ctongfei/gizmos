@@ -2,13 +2,12 @@ package poly.collection.factory
 
 import poly.collection._
 import poly.collection.conversion.FromScala._
-import poly.collection.builder._
 import scala.language.higherKinds
 
 /**
  * @author Tongfei Chen
  */
-trait BuilderFactoryAB[+C[_, _]] extends FactoryAB[C] {
+trait BuilderFactory2[+C[_, _]] extends Factory2[C] {
 
   implicit def newBuilder[A, B]: Builder[(A, B), C[A, B]]
 
@@ -22,7 +21,7 @@ trait BuilderFactoryAB[+C[_, _]] extends FactoryAB[C] {
   }
 }
 
-trait FactoryAB[+C[_, _]] {
+trait Factory2[+C[_, _]] {
 
   def empty[A, B]: C[A, B] = from(Traversable.empty)
 

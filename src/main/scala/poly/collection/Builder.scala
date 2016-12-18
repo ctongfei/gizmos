@@ -1,21 +1,17 @@
-package poly.collection.builder
+package poly.collection
 
-import poly.algebra.mut._
-import poly.collection._
-import poly.collection.mut._
+import poly.algebra.specgroup._
 
-import scala.annotation._
 import scala.language.higherKinds
 
 /**
   * Represents builders, which are objects that allow incremental construction
-  * of other structures (e.g. collections, models).
+  * of other structures (e.g. collections, models, files).
   *
   * @author Tongfei Chen
   * @since 0.1.0
   */
-@implicitNotFound("Cannot find a builder to build a ${C} from elements of type ${T}.")
-trait Builder[-T, +C] { self =>
+trait Builder[@sp(Int, Byte, Char) -T, +R] { self =>
 
   /**
     * Provides a hint to this builder about how many elements are expected to be added.
@@ -37,9 +33,10 @@ trait Builder[-T, +C] { self =>
 
   /**
    * Returns the structure built from this builder.
+   * This operation may incur side effects.
    * @return A structure containing the added elements
    */
-  def result: C
+  def result(): R
 
   @inline final def +=(x: T) = add(x)
 
@@ -49,39 +46,28 @@ trait Builder[-T, +C] { self =>
    * Returns a new builder which wraps around this builder. The difference
    * is that the result is mapped by the specified function.
    */
-  def map[D](f: C => D): Builder[T, D] = new BuilderT.Mapped(self, f)
+  def map[S](f: R => S): Builder[T, S] = new BuilderT.Mapped(self, f)
 
-  def |>[D](f: C => D) = map(f)
+  /**
+   * Returns a new builder in which every element added will be transformed
+   * by the given function.
+   */
+  def contramap[S](f: S => T): Builder[S, R] = new BuilderT.Contramapped(self, f)
 
 }
 
-object Builder {
-
-  implicit def InplaceAction[T, C]: InplaceAdditiveAction[T, Builder[T, C]] = new InplaceAdditiveAction[T, Builder[T, C]] {
-    def add_!(x: T, s: Builder[T, C]) = s add x
-  }
-
-  def ofMutableSet[T, S <: KeyMutableSet[T]](s: S): Builder[T, S] = new Builder[T, S] {
-    def add(x: T) = s add_! x
-    def result = s
-  }
-
-  def ofMutableMap[K, V, M <: KeyMutableMap[K, V]](m: M): Builder[(K, V), M] = new Builder[(K, V), M] {
-    def add(kv: (K, V)) = m add_! kv
-    def result = m
-  }
-
-  def ofMutableSeq[T, S <: KeyMutableSeq[T]](s: S): Builder[T, S] = new Builder[T, S] {
-    def add(x: T) = s append_! x
-    def result = s
-  }
-}
 
 private[poly] object BuilderT {
 
-  class Mapped[T, C, D](self: Builder[T, C], f: C => D) extends Builder[T, D] {
+  class Mapped[T, R, S](self: Builder[T, R], f: R => S) extends Builder[T, S] {
     def add(x: T) = self add x
     def result = f(self.result)
+    override def sizeHint(n: Int) = self sizeHint n
+  }
+
+  class Contramapped[S, T, R](self: Builder[T, R], f: S => T) extends Builder[S, R] {
+    def add(x: S) = self add f(x)
+    def result = self.result
     override def sizeHint(n: Int) = self sizeHint n
   }
 

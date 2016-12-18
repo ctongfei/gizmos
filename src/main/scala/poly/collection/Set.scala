@@ -57,6 +57,7 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
     def keyEq = self.keyEq
     def contains(x: T) = self.contains(x) || that.contains(x)
     def keys = self.keys ++ that.keys.filter(self.notContains)
+
   }
 
   /**
@@ -66,14 +67,14 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
   def intersect(that: Set[T]): Set[T] = new AbstractSet[T] {
     def keyEq = self.keyEq
     def contains(x: T) = self.contains(x) && that.contains(x)
-    def keys = self.keys.filter(that.contains)
+    def keys = self.keys.filter(that)
   }
 
   /**
     * Returns the set difference of two sets.
-    * @example {{{ {1, 2, 3} \ {2, 3, 4} == {1} }}}
+    * @example {{{ {1, 2, 3} &~ {2, 3, 4} == {1} }}}
     */
-  def setDiff(that: Set[T]): Set[T] = new AbstractSet[T] {
+  def diff(that: Set[T]): Set[T] = new AbstractSet[T] {
     def keyEq = self.keyEq
     def contains(x: T) = self.contains(x) && that.notContains(x)
     def keys = self.keys.filter(that.notContains)
@@ -108,6 +109,11 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
 
   def createMapOptionally[V](f: T => Option[V]): Map[T, V] = new SetT.MapByOptionalFunc(self, f)
 
+  /**
+   * Creates a graph where:
+   *  - The elements in this set are the nodes of the graph;
+   *  - Whether there is an arc between two nodes is dictated by the given function.
+   */
   def createGraph[E](f: (T, T) => Option[E]): Graph[T, E] = new SetT.GraphByOptionalFunc(self, f)
 
   override def filterKeys(f: T => Boolean): Set[T] = new SetT.KeyFiltered(self, f)
@@ -125,12 +131,14 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
 
 //  def quotient(coarser: Eq[T]): Set[Set[T]] = new AbstractSet[Set[T]] {
 //    private[this] val m = AutoMap[T, KeyMutableSet[T]]()(coarser)
-//    def eqOnKeys = Set.Eq[T]
+//    def keyEq = Set.Eq[T](self.keyEq)
 //    def keys = m.values
 //    def contains(x: Set[T]) = {
-//      if (x.isEmpty) false else Set.Eq[T].eq(x, m(x.elements.head))
+//      if (x.isEmpty) false else keyEq.eq(x, m(x.elements.head))
 //    }
 //  }
+
+  //def subsets: Set[Set[T]] = new SetT.PowerSet[T](self)
 
   /**
    * Wraps each element of this set with a bijective function.
@@ -179,8 +187,6 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
 
   def argmaxWithValue[U: Order](f: T => U) = elements.argmaxWithValue(f)
 
-  //def subsets: Set[Set[T]] = new SetT.PowerSet[T](self)
-
 
   /**
    * Casts this set as a multiset in which each element appears exactly once.
@@ -191,7 +197,7 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
   //Symbolic aliases
   def &(that: Set[T]) = this intersect that
   def |(that: Set[T]) = this union that
-  def &~(that: Set[T]) = this setDiff that
+  def &~(that: Set[T]) = this diff that
   def ⊂(that: Set[T]) = this properSubsetOf that
   def ⊃(that: Set[T]) = this properSupersetOf that
   def ⊆(that: Set[T]) = this subsetOf that
@@ -211,7 +217,7 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
   override def hashCode = MurmurHash3.symmetricHash(self.elements)(Hashing.default[T])
 }
 
-object Set extends FactoryA_EvA[Set, Eq] {
+object Set extends Factory1Ev1[Set, Eq] {
 
   // CONSTRUCTORS
 
@@ -268,7 +274,7 @@ private[poly] object SetT {
 
   class Product[T, U](self: Set[T], that: Set[U]) extends AbstractSet[(T, U)] {
     def keyEq = self.keyEq product that.keyEq
-    def keys = self.keys monadicProduct that.keys
+    def keys = self.keys product that.keys
     override def size = self.size * that.size
     def contains(k: (T, U)) = self.containsKey(k._1) && that.containsKey(k._2)
   }
@@ -320,7 +326,7 @@ private[poly] object SetT {
     def keys = Iterable.Empty
     def contains(x: T) = false
     override def union(that: Set[T]) = that
-    override def setDiff(that: Set[T]) = this
+    override def diff(that: Set[T]) = this
     override def intersect(that: Set[T]) = this
     override def subsetOf(that: Set[T]) = true
     override def properSubsetOf(that: Set[T]) = that.size != 0
@@ -329,11 +335,10 @@ private[poly] object SetT {
   class Jaccard[T] extends Similarity[Set[T], Double] with MetricSpace[Set[T], Double] {
     implicit def similarityOrder = poly.algebra.std.DoubleStructure
     def sim(x: Set[T], y: Set[T]) = {
-      val n = (x intersect y).size
+      val n = x.elements.count(y)
       n / (x.size + y.size - n)
     }
     def dist(x: Set[T], y: Set[T]) = 1.0 - sim(x, y)
   }
-
 
 }

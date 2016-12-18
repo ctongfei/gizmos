@@ -1,7 +1,6 @@
 package poly.collection.mut
 
 import poly.collection._
-import poly.collection.builder._
 import poly.collection.exception._
 import poly.collection.factory._
 import poly.collection.impl._
@@ -64,7 +63,7 @@ class ArrayQueue[T] private(private val data: ResizableArray[T]) extends Queue[T
   }
 }
 
-object ArrayQueue extends BuilderFactoryA[ArrayQueue] {
+object ArrayQueue extends BuilderFactory1[ArrayQueue] {
 
   implicit def newBuilder[T]: Builder[T, ArrayQueue[T]] = new Builder[T, ArrayQueue[T]] {
     private[this] val a = new ResizableArray[T]()

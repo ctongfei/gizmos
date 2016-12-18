@@ -5,7 +5,7 @@ import poly.algebra.syntax._
 
 /**
  * Represents a bijective map whose key-value pairs can be iterated.
- * This is used to model one-to-one correspondence.
+ * This can be used to model one-to-one correspondence.
  * @author Tongfei Chen
  * @since 0.1.0
  */
@@ -58,10 +58,10 @@ trait BiMap[K, V] extends Map[K, V] with Bijection[K, V] with Relation[K, V] { s
   def compose[J](that: BiMap[J, K]): BiMap[J, V] = new BiMapT.AndThen(that, self)
 
   /** Alias to `andThen`. */
-  def map[W](that: BiMap[V, W]) = self andThen that
+  def map[W](that: BiMap[V, W]): BiMap[K, W] = self andThen that
 
   /** Alias to `compose`. */
-  def contramap[J](that: BiMap[J, K]) = self compose that
+  def contramap[J](that: BiMap[J, K]): BiMap[J, V] = self compose that
 
   /**
    * Wraps the values of this bijection map with a bijection.
@@ -81,11 +81,6 @@ trait BiMap[K, V] extends Map[K, V] with Bijection[K, V] with Relation[K, V] { s
    * }}}
    */
   override def contramap[J](f: Bijection[J, K]): BiMap[J, V] = new BiMapT.BijectivelyContramapped(self, f)
-
-  def |>[W](that: BiMap[V, W]) = this andThen that
-  def |>:[J](that: BiMap[J, K]) = this compose that
-  override def |>[W](that: Bijection[V, W]) = self map that
-  override def |>:[J](that: Bijection[J, K]) = self contramap that
 
   override def toString = "{" + pairs.map { case (k, v) => s"$k ↔︎ $v" }.buildString(", ") + "}"
 

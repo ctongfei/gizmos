@@ -18,8 +18,8 @@ a union c
 a intersect c
 
 b flatMap { s => s.split(' ') }
-a monadicProduct b
-a monadicProduct e
+a product b
+a product e
 a.isEmpty
 b.isEmpty
 e.isEmpty

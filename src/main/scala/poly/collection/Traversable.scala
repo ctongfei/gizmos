@@ -17,28 +17,29 @@ import scala.reflect._
  * @since 0.1.0
  * @define LAZY <p>The returning collection is '''lazily''' evaluated.</p>
  * @define EAGER <p>The returning collection is '''eagerly''' evaluated.</p>
- * @define Onlogn '''O(''n'' log ''n'')'''
- * @define On '''O(''n'')'''
- * @define Ologn '''O(log ''n'')'''
- * @define O1amortized '''Amortized O(1)'''
- * @define O1 '''O(1)'''
+ * @define Onlogn <p>Time complexity: '''O(''n'' log ''n'')'''</p>
+ * @define On <p>Time complexity: '''O(''n'')'''</p>
+ * @define Ologn <p>Time complexity: '''O(log ''n'')'''</p>
+ * @define O1amortized <p>Time complexity: '''Amortized O(1)'''</p>
+ * @define O1 <p>Time complexity: '''O(1)'''</p>
  */
 trait Traversable[+T] { self =>
 
   /**
-   * Applies a specific function to each element in this collection.
+   * Applies a specific function to each element in this collection. $On
    * @param f The function to be applied. Return values are discarded.
    */
   def foreach[V](f: T => V): Unit
 
   //region SIZE OPS
 
-  /** Returns if the size of this collection can be efficiently retrieved. $O1 */
+  /** Checks whether the size of this collection can be efficiently retrieved. $O1 */
   def sizeKnown: Boolean = false
 
   /**
    * Returns the number of elements in this collection. $On
    * @note May not terminate if this collection is infinite.
+   * @note If (self.sizeKnown), the time complexity is constant.
    */
   def size: Int = {
     var s = 0
@@ -74,13 +75,21 @@ trait Traversable[+T] { self =>
   def flatMap[U](f: T => Traversable[U]): Traversable[U] = new TraversableT.FlatMapped(self, f)
 
   /**
-   * Returns the monadic product of two traversable sequences. $LAZY
-   * @example {{{(1, 2) monadicProduct (1, 2) == ((1, 1), (1, 2), (2, 1), (2, 2))}}}
+   * Returns the monadic product of two traversable collections, i.e., a collection
+   * that contains all possible pairs in which the first element comes from the
+   * first collection and the second element from the second collection.
+   * $LAZY
+   * @example {{{ (1, 2) product (1, 2) == ((1, 1), (1, 2), (2, 1), (2, 2)) }}}
    */
-  def monadicProduct[U](that: Traversable[U]): Traversable[(T, U)] =
+  def product[U](that: Traversable[U]): Traversable[(T, U)] =
     for (x <- self; y <- that) yield (x, y)
 
-  def monadicProductWith[U, X](that: Traversable[U])(f: (T, U) => X): Traversable[X] =
+  /**
+   * Returns the monadic product of two traversable collections, in which each pair
+   * is transformed using the specific binary function. $LAZY
+   * @example {{{ (1, 2) productWith (1, 2) {_+_} == (2, 3, 3, 4) }}}
+   */
+  def productWith[U, X](that: Traversable[U])(f: (T, U) => X): Traversable[X] =
     for (x <- self; y <- that) yield f(x, y)
 
   //endregion
@@ -95,7 +104,13 @@ trait Traversable[+T] { self =>
   /** Selects the elements that do not satisfy the specified predicate. $LAZY */
   def filterNot(f: T => Boolean): Traversable[T] = filter(!f)
 
+  /**
+   * Returns a new collection by applying the specified partial function to
+   * all elements of this collection on which the function is defined. $LAZY
+   */
   def collect[U](pf: PartialFunction[T, U]): Traversable[U] = new TraversableT.Collected(self, pf)
+
+  def collectOption[U](f: T => Option[U]): Traversable[U] = collect(Function.unlift(f))
 
   /** Counts the number of elements in this collection that satisfy the specified predicate. $On */
   def count(f: T => Boolean): Int = {
@@ -110,10 +125,10 @@ trait Traversable[+T] { self =>
    * @return A pair of collections: ( {x|f(x)} , {x|!f(x)} )
    */
   def partition(f: T => Boolean): (Iterable[T], Iterable[T]) = {
-    val l, r = ArraySeq[T]()
+    val l, r = ArraySeq.newBuilder[T]
     for (x <- self)
-      if (f(x)) l :+= x else r :+= x
-    (l, r)
+      if (f(x)) l += x else r += x
+    (l.result, r.result)
   }
 
   /** Puts each element in this collection into multiple bins, where each bin is specified by a predicate. $EAGER
@@ -185,7 +200,6 @@ trait Traversable[+T] { self =>
     true
   }
 
-
   /** Checks if the given predicate holds for at least one element in this collection. $On */
   def exists(f: T => Boolean): Boolean = {
     for (x <- self)
@@ -197,7 +211,7 @@ trait Traversable[+T] { self =>
    * Returns a weighted set (multiset) of all the elements in this collection. $On
    * @example {{{ (a, b, c, a, b).occCounts == {a: 2, b: 2, c: 1} }}}
    */
-  def occCounts[U >: T : Eq]: WeightedSet[U, Int] = PairWeightedSet.of[Int].from(self)
+  def occCounts[U >: T : Eq]: WeightedSet[U, Int] = PairWeightedSet.of[Int] from self
   //endregion
 
   //region SEQ OPS
@@ -244,8 +258,16 @@ trait Traversable[+T] { self =>
     else Some(last)
   }
 
+  /**
+   * Returns the list of tails (suffixes) of this collection. $LAZY
+   * @example {{{(1, 2, 3).suffixes == ((1, 2, 3), (2, 3), (3))}}}
+   */
   def suffixes: Iterable[Iterable[T]] = to(ArraySeq).suffixes
 
+  /**
+   * Returns the list of inits (prefixes) of this collection. $LAZY
+   * @example {{{(1, 2, 3).prefixes == ((1, 2, 3), (1, 2), (1))}}}
+   */
   def prefixes: Iterable[Iterable[T]] = to(ArraySeq).prefixes
 
   def take(n: Int): Traversable[T] = new TraversableT.Taken(self, n)
@@ -477,8 +499,8 @@ trait Traversable[+T] { self =>
 
   //region SEQUENTIAL GROUPING OPS
   /**
-   * Returns the consecutive differences of the sequences. $LAZY
-   * @example {{{ (0, 1, 3, 6, 10).consecutive((x, y) => y - x) == (1, 2, 3, 4) }}}
+   * $LAZY
+   * @example {{{ (0, 1, 3, 6, 10).slidingPairsWith((x, y) => y - x) == (1, 2, 3, 4) }}}
    */
   def slidingPairsWith[U](f: (T, T) => U): Traversable[U] = new TraversableT.Consecutive(self, f)
 
@@ -498,7 +520,7 @@ trait Traversable[+T] { self =>
   //endregion
 
   //region REORDERING OPS
-  /** Returns the reverse of this collection. $EAGER */
+  /** Reverses this collection. $EAGER */
   def reverse: BidiIterable[T] = self.to(ArraySeq).reverse
 
   /** Returns a randomly shuffled version of this collection. $EAGER */
@@ -538,17 +560,23 @@ trait Traversable[+T] { self =>
   //endregion
 
   //region BUILDING OPS
+
+  def to[U >: T, R](builder: Builder[U, R]) = {
+    builder addAll self
+    builder.result()
+  }
+
   /**
    * Converts this traversable collection to any collection type given a factory.
    * @example {{{ xs to ArraySeq }}}
    */
-  def to[U >: T, C[_]](factory: FactoryA[C]): C[U] = factory from self
+  def to[U >: T, C[_]](factory: Factory1[C]): C[U] = factory from self
 
   /**
    * Converts this traversable collection to any collection type given a factory that requires an additional evidence.
    * @example {{{ xs to HashSet }}}
    */
-  def to[U >: T : Ev, C[_], Ev[_]](factory: FactoryA_EvA[C, Ev]): C[U] = factory from self
+  def to[U >: T : Ev, C[_], Ev[_]](factory: Factory1Ev1[C, Ev]): C[U] = factory from self
 
   /**
    * Converts this traversable sequence to an array. The data are always copied. $EAGER
@@ -587,7 +615,7 @@ trait Traversable[+T] { self =>
     if (self.sizeKnown) self
     else
       new AbstractTraversable[T] {
-        def foreach[V](f: T => V) = self.foreach(f)
+        def foreach[V](f: T => V) = self foreach f
         override def sizeKnown = true
         override def size = s
       }
@@ -601,8 +629,7 @@ trait Traversable[+T] { self =>
   def :+[U >: T](x: U) = this append x
   def +:[U >: T](x: U) = this prepend x
   def ++[U >: T](that: Traversable[U]) = this concat that
-  def |*|[U](that: Traversable[U]) = this monadicProduct that
-  def |>[U](f: T => U) = this map f
+  def |*|[U](that: Traversable[U]) = this product that
 
   //endregion
 
@@ -669,7 +696,7 @@ object Traversable {
     def unzip: (Traversable[A], Traversable[B]) = (underlying map first, underlying map second)
 
     /** Eagerly unzips a traversable sequence of pairs. This method only traverses through the collection once. */
-    def unzipE: (IndexedSeq[A], IndexedSeq[B]) = {
+    def unzipE: (Seq[A], Seq[B]) = {
       val ak = ArraySeq.newBuilder[A]
       val av = ArraySeq.newBuilder[B]
       for ((k, v) <- underlying) {
@@ -679,11 +706,11 @@ object Traversable {
       (ak.result, av.result)
     }
 
-    def to[M[_, _]](factory: FactoryAB[M]) = factory from underlying
+    def to[M[_, _]](factory: Factory2[M]) = factory from underlying
 
-    def to[M[_, _], Ev[_]](factory: FactoryAB_EvA[M, Ev])(implicit A: Ev[A]) = factory from underlying
+    def to[M[_, _], Ev[_]](factory: Factory2Ev1[M, Ev])(implicit A: Ev[A]) = factory from underlying
 
-    def to[M[_, _], EvA[_], EvB[_]](factory: FactoryAB_EvAB[M, EvA, EvB])(implicit A: EvA[A], B: EvB[B]) = factory from underlying
+    def to[M[_, _], EvA[_], EvB[_]](factory: Factory2Ev12[M, EvA, EvB])(implicit A: EvA[A], B: EvB[B]) = factory from underlying
 
   }
 

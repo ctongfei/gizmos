@@ -2,7 +2,6 @@ package poly.collection.mut
 
 import poly.algebra._
 import poly.collection._
-import poly.collection.builder._
 import poly.collection.exception._
 import poly.collection.factory._
 import poly.collection.impl.hashtable._
@@ -77,7 +76,7 @@ class LinkedHashMap[K: Hashing, V] private(private[poly] val data: OpenHashTable
 
 }
 
-object LinkedHashMap extends BuilderFactoryAB_EvA[LinkedHashMap, Hashing] {
+object LinkedHashMap extends BuilderFactory2Ev1[LinkedHashMap, Hashing] {
 
   private[poly] class Entry[K, V](val key: K, var value: V, var prev: Entry[K, V], var next: Entry[K, V])
     extends OpenHashEntryLike[K, Entry[K, V]] with BidiSeqNode[(K, V)] {

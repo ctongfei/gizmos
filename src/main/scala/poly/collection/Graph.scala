@@ -3,7 +3,6 @@ package poly.collection
 import poly.algebra._
 import poly.algebra.syntax._
 import poly.algebra.specgroup._
-import poly.collection.builder._
 import poly.collection.exception._
 import poly.collection.factory._
 import poly.collection.mut._
@@ -11,7 +10,6 @@ import poly.collection.node._
 import poly.collection.search._
 
 import scala.language.higherKinds
-import scala.annotation.unchecked.{uncheckedVariance => uv}
 
 /**
  * Represents a directed graph in which each node's successors can be efficiently retrieved.
@@ -110,14 +108,24 @@ trait Graph[@sp(Int) K, @sp(Double) +E] extends EqStateSpace[K] with KeyedLike[K
    * Returns the reverse/transpose graph of the original graph.
    * @return The reverse graph, in which every edge is reversed
    */
-  def reverse: BidiGraph[K, E] = AdjacencyListBidiGraph fromEdges (arcs map { case (i, j, e) => (j, i, e) })
+  def reverse: BidiGraph[K, E] = {
+    val b = AdjacencyListBidiGraph.newBuilder[K, E]
+    b.addKeys(self.keys)
+    b.addArcs(self.arcs map { case (i, j, e) => (j, i, e) })
+    b.result
+  }
 
   /** Casts this graph as a multimap that maps a key to the outgoing set of that key. */
   def asMultimap: Multimap[K, K] = new GraphT.AsMultimap(self)
 
-  def to[G[_, _], Ev[_], F >: E](factory: FactoryAAB_EvA[G, Ev])(implicit K: Ev[K]): G[K, F] = factory from arcs
+  def to[G[_, _], F >: E](factory: GraphFactory[G]): G[K, F] = {
+    val b = factory.newBuilder[K, F]
+    b.addKeys(keys)
+    b.addArcs(arcs)
+    b.result()
+  }
 
-  override def toString = "{" + arcs.map(e => s"${e._1} –(${e._3})-> ${e._2}").buildString(", ") + "}"
+  override def toString = "{" + arcs.map(e => s"(${e._1}, ${e._2}): ${e._3}").buildString(", ") + "}"
 }
 
 object Graph {
@@ -173,7 +181,7 @@ private[poly] object GraphT {
     def keySet = self.keySet filter f
     def apply(i: K, j: K) = self(i, j)
     def ?(i: K, j: K) = if (f(i) && f(j)) self ? (i, j) else None
-    def containsArc(i: K, j: K) = self.containsArc(i, j) && f(i) && f(j)
+    def containsArc(i: K, j: K) = f(i) && f(j) && self.containsArc(i, j)
     def outgoingKeySet(i: K) = self.outgoingKeySet(i) filterKeys f
   }
 

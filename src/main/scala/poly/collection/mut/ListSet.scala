@@ -3,9 +3,7 @@ package poly.collection.mut
 import poly.algebra._
 import poly.algebra.ops._
 import poly.collection._
-import poly.collection.builder._
 import poly.collection.factory._
-import poly.collection.impl._
 
 /**
  * A set backed by a singly-linked list.
@@ -47,7 +45,7 @@ class ListSet[T] private(private val data: ListSeq[T])(implicit val keyEq: Eq[T]
   def keys: Seq[T] = data
 }
 
-object ListSet extends BuilderFactoryA_EvA[ListSet, Eq] {
+object ListSet extends BuilderFactory1Ev1[ListSet, Eq] {
 
   implicit def newBuilder[K: Eq]: Builder[K, ListSet[K]] = new Builder[K, ListSet[K]] {
     private[this] val s = new ListSet(ListSeq[K]())

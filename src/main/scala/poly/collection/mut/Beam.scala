@@ -12,7 +12,7 @@ import scala.language.higherKinds
  */
 class Beam[T] private(private val capacity: Int, private val pq: PriorityQueue[T]) extends Queue[T] {
 
-  implicit def orderOnElements = pq.orderOnElements.reverse
+  implicit def orderOnElements = pq.elementOrder.reverse
 
   override def size = pq.size
 

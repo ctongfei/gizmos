@@ -3,8 +3,7 @@ package poly.collection.mut
 import poly.algebra._
 import poly.algebra.conversion.FromJava._
 import poly.collection._
-import poly.collection.builder._
-import poly.collection.conversion.FromJava._
+import poly.collection.conversion.ImplicitlyFromJava._
 import poly.collection.factory._
 
 /**
@@ -46,7 +45,7 @@ class RedBlackTreeMap[K, V] private(private val data: java.util.TreeMap[K, V])
 
 }
 
-object RedBlackTreeMap extends BuilderFactoryAB_EvA[RedBlackTreeMap, Order] {
+object RedBlackTreeMap extends BuilderFactory2Ev1[RedBlackTreeMap, Order] {
 
   implicit def newBuilder[K, V](implicit K: Order[K]): Builder[(K, V), RedBlackTreeMap[K, V]] =
     new Builder[(K, V), RedBlackTreeMap[K, V]] {

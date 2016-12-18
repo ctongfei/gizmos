@@ -124,13 +124,13 @@ object Tree {
     }
   }
 
-  def infinite[T](x: => T): Tree[T] = ofRootNode {
-    new TreeNode[T] {
-      def children = Iterable.infinite(this)
-      def data = x
-      def isDummy = false
-    }
-  }
+//  def infinite[T](x: => T): Tree[T] = ofRootNode {
+//    new TreeNode[T] {
+//      def children = Iterable.infinite(this)
+//      def data = x
+//      def isDummy = false
+//    }
+//  }
 
   implicit object Comonad extends Comonad[Tree] {
     def id[X](u: Tree[X]) = u.root

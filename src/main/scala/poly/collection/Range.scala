@@ -8,7 +8,7 @@ import scala.reflect.macros.blackbox._
 import scala.language.experimental.macros
 
 /**
- * Represents an immutable integer range.
+ * Represents an immutable integer range (either increasing or decreasing).
  * @author Tongfei Chen
  * @since 0.1.0
  */
@@ -27,11 +27,10 @@ sealed trait Range extends SortedIndexedSeq[Int] { self =>
   }
   def fastApply(i: Int): Int = left + i * step
 
-  override val head = left
+  override def head = left
 
-  override val last = left + (fastLength - 1) * step
+  override def last = left + (fastLength - 1) * step
 
-  // HELPER FUNCTIONS
 
   @inline final override def foreach[@sp(Unit) V](f: Int => V): Unit = {
     var i = left
@@ -57,6 +56,8 @@ object Range {
     class FastTraversable(r: Range.Ascending) {
       def foreach[U](f: Int => U): Unit = macro ascendingForeachMacroImpl[U]
     }
+
+    override def contains(x: Int) = left <= x && x < right
 
     def fast = new FastTraversable(this)
 

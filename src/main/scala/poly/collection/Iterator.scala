@@ -4,7 +4,9 @@ import poly.algebra.specgroup._
 import poly.collection.exception._
 import poly.collection.immut._
 import poly.macroutil._
+
 import scala.annotation.unchecked.{uncheckedVariance => uv}
+import scala.annotation.{unspecialized => unsp}
 
 /**
  * Represents iterators that support an iteration over a collection that can be
@@ -42,7 +44,7 @@ trait Iterator[@sp(Int, Long, Double, Char, Byte) +T] { self =>
    * Alternative abstraction: Optionally reads the iterator by one step.
    * @return If the next element exists, returns it and advances itself; otherwise it returns [[None]].
    */
-  def read(): Option[T] = {
+  @unsp def read(): Option[T] = {
     if (self.advance()) Some(self.current)
     else None
   }
@@ -61,12 +63,12 @@ trait Iterator[@sp(Int, Long, Double, Char, Byte) +T] { self =>
     while (self.advance()) f(self.current)
   }
 
-  private[poly] def asLazyList: LazyList[T] = {
+  @unsp private[poly] def asLazyList: LazyList[T] = {
     if (self.advance()) LazyList.Cons(self.current, self.asLazyList)
     else LazyList.Empty
   }
 
-  override def toString = try { s"⋯ $current ⋯" } catch {
+  @unsp override def toString = try { s"⋯ $current ⋯" } catch {
     case _: Exception => "<invalid position>"
   }
 

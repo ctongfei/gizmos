@@ -3,7 +3,7 @@ package poly.collection.search
 import poly.collection._
 
 /**
- * Represents a simple state space that contains a state transition function.
+ * Represents a simple state space that is specified by a state transition function.
  * @author Tongfei Chen
  * @since 0.1.0
  */
@@ -15,6 +15,7 @@ trait StateSpace[S] { self =>
   /** Constraints this state space by selecting only the states that satisfy the given predicate. */
   def filterKeys(f: S => Boolean): StateSpace[S] = new StateSpaceT.KeyFiltered(self, f)
 
+  /** Constraints this state space by selecting only the states that satisfy the given predicate. */
   def filter(f: S => Boolean) = filterKeys(f)
 
   /**

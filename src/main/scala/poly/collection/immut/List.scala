@@ -1,7 +1,6 @@
 package poly.collection.immut
 
 import poly.collection._
-import poly.collection.builder._
 import poly.collection.factory._
 import poly.collection.node._
 import scala.annotation._
@@ -43,10 +42,15 @@ sealed abstract class List[+T] extends AbstractSeq[T] with SeqNodeLike[T, List[T
 
 object List extends SeqFactory[List] {
 
-  implicit def newBuilder[T]: Builder[T, List[T]] = new Builder[T, List[T]] { //TODO: Wrong!
+  implicit def newBuilder[T]: Builder[T, List[T]] = new Builder[T, List[T]] {
     private[this] var head: List[T] = List.Empty
-    private[this] var last = head
-    def add(x: T) = head = Cons(x, head)
+    private[this] var last: Cons[T] = null
+    def add(x: T) = {
+      val n = Cons(x, List.Empty)
+      if (last == null) last = n
+      else last.t = n
+      head = n
+    }
     def result = head
   }
 
@@ -56,7 +60,7 @@ object List extends SeqFactory[List] {
     def data = throw new NoSuchElementException
   }
 
-  case class Cons[+T](h: T, t: List[T] = Empty) extends List[T] with NonEmptySeq[T] {
+  case class Cons[T](h: T, private[immut] var t: List[T] = Empty) extends List[T] with NonEmptySeq[T] {
     final def isDummy = false
     def next = t
     def data = h

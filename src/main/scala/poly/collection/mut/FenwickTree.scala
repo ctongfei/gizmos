@@ -3,7 +3,6 @@ package poly.collection.mut
 import poly.algebra._
 import poly.algebra.syntax._
 import poly.collection._
-import poly.collection.builder._
 import poly.collection.factory._
 import poly.collection.impl._
 
@@ -15,7 +14,7 @@ import poly.collection.impl._
  * @since 0.1.0
  */
 class FenwickTree[T] private(private val data: ResizableSeq[T])
-  (implicit val groupOnElements: AdditiveGroup[T]) extends AbstractIndexedSeq[T] with ValueMutableIndexedSeq[T] {
+  (implicit val elementGroup: AdditiveGroup[T]) extends AbstractIndexedSeq[T] with ValueMutableIndexedSeq[T] {
 
   import FenwickTree._
 
@@ -33,9 +32,7 @@ class FenwickTree[T] private(private val data: ResizableSeq[T])
     sum
   }
 
-  /**
-   * Returns the sum of the first ''n'' elements of this list. $Ologn
-   */
+  /** Returns the sum of the first ''n'' elements of this list. $Ologn */
   def cumulativeSum(n: Int) = {
     var i = n
     var sum = zero[T]
@@ -46,13 +43,11 @@ class FenwickTree[T] private(private val data: ResizableSeq[T])
     sum
   }
 
-  /**
-   * Returns the sum of the elements in the slice [''i'', ''j''). $Ologn
-   */
+  /** Returns the sum of the elements in the slice [''i'', ''j''). $Ologn */
   def rangeSum(i: Int, j: Int) = cumulativeSum(j) - cumulativeSum(i)
 
   /** Increments the ''i''-th element by ''δ''. */
-  def increment(i: Int, δ: T)  {
+  def increment(i: Int, δ: T) = {
     var j = i + 1
     while (j < data.length) {
       data(j) += δ
@@ -68,7 +63,7 @@ class FenwickTree[T] private(private val data: ResizableSeq[T])
 
 }
 
-object FenwickTree extends BuilderFactoryA_EvA[FenwickTree, AdditiveGroup] {
+object FenwickTree extends BuilderFactory1Ev1[FenwickTree, AdditiveGroup] {
 
   @inline private[poly] def lowBit(x: Int) = x & -x
 
@@ -86,6 +81,6 @@ object FenwickTree extends BuilderFactoryA_EvA[FenwickTree, AdditiveGroup] {
       data.append_!(sum)
     }
     override def sizeHint(n: Int) = data.ensureCapacity(n)
-    def result = new FenwickTree[T](data)
+    def result = new FenwickTree(data)
   }
 }

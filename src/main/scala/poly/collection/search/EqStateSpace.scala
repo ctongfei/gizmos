@@ -8,7 +8,7 @@ import poly.collection._
 /**
  * Represents a space of equatable search states, which can be considered as an implicit graph.
  * In an '''''equatable''''' state space, there is an equivalence relation endowed on the set of states,
- * so two states can be considered ''equal'', henceforth allowing graph traversal instead of tree traversal.
+ * so two states can be considered ''equivalent'', henceforth allowing graph traversal instead of tree traversal.
  * @author Yuhuan Jiang
  * @author Tongfei Chen
  * @since 0.1.0
@@ -29,9 +29,11 @@ trait EqStateSpace[@sp(Int) S] extends StateSpace[S] with Keyed[S] with Relation
 
   override def filter(f: S => Boolean) = filterKeys(f)
 
+  /** Traverses this state space in a depth-first way, starting from the given state. */
   def depthFirstTraversal(start: S) =
     Iterable.ofIterator(new DepthFirstIterator(this, start))
 
+  /** Traverses this state space in a breadth-first way, starting from the given state. */
   def breadthFirstTraversal(start: S) =
     Iterable.ofIterator(new BreadthFirstIterator(this, start))
 
@@ -62,6 +64,9 @@ object EqStateSpace {
     BidiSeq.empty
   }
 
+  /**
+   * Constructs an equatable state space by the given transition function.
+   */
   def apply[S: Eq](f: S => Traversable[S]): EqStateSpace[S] = new EqStateSpaceT.BySucc(f, Eq[S])
 
 }
@@ -71,7 +76,6 @@ abstract class AbstractEqStateSpace[@sp(Int) S] extends EqStateSpace[S]
 private[poly] object EqStateSpaceT {
 
   class BySucc[S](f: S => Traversable[S], val eq: Eq[S]) extends AbstractEqStateSpace[S] {
-    /** Returns the equivalence relation on search states. */
     def keyEq = eq
     def succ(x: S) = f(x)
   }

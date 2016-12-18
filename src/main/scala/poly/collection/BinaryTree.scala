@@ -10,7 +10,7 @@ import poly.collection.node._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait BinaryTree[+T] { self =>
+trait BinaryTree[+T] extends PartialFunction[Int, T] { self =>
 
   import BinaryTree._
 
@@ -63,10 +63,9 @@ trait BinaryTree[+T] { self =>
     if (mask > x) mask >>= 1
 
     while (mask != 0) {
-      (x & mask) match {
-        case 0 => curr = curr.leftNode
-        case _ => curr = curr.rightNode
-      }
+      if ((x & mask) == 0)
+           curr = curr.leftNode
+      else curr = curr.rightNode
       if (curr.isDummy) return dummy
       mask >>= 1
     }
@@ -119,14 +118,16 @@ trait BinaryTree[+T] { self =>
    *   └  d   e    ┘     └    4   5  ┘    └               ┘
    * }}}
    */
-  def zip[U](that: BinaryTree[U]) = {
-    class ZippedNode(m: BinaryTreeNode[T], n: BinaryTreeNode[U]) extends BinaryTreeNode[(T, U)] {
-      def leftNode = new ZippedNode(m.leftNode, n.leftNode)
-      def rightNode = new ZippedNode(m.rightNode, n.rightNode)
-      def data = (m.data, n.data)
+  def zip[U](that: BinaryTree[U]) = zipWith(that) { (t, u) => (t, u) }
+
+  def zipWith[U, X](that: BinaryTree[U])(f: (T, U) => X) = {
+    class ZippedWithNode(m: BinaryTreeNode[T], n: BinaryTreeNode[U]) extends BinaryTreeNode[X] {
+      def leftNode = new ZippedWithNode(m.leftNode, n.leftNode)
+      def rightNode = new ZippedWithNode(m.rightNode, n.rightNode)
+      def data = f(m.data, n.data)
       def isDummy = m.isDummy || n.isDummy
     }
-    ofRootNode(new ZippedNode(self.rootNode, that.rootNode))
+    ofRootNode(new ZippedWithNode(self.rootNode, that.rootNode))
   }
 
   /**

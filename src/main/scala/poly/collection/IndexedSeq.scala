@@ -23,8 +23,7 @@ trait IndexedSeq[+T] extends BidiSeq[T] { self =>
   /** Returns the length of this indexed sequence. */
   def fastLength: Int
 
-  /** Returns the ''i''-th element of this sequence.
-   * @note Not necessary to implement negative indices here. */
+  /** Returns the ''i''-th element of this sequence. */
   def fastApply(i: Int): T
 
   @inline final override def size = fastLength
@@ -32,10 +31,7 @@ trait IndexedSeq[+T] extends BidiSeq[T] { self =>
   @inline final override def length = fastLength
 
   /** Returns the ''i''-th element of this sequence. $O1 (sometimes O(log ''n''): e.g. [[poly.collection.mut.FenwickTree]]). */
-  @inline final override def apply(i: Int) = {
-    if (i >= 0) fastApply(i)
-    else fastApply(i + fastLength)
-  }
+  @inline final override def apply(i: Int) = fastApply(i)
 
   // Overridden newIterator method for performance.
   override def newIterator: Iterator[T] = new IndexedSeqT.DefaultIterator[T](self)
@@ -61,12 +57,12 @@ trait IndexedSeq[+T] extends BidiSeq[T] { self =>
   def headNode = new Node(0)
   def lastNode = new Node(length - 1)
 
-  override def sizeKnown = true
-
-  def indices = Range(fastLength)
+  override final def sizeKnown = true
 
   override def withIndex: SortedIndexedSeq[(Int, T @uv)] =
     IndexedSeq.tabulate(self.length)(i => i -> self(i)).asIfSorted(Order by first)
+
+  override def indices = Range(fastLength)
 
   // HELPER FUNCTIONS
 
@@ -74,12 +70,14 @@ trait IndexedSeq[+T] extends BidiSeq[T] { self =>
 
   override def map[U](f: T => U): IndexedSeq[U] = new IndexedSeqT.Mapped(self, f)
 
-  def monadicProduct[U](that: IndexedSeq[U]): IndexedSeq[(T, U)] = new IndexedSeqT.MonadicProduct(self, that)
+  def product[U](that: IndexedSeq[U]): IndexedSeq[(T, U)] = new IndexedSeqT.MonadicProduct(self, that)
+
+  //>>>
 
   /**
    * Returns the Cartesian product of two indexed sequences. The returning value is a table.
    */
-  def product[U](that: IndexedSeq[U]): Table[(T, U)] = new IndexedSeqT.TableProduct(self, that)
+  def tableProduct[U](that: IndexedSeq[U]): Table[(T, U)] = new IndexedSeqT.TableProduct(self, that)
 
   def concat[U >: T](that: IndexedSeq[U]): IndexedSeq[U] = new IndexedSeqT.Concatenated(self, that)
 
@@ -126,7 +124,7 @@ trait IndexedSeq[+T] extends BidiSeq[T] { self =>
 
   override def sliding(windowSize: Int, step: Int = 1): IndexedSeq[IndexedSeq[T]] = new IndexedSeqT.Sliding(self, windowSize, step)
 
-  def zip[U](that: IndexedSeq[U]): IndexedSeq[(T, U)] = new IndexedSeqT.ZippedWith(self, that, (t: T, u: U) => (t, u))
+  def zip[U](that: IndexedSeq[U]): IndexedSeq[(T, U)] = zipWith(that) { (t, u) => (t, u) }
 
   def zipWith[U, V](that: IndexedSeq[U])(f: (T, U) => V): IndexedSeq[V] = new IndexedSeqT.ZippedWith(self, that, f)
 
@@ -149,9 +147,9 @@ trait IndexedSeq[+T] extends BidiSeq[T] { self =>
   override def +:[U >: T](u: U): IndexedSeq[U] = this prepend u
   override def :+[U >: T](u: U): IndexedSeq[U] = this append u
   def ++[U >: T](that: IndexedSeq[U]) = this concat that
-  def ∗[U](that: IndexedSeq[U]) = self monadicProduct that
+  def ∗[U](that: IndexedSeq[U]) = self product that
   def ⋈[U](that: IndexedSeq[U]) = self zip that
-  def ×[U](that: IndexedSeq[U]) = self product that
+  def ×[U](that: IndexedSeq[U]) = self tableProduct that
 
 }
 
@@ -167,7 +165,7 @@ object IndexedSeq {
   def tabulate[T](n: Int)(f: Int => T): IndexedSeq[T] = new IndexedSeqT.Tabulated(f, n)
 
   //TODO: should be implicit, but results in ambiguous implicits because of contravariant typeclass
-  def Eq[T: Eq]: Eq[IndexedSeq[T]] = new Eq[IndexedSeq[T]] {
+  def Eq[T: Eq]: Eq[IndexedSeq[T]] = new AbstractEq[IndexedSeq[T]] {
     def eq(x: IndexedSeq[T], y: IndexedSeq[T]): Boolean = {
       if (x.fastLength != y.fastLength) false
       else {
@@ -202,7 +200,7 @@ private[poly] object IndexedSeqT {
 
   class MonadicProduct[T, U](self: IndexedSeq[T], that: IndexedSeq[U]) extends AbstractIndexedSeq[(T, U)] {
     private[this] val stride = that.length
-    def fastLength = self.length * that.length
+    def fastLength = self.length * stride
     def fastApply(i: Int) = (self(i / stride), that(i % stride))
   }
 
@@ -273,7 +271,6 @@ private[poly] object IndexedSeqT {
     def fastLength = self.fastLength
     override def permuteBy(q: Permutation) = self.permuteBy(q compose p)
   }
-
 
   class AsIfSorted[T](self: IndexedSeq[T], order: Order[T]) extends SortedIndexedSeq[T] {
     def elementOrder = order

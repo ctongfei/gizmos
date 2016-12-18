@@ -10,7 +10,7 @@ import poly.collection.node._
   * @tparam N Type of search node
   * @tparam S Type of search state
   * @tparam C Type of path cost
-  * @author Yuhuan Jiang (jyuhuan@gmail.com).
+  * @author Yuhuan Jiang
   * @author Tongfei Chen
   * @since 0.1.0
   */

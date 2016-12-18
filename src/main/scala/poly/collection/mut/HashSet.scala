@@ -2,9 +2,7 @@ package poly.collection.mut
 
 import poly.algebra._
 import poly.collection._
-import poly.collection.builder._
 import poly.collection.factory._
-import poly.collection.impl._
 import poly.collection.impl.hashtable._
 
 /**
@@ -32,7 +30,7 @@ class HashSet[T: Hashing] private(val data: OpenHashTable[T, HashSet.Entry[T]]) 
   override def size = data.size
 }
 
-object HashSet extends BuilderFactoryA_EvA[HashSet, Hashing] {
+object HashSet extends BuilderFactory1Ev1[HashSet, Hashing] {
 
   private[poly] class Entry[K](val key: K) extends OpenHashEntryLike[K, Entry[K]]
 

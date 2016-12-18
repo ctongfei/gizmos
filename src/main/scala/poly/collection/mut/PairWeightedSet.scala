@@ -2,8 +2,7 @@ package poly.collection.mut
 
 import poly.algebra._
 import poly.algebra.syntax._
-import poly.collection.AbstractSet
-import poly.collection.builder._
+import poly.collection.{AbstractSet, Builder}
 import poly.collection.factory._
 
 import scala.language.reflectiveCalls
@@ -40,10 +39,10 @@ class PairWeightedSet[K, R: OrderedRing] private[poly](private val data: KeyMuta
   }
 }
 
-object PairWeightedSet extends BuilderFactoryA_EvAB[PairWeightedSet, Eq, OrderedRing] {
+object PairWeightedSet extends BuilderFactory1Ev12[PairWeightedSet, Eq, OrderedRing] {
 
   /** Creates a factory of [[PairWeightedSet]]s given the type on counts. Normally [[R]] should be [[Int]]. */
-  def of[R: OrderedRing]: BuilderFactoryA_EvA[({type λ[K] = PairWeightedSet[K, R]})#λ, Eq] = new BuilderFactoryA_EvA[({type λ[K] = PairWeightedSet[K, R]})#λ, Eq] {
+  def of[R: OrderedRing]: BuilderFactory1Ev1[({type λ[K] = PairWeightedSet[K, R]})#λ, Eq] = new BuilderFactory1Ev1[({type λ[K] = PairWeightedSet[K, R]})#λ, Eq] {
     implicit def newBuilder[K: Eq] = PairWeightedSet.newBuilder[K, R]
   }
 

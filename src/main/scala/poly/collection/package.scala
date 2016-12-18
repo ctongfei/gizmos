@@ -1,7 +1,7 @@
 package poly
 
 import poly.algebra.specgroup._
-import poly.collection.builder._
+import poly.collection.conversion._
 import poly.collection.conversion.FromScala._
 import poly.collection.mut._
 
@@ -60,11 +60,11 @@ package object collection extends ImplicitOperators {
     }
   }
 
-  implicit def arrayAsPoly[T](a: Array[T]): IndexedSeq[T] = new ArrayAsIndexedSeq[T](a)
-  implicit def stringAsPoly(s: String): IndexedSeq[Char] = new StringAsIndexedSeq(s)
+  implicit def arrayAsPoly[T](a: Array[T]): IndexedSeq[T] = new ArrayAsPoly[T](a)
+  implicit def charSequenceAsPoly(s: CharSequence): IndexedSeq[Char] = new JavaCharSequenceAsPoly(s)
   implicit def booleanFunctionAsPoly[T](f: T => Boolean): Predicate[T] = new BooleanFunctionAsPredicate[T](f)
-  implicit def stringBuilderAsPoly(sb: StringBuilder): Builder[Char, String] = new StringBuilderAsBuilder(sb)
-  implicit def javaStringBuilderAsPoly(sb: java.lang.StringBuilder): Builder[Char, String] = new JavaStringBuilderAsBuilder(sb)
+  implicit def stringBuilderAsPoly(sb: StringBuilder): Builder[Char, String] = new ScalaStringBuilderAsBuilder(sb)
+  implicit def javaStringBuilderAsPoly(sb: java.lang.StringBuilder): Builder[Char, String] = new JavaStringBuilderAsPoly(sb)
 
 
 }

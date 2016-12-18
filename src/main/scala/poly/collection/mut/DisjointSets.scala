@@ -9,8 +9,6 @@ import poly.collection.node._
  * A union-find disjoint sets structure.
  * This structure keeps track of a set of elements partitioned into a number of disjoint subsets,
  * and enables the user to join two sets at any time.
- *
- * This structure is essential in the Kruskal's algorithm.
  * @since 0.1.0
  */
 class DisjointSets[T] private(private val data: Map[T, DisjointSets.Node]) extends Eq[T] {

@@ -1,9 +1,7 @@
 package poly.collection.algorithm
 
 import poly.algebra._
-import poly.algebra.function._
-import poly.algebra.ops._
-import poly.algebra.std._
+import poly.algebra.syntax._
 import poly.collection._
 import poly.collection.mut._
 

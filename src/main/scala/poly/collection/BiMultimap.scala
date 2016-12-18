@@ -1,7 +1,7 @@
 package poly.collection
 
 /**
- * Represents a bidirectional multimap.
+ * Represents a bijective multimap.
  * @author Tongfei Chen
  * @since 0.1.0
  */

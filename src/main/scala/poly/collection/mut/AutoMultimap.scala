@@ -1,13 +1,13 @@
 package poly.collection.mut
 
 import poly.algebra._
-import poly.collection.builder._
+import poly.collection._
 import poly.collection.factory._
 
 /**
  * @author Tongfei Chen
  */
-object AutoMultimap extends BuilderFactoryAB_EvAB[KeyMutableMultimap, Eq, Eq] {
+object AutoMultimap extends BuilderFactory2Ev12[KeyMutableMultimap, Eq, Eq] {
 
   implicit def newBuilder[A: Eq, B: Eq] = new Builder[(A, B), KeyMutableMultimap[A, B]] {
 

@@ -1,7 +1,6 @@
 package poly.collection.mut
 
 import poly.collection._
-import poly.collection.builder._
 import poly.collection.exception._
 import poly.collection.factory._
 import poly.collection.impl._
@@ -36,7 +35,7 @@ class ArrayStack[T] private(private var data: ResizableSeq[T]) extends Queue[T] 
 
 }
 
-object ArrayStack extends BuilderFactoryA[ArrayStack] {
+object ArrayStack extends BuilderFactory1[ArrayStack] {
 
   implicit def newBuilder[T]: Builder[T, ArrayStack[T]] = new Builder[T, ArrayStack[T]] {
     var data = new ResizableSeq[T]()
