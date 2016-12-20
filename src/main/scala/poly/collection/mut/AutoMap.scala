@@ -28,7 +28,7 @@ object AutoMap extends BuilderFactory2Ev1[KeyMutableMap, Eq] {
 
   object Dense extends BuilderFactory2Ev11[KeyMutableMap, Eq, ClassTag] {
     implicit def newBuilder[K, V](implicit K: Eq[K], ct: ClassTag[K]): Builder[(K, V), KeyMutableMap[K, V]] = (K, ct) match {
-      case (std.IntStructure, ClassTag.Int) => DenseIntKeyedMap.newBuilder[V].asInstanceOf[Builder[(K, V), KeyMutableMap[K, V]]] // this cast is safe because K =:= Int
+      case (std.IntStructure, ClassTag.Int) => DenseIntKeyedMap.newBuilder[K, V](evInt[K]).asInstanceOf[Builder[(K, V), KeyMutableMap[K, V]]] // this cast is safe because K =:= Int
       case _                                => AutoMap.newBuilder(K)
     }
   }

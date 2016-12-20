@@ -53,9 +53,9 @@ class DenseIntKeyedMap[T] private(
 
 }
 
-object DenseIntKeyedMap extends BuilderFactoryInt2[DenseIntKeyedMap] {
+object DenseIntKeyedMap extends BuilderFactory2Ev1[({type λ[α, β] = DenseIntKeyedMap[β]})#λ, IsInt] {
 
-  implicit def newBuilder[V]: Builder[(Int, V), DenseIntKeyedMap[V]] = new Builder[(Int, V), DenseIntKeyedMap[V]] {
+  implicit def newBuilder[K: IsInt, V]: Builder[(K, V), DenseIntKeyedMap[V]] = new Builder[(Int, V), DenseIntKeyedMap[V]] {
     private[this] val data = new ResizableArray[V]()
     private[this] var n = 0
     override def sizeHint(n: Int) = data.ensureCapacity(n)
@@ -67,7 +67,7 @@ object DenseIntKeyedMap extends BuilderFactoryInt2[DenseIntKeyedMap] {
       }
     }
     def result = new DenseIntKeyedMap(data, n)
-  }
+  }.asInstanceOf[Builder[(K, V), DenseIntKeyedMap[V]]] // typecast is safe, K =:= Int is known
 
 
 }

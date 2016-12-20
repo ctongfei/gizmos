@@ -28,7 +28,7 @@ object AutoSet extends BuilderFactory1Ev1[KeyMutableSet, Eq] {
 
   object Dense extends BuilderFactory1Ev11[KeyMutableSet, Eq, ClassTag] {
     implicit def newBuilder[K](implicit K: Eq[K], ct: ClassTag[K]): Builder[K, KeyMutableSet[K]] = (K, ct) match {
-      case (std.IntStructure, ClassTag.Int) => BitSet.newBuilder.asInstanceOf[Builder[K, KeyMutableSet[K]]] // the cast is safe: K =:= Int
+      case (std.IntStructure, ClassTag.Int) => BitSet.newBuilder(evInt[K]).asInstanceOf[Builder[K, KeyMutableSet[K]]] // the cast is safe: K =:= Int
       case _                                => AutoSet.newBuilder(K)
     }
   }

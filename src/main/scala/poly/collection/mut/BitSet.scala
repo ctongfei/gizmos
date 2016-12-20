@@ -3,6 +3,7 @@ package poly.collection.mut
 import poly.algebra._
 import poly.collection._
 import poly.collection.conversion.FromScala._
+import poly.collection.factory._
 import poly.collection.impl._
 
 /**
@@ -57,23 +58,13 @@ class BitSet private(private final val data: BitResizableArray)
 
 }
 
-object BitSet {
+object BitSet extends BuilderFactory1Ev1[({type λ[α] = BitSet})#λ, IsInt] {
 
-  def empty = from(Traversable.empty)
-
-  def from(xs: Traversable[Int]) = {
-    val b = newBuilder
-    xs foreach b.add
-    b.result()
-  }
-
-  def apply(xs: Int*) = from(xs)
-
-  implicit def newBuilder: Builder[Int, BitSet] = new Builder[Int, BitSet] {
+  implicit def newBuilder[T: IsInt]: Builder[T, BitSet] = new Builder[Int, BitSet] {
     private[this] val ba = new BitResizableArray(new Array[Long](Settings.ArrayInitialSize))
     override def sizeHint(n: Int) = ba.ensureCapacity(n >> BitResizableArray.LongBits)
     def add(x: Int) = ba(x) = true
     def result = new BitSet(ba)
-  }
+  }.asInstanceOf[Builder[T, BitSet]] // typecast safe, T =:= Int is known
 
 }
