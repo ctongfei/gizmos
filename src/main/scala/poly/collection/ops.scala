@@ -20,23 +20,6 @@ trait ImplicitOperators {
 
   }
 
-  implicit final class withRangeOps(val left: Int) {
-
-    /**
-      * Creates a left-inclusive-right-exclusive ascending range.
-      * @example {{{ (0 ~~> 4) == (0, 1, 2, 3) }}}
-      */
-    @inline def ~~>(right: Int) = new Range.Ascending(left, right)
-
-    /**
-      * Creates a left-inclusive-right-exclusive descending range.
-      * @example {{{ (4 ~~>- 0) == (4, 3, 2, 1) }}}
-      */
-    @inline def ~~>-(right: Int) = new Range.Descending(left, right, -1)
-
-  }
-
-
   implicit class withCollectionOps[T](x: => T) { // call-by-name
 
     /** Checks if this element belongs to the specific set. */

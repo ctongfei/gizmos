@@ -40,7 +40,7 @@ object LRUCache {
 
   /**
    * Returns a function with an LRU cache. This is useful for wrapping a
-   * high-cost pure function (e.g. reading from input streams).
+   * high-cost pure function (e.g. reading from files).
    * @param n Capacity of this cache
    */
   def apply[A: Hashing, B](n: Int)(f: A => B) = new LRUCache(f, n)

@@ -147,7 +147,10 @@ class JavaSortedMapAsPoly[K, V](xs: java.util.SortedMap[K, V]) extends AbstractK
   }
   def ?(k: K) = Option(xs.get(k))
   def apply(k: K) = xs.get(k)
-  override def pairs = ???
+  override def pairs = new SortedIterable[(K, V)] {
+    def elementOrder = xs.comparator() contramap first
+    def newIterator = Iterable.ofIterator(new JavaIteratorAsPoly(xs.entrySet().iterator())).map(e => e.getKey -> e.getValue).newIterator
+  }
   def add_!(k: K, v: V) = xs.put(k, v)
   def remove_!(k: K) = xs.remove(k)
   def clear_!() = xs.clear()

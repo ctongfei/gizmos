@@ -16,7 +16,8 @@ Poly-collection is a Scala collection framework that aims to provide an alternat
    view, or a lazy `IndexedSeq` instead of a strict `ArraySeq`.
 
   - Concretely based on basic algebraic concepts through [poly-algebra](https://github.com/ctongfei/poly-algebra) by extensive use
-     of typeclass patterns (Eq / Order / Hashing / ...).
+     of typeclass patterns (Eq / Order / Hashing / ...). This means the equivalence relation / hashing function for sets / maps 
+     can be customized.
   
   - Various algorithms / data structures provided out of the box: binary search, disjoint sets, Fenwick trees, etc.
   

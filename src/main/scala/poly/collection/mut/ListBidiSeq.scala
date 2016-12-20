@@ -47,7 +47,6 @@ class ListBidiSeq[T] private() extends AbstractBidiSeq[T] with KeyMutableSeq[T] 
 
   /**
    * Appends an element to the end of the doubly linked list.
-   *
    * @param x The element to be appended
    */
   def append_!(x: T) = {

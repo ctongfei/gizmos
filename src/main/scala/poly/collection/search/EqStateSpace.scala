@@ -8,7 +8,8 @@ import poly.collection._
 /**
  * Represents a space of equatable search states, which can be considered as an implicit graph.
  * In an '''''equatable''''' state space, there is an equivalence relation endowed on the set of states,
- * so two states can be considered ''equivalent'', henceforth allowing graph traversal instead of tree traversal.
+ * so two states can be considered ''equivalent'', henceforth allowing graph traversal (able to check loops!)
+ * instead of tree traversal.
  * @author Yuhuan Jiang
  * @author Tongfei Chen
  * @since 0.1.0

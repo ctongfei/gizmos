@@ -11,10 +11,10 @@ package object collection extends ImplicitOperators {
 
   type <=>[A, B] = Bijection[A, B]
 
-  /** Expresses a type constraint that a type is `Int`. */
+  /** Expresses a type constraint that witnesses a type is `Int`. */
   type IsInt[A] = A =:= Int
 
-  private[poly] val singletonIsIntEv = new Object
+  private[poly] val singletonIsIntEv = =:=.tpEquals[Any]
   /** Forcibly prove that type K is `Int`. Use with caution. */
   private[poly] def evInt[K] = singletonIsIntEv.asInstanceOf[K =:= Int]
 

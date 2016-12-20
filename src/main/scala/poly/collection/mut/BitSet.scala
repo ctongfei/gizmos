@@ -28,6 +28,7 @@ class BitSet private(private final val data: BitResizableArray)
 
   def clear_!() = data.clear()
 
+  /** Returns the union of two bitsets as a bitset. */
   def unionE(that: BitSet) = {
     val a = self.data.longArray
     val b = that.data.longArray
@@ -35,6 +36,7 @@ class BitSet private(private final val data: BitResizableArray)
     new BitSet(new BitResizableArray(c))
   }
 
+  /** Returns the intersection of two bitsets as a bitset. */
   def intersectE(that: BitSet) = {
     val a = self.data.longArray
     val b = that.data.longArray
@@ -42,6 +44,7 @@ class BitSet private(private final val data: BitResizableArray)
     new BitSet(new BitResizableArray(c))
   }
 
+  /** Returns the set difference of two bitsets as a bitset. */
   def diffE(that: BitSet) = {
     val a = self.data.longArray
     val b = that.data.longArray
@@ -49,6 +52,7 @@ class BitSet private(private final val data: BitResizableArray)
     new BitSet(new BitResizableArray(c))
   }
 
+  /** Returns the symmetric difference of two bitsets as a bitset. */
   def symmetricDiffE(that: BitSet) = {
     val a = self.data.longArray
     val b = that.data.longArray
@@ -58,13 +62,14 @@ class BitSet private(private final val data: BitResizableArray)
 
 }
 
-object BitSet extends BuilderFactory1Ev1[({type λ[α] = BitSet})#λ, IsInt] {
+object BitSet extends BuilderFactory1Ev1[({type λ[α] = BitSet})#λ, IsInt] { // SI-2712: Partial type lambda unification
 
-  implicit def newBuilder[T: IsInt]: Builder[T, BitSet] = new Builder[Int, BitSet] {
+  implicit def newBuilder[T: IsInt]: RemovableBuilder[T, BitSet] = new RemovableBuilder[Int, BitSet] {
     private[this] val ba = new BitResizableArray(new Array[Long](Settings.ArrayInitialSize))
     override def sizeHint(n: Int) = ba.ensureCapacity(n >> BitResizableArray.LongBits)
     def add(x: Int) = ba(x) = true
+    def remove(x: Int) = ba(x) = false
     def result = new BitSet(ba)
-  }.asInstanceOf[Builder[T, BitSet]] // typecast safe, T =:= Int is known
+  }.asInstanceOf[RemovableBuilder[T, BitSet]] // typecast safe, T =:= Int is known
 
 }

@@ -7,7 +7,7 @@ import poly.collection.mut._
   */
 object SeqTest extends App {
 
-  for (i ← 0 ~~> 4) println(i)
+  for (i ← Range(4)) println(i)
 
   val aa = new Range.Ascending(1, 22, 4)
   val bb = new Range.Ascending(2, 15, 3)

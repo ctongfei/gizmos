@@ -266,9 +266,9 @@ object Map extends Factory2Ev1[Map, Eq] with MapLowPriorityTypeclassInstances {
 
   // TYPECLASS INSTANCES
 
-  implicit def __dynamicEq[K, V](implicit V: Eq[V]): Eq[Map[K, V]] = V match {
-    case vh: Hashing[V] => ???
-    case ve => new MapT.DynamicEq[K, V]
+  implicit def __dynamicEq[K, V](implicit K: Eq[K], V: Eq[V]): Eq[Map[K, V]] = (K, V) match {
+    case (vk: Hashing[K], vh: Hashing[V]) => new MapT.MapHashing[K, V]()(vk, vh)
+    case _ => new MapT.DynamicEq[K, V]
   }
 
   //TODO: should be implicit, but contravariant typeclass implicit resolution is buggy (SI-2509)
