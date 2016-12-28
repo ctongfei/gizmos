@@ -4,7 +4,7 @@ import poly.algebra.specgroup._
 
 /**
  * Represents an entry in an open hash table.
- * This is similar to a SeqNode[K].
+ * This is similar to a `SeqNodeLike[K, E]`.
  * @author Tongfei Chen
  */
 trait OpenHashEntryLike[@sp(Int) K, E <: OpenHashEntryLike[K, E]] { self: E =>

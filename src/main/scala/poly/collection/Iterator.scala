@@ -12,8 +12,8 @@ import scala.annotation.{unspecialized => unsp}
  * Represents iterators that support an iteration over a collection that can be
  * paused and resumed by the consumer.
  *
- * This is the Poly-collection version of the Java/Scala `Iterator`. The main difference
- * is their abstraction of supported methods:
+ * This is the Poly-collection version of the Java/Scala [[java.util.Iterator]]/[[scala.collection.Iterator]].
+ * The main difference is their abstraction of supported methods:
  *
  * <ul>
  *  <li> Java/Scala `Iterator`: { `hasNext`, `next` } </li>
@@ -24,6 +24,8 @@ import scala.annotation.{unspecialized => unsp}
  *
  *  Poly-collection adopts the C++/C# style of iterators instead of the Java/Scala style
  *  for ease of implementing lazy search algorithms and lazy stream operations.
+ *
+ *  [[Builder]]s are the categorical duals (read vs. write) of [[Iterator]]s.
  *
  * @author Tongfei Chen
  * @since 0.1.0
@@ -62,6 +64,7 @@ trait Iterator[@sp(Int, Long, Double, Char, Byte) +T] { self =>
   def run[V](f: T => V) = {
     while (self.advance()) f(self.current)
   }
+
 
   @unsp private[poly] def asLazyList: LazyList[T] = {
     if (self.advance()) LazyList.Cons(self.current, self.asLazyList)

@@ -11,7 +11,7 @@ import scala.annotation.unchecked.{uncheckedVariance => uv}
 import scala.language.implicitConversions
 
 /**
- * The basic trait for all collections that exposes an iterator.
+ * The basic trait for all collections that exposes an [[Iterator]].
  *
  * `Iterable`s differ from [[Traversable]]s in that the iteration process can be controlled:
  * It can be paused or resumed by the user.
@@ -30,7 +30,11 @@ trait Iterable[+T] extends Traversable[T] { self =>
 
   //region MONADIC OPS
 
-  override def map[U](f: T => U): Iterable[U] = new IterableT.Mapped(self, f)
+  override def map[U](f: T => U): Iterable[U] = new AbstractIterable[U] {
+    def newIterator = new IterableT.MappedIterator(self.newIterator, f)
+    override def sizeKnown = self.sizeKnown // map preserves size
+    override def size = self.size
+  }
 
   def flatMap[U](f: T => Iterable[U]) = ofIterator(new IterableT.FlatMappedIterator(self, f))
 
@@ -82,9 +86,9 @@ trait Iterable[+T] extends Traversable[T] { self =>
   //region SET OPS
 
 
-  override def distinct[U >: T : Eq]: Iterable[U] = ofIterator {
+  override def distinct(implicit T: Eq[T]): Iterable[T] = ofIterator {
     new AbstractIterator[T] {
-      private[this] val set = AutoSet[U]()
+      private[this] val set = AutoSet[T]()
       private[this] val i = self.newIterator
       def current = i.current
       def advance(): Boolean = {
@@ -130,7 +134,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
 
   //region SEQUENCE OPS
 
-  def concat[U >: T](that: Iterable[U]): Iterable[U] = ofIterator(new IterableT.ConcatedIterator(self, that))
+  def concat[U >: T](that: Iterable[U]): Iterable[U] = ofIterator(new IterableT.ConcatenatedIterator(self, that))
 
   override def prepend[U >: T](u: U): Iterable[U] = ofIterator {
     new AbstractIterator[U] {
@@ -351,12 +355,11 @@ trait Iterable[+T] extends Traversable[T] { self =>
 
   /**
    * Groups elements in fixed size blocks by passing a sliding window over them.
-   *
    * @param windowSize The size of the sliding window
    * @param step Step size. The default value is 1.
    * @example {{{(1, 2, 3, 4).sliding(2) == ((1, 2), (2, 3), (3, 4))}}}
    */
-  override def sliding(windowSize: Int, step: Int = 1) = ofIterator { //TODO: bug! not working when step > 1
+  override def sliding(windowSize: Int, step: Int = 1) = ofIterator {
     new AbstractIterator[IndexedSeq[T]] {
       private[this] val it = self.newIterator
       private[this] var window = ArraySeq.withSizeHint[T](windowSize)
@@ -373,7 +376,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
         } else {
           val newWindow = ArraySeq.withSizeHint[T](windowSize)
           var i = 0
-          while (i + 1 < windowSize) {
+          while (i + step < windowSize) {
             newWindow.append_!(window(i + step))
             i += 1
           }
@@ -416,7 +419,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
   /**
    * Groups the elements into groups if the consecutive elements are the same under the specified
    * equivalence relation. $LAZY
-   * @note This is similar to the Unix `uniq` and the Python `itertools.groupby`.
+   * @note This is similar to the Unix `uniq`, C++ `std::unique` and Python `itertools.groupby`.
    * @example {{{
    *   (1, 1, 2, 2, 2, 0).groupConsecutively == ((1, 1), (2, 2, 2), (0))
    * }}}
@@ -426,7 +429,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
   /**
    * Groups the elements into groups if the consecutive elements
    * are mapped to the same value using the given predicate. $LAZY
-   * @note This is similar to the Python `itertools.groupby`.
+   * @note This is similar to Python `itertools.groupby`.
    * @example {{{
    *   (1, 4, 7, 2, 5, 2, 0, 3, 1).groupConsecutivelyBy(_ % 3) ==
    *   ((1, 4, 7), (2, 5, 2), (0, 3), (1))
@@ -487,7 +490,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
   }
 
   /** Lazily splits this collection into multiple subsequences using the given delimiter. */
-  def split[U >: T : Eq](delimiter: U) = splitBy(x => delimiter === x)
+  def split[U >: T : Eq](delimiter: U) = splitBy(delimiter === _)
   //endregion
 
   //region REORDERING OPS
@@ -668,15 +671,11 @@ abstract class AbstractIterable[+T] extends AbstractTraversable[T] with Iterable
 
 private[poly] object IterableT {
 
-  class Mapped[T, U](self: Iterable[T], f: T => U) extends AbstractIterable[U] {
-    def newIterator = new AbstractIterator[U] {
-      private[this] val i = self.newIterator
-      def current = f(i.current)
-      def advance() = i.advance()
-    }
-    override def sizeKnown = self.sizeKnown // map preserves size
-    override def size = self.size
+  class MappedIterator[T, U](self: Iterator[T], f: T => U) extends AbstractIterator[U] {
+    def current = f(self.current)
+    def advance() = self.advance()
   }
+
 
   class FlatMappedIterator[T, U](self: Iterable[T], f: T => Iterable[U]) extends AbstractIterator[U] {
     private[this] val outer: Iterator[T] = self.newIterator
@@ -718,7 +717,7 @@ private[poly] object IterableT {
     def current = c
   }
 
-  class ConcatedIterator[U](self: Iterable[U], that: Iterable[U]) extends AbstractIterator[U] {
+  class ConcatenatedIterator[U](self: Iterable[U], that: Iterable[U]) extends AbstractIterator[U] {
     private[this] var e: Iterator[U] = self.newIterator
     private[this] var first = true
     def advance() = {

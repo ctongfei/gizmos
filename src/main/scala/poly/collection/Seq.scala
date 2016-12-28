@@ -156,8 +156,8 @@ trait Seq[+T] extends Iterable[T] with PartialFunction[Int, T] { self =>
 
   //region SET OPS
 
-  override def distinct[U >: T : Eq]: Seq[T] = {
-    val set = AutoSet[U]()
+  override def distinct(implicit T: Eq[T]): Seq[T] = {
+    val set = AutoSet[T]()
     class DistinctNode(outer: SeqNode[T]) extends SeqNode[T] {
       def next: DistinctNode = {
         var n = outer.next

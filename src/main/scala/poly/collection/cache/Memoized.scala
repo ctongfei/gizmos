@@ -16,6 +16,8 @@ class Memoized[A: Eq, +R] private(f: A => R) extends CachedFunction[A, R] {
   def apply(a: A) = c getOrElseUpdate (a, f(a))
 
   def cache: Map[A, R] = c
+
+  def clearCache_!() = c.clear_!()
 }
 
 object Memoized {

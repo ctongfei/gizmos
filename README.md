@@ -19,8 +19,9 @@ Poly-collection is a Scala (2.11/2.12) collection framework that aims to provide
     For example, a `map` applied on an `ArraySeq` would return a read-only view, 
     or a lazy `IndexedSeq` instead of a strict `ArraySeq`.
   
-  - `Map`s and `Set`s are not `Iterable`s. The nonsensical behavior of `zip`/`tail` etc. for Sets/Maps in Scala is removed.
-    Use `map.pairs` or `set.keys` to get the original Scala behavior.
+  - `Map`s and `Set`s are not `Iterable`s, instead, `map.pairs` or `set.keys` are. The nonsensical behavior of `zip`/`tail` etc. 
+  for Sets/Maps in Scala is removed. `map.zip` now means zip-by-keys. 
+  This also removes obscure bugs like `Set("ab", "bc").map(_.length).sum` (intuitively 4, but actually 2 in Scala collections).
 
   - Various algorithms / data structures provided out of the box: binary search, disjoint sets, Fenwick trees, etc.
   

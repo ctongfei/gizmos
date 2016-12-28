@@ -26,7 +26,6 @@ trait IndexedBinaryTree[+T] extends BidiBinaryTree[T] { self =>
     override def hashCode = hashByRef(self) + i
   }
 
-
   def fastApply(i: Int): T
 
   final override def apply(i: Int) = fastApply(i)

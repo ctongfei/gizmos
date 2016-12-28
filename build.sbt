@@ -1,10 +1,10 @@
 name := "poly-collection"
-version := "0.0.9-SNAPSHOT"
+version := "0.1.0-SNAPSHOT"
 isSnapshot := true
 organization := "me.tongfei"
 scalaVersion := "2.11.8"
 
-crossScalaVersions := Seq("2.11.8", "2.12.0")
+crossScalaVersions := Seq("2.11.8", "2.12.1")
 
 resolvers += Resolver.sonatypeRepo("snapshots")
 

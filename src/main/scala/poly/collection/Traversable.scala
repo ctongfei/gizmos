@@ -54,7 +54,7 @@ trait Traversable[+T] { self =>
   }
 
   /** Checks if this collection is not empty. $O1 */
-  def notEmpty = !isEmpty
+  final def notEmpty = !isEmpty
 
   //endregion
 
@@ -110,7 +110,7 @@ trait Traversable[+T] { self =>
    */
   def collect[U](pf: PartialFunction[T, U]): Traversable[U] = new TraversableT.Collected(self, pf)
 
-  def collectOption[U](f: T => Option[U]): Traversable[U] = collect(Function.unlift(f))
+  def collectOption[U](f: T => Option[U]): Traversable[U] = new TraversableT.OptionallyCollected(self, f)
 
   /** Counts the number of elements in this collection that satisfy the specified predicate. $On */
   def count(f: T => Boolean): Int = {
@@ -124,7 +124,7 @@ trait Traversable[+T] { self =>
    * Partitions this collection to two collections according to a predicate. $EAGER
    * @return A pair of collections: ( {x|f(x)} , {x|!f(x)} )
    */
-  def partition(f: T => Boolean): (Iterable[T], Iterable[T]) = {
+  def partition[C](f: T => Boolean): (Iterable[T], Iterable[T]) = {
     val l, r = ArraySeq.newBuilder[T]
     for (x <- self)
       if (f(x)) l += x else r += x
@@ -181,7 +181,7 @@ trait Traversable[+T] { self =>
    *   (1, 4, 1, 3, 4, 2).distinct == (1, 4, 3, 2)
    * }}}
    */
-  def distinct[U >: T : Eq]: Traversable[U] = distinctBy(identity)
+  def distinct(implicit T: Eq[T]): Traversable[T] = distinctBy(identity)
 
   def distinctBy[U: Eq](f: T => U): Traversable[T] = new TraversableT.DistinctBy(self, f, Eq[U])
 
@@ -743,6 +743,12 @@ private[poly] object TraversableT {
   class Collected[T, U](self: Traversable[T], pf: PartialFunction[T, U]) extends AbstractTraversable[U] {
     def foreach[V](f: U => V) = {
       for (x <- self) (pf runWith f)(x)
+    }
+  }
+
+  class OptionallyCollected[T, U](self: Traversable[T], pf: T => Option[U]) extends AbstractTraversable[U] {
+    def foreach[V](f: U => V) = {
+      for (x <- self; u <- pf(x)) f(u)
     }
   }
 

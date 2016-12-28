@@ -34,6 +34,8 @@ class LRUCache[A: Hashing, +R] private(f: A => R, n: Int) extends CachedFunction
     }
   }
 
+  def clearCache_!() = c.clear_!()
+
 }
 
 object LRUCache {
