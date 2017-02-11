@@ -30,8 +30,6 @@ trait BiMap[K, V] extends Map[K, V] with Bijection[K, V] with Relation[K, V] { s
   /** Checks if the specified value is present in this map. */
   def containsValue(v: V) = valueSet.containsKey(v)
 
-  override def values = valueSet.keys
-
   def related(k: K, v: V) = (apply(k) === v) && (k === invert(v))
 
   // HELPER FUNCTIONS

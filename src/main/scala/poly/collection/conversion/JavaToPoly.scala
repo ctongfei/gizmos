@@ -192,7 +192,6 @@ class JavaReaderAsPoly(jr: java.io.Reader) extends Iterator[Char] {
   override def readToArray(a: Array[Char], off: Int, len: Int) = jr.read(a, off, len)
 }
 
-
 class JavaOutputStreamAsPoly(jos: java.io.OutputStream) extends Builder[Byte, Unit] {
   def add(x: Byte) = jos.write(x)
   def result = jos.close()

@@ -141,7 +141,7 @@ object WeightedSet {
      *   {1: 2, 2: 3}.elements == (1, 1, 2, 2, 2)
      * }}}
      */
-    def elements = ws.keys flatMap { k: K => Iterable.repeat(k)(ws(k)) }
+    def elements = ws.keys flatMap { k: K => Iterable.repeat(ws(k))(k) }
 
   }
 

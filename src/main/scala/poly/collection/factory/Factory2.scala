@@ -9,7 +9,9 @@ import scala.language.higherKinds
  */
 trait BuilderFactory2[+C[_, _]] extends Factory2[C] {
 
-  implicit def newBuilder[A, B]: Builder[(A, B), C[A, B]]
+  implicit def ground[A, B] = GroundedFactory ofBuilder newBuilder[A, B]
+
+  def newBuilder[A, B]: Builder[(A, B), C[A, B]]
 
   override def empty[A, B] = newBuilder[A, B].result
 

@@ -8,11 +8,9 @@ import poly.collection._
  * @since 0.1.0
  */
 trait CachedFunction[A, +B] extends Keyed[A] with Func[A, B] {
+
   /** Returns the cached argument/value map of this function. */
   def cache: Map[A, B]
-
-  /** Returns the cached arguments of this function. */
-  def cachedKeys = cache.keys
 
   def keyEq = cache.keyEq
 }

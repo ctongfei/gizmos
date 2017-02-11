@@ -25,10 +25,5 @@ class SortedArraySet[T] private(private val data: SortedArraySeq[T]) extends Sor
 }
 
 object SortedArraySet extends BuilderFactory1Ev1[SortedArraySet, Order] {
-  implicit def newBuilder[T: Order]: Builder[T, SortedArraySet[T]] = new Builder[T, SortedArraySet[T]] {
-    private[this] val b = SortedArraySeq.newBuilder
-    def add(x: T) = b += x
-    def result = new SortedArraySet(b.result)
-    override def sizeHint(n: Int) = b.sizeHint(n)
-  }
+  implicit def newBuilder[T: Order] = SortedArraySeq.newBuilder.map(r => new SortedArraySet(r))
 }

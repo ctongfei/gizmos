@@ -72,8 +72,6 @@ trait IndexedSeq[+T] extends BidiSeq[T] { self =>
 
   def product[U](that: IndexedSeq[U]): IndexedSeq[(T, U)] = new IndexedSeqT.MonadicProduct(self, that)
 
-  //>>>
-
   /**
    * Returns the Cartesian product of two indexed sequences. The returning value is a table.
    */

@@ -10,8 +10,11 @@ import scala.language.higherKinds
  * @author Tongfei Chen
  */
 trait BuilderFactory1Ev12[+C[_, _], EvA[_], EvB[_]] {
+
+  implicit def ground[A: EvA, B: EvB] = GroundedFactory ofBuilder newBuilder[A, B]
+
   /** Returns a new builder of this collection type. */
-  implicit def newBuilder[A: EvA, B: EvB]: Builder[A, C[A, B]]
+  def newBuilder[A: EvA, B: EvB]: Builder[A, C[A, B]]
 
   /** Creates an empty collection. */
   def empty[A: EvA, B: EvB]: C[A, B] = newBuilder[A, B].result

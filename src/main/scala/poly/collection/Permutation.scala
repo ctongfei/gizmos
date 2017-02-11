@@ -2,6 +2,7 @@ package poly.collection
 
 import poly.algebra._
 import poly.algebra.syntax._
+import poly.collection.impl._
 import poly.macroutil._
 
 /**
@@ -21,9 +22,7 @@ class Permutation private(private val a1: Array[Int], private val a2: Array[Int]
 
   def ?(k: Int) = if (k < 0 || k >= size) None else Some(a1(k))
 
-  def fastLength = a1.length
-
-  def fastApply(x: Int) = a1(x)
+  override def size = a1.length
 
   def invert(y: Int) = a2(y)
 
@@ -121,51 +120,41 @@ object Permutation {
     * This structure is a [[poly.algebra.Group]] as well as a [[poly.collection.Set]].
     */
   def Group(n: Int): Group[Permutation] with Set[Permutation] = new Group[Permutation] with Set[Permutation] {
+    require(n > 0)
+
     def inv(x: Permutation) = x.inverse
     def id = identity(n)
     def op(x: Permutation, y: Permutation) = x compose y
     def keyEq = LexicographicOrder
     def contains(x: Permutation) = x.size == n
 
-    def keys: Iterable[Permutation] = Iterable.ofIterator {
+    def keys: BidiIterable[Permutation] = BidiIterable.ofIterator(
       new AbstractIterator[Permutation] {
         private[this] var p: Array[Int] = null
-
         def current = Permutation.unchecked(p)
-
-        // Generate permutations under lexicographic order.
         def advance(): Boolean = {
           if (p == null) {
             p = Array.tabulate(n)(i => i)
             true
           }
-          else {
-            var k = -1
-            FastLoop.ascending(0, n - 1, 1) { i => if (p(i) < p(i + 1)) k = i }
-            if (k == -1) return false
-            var l = k + 1
-            FastLoop.ascending(k + 1, n, 1) { i => if (p(k) < p(i)) l = i }
-            val t = p(k)
-            p(k) = p(l)
-            p(l) = t
-            var left = k + 1
-            var right = n - 1
-            while (left < right) {
-              val t = p(right)
-              p(right) = p(left)
-              p(left) = t
-              left += 1
-              right -= 1
-            }
+          else Permuting.permuteToNext(p)
+        }
+      },
+      new AbstractIterator[Permutation] {
+        private[this] var p: Array[Int] = null
+        def current = Permutation.unchecked(p)
+        def advance(): Boolean = {
+          if (p == null) {
+            p = Array.tabulate(n)(i => n - 1 - i)
             true
           }
+          else Permuting.permuteToPrev(p)
         }
       }
-    }
+    )
   }
 
-  //TODO: SequentialOrder
-  implicit object LexicographicOrder extends Order[Permutation] {
+  implicit object LexicographicOrder extends SequentialOrder[Permutation] {
     def cmp(x: Permutation, y: Permutation): Int = {
       FastLoop.ascending(0, x.size, 1) { i =>
         if (x(i) < y(i)) return -1
@@ -173,6 +162,18 @@ object Permutation {
       }
       0
     }
+    def pred(x: Permutation) = {
+      val a = x.a1.clone()
+      Permuting.permuteToPrev(a)
+      Permutation.unchecked(a)
+    }
+    def succ(x: Permutation) = {
+      val a = x.a1.clone()
+      Permuting.permuteToNext(a)
+      Permutation.unchecked(a)
+    }
   }
+
+
 
 }

@@ -9,12 +9,13 @@ import poly.collection.mut._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-class LRUCache[A: Hashing, +R] private(f: A => R, n: Int) extends CachedFunction[A, R] {
-  private[this] val c = LinkedHashMap[A, R]()
+class LRUCache[K: Hashing, +R] private(f: K => R, n: Int) extends CachedFunction[K, R] {
 
-  def cache: Map[A, R] = c
+  private[this] val c = LinkedHashMap[K, R]()
 
-  def apply(a: A) = {
+  def cache: Map[K, R] = c
+
+  def apply(a: K) = {
     if (c containsKey a) { // cache hit
       val e = c.data.locate(a)
       e.prev.next = e.next // moves this entry to the MRU location
@@ -45,12 +46,12 @@ object LRUCache {
    * high-cost pure function (e.g. reading from files).
    * @param n Capacity of this cache
    */
-  def apply[A: Hashing, B](n: Int)(f: A => B) = new LRUCache(f, n)
+  def apply[K: Hashing, R](n: Int)(f: K => R) = new LRUCache(f, n)
 
   /**
    * Creates an LRU cache of a function using the default `hashCode` method on inputs
    * as the hashing function for the keys.
    */
-  def byDefaultHashing[A, B](n: Int)(f: A => B) = new LRUCache(f, n)(Hashing.default[A])
+  def byDefaultHashing[K, R](n: Int)(f: K => R) = new LRUCache(f, n)(Hashing.default[K])
 
 }

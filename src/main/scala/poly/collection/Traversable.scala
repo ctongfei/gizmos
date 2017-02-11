@@ -92,6 +92,9 @@ trait Traversable[+T] { self =>
   def productWith[U, X](that: Traversable[U])(f: (T, U) => X): Traversable[X] =
     for (x <- self; y <- that) yield f(x, y)
 
+  def zip[U](that: Iterable[U]): Traversable[(T, U)] = new TraversableT.ZippedWith(self, that, (t: T, u: U) => (t, u))
+
+  def zipWith[U, X](that: Iterable[U])(f: (T, U) => X): Traversable[X] = new TraversableT.ZippedWith(self, that, f)
   //endregion
 
   //region FILTERING OPS
@@ -124,10 +127,10 @@ trait Traversable[+T] { self =>
    * Partitions this collection to two collections according to a predicate. $EAGER
    * @return A pair of collections: ( {x|f(x)} , {x|!f(x)} )
    */
-  def partition[C](f: T => Boolean): (Iterable[T], Iterable[T]) = {
+  def partition(f: T => Boolean): (Iterable[T], Iterable[T]) = {
     val l, r = ArraySeq.newBuilder[T]
     for (x <- self)
-      if (f(x)) l += x else r += x
+      if (f(x)) l << x else r << x
     (l.result, r.result)
   }
 
@@ -176,7 +179,11 @@ trait Traversable[+T] { self =>
   /**
    * Returns the unique elements in this collection while retaining its original order.
    * This function requires that an equivalence relation is endowed on the type of the elements.
-   *
+   * @note The performance when being iterated depends on the equivalence relation: <ul>
+   *           <li> [[poly.algebra.Hashing]]: amortized O(''n''); </li>
+   *           <li> [[poly.algebra.Order]]: O(''n'' log ''n''); </li>
+   *           <li> otherwise: O(''n''^2^).
+   *         </ul>
    * @example {{{
    *   (1, 4, 1, 3, 4, 2).distinct == (1, 4, 3, 2)
    * }}}
@@ -253,19 +260,20 @@ trait Traversable[+T] { self =>
     None
   }
 
+  /** $EAGER $On */
   def lastOption: Option[T] = {
     if (isEmpty) None
     else Some(last)
   }
 
   /**
-   * Returns the list of tails (suffixes) of this collection. $LAZY
+   * Returns the list of tails (suffixes) of this collection.
    * @example {{{(1, 2, 3).suffixes == ((1, 2, 3), (2, 3), (3))}}}
    */
   def suffixes: Iterable[Iterable[T]] = to(ArraySeq).suffixes
 
   /**
-   * Returns the list of inits (prefixes) of this collection. $LAZY
+   * Returns the list of inits (prefixes) of this collection.
    * @example {{{(1, 2, 3).prefixes == ((1, 2, 3), (1, 2), (1))}}}
    */
   def prefixes: Iterable[Iterable[T]] = to(ArraySeq).prefixes
@@ -532,7 +540,6 @@ trait Traversable[+T] { self =>
 
   /**
    * Rotates this collection from the index specified. $LAZY
-   *
    * @example {{{(1, 2, 3, 4).rotate(1) == (2, 3, 4, 1)}}}
    * @param n Rotation starts here
    */
@@ -561,10 +568,18 @@ trait Traversable[+T] { self =>
 
   //region BUILDING OPS
 
-  def to[U >: T, R](builder: Builder[U, R]) = {
-    builder addAll self
+  def >>>[R](builder: Builder[T, R]): Unit = builder <<< self
+
+  def >>>![R](builder: Builder[T, R]) = {
+    builder <<< self
     builder.result()
   }
+
+  /**
+   * Converts this traversable collection to any collection type.
+   * @param factory Grounded factory (may require evidences)
+   */
+  def to[R](implicit factory: GroundedFactory[T, R]) = factory from self
 
   /**
    * Converts this traversable collection to any collection type given a factory.
@@ -960,6 +975,16 @@ private[poly] object TraversableT {
         f(x)
         if (first) first = false
         else f(u)
+      }
+    }
+  }
+
+  class ZippedWith[T, U, X](self: Traversable[T], that: Iterable[U], f: (T, U) => X) extends AbstractTraversable[X] {
+    def foreach[V](g: X => V): Unit = {
+      val iu = that.newIterator
+      for (t <- self) {
+        if (!iu.advance()) return
+        g(f(t, iu.current))
       }
     }
   }

@@ -10,6 +10,7 @@ import poly.collection._
  * In an '''''equatable''''' state space, there is an equivalence relation endowed on the set of states,
  * so two states can be considered ''equivalent'', henceforth allowing graph traversal (able to check loops!)
  * instead of tree traversal.
+ * @tparam S Type of states
  * @author Yuhuan Jiang
  * @author Tongfei Chen
  * @since 0.1.0
@@ -21,7 +22,7 @@ trait EqStateSpace[@sp(Int) S] extends StateSpace[S] with Keyed[S] with Relation
   /** Returns the equivalence relation on search states. */
   implicit def keyEq: Eq[S]
 
-  def related(x: S, y: S) = succ(x) contains y
+  final def related(x: S, y: S) = succ(x) contains y
 
   // HELPER FUNCTIONS
 

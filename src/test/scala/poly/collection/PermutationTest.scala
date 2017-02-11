@@ -5,6 +5,7 @@ package poly.collection
   */
 object PermutationTest extends App {
 
-  Permutation.Group(5).elements foreach println
+  Permutation.Group(2).keys foreach println
+
 
 }

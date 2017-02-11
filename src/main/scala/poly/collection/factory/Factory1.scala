@@ -20,10 +20,12 @@ trait Factory1[+C[_]] {
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait BuilderFactory1[+C[_]] extends Factory1[C] {
+trait BuilderFactory1[+C[_]] extends Factory1[C] { self =>
+
+  implicit def ground[T] = GroundedFactory ofBuilder newBuilder[T]
 
   /** Returns a new builder of this collection type. */
-  implicit def newBuilder[T]: Builder[T, C[T]]
+  def newBuilder[T]: Builder[T, C[T]]
 
   /** Creates an empty collection. */
   override def empty[T]: C[T] = newBuilder[T].result

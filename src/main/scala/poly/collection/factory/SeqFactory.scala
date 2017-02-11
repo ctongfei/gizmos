@@ -12,7 +12,7 @@ import scala.language.higherKinds
 trait SeqFactory[+C[_]] extends BuilderFactory1[C] {
 
   /** Returns a new builder of this collection type. */
-  implicit def newBuilder[T]: Builder[T, C[T]]
+  def newBuilder[T]: Builder[T, C[T]]
 
   def withSizeHint[T](n: Int): C[T] = {
     val b = newBuilder[T]

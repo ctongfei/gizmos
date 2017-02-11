@@ -5,8 +5,11 @@ import poly.collection.conversion.FromScala._
 import scala.language.higherKinds
 
 trait BuilderFactory1Ev11[+C[_], Ev1[_], Ev2[_]] extends Factory1Ev11[C, Ev1, Ev2] {
+
+  implicit def ground[T : Ev1 : Ev2] = GroundedFactory ofBuilder newBuilder[T]
+
   /** Returns a new builder of this collection type. */
-  implicit def newBuilder[T : Ev1 : Ev2]: Builder[T, C[T]]
+  def newBuilder[T : Ev1 : Ev2]: Builder[T, C[T]]
 
   /** Creates an empty collection. */
   override def empty[T : Ev1 : Ev2]: C[T] = newBuilder[T].result

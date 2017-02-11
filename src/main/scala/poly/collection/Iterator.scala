@@ -65,6 +65,10 @@ trait Iterator[@sp(Int, Long, Double, Char, Byte) +T] { self =>
     while (self.advance()) f(self.current)
   }
 
+  /** Depletes all data from this iterator (source) to the given builder (sink). */
+  def >>>[R](builder: Builder[T, R]) = {
+    run(builder.add)
+  }
 
   @unsp private[poly] def asLazyList: LazyList[T] = {
     if (self.advance()) LazyList.Cons(self.current, self.asLazyList)

@@ -8,6 +8,8 @@ import scala.language.higherKinds
   * Represents builders, which are objects that allow incremental construction
   * of other structures (e.g. collections, models, files).
   *
+  * It can be considered as a sink that drains streams of data.
+  *
   * @author Tongfei Chen
   * @since 0.1.0
   */
@@ -33,14 +35,15 @@ trait Builder[@sp(Int, Byte, Char) -T, +R] { self =>
 
   /**
    * Returns the structure built from this builder.
-   * This operation may incur side effects.
+   * @note This operation may incur side effects.
+   *       The builder should not be used after [[result]] is called.
    * @return A structure containing the added elements
    */
   def result(): R
 
-  @inline final def +=(x: T) = add(x)
+  @inline final def <<(x: T): this.type = { add(x); this }
 
-  @inline final def ++=(xs: Traversable[T]) = xs foreach add
+  @inline final def <<<(xs: Traversable[T]): this.type = { addAll(xs); this }
 
   /**
    * Returns a new builder which wraps around this builder. The difference
@@ -55,7 +58,6 @@ trait Builder[@sp(Int, Byte, Char) -T, +R] { self =>
   def contramap[S](f: S => T): Builder[S, R] = new BuilderT.Contramapped(self, f)
 
 }
-
 
 private[poly] object BuilderT {
 

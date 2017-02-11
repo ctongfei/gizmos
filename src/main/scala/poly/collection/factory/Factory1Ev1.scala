@@ -11,9 +11,12 @@ import scala.language.higherKinds
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait BuilderFactory1Ev1[+C[_], Ev[_]] extends Factory1Ev1[C, Ev] {
+trait BuilderFactory1Ev1[+C[_], Ev[_]] extends Factory1Ev1[C, Ev] { self =>
+
+  implicit def ground[T: Ev] = GroundedFactory ofBuilder newBuilder[T]
+
   /** Returns a new builder of this collection type. */
-  implicit def newBuilder[T: Ev]: Builder[T, C[T]]
+  def newBuilder[T: Ev]: Builder[T, C[T]]
 
   /** Creates an empty collection. */
   override def empty[T: Ev]: C[T] = newBuilder[T].result

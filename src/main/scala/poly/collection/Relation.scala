@@ -9,7 +9,7 @@ import poly.collection.mut._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait Relation[-X, -Y] { self =>
+trait Relation[-X, -Y] extends { self =>
 
   /** Checks if two elements are related under this binary relation. */
   def related(x: X, y: Y): Boolean
@@ -34,7 +34,6 @@ trait Relation[-X, -Y] { self =>
 object Relation {
 
   implicit class FunctionAsRelation[X, Y](f: X => Y)(implicit Y: Eq[Y]) extends Relation[X, Y] {
-    /** Checks if two elements is related under this binary relation. */
     def related(x: X, y: Y) = Y.eq(f(x), y)
   }
 
