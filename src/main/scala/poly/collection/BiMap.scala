@@ -80,7 +80,7 @@ trait BiMap[K, V] extends Map[K, V] with Bijection[K, V] with Relation[K, V] { s
    */
   override def contramap[J](f: Bijection[J, K]): BiMap[J, V] = new BiMapT.BijectivelyContramapped(self, f)
 
-  override def toString = "{" + pairs.map { case (k, v) => s"$k ↔︎ $v" }.buildString(", ") + "}"
+  override def toString = "{" + pairs.map { case (k, v) => s"$k <->︎ $v" }.buildString(", ") + "}"
 
 }
 

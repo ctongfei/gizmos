@@ -190,7 +190,7 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
   def ⟗[W](that: Map[K, W]) = self fullOuterJoin that
 
   // OVERRIDING JAVA METHODS
-  override def toString = "{" + pairs.map { case (k, v) => s"$k → $v" }.buildString(", ") + "}"
+  override def toString = "{" + pairs.map { case (k, v) => s"$k -> $v" }.buildString(", ") + "}"
 
   override def equals(that: Any) = that match {
     case that: Map[K, V] => Map.Eq(Eq.default[V]).eq(this, that)

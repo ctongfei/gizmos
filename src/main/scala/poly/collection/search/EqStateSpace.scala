@@ -22,7 +22,7 @@ trait EqStateSpace[@sp(Int) S] extends StateSpace[S] with Keyed[S] with Relation
   /** Returns the equivalence relation on search states. */
   implicit def keyEq: Eq[S]
 
-  final def related(x: S, y: S) = succ(x) contains y
+  def related(x: S, y: S) = succ(x) contains y
 
   // HELPER FUNCTIONS
 

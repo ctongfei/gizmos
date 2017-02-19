@@ -61,7 +61,7 @@ trait WeightedSet[@sp(Int) K, @sp(Int, Double) R] extends KeyedLike[K, WeightedS
     def keySet = self.keySet union that.keySet
   }
 
-  def multisetDiff(that: WeightedSet[K, R]): WeightedSet[K, R] = new AbstractWeightedSet[K, R] {
+  def weightedSetDiff(that: WeightedSet[K, R]): WeightedSet[K, R] = new AbstractWeightedSet[K, R] {
     implicit def weightRing = self.weightRing
     def weight(k: K) = function.max(zero[R], self.weight(k) - that.weight(k))
     def keySet = self.keySet filter (x => self.weight(x) > that.weight(x))
@@ -73,7 +73,7 @@ trait WeightedSet[@sp(Int) K, @sp(Int, Double) R] extends KeyedLike[K, WeightedS
     def keySet = self.keySet product that.keySet
   }
 
-  def multisetAdd(that: WeightedSet[K, R]): WeightedSet[K, R] = new AbstractWeightedSet[K, R] {
+  def weightedSetAdd(that: WeightedSet[K, R]): WeightedSet[K, R] = new AbstractWeightedSet[K, R] {
     implicit def weightRing = self.weightRing
     def weight(k: K) = self.weight(k) + that.weight(k)
     def keySet = self.keySet union that.keySet
@@ -107,14 +107,14 @@ trait WeightedSet[@sp(Int) K, @sp(Int, Double) R] extends KeyedLike[K, WeightedS
   //Symbolic aliases
   def &(that: WeightedSet[K, R]) = this intersect that
   def |(that: WeightedSet[K, R]) = this union that
-  def &~(that: WeightedSet[K, R]) = this multisetDiff that
+  def &~(that: WeightedSet[K, R]) = this weightedSetDiff that
   def ⊂(that: WeightedSet[K, R]) = this properSubsetOf that
   def ⊃(that: WeightedSet[K, R]) = this properSupersetOf that
   def ⊆(that: WeightedSet[K, R]) = this subsetOf that
   def ⊇(that: WeightedSet[K, R]) = this supersetOf that
   def ∩(that: WeightedSet[K, R]) = this intersect that
   def ∪(that: WeightedSet[K, R]) = this union that
-  def ⊎(that: WeightedSet[K, R]) = this multisetAdd that
+  def ⊎(that: WeightedSet[K, R]) = this weightedSetAdd that
 
   override def toString = "{" + keyWeightPairs.map { case (k, w) => s"$k: $w"}.buildString(", ") + "}"
 
@@ -149,7 +149,7 @@ object WeightedSet {
   implicit def Module[K: Eq, R: OrderedRing]: Module[WeightedSet[K, R], R] = new Module[WeightedSet[K, R], R] {
     implicit def scalarRing = Ring[R]
     def scale(x: WeightedSet[K, R], k: R) = x scale k
-    def add(x: WeightedSet[K, R], y: WeightedSet[K, R]) = x multisetAdd y
+    def add(x: WeightedSet[K, R], y: WeightedSet[K, R]) = x weightedSetAdd y
     def zero = WeightedSet.empty[K, R]
   }
 

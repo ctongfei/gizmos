@@ -5,7 +5,7 @@ package poly.collection
   */
 object PermutationTest extends App {
 
-  Permutation.Group(2).keys foreach println
+  Permutation.Group(9).keys.map(_.toString) foreach {x => print(".")}
 
 
 }

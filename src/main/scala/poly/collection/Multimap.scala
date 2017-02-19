@@ -30,6 +30,8 @@ trait Multimap[K, V] extends Relation[K, V] with KeyedLike[K, Multimap[K, V]] wi
   /** Returns all values that are associated with the given key. */
   def apply(k: K): Set[V]
 
+  def apply(k: K, v: V): Boolean = apply(k) contains v
+
   /** Checks if a specific key is present in this multimap. */
   def containsKey(x: K) = keySet contains x
 
@@ -42,6 +44,7 @@ trait Multimap[K, V] extends Relation[K, V] with KeyedLike[K, Multimap[K, V]] wi
     def keyEq = self.keyEq product self.valueEq
   }
 
+  /** Returns the number of distinct (key, value) pairs in this multimap. */
   def size = pairs.size
 
   def isDefinedAt(k: K) = containsKey(k)
@@ -73,7 +76,7 @@ trait Multimap[K, V] extends Relation[K, V] with KeyedLike[K, Multimap[K, V]] wi
   override def inverse: Multimap[V, K] = pairs map { _.swap } to AutoMultimap
 
   /**
-   * Casts this multimap of type `Multimap[K, V]` to the equivalent map of type `Map[ K, Set[V] ]`.
+   * Casts this multimap of type `Multimap[K, V]` to the equivalent map of type `Map[ K , Set[V] ]`.
    */
   def asMap: Map[K, Set[V]] = new MultimapT.AsMap(self)
 

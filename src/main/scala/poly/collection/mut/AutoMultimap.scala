@@ -9,7 +9,7 @@ import poly.collection.factory._
  */
 object AutoMultimap extends BuilderFactory2Ev12[KeyMutableMultimap, Eq, Eq] {
 
-  implicit def newBuilder[A: Eq, B: Eq] = new Builder[(A, B), KeyMutableMultimap[A, B]] {
+  def newBuilder[A: Eq, B: Eq] = new Builder[(A, B), KeyMutableMultimap[A, B]] {
 
     private[this] val m = AutoMap[A, KeyMutableSet[B]]()
 
@@ -20,6 +20,6 @@ object AutoMultimap extends BuilderFactory2Ev12[KeyMutableMultimap, Eq, Eq] {
     }
 
     def result = new MapOfSetsMultimap[A, B](m)
-}
+  }
 
 }

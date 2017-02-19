@@ -25,6 +25,9 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
   /** Tests if an element belongs to this set. */
   def contains(x: T): Boolean
 
+  /** Alias for [[contains]]. */
+  @inline final def has(x: T) = contains(x)
+
   @inline final def containsKey(x: T) = contains(x)
 
   @inline final def notContains(x: T) = !contains(x)

@@ -5,9 +5,9 @@ package poly.collection
  */
 private[poly] object Settings {
 
-  final val MaxElementsToString = 100
+  final val MaxElementsToString = 20
 
-  final val MaxFinalElementsToString = 50
+  final val MaxFinalElementsToString = 20
 
   final val MaxElementsToHash = 20
 

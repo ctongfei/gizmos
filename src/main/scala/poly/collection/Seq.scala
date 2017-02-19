@@ -576,7 +576,7 @@ object Seq extends Factory1[Seq] {
 
   /**
    * Returns the lexicographic order on sequences if an order on the elements is given.
-   */ //TODO: SequentialOrder
+   */
   def LexicographicOrder[T: Order]: Order[Seq[T]] = new Order[Seq[T]] {
     def cmp(x: Seq[T], y: Seq[T]): Int = {
       //TODO: faster implementation using iterators?
