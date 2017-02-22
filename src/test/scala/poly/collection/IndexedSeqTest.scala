@@ -24,8 +24,5 @@ object IndexedSeqTest extends App {
   val ahh = a.headNode
   val bh = b.headNode
 
-  println(ah == bh)
-  println(ah == ahh)
-
   val bp = 0
 }

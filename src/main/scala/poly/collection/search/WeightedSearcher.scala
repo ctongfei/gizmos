@@ -16,7 +16,7 @@ import poly.collection.search.ops._
   * @author Tongfei Chen
   * @since 0.1.0
   */
-abstract class WeightedSearcher[S, N, C](val fringe: KeyedPriorityQueue[S, N], val start: S) extends SearchIterator[N, S] {
+abstract class WeightedSearcher[S, N, C](val fringe: KeyedPriorityQueue[S, N], val start: S) extends SearchIterator[S, N] {
 
   def prune(n: N): Boolean
 

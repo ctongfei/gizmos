@@ -59,7 +59,7 @@ trait EqStateSpace[@sp(Int) S] extends StateSpace[S] with Keyed[S] with Relation
 
 object EqStateSpace {
 
-  private[collection] def searchByIterator[S, N <: node.WithParent[S]](si: SearchIterator[N, S], goal: S => Boolean): BidiSeq[S] = {
+  private[collection] def searchByIterator[S, N <: node.WithParent[S]](si: SearchIterator[S, N], goal: S => Boolean): BidiSeq[S] = {
     while (si.advance())
       if (goal(si.current))
         return si.currentNode.pathToRoot.map(_.data).reverse

@@ -13,7 +13,7 @@ import poly.collection.search.ops._
   * @author Tongfei Chen
   * @since 0.1.0
   */
-abstract class Searcher[S, N](val fringe: Queue[N], val start: S) extends SearchIterator[N, S] {
+abstract class Searcher[S, N](val fringe: Queue[N], val start: S) extends SearchIterator[S, N] {
 
   /** Dictates whether a node should be pruned in the searching process. */
   def prune(n: N): Boolean

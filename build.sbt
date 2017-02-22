@@ -11,6 +11,7 @@ resolvers += Resolver.sonatypeRepo("snapshots")
 libraryDependencies += "me.tongfei"        %% "poly-algebra"    % "0.4.0-SNAPSHOT"
 
 libraryDependencies += "org.scalatest"     %% "scalatest"       % "3.0.0"           % Test
+libraryDependencies += "org.scalacheck"    %% "scalacheck"      % "1.13.4"          % Test
 libraryDependencies += "com.storm-enroute" %% "scalameter-core" % "0.8.2"           % Test
 
 //scalacOptions += "-Ymacro-debug-lite"

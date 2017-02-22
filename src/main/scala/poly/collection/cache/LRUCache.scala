@@ -54,4 +54,9 @@ object LRUCache {
    */
   def byDefaultHashing[K, R](n: Int)(f: K => R) = new LRUCache(f, n)(Hashing.default[K])
 
+  /**
+   * Creates an LRU cache of a function using the reference (pointer) of the keys for hashing.
+   */
+  def byRefHashing[K, R](n: Int)(f: K => R) = new LRUCache(f, n)(Hashing.byRef[K])
+
 }

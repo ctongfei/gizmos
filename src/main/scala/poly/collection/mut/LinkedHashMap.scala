@@ -35,7 +35,6 @@ class LinkedHashMap[K: Hashing, V] private(private[poly] val data: OpenHashTable
     if (e == null) None else Some(e.value)
   }
 
-
   def add_!(x: K, y: V) = {
     val e = new Entry(x, y, dummy.prev, dummy)
     e.prev.next = e
@@ -84,7 +83,7 @@ object LinkedHashMap extends BuilderFactory2Ev1[LinkedHashMap, Hashing] {
     def isDummy = false
   }
 
-  implicit def newBuilder[K: Hashing, V]: Builder[(K, V), LinkedHashMap[K, V]] = new Builder[(K, V), LinkedHashMap[K, V]] {
+  def newBuilder[K: Hashing, V]: Builder[(K, V), LinkedHashMap[K, V]] = new Builder[(K, V), LinkedHashMap[K, V]] {
     private[this] val m = new LinkedHashMap[K, V](new OpenHashTable[K, Entry[K, V]])
     def add(x: (K, V)) = m.add_!(x)
     def result = m

@@ -1,7 +1,7 @@
 package poly.collection.conversion
 
 import poly.algebra._
-import poly.algebra.conversion.FromScala._
+import poly.algebra.conversion.ImplicitlyFromScala._
 import poly.collection._
 import poly.collection.mut._
 import poly.collection.node._
