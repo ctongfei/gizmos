@@ -39,10 +39,10 @@ class PairWeightedSet[K, R: OrderedRing] private[poly](private val data: KeyMuta
   }
 }
 
-object PairWeightedSet extends BuilderFactory1Ev12[PairWeightedSet, Eq, OrderedRing] {
+object PairWeightedSet extends Factory2[({type λ[K, R] = K})#λ, PairWeightedSet, Eq, OrderedRing] {
 
   /** Creates a factory of [[PairWeightedSet]]s given the type on counts. Normally [[R]] should be [[Int]]. */
-  def of[R: OrderedRing]: BuilderFactory1Ev1[({type λ[K] = PairWeightedSet[K, R]})#λ, Eq] = new BuilderFactory1Ev1[({type λ[K] = PairWeightedSet[K, R]})#λ, Eq] {
+  def of[R: OrderedRing]: Factory1[Id, ({type λ[K] = PairWeightedSet[K, R]})#λ, Eq] = new Factory1[Id, ({type λ[K] = PairWeightedSet[K, R]})#λ, Eq] {
     implicit def newBuilder[K: Eq] = PairWeightedSet.newBuilder[K, R]
   }
 

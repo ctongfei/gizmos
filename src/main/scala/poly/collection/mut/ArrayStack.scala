@@ -1,6 +1,8 @@
 package poly.collection.mut
 
+import poly.algebra._
 import poly.collection._
+import poly.collection.evidence._
 import poly.collection.exception._
 import poly.collection.factory._
 import poly.collection.impl._
@@ -35,9 +37,9 @@ class ArrayStack[T] private(private var data: ResizableSeq[T]) extends Queue[T] 
 
 }
 
-object ArrayStack extends BuilderFactory1[ArrayStack] {
+object ArrayStack extends Factory1[Id, ArrayStack, NoneEv] {
 
-  implicit def newBuilder[T]: Builder[T, ArrayStack[T]] = new Builder[T, ArrayStack[T]] {
+  implicit def newBuilder[T: NoneEv]: Builder[T, ArrayStack[T]] = new Builder[T, ArrayStack[T]] {
     var data = new ResizableSeq[T]()
     override def sizeHint(n: Int) = data.ensureCapacity(n)
     def add(x: T) = data.append_!(x)

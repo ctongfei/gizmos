@@ -2,6 +2,7 @@ package poly.collection.mut
 
 import poly.algebra._
 import poly.collection._
+import poly.collection.evidence._
 import poly.collection.factory._
 import poly.collection.impl._
 
@@ -53,9 +54,9 @@ class DenseIntKeyedMap[T] private(
 
 }
 
-object DenseIntKeyedMap extends BuilderFactory2Ev1[({type λ[α, β] = DenseIntKeyedMap[β]})#λ, IsInt] {
+object DenseIntKeyedMap extends Factory2[Tuple2, ({type λ[α, β] = DenseIntKeyedMap[β]})#λ, IsInt, NoneEv] {
 
-  implicit def newBuilder[K: IsInt, V]: Builder[(K, V), DenseIntKeyedMap[V]] = new Builder[(Int, V), DenseIntKeyedMap[V]] {
+  implicit def newBuilder[K: IsInt, V: NoneEv]: Builder[(K, V), DenseIntKeyedMap[V]] = new Builder[(Int, V), DenseIntKeyedMap[V]] {
     private[this] val data = new ResizableArray[V]()
     private[this] var n = 0
     override def sizeHint(n: Int) = data.ensureCapacity(n)

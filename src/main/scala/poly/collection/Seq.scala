@@ -3,11 +3,13 @@ package poly.collection
 import poly.algebra._
 import poly.algebra.hkt._
 import poly.algebra.syntax._
+import poly.collection.evidence._
 import poly.collection.exception._
 import poly.collection.factory._
 import poly.collection.impl._
 import poly.collection.mut._
 import poly.collection.node._
+
 import scala.annotation.unchecked.{uncheckedVariance => uv}
 
 /**
@@ -507,9 +509,13 @@ trait Seq[+T] extends Iterable[T] with PartialFunction[Int, T] { self =>
 
 }
 
-object Seq extends Factory1[Seq] {
+object Seq extends SeqFactory[Seq] {
+
 
   // EXTRACTORS
+
+  /** Returns a new builder of this collection type. */
+  def newSeqBuilder[T] = ArraySeq.newSeqBuilder[T]
 
   /** Decomposes a sequence into its head and its tail. */
   def unapply[T](xs: Seq[T]) = {
@@ -519,7 +525,7 @@ object Seq extends Factory1[Seq] {
 
   // CONSTRUCTORS
 
-  override def apply[T](xs: T*) =
+  def apply[T](xs: T*) =
     arrayAsPoly(getArrayFromVarargs(xs)) // directly wraps the inner Scala array without element copying
 
   def from[T](xs: Traversable[T]) = xs to ArraySeq

@@ -82,9 +82,9 @@ trait Multimap[K, V] extends Relation[K, V] with KeyedLike[K, Multimap[K, V]] wi
 
 }
 
-object Multimap extends Factory2Ev12[Multimap, Eq, Eq] {
+object Multimap extends Factory2[Tuple2, Multimap, Eq, Eq] {
 
-  def from[K: Eq, V: Eq](xs: Traversable[(K, V)]): Multimap[K, V] = AutoMultimap from xs
+  def newBuilder[A: Eq, B: Eq] = AutoMultimap.newBuilder
 
   //implicit object Semicategory
   //TODO: semicategory. does not have id.

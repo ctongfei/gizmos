@@ -36,9 +36,9 @@ class AdjacencyListGraph[@sp(Int) K, E] private(private val r: KeyMutableMap[K, 
   def update(i: K, j: K, e: E) = r(i)(j) = e
 }
 
-object AdjacencyListGraph extends GraphFactory[AdjacencyListGraph] {
+object AdjacencyListGraph extends GraphFactory[AdjacencyListGraph, Eq] {
 
-  implicit def newBuilder[K: Eq, E]: GraphBuilder[K, E, AdjacencyListGraph[K, E]] =
+  def newGraphBuilder[K: Eq, E]: GraphBuilder[K, E, AdjacencyListGraph[K, E]] =
     new GraphBuilder[K, E, AdjacencyListGraph[K, E]] {
       private[this] val r = AutoMap[K, ListMap[K, E]]().withDefaultUpdate(ListMap[K, E]())
       def addKey(i: K) = r += i -> ListMap()

@@ -3,6 +3,7 @@ package poly.collection.mut
 import poly.algebra._
 import poly.algebra.specgroup._
 import poly.collection._
+import poly.collection.evidence._
 import poly.collection.factory._
 import poly.collection.mut.AdjacencyListBidiGraph.VertexInfo
 
@@ -38,9 +39,9 @@ class AdjacencyListUndirectedGraph[@sp(Int) K: Eq, E] private(private val r: Key
   }
 }
 
-object AdjacencyListUndirectedGraph extends GraphFactory[AdjacencyListUndirectedGraph] {
+object AdjacencyListUndirectedGraph extends GraphFactory[AdjacencyListUndirectedGraph, Eq] {
 
-  implicit def newBuilder[K: Eq, E]: GraphBuilder[K, E, AdjacencyListUndirectedGraph[K, E]] =
+  def newGraphBuilder[K: Eq, E]: GraphBuilder[K, E, AdjacencyListUndirectedGraph[K, E]] =
     new GraphBuilder[K, E, AdjacencyListUndirectedGraph[K, E]] {
       private[this] val r = AutoMap[K, VertexInfo[K, E]]().withDefaultUpdate(new VertexInfo)
       def addKey(i: K) = {

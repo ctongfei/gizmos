@@ -147,7 +147,7 @@ object ListSeq extends SeqFactory[ListSeq] {
     def isDummy = false
   }
 
-  implicit def newBuilder[T]: Builder[T, ListSeq[T]] = new Builder[T, ListSeq[T]] {
+  def newSeqBuilder[T]: Builder[T, ListSeq[T]] = new Builder[T, ListSeq[T]] {
     val a = new ListSeq[T]()
     def add(x: T) = a append_! x
     def result = a

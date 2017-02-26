@@ -582,16 +582,10 @@ trait Traversable[+T] { self =>
   def to[R](implicit factory: GroundedFactory[T, R]) = factory from self
 
   /**
-   * Converts this traversable collection to any collection type given a factory.
-   * @example {{{ xs to ArraySeq }}}
-   */
-  def to[U >: T, C[_]](factory: Factory1[C]): C[U] = factory from self
-
-  /**
    * Converts this traversable collection to any collection type given a factory that requires an additional evidence.
    * @example {{{ xs to HashSet }}}
    */
-  def to[U >: T : Ev, C[_], Ev[_]](factory: Factory1Ev1[C, Ev]): C[U] = factory from self
+  def to[U >: T : Ev, C[_], Ev[_]](factory: Factory1[Id, C, Ev]): C[U] = factory from self
 
   /**
    * Converts this traversable sequence to an array. The data are always copied. $EAGER
@@ -721,11 +715,7 @@ object Traversable {
       (ak.result, av.result)
     }
 
-    def to[M[_, _]](factory: Factory2[M]) = factory from underlying
-
-    def to[M[_, _], Ev[_]](factory: Factory2Ev1[M, Ev])(implicit A: Ev[A]) = factory from underlying
-
-    def to[M[_, _], EvA[_], EvB[_]](factory: Factory2Ev12[M, EvA, EvB])(implicit A: EvA[A], B: EvB[B]) = factory from underlying
+    def to[M[_, _], EvA[_], EvB[_]](factory: Factory2[Tuple2, M, EvA, EvB])(implicit A: EvA[A], B: EvB[B]) = factory from underlying
 
   }
 

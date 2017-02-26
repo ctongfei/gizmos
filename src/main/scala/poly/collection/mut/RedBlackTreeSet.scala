@@ -31,7 +31,7 @@ class RedBlackTreeSet[K] private(private val data: java.util.TreeSet[K])
 
 }
 
-object RedBlackTreeSet extends BuilderFactory1Ev1[RedBlackTreeSet, Order] {
+object RedBlackTreeSet extends Factory1[Id, RedBlackTreeSet, Order] {
 
   implicit def newBuilder[K](implicit K: Order[K]): Builder[K, RedBlackTreeSet[K]] =
     new Builder[K, RedBlackTreeSet[K]] {

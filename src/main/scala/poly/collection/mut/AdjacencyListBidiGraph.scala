@@ -47,7 +47,7 @@ class AdjacencyListBidiGraph[@sp(Int) K: Eq, E] private[collection](private val 
 
 }
 
-object AdjacencyListBidiGraph extends GraphFactory[AdjacencyListBidiGraph] {
+object AdjacencyListBidiGraph extends GraphFactory[AdjacencyListBidiGraph, Eq] {
 
   private[poly] class VertexInfo[K: Eq, E] {
     val pred = ListSet[K]()
@@ -55,7 +55,7 @@ object AdjacencyListBidiGraph extends GraphFactory[AdjacencyListBidiGraph] {
     override def toString = s"(pred=$pred; succ=$succ)"
   }
 
-  implicit def newBuilder[K: Eq, E]: GraphBuilder[K, E, AdjacencyListBidiGraph[K, E]] =
+  def newGraphBuilder[K: Eq, E]: GraphBuilder[K, E, AdjacencyListBidiGraph[K, E]] =
     new GraphBuilder[K, E, AdjacencyListBidiGraph[K, E]] {
       private[this] val r = AutoMap[K, VertexInfo[K, E]]().withDefaultUpdate(new VertexInfo)
       def addKey(i: K) = {

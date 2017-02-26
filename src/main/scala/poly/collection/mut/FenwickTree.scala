@@ -63,7 +63,7 @@ class FenwickTree[T] private(private val data: ResizableSeq[T])
 
 }
 
-object FenwickTree extends BuilderFactory1Ev1[FenwickTree, AdditiveGroup] {
+object FenwickTree extends Factory1[Id, FenwickTree, AdditiveGroup] {
 
   @inline private[poly] def lowBit(x: Int) = x & -x
 

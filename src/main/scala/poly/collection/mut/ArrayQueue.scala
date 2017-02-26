@@ -1,6 +1,8 @@
 package poly.collection.mut
 
+import poly.algebra._
 import poly.collection._
+import poly.collection.evidence._
 import poly.collection.exception._
 import poly.collection.factory._
 import poly.collection.impl._
@@ -63,9 +65,9 @@ class ArrayQueue[T] private(private val data: ResizableArray[T]) extends Queue[T
   }
 }
 
-object ArrayQueue extends BuilderFactory1[ArrayQueue] {
+object ArrayQueue extends SeqFactory[ArrayQueue] {
 
-  implicit def newBuilder[T]: Builder[T, ArrayQueue[T]] = new Builder[T, ArrayQueue[T]] {
+  def newSeqBuilder[T]: Builder[T, ArrayQueue[T]] = new Builder[T, ArrayQueue[T]] {
     private[this] val a = new ResizableArray[T]()
     private[this] var n = 0
     override def sizeHint(n: Int) = a.ensureCapacity(n)

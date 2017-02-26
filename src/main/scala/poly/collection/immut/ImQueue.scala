@@ -22,5 +22,5 @@ class ImQueue[T] private(val in: List[T], val out: List[T]) {
 }
 
 object ImQueue extends SeqFactory[ImQueue] {
-  implicit def newBuilder[T] = List.newBuilder[T] map { l => new ImQueue(List.Empty, l) }
+  def newSeqBuilder[T] = List.newBuilder[T] map { l => new ImQueue(List.Empty, l) }
 }

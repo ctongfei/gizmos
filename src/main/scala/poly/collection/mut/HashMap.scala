@@ -2,6 +2,7 @@ package poly.collection.mut
 
 import poly.algebra._
 import poly.collection._
+import poly.collection.evidence._
 import poly.collection.factory._
 import poly.collection.impl.hashtable._
 
@@ -45,11 +46,11 @@ class HashMap[K: Hashing, V] private(private val data: OpenHashTable[K, HashMap.
 
 }
 
-object HashMap extends BuilderFactory2Ev1[HashMap, Hashing] {
+object HashMap extends MapFactory[HashMap, Hashing] {
 
   private[poly] class Entry[K, V](val key: K, var value: V) extends OpenHashEntryLike[K, Entry[K, V]]
 
-  implicit def newBuilder[K: Hashing, V]: Builder[(K, V), HashMap[K, V]] = new Builder[(K, V), HashMap[K, V]] {
+  implicit def newBuilder[K: Hashing, V: NoneEv]: Builder[(K, V), HashMap[K, V]] = new Builder[(K, V), HashMap[K, V]] {
     private[this] val ht = new OpenHashTable[K, Entry[K, V]]()
     private[this] val m = new HashMap(ht)
     override def sizeHint(n: Int) = ht.grow(n)

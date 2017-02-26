@@ -126,7 +126,7 @@ object ListBidiSeq extends SeqFactory[ListBidiSeq] {
     def isDummy = false
   }
 
-  implicit def newBuilder[T]: Builder[T, ListBidiSeq[T]] = new Builder[T, ListBidiSeq[T]] {
+  def newSeqBuilder[T]: Builder[T, ListBidiSeq[T]] = new Builder[T, ListBidiSeq[T]] {
     private[this] val l = new ListBidiSeq[T]()
     def result = l
     def add(x: T) = l.append_!(x)

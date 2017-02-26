@@ -220,16 +220,15 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
   override def hashCode = MurmurHash3.symmetricHash(self.elements)(Hashing.default[T])
 }
 
-object Set extends Factory1Ev1[Set, Eq] {
+object Set extends Factory1[Id, Set, Eq] {
 
   // CONSTRUCTORS
 
-  def from[T: Eq](xs: Traversable[T]): Set[T] = AutoSet from xs
-
-  override def empty[T: Eq]: Set[T] = new SetT.Empty[T]
+  def newBuilder[T: Eq] = AutoSet.newBuilder[T]
 
   // TYPECLASSES INSTANCES
 
+  /** Returns a new builder of this collection type. */
   implicit def Eq[T](implicit T: Eq[T]): Eq[Set[T]] = T match {
     case th: Hashing[T] => new SetT.SetHashing[T]()(th)
     case _ => new SetT.SetEq[T]

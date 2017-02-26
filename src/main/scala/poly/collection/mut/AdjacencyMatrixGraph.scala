@@ -14,30 +14,30 @@ import poly.collection.impl.specialized._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-class AdjacencyMatrixGraph[E] private(
+class AdjacencyMatrixGraph[E] private[collection](
   override val numNodes: Int,
-  private val edgeExists: SpArrayTable[Boolean],
   private val edgeData: ValueMutableTable[E]
 ) extends AbstractBidiGraph[Int, E] with ValueMutableGraph[Int, E] {
 
-  def incomingKeySet(j: Int) = keySet filter { edgeExists(_, j) }
-  def outgoingKeySet(i: Int) = keySet filter { edgeExists(i, _) }
+  def incomingKeySet(j: Int) = keySet filter { edgeData(_, j) != null }
+  def outgoingKeySet(i: Int) = keySet filter { edgeData(i, _) != null }
 
   override def keySet = Range(numNodes).asSet
 
-  def ?(i: Int, j: Int) = if (edgeExists(i, j)) Some(edgeData(i, j)) else None
+  def ?(i: Int, j: Int) = Option(edgeData(i, j))
 
-  override def containsArc(i: Int, j: Int) = edgeExists(i, j)
+  override def containsArc(i: Int, j: Int) = edgeData(i, j) != null
 
   def apply(i: Int, j: Int) = edgeData(i, j)
 
-  def update(i: Int, j: Int, e: E) = {
-    edgeExists(i, j) = true
-    edgeData(i, j) = e
-  }
+  def addArc_!(i: Int, j: Int, e: E) = update(i, j, e)
+
+  def removeArc_!(i: Int, j: Int) = edgeData(i, j) = null.asInstanceOf[E]
+
+  def update(i: Int, j: Int, e: E) = edgeData(i, j) = e
 
   def adjacencyMatrix: Table[Option[E]] = Table.tabulate(numNodes, numNodes) { (i, j) =>
-    if (edgeExists(i, j)) Some(edgeData(i, j)) else None
+    Option(edgeData(i, j))
   }
 
 }

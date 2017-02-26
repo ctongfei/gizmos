@@ -4,10 +4,12 @@ import poly.algebra._
 import poly.algebra.syntax._
 import poly.algebra.hkt._
 import poly.algebra.specgroup._
+import poly.collection.evidence._
 import poly.collection.exception._
 import poly.collection.factory._
 import poly.collection.impl._
 import poly.collection.mut._
+
 import scala.language.reflectiveCalls
 
 /**
@@ -201,17 +203,11 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
 
 }
 
-object Map extends Factory2Ev1[Map, Eq] with MapLowPriorityTypeclassInstances {
+object Map extends MapFactory[Map, Eq] with MapLowPriorityTypeclassInstances {
 
   // CONSTRUCTORS
 
-  def from[K: Eq, V](kvs: Traversable[(K, V)]) = AutoMap from kvs
-
-  def empty[K](implicit K: Eq[K]): Map[K, Nothing] = new AbstractMap[K, Nothing] {
-    def apply(k: K) = throw new KeyNotFoundException[K](k)
-    def ?(k: K) = None
-    def keySet = Set.empty(K)
-  }
+  def newBuilder[K : Eq, V: NoneEv] = AutoMap.newBuilder[K, V]
 
   // IMPLICIT CONVERSIONS
   implicit class MapWhoseKeysArePairsOps[K, L, V](val m: Map[(K, L), V]) extends AnyVal {

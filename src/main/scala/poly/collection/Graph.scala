@@ -118,7 +118,7 @@ trait Graph[@sp(Int) K, @sp(Double) +E] extends EqStateSpace[K] with KeyedLike[K
   /** Casts this graph as a multimap that maps a key to the outgoing set of that key. */
   def asMultimap: Multimap[K, K] = new GraphT.AsMultimap(self)
 
-  def to[G[_, _], F >: E](factory: GraphFactory[G]): G[K, F] = {
+  def to[G[_, _], Ev[_], F >: E](factory: GraphFactory[G, Ev])(implicit K: Ev[K]): G[K, F] = {
     val b = factory.newBuilder[K, F]
     b.addKeys(keys)
     b.addArcs(arcs)

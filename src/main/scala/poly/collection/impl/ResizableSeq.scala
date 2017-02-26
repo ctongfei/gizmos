@@ -86,7 +86,7 @@ final class ResizableSeq[T]
 }
 
 object ResizableSeq extends SeqFactory[ResizableSeq] {
-  def newBuilder[T]: Builder[T, ResizableSeq[T]] = new Builder[T, ResizableSeq[T]] {
+  def newSeqBuilder[T]: Builder[T, ResizableSeq[T]] = new Builder[T, ResizableSeq[T]] {
     val a = new ResizableSeq[T]()
     override def sizeHint(n: Int) = a.ensureCapacity(n)
     def add(x: T) = a.append_!(x)

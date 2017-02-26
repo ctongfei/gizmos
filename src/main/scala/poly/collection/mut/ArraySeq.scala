@@ -32,7 +32,7 @@ class ArraySeq[T] private(private[poly] var data: ResizableSeq[T]) extends Abstr
 
 object ArraySeq extends SeqFactory[ArraySeq] {
 
-  implicit def newBuilder[T]: Builder[T, ArraySeq[T]] = new Builder[T, ArraySeq[T]] {
+  def newSeqBuilder[T]: Builder[T, ArraySeq[T]] = new Builder[T, ArraySeq[T]] {
     val a = new ResizableSeq[T]()
     override def sizeHint(n: Int) = a.ensureCapacity(n)
     def add(x: T) = a.append_!(x)

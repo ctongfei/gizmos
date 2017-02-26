@@ -1,6 +1,8 @@
 package poly.collection.mut
 
+import poly.algebra._
 import poly.collection._
+import poly.collection.evidence._
 import poly.collection.factory._
 import poly.collection.immut._
 
@@ -33,8 +35,8 @@ class ListStack[T] private(private var data: List[T]) extends Queue[T] {
 
 }
 
-object ListStack extends BuilderFactory1[ListStack] {
+object ListStack extends SeqFactory[ListStack] {
 
-  implicit def newBuilder[T]: Builder[T, ListStack[T]] = List.newBuilder[T] map { l => new ListStack(l) }
+  def newSeqBuilder[T]: Builder[T, ListStack[T]] = List.newBuilder[T] map { l => new ListStack(l) }
 
 }

@@ -24,7 +24,7 @@ class SortedArraySeq[T] private[poly](private[poly] val data: ResizableSeq[T])(i
 
 }
 
-object SortedArraySeq extends BuilderFactory1Ev1[SortedArraySeq, Order] {
+object SortedArraySeq extends Factory1[Id, SortedArraySeq, Order] {
 
   def newBuilder[T: Order]: Builder[T, SortedArraySeq[T]] = new Builder[T, SortedArraySeq[T]] {
     val ra = new ResizableSeq[T]()

@@ -2,6 +2,7 @@ package poly.collection.mut
 
 import poly.algebra._
 import poly.collection._
+import poly.collection.evidence._
 import poly.collection.factory._
 
 import scala.reflect._
@@ -19,17 +20,17 @@ import scala.reflect._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-object AutoSet extends BuilderFactory1Ev1[KeyMutableSet, Eq] {
+object AutoSet extends Factory1[Id, KeyMutableSet, Eq] {
   implicit def newBuilder[K](implicit K: Eq[K]): Builder[K, KeyMutableSet[K]] = K match {
     case kh: Hashing[K] => HashSet.newBuilder(kh)
     case ko: Order[K]   => RedBlackTreeSet.newBuilder(ko)
     case ke             => ListSet.newBuilder(ke)
   }
 
-  object Dense extends BuilderFactory1Ev11[KeyMutableSet, Eq, ClassTag] {
-    implicit def newBuilder[K](implicit K: Eq[K], ct: ClassTag[K]): Builder[K, KeyMutableSet[K]] = (K, ct) match {
-      case (std.IntStructure, ClassTag.Int) => BitSet.newBuilder(evInt[K]).asInstanceOf[Builder[K, KeyMutableSet[K]]] // the cast is safe: K =:= Int
-      case _                                => AutoSet.newBuilder(K)
+  object Dense extends Factory1[Id, KeyMutableSet, ({type λ[K] = Ev2[Eq, ClassTag, K]})#λ] {
+    implicit def newBuilder[K](implicit ev: Ev2[Eq, ClassTag, K]): Builder[K, KeyMutableSet[K]] = ev match {
+      case Product2(std.IntStructure, ClassTag.Int) => BitSet.newBuilder(evInt[K]).asInstanceOf[Builder[K, KeyMutableSet[K]]] // the cast is safe: K =:= Int
+      case _                                        => AutoSet.newBuilder(ev._1)
     }
   }
 }

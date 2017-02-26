@@ -62,7 +62,7 @@ class BitSet private(private final val data: BitResizableArray)
 
 }
 
-object BitSet extends BuilderFactory1Ev1[({type λ[α] = BitSet})#λ, IsInt] { // SI-2712: Partial type lambda unification
+object BitSet extends Factory1[Id, ({type λ[α] = BitSet})#λ, IsInt] { // SI-2712: Partial type lambda unification
 
   implicit def newBuilder[T: IsInt]: RemovableBuilder[T, BitSet] = new RemovableBuilder[Int, BitSet] {
     private[this] val ba = new BitResizableArray(new Array[Long](Settings.ArrayInitialSize))

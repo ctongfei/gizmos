@@ -10,6 +10,8 @@ object IndexedSeqTest extends App {
 
   val aa = ArraySeq(1, 2, 3, 4, 5).asBiSeq
 
+  val map = aa.map(x => (x, x)) to HashMap
+
   val m = aa.repeat(4).groupBy(_ % 4)
   
 

@@ -7,7 +7,7 @@ import poly.collection.factory._
 /**
  * @author Tongfei Chen
  */
-object AutoMultimap extends BuilderFactory2Ev12[KeyMutableMultimap, Eq, Eq] {
+object AutoMultimap extends Factory2[Tuple2, KeyMutableMultimap, Eq, Eq] {
 
   def newBuilder[A: Eq, B: Eq] = new Builder[(A, B), KeyMutableMultimap[A, B]] {
 

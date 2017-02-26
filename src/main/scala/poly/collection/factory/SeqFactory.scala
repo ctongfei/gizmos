@@ -1,7 +1,10 @@
 package poly.collection.factory
 
+import poly.algebra._
 import poly.collection._
 import poly.collection.conversion.FromScala._
+import poly.collection.evidence._
+
 import scala.language.higherKinds
 
 /**
@@ -9,10 +12,11 @@ import scala.language.higherKinds
   * This trait should be inherited by companion objects of sequence implementation classes.
   * @author Tongfei Chen
  */
-trait SeqFactory[+C[_]] extends BuilderFactory1[C] {
+trait SeqFactory[+C[_]] extends Factory1[Id, C, NoneEv] {
 
-  /** Returns a new builder of this collection type. */
-  def newBuilder[T]: Builder[T, C[T]]
+  def newBuilder[T : NoneEv] = newSeqBuilder[T]
+
+  def newSeqBuilder[T]: Builder[T, C[T]]
 
   def withSizeHint[T](n: Int): C[T] = {
     val b = newBuilder[T]
@@ -21,7 +25,7 @@ trait SeqFactory[+C[_]] extends BuilderFactory1[C] {
   }
 
   /** Creates a collection by adding the non-null arguments into it. */
-  def applyNotNull[T](xs: T*): C[T] = {
+  def applyNonNull[T](xs: T*): C[T] = {
     val b = newBuilder[T]
     for (x <- xs if x != null) b add x
     b.result

@@ -17,5 +17,5 @@ class ImStack[T] private(val elements: List[T]) {
 }
 
 object ImStack extends SeqFactory[ImStack] {
-  implicit def newBuilder[T] = List.newBuilder[T] map { l => new ImStack(l) }
+  def newSeqBuilder[T] = List.newBuilder[T] map { l => new ImStack(l) }
 }

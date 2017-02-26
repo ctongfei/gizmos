@@ -7,7 +7,7 @@ package poly.collection
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait GraphBuilder[-K, -E, +G] {
+trait GraphBuilder[-K, -E, +G] extends Builder[(K, K, E), G] {
 
   /**
    * Provides a hint to this builder about how many vertices are expected to be added.
@@ -20,6 +20,8 @@ trait GraphBuilder[-K, -E, +G] {
   def addKey(i: K): Unit
 
   def addArc(i: K, j: K, e: E): Unit
+
+  def add(x: (K, K, E)) = addArc(x._1, x._2, x._3)
 
   def addKeys(ks: Traversable[K]) = {
     if (ks.sizeKnown)
