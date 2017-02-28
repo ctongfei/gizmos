@@ -3,6 +3,7 @@ package poly.collection.mut
 import poly.algebra._
 import poly.collection._
 import poly.collection.conversion.FromScala._
+import poly.collection.evidence._
 import poly.collection.factory._
 import poly.collection.impl._
 
@@ -13,6 +14,8 @@ import poly.collection.impl._
  */
 class BitSet private(private final val data: BitResizableArray)
   extends AbstractSortedSet[Int] with KeyMutableSet[Int] { self =>
+
+  //TODO: min and max could be optimized
 
   implicit def keyOrder = std.IntStructure
 
@@ -62,9 +65,9 @@ class BitSet private(private final val data: BitResizableArray)
 
 }
 
-object BitSet extends Factory1[Id, ({type λ[α] = BitSet})#λ, IsInt] { // SI-2712: Partial type lambda unification
+object BitSet extends SetFactory[({type λ[α] = BitSet})#λ, IsInt] { // SI-2712: Partial type lambda unification
 
-  implicit def newBuilder[T: IsInt]: RemovableBuilder[T, BitSet] = new RemovableBuilder[Int, BitSet] {
+  implicit def newSetBuilder[T: IsInt]: RemovableBuilder[T, BitSet] = new RemovableBuilder[Int, BitSet] {
     private[this] val ba = new BitResizableArray(new Array[Long](Settings.ArrayInitialSize))
     override def sizeHint(n: Int) = ba.ensureCapacity(n >> BitResizableArray.LongBits)
     def add(x: Int) = ba(x) = true

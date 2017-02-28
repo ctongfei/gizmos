@@ -21,6 +21,8 @@ object GraphTest extends App {
 
   val g2 = g to AdjacencyListUndirectedGraph
 
+  val g3 = AdjacencyMatrixGraph.from(g.keys, g.arcs)
+
   g.breadthFirstTraversal(1) foreach println
 
   println(g)

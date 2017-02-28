@@ -84,7 +84,7 @@ object LinkedHashMap extends MapFactory[LinkedHashMap, Hashing] {
     def isDummy = false
   }
 
-  def newBuilder[K: Hashing, V: NoneEv]: Builder[(K, V), LinkedHashMap[K, V]] = new Builder[(K, V), LinkedHashMap[K, V]] {
+  def newMapBuilder[K: Hashing, V]: Builder[(K, V), LinkedHashMap[K, V]] = new Builder[(K, V), LinkedHashMap[K, V]] {
     private[this] val m = new LinkedHashMap[K, V](new OpenHashTable[K, Entry[K, V]])
     def add(x: (K, V)) = m.add_!(x)
     def result = m

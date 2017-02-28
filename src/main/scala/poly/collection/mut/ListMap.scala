@@ -95,7 +95,7 @@ object ListMap extends MapFactory[ListMap, Eq] {
     var next: Node[K, V] = _
   }
 
-  implicit def newBuilder[K: Eq, V: NoneEv]: Builder[(K, V), ListMap[K, V]] = new Builder[(K, V), ListMap[K, V]] {
+  def newMapBuilder[K: Eq, V]: Builder[(K, V), ListMap[K, V]] = new Builder[(K, V), ListMap[K, V]] {
     private[this] val r = new ListMap[K, V](new SinglyLinkedList[K, Node[K, V]])
     def result = r
     def add(x: (K, V)) = r add_! x

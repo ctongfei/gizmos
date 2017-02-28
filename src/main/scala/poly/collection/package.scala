@@ -11,13 +11,6 @@ package object collection extends ImplicitOperators {
 
   type <=>[A, B] = Bijection[A, B]
 
-  /** Expresses a type constraint that witnesses a type is `Int`. */
-  type IsInt[A] = A =:= Int
-
-  private[poly] val singletonIsIntEv = =:=.tpEquals[Any]
-  /** Forcibly prove that type K is `Int`. Use with caution. */
-  private[poly] def evInt[K] = singletonIsIntEv.asInstanceOf[K =:= Int]
-
   /** Returns the first element of two elements. */
   //@inline def first[@sp(di) α, @sp(di) β](a: α, b: β) = a
 
@@ -49,6 +42,12 @@ package object collection extends ImplicitOperators {
     c |= c >>> 8
     c |= c >>> 16
     c + 1
+  }
+
+  private[poly] def nextHalfPowerOfTwo(x: Int): Int = {
+    val p = nextPowerOfTwo(x)
+    val q = p / 2
+    if (q > x) q else p
   }
 
   /**

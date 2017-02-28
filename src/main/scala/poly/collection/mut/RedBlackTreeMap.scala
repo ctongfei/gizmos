@@ -47,7 +47,7 @@ class RedBlackTreeMap[K, V] private(private val data: java.util.TreeMap[K, V])
 
 object RedBlackTreeMap extends MapFactory[RedBlackTreeMap, Order] {
 
-  implicit def newBuilder[K, V](implicit K: Order[K], V: DummyImplicit): Builder[(K, V), RedBlackTreeMap[K, V]] =
+  def newMapBuilder[K, V](implicit K: Order[K]): Builder[(K, V), RedBlackTreeMap[K, V]] =
     new Builder[(K, V), RedBlackTreeMap[K, V]] {
       private[this] val data = new java.util.TreeMap[K, V](new java.util.Comparator[K] {
         def compare(a: K, b: K) = K.cmp(a, b)

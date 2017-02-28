@@ -31,9 +31,9 @@ class RedBlackTreeSet[K] private(private val data: java.util.TreeSet[K])
 
 }
 
-object RedBlackTreeSet extends Factory1[Id, RedBlackTreeSet, Order] {
+object RedBlackTreeSet extends SetFactory[RedBlackTreeSet, Order] {
 
-  implicit def newBuilder[K](implicit K: Order[K]): Builder[K, RedBlackTreeSet[K]] =
+  def newSetBuilder[K](implicit K: Order[K]): Builder[K, RedBlackTreeSet[K]] =
     new Builder[K, RedBlackTreeSet[K]] {
       private[this] val data = new java.util.TreeSet[K](new java.util.Comparator[K] {
         def compare(a: K, b: K) = K.cmp(a, b)

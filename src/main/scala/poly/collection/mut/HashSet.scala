@@ -30,11 +30,11 @@ class HashSet[T: Hashing] private(val data: OpenHashTable[T, HashSet.Entry[T]]) 
   override def size = data.size
 }
 
-object HashSet extends Factory1[Id, HashSet, Hashing] {
+object HashSet extends SetFactory[HashSet, Hashing] {
 
   private[poly] class Entry[K](val key: K) extends OpenHashEntryLike[K, Entry[K]]
 
-  implicit def newBuilder[T: Hashing]: Builder[T, HashSet[T]] = new Builder[T, HashSet[T]] {
+  def newSetBuilder[T: Hashing]: Builder[T, HashSet[T]] = new Builder[T, HashSet[T]] {
     private[this] val ht = new OpenHashTable[T, Entry[T]]()
     private[this] val s = new HashSet[T](ht)
     def add(x: T) = s.add_!(x)

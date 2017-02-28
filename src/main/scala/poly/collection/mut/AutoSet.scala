@@ -20,17 +20,17 @@ import scala.reflect._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-object AutoSet extends Factory1[Id, KeyMutableSet, Eq] {
-  implicit def newBuilder[K](implicit K: Eq[K]): Builder[K, KeyMutableSet[K]] = K match {
+object AutoSet extends SetFactory[KeyMutableSet, Eq] {
+  implicit def newSetBuilder[K](implicit K: Eq[K]): Builder[K, KeyMutableSet[K]] = K match {
     case kh: Hashing[K] => HashSet.newBuilder(kh)
     case ko: Order[K]   => RedBlackTreeSet.newBuilder(ko)
     case ke             => ListSet.newBuilder(ke)
   }
 
-  object Dense extends Factory1[Id, KeyMutableSet, ({type λ[K] = Ev2[Eq, ClassTag, K]})#λ] {
-    implicit def newBuilder[K](implicit ev: Ev2[Eq, ClassTag, K]): Builder[K, KeyMutableSet[K]] = ev match {
-      case Product2(std.IntStructure, ClassTag.Int) => BitSet.newBuilder(evInt[K]).asInstanceOf[Builder[K, KeyMutableSet[K]]] // the cast is safe: K =:= Int
-      case _                                        => AutoSet.newBuilder(ev._1)
+  object Dense extends SetFactory[KeyMutableSet, (Eq & ClassTag)#λ] {
+    implicit def newSetBuilder[K](implicit ev: Ev2[Eq, ClassTag, K]): Builder[K, KeyMutableSet[K]] = ev match {
+      case Product2(std.IntStructure, ClassTag.Int) => BitSet.newSetBuilder(evInt[K]).asInstanceOf[Builder[K, KeyMutableSet[K]]] // the cast is safe: K =:= Int
+      case _                                        => AutoSet.newSetBuilder(ev._1)
     }
   }
 }

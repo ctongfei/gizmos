@@ -578,8 +578,11 @@ trait Traversable[+T] { self =>
   /**
    * Converts this traversable collection to any collection type.
    * @param factory Grounded factory (may require evidences)
+   * @example {{{
+   *   Seq(1, 2, 4, 8).to[BitSet]
+   * }}}
    */
-  def to[R](implicit factory: GroundedFactory[T, R]) = factory from self
+  def to[R](implicit factory: Factory0[T, R]) = factory from self
 
   /**
    * Converts this traversable collection to any collection type given a factory that requires an additional evidence.

@@ -24,6 +24,6 @@ class SortedArraySet[T] private(private val data: SortedArraySeq[T]) extends Sor
   def clear_!() = data.data.clear_!()
 }
 
-object SortedArraySet extends Factory1[Id, SortedArraySet, Order] {
-  implicit def newBuilder[T: Order] = SortedArraySeq.newBuilder.map(r => new SortedArraySet(r))
+object SortedArraySet extends SetFactory[SortedArraySet, Order] {
+  def newSetBuilder[T: Order] = SortedArraySeq.newBuilder.map(r => new SortedArraySet(r))
 }

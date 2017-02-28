@@ -4,12 +4,11 @@ import poly.algebra._
 import poly.algebra.syntax._
 import poly.algebra.hkt._
 import poly.algebra.specgroup._
-import poly.collection.evidence._
 import poly.collection.exception._
 import poly.collection.factory._
 import poly.collection.impl._
 import poly.collection.mut._
-
+import scala.language.higherKinds
 import scala.language.reflectiveCalls
 
 /**
@@ -191,6 +190,9 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
   def ⟖[W](that: Map[K, W]) = self rightOuterJoin that
   def ⟗[W](that: Map[K, W]) = self fullOuterJoin that
 
+  def to[M[_, _], EvK[_], EvV[_], W >: V](factory: Factory2[Tuple2, M, EvK, EvV])(implicit K: EvK[K], W: EvV[W]): M[K, W] = factory from pairs
+
+
   // OVERRIDING JAVA METHODS
   override def toString = "{" + pairs.map { case (k, v) => s"$k -> $v" }.buildString(", ") + "}"
 
@@ -207,7 +209,7 @@ object Map extends MapFactory[Map, Eq] with MapLowPriorityTypeclassInstances {
 
   // CONSTRUCTORS
 
-  def newBuilder[K : Eq, V: NoneEv] = AutoMap.newBuilder[K, V]
+  def newMapBuilder[K : Eq, V] = AutoMap.newBuilder[K, V]
 
   // IMPLICIT CONVERSIONS
   implicit class MapWhoseKeysArePairsOps[K, L, V](val m: Map[(K, L), V]) extends AnyVal {

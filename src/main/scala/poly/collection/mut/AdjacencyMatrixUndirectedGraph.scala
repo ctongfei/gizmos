@@ -1,11 +1,12 @@
 package poly.collection.mut
 
 import poly.collection._
+import poly.collection.impl._
 /**
  * @author Tongfei Chen
  */
-class AdjacencyMatrixUndirectedGraph[E] private(numNodes: Int, edgeData: ValueMutableTable[E])
-  extends AdjacencyMatrixGraph(numNodes, edgeData) with ValueMutableGraph[Int, E] with UndirectedGraph[Int, E]
+class AdjacencyMatrixUndirectedGraph[E] private(keySet: BitSet, edgeData: ResizableTable[E])
+  extends AdjacencyMatrixGraph(keySet, edgeData) with ValueMutableGraph[Int, E] with UndirectedGraph[Int, E]
 {
 
   override def containsArc(i: Int, j: Int) = super[AdjacencyMatrixGraph].containsArc(i, j)

@@ -50,7 +50,7 @@ object HashMap extends MapFactory[HashMap, Hashing] {
 
   private[poly] class Entry[K, V](val key: K, var value: V) extends OpenHashEntryLike[K, Entry[K, V]]
 
-  implicit def newBuilder[K: Hashing, V: NoneEv]: Builder[(K, V), HashMap[K, V]] = new Builder[(K, V), HashMap[K, V]] {
+  implicit def newMapBuilder[K: Hashing, V]: Builder[(K, V), HashMap[K, V]] = new Builder[(K, V), HashMap[K, V]] {
     private[this] val ht = new OpenHashTable[K, Entry[K, V]]()
     private[this] val m = new HashMap(ht)
     override def sizeHint(n: Int) = ht.grow(n)

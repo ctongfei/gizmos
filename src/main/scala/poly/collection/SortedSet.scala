@@ -42,7 +42,7 @@ trait SortedSet[@sp(Int) T] extends Set[T] { self =>
 
 }
 
-abstract class AbstractSortedSet[T] extends AbstractSet[T] with SortedSet[T]
+abstract class AbstractSortedSet[@sp(Int) T] extends AbstractSet[T] with SortedSet[T]
 
 private[poly] object SortedSetT {
 

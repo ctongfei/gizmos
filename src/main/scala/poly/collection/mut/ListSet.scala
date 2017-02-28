@@ -45,9 +45,9 @@ class ListSet[T] private(private val data: ListSeq[T])(implicit val keyEq: Eq[T]
   def keys: Seq[T] = data
 }
 
-object ListSet extends Factory1[Id, ListSet, Eq] {
+object ListSet extends SetFactory[ListSet, Eq] {
 
-  implicit def newBuilder[K: Eq]: Builder[K, ListSet[K]] = new Builder[K, ListSet[K]] {
+  def newSetBuilder[K: Eq]: Builder[K, ListSet[K]] = new Builder[K, ListSet[K]] {
     private[this] val s = new ListSet(ListSeq[K]())
     def add(x: K) = s add_! x
     def result = s
