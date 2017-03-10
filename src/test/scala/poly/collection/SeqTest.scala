@@ -1,11 +1,15 @@
 package poly.collection
 
 import poly.algebra.syntax._
+import poly.collection.conversion.ImplicitlyFromJava._
 import poly.collection.mut._
 /**
   * @author Tongfei Chen (ctongfei@gmail.com).
   */
 object SeqTest extends App {
+
+  val ar = ArraySeq("bob", "emily", "jack")
+  val br = ar.flatMap((s: String) => ArraySeq(s.toCharArray: _*))
 
   for (i ← Range(4)) println(i)
 

@@ -90,7 +90,7 @@ trait Seq[+T] extends Iterable[T] with PartialFunction[Int, T] { self =>
           new FlatMappedSeqNode(outer, innerNext) // advances the inner node
         else {
           var newOuter = outer.next
-          var newInner = f(newOuter.data).headNode
+          var newInner = if (newOuter.isDummy) SeqNode.dummy else f(newOuter.data).headNode
           while (newOuter.notDummy) {
             if (newInner.notDummy) return new FlatMappedSeqNode(newOuter, newInner)
             newOuter = newOuter.next
