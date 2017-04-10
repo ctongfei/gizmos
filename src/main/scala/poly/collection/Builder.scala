@@ -31,7 +31,7 @@ trait Builder[@sp(Int, Byte, Char) -T, +R] { self =>
     * Adds all elements provided to this builder.
     * @param xs The elements to be added
     */
-  def addAll(xs: Traversable[T]) = xs foreach add
+  @unsp def addAll(xs: Traversable[T]) = xs foreach add
 
   /**
    * Returns the structure built from this builder.
@@ -41,21 +41,32 @@ trait Builder[@sp(Int, Byte, Char) -T, +R] { self =>
    */
   def result(): R
 
+  /**
+   * Adds a single element to this builder.
+   */
   @inline final def <<(x: T): this.type = { add(x); this }
 
-  @inline final def <<<(xs: Traversable[T]): this.type = { addAll(xs); this }
+  /**
+   * Adds a traversable of elements to this builder.
+   */
+  @unsp @inline final def <<<(xs: Traversable[T]): this.type = { addAll(xs); this }
+
+  /**
+   * Adds a traversable of elements to this builder and the closes it, returning the built value.
+   */
+  @unsp @inline final def <<<!(xs: Traversable[T]): R = (this <<< xs).result()
 
   /**
    * Returns a new builder which wraps around this builder. The difference
    * is that the result is mapped by the specified function.
    */
-  def map[S](f: R => S): Builder[T, S] = new BuilderT.Mapped(self, f)
+  @unsp def map[S](f: R => S): Builder[T, S] = new BuilderT.Mapped(self, f)
 
   /**
    * Returns a new builder in which every element added will be transformed
    * by the given function.
    */
-  def contramap[S](f: S => T): Builder[S, R] = new BuilderT.Contramapped(self, f)
+  @unsp def contramap[S](f: S => T): Builder[S, R] = new BuilderT.Contramapped(self, f)
 
 }
 

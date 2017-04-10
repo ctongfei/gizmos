@@ -7,7 +7,7 @@ import poly.collection.mut._
 
 import scala.language.implicitConversions
 
-package object collection extends ImplicitOperators {
+package object collection extends ImplicitOps {
 
   type <=>[A, B] = Bijection[A, B]
 

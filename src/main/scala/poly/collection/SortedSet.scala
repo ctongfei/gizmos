@@ -31,14 +31,12 @@ trait SortedSet[@sp(Int) T] extends Set[T] { self =>
   /** Returns the maximum element of this sorted set under the inherent order of this sorted set. */
   def max = keys.last
 
+  /** Returns the minimum and the maximum element of this sorted set under the inherent order of this sorted set. */
+  def minAndMax = (min, max)
+
   //TODO: subsetBetween, subsetUpTo, subsetFrom?
 
-  override def createMap[V](f: T => V): KeySortedMap[T, V] = new AbstractKeySortedMap[T, V] {
-    def apply(k: T) = f(k)
-    def ?(k: T) = if (self contains k) Some(f(k)) else None
-    override def size = self.size
-    def keySet = self.keySet
-  }
+  override def createMap[V](f: T => V): KeySortedMap[T, V] = new SortedSetT.MapByFunc(self, f)
 
 }
 
@@ -52,4 +50,7 @@ private[poly] object SortedSetT {
     def keys = self.keys filter f
   }
 
+  class MapByFunc[T, V](self: SortedSet[T], f: T => V) extends SetT.MapByFunc[T, V](self, f) with KeySortedMap[T, V] {
+    override def keySet = self.keySet
+  }
 }

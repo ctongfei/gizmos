@@ -39,8 +39,6 @@ trait Bijection[@sp(Int, AnyRef) X, @sp(Int, AnyRef) Y] extends Func[X, Y] { sel
 
 object Bijection {
 
-  type <=>[X, Y] = Bijection[X, Y]
-
   def apply[X, Y](f1: X => Y, f2: Y => X): X <=> Y = new AbstractBijection[X, Y] {
     def invert(y: Y) = f2(y)
     def apply(x: X): Y = f1(x)

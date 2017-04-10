@@ -44,7 +44,7 @@ class DenseIntKeyedMap[T] private(
 
 }
 
-object DenseIntKeyedMap extends MapFactory[({type λ[α, β] = DenseIntKeyedMap[β]})#λ, IsInt] {
+object DenseIntKeyedMap extends MapFactory[({type λ[K, V] = DenseIntKeyedMap[V]})#λ, IsInt] {
 
   def newMapBuilder[K: IsInt, V]: Builder[(K, V), DenseIntKeyedMap[V]] = new Builder[(Int, V), DenseIntKeyedMap[V]] {
     private[this] val data = new ResizableArray[V]()

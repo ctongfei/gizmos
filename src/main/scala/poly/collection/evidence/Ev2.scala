@@ -2,7 +2,9 @@ package poly.collection.evidence
 
 import scala.language.higherKinds
 
-
+/**
+ * Combines two evidences into one.
+ */
 class Ev2[E1[_], E2[_], T](val _1: E1[T], val _2: E2[T]) extends Product2[E1[T], E2[T]] {
   def canEqual(that: Any) = false
 }

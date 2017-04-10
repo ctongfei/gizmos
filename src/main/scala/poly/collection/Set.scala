@@ -195,7 +195,7 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
    * Casts this set as a multiset in which each element appears exactly once.
    * @tparam R Type of the counts of elements in the multiset, can be `Int`, `Double`, etc.
    */
-  def asMultiset[R: OrderedRing]: WeightedSet[T, R] = new SetT.AsWeightedSet(self)
+  def asWeightedSet[R: OrderedRing]: WeightedSet[T, R] = new SetT.AsWeightedSet(self)
 
   //Symbolic aliases
   def &(that: Set[T]) = this intersect that

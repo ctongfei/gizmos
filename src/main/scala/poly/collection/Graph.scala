@@ -150,7 +150,7 @@ object Graph {
   }
 
   implicit class AsWeightedStateSpace[K, E: OrderedAdditiveGroup](g: Graph[K, E]) extends WeightedStateSpace[K, E] {
-    def groupOnCost = OrderedAdditiveGroup[E]
+    def costGroup = OrderedAdditiveGroup[E]
     def succWithCost(x: K) = g.outgoingMap(x).pairs
     def keyEq = g.keyEq
   }

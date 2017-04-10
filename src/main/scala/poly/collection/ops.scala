@@ -10,7 +10,7 @@ import scala.language.implicitConversions
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait ImplicitOperators {
+trait ImplicitOps {
 
   implicit final class OptionWithMonadOps[T](val a: Option[T]) {
 

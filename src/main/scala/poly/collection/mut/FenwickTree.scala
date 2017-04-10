@@ -13,8 +13,8 @@ import poly.collection.impl._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-class FenwickTree[T] private(private val data: ResizableSeq[T])
-  (implicit val elementGroup: AdditiveGroup[T]) extends AbstractIndexedSeq[T] with ValueMutableIndexedSeq[T] {
+class FenwickTree[T] private(private val data: ResizableSeq[T])(implicit val additiveGroup: AdditiveGroup[T])
+  extends AbstractIndexedSeq[T] with ValueMutableIndexedSeq[T] with RangeSumQueryable[T] {
 
   import FenwickTree._
 
@@ -33,7 +33,7 @@ class FenwickTree[T] private(private val data: ResizableSeq[T])
   }
 
   /** Returns the sum of the first ''n'' elements of this list. $Ologn */
-  def cumulativeSum(n: Int) = {
+  def prefixSum(n: Int) = {
     var i = n
     var sum = zero[T]
     while (i != 0) {
@@ -44,7 +44,7 @@ class FenwickTree[T] private(private val data: ResizableSeq[T])
   }
 
   /** Returns the sum of the elements in the slice [''i'', ''j''). $Ologn */
-  def rangeSum(i: Int, j: Int) = cumulativeSum(j) - cumulativeSum(i)
+  def rangeSum(i: Int, j: Int) = prefixSum(j) - prefixSum(i)
 
   /** Increments the ''i''-th element by ''δ''. */
   def increment(i: Int, δ: T) = {
@@ -57,9 +57,7 @@ class FenwickTree[T] private(private val data: ResizableSeq[T])
 
   def update(idx: Int, value: T) = increment(idx, value - this(idx))
 
-  def sum = cumulativeSum(length)
-
-  def prefixSums = Range(length + 1) map cumulativeSum
+  def sum = prefixSum(length)
 
 }
 
