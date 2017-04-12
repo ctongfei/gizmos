@@ -30,7 +30,7 @@ class LRUCache[K: Hashing, +R] private(f: K => R, n: Int) extends CachedFunction
       if (c.size >= n)
         c.remove_!(c.dummy.next.key) // evict the LRU (least recently used) element
       val b = f(a) // heavyweight computation
-      c.add_!(a, b)
+      c.add_!(a, b) // caches the computation result
       b
     }
   }
