@@ -5,14 +5,15 @@ import poly.algebra.specgroup._
 import scala.language.higherKinds
 
 /**
-  * Represents builders, which are objects that allow incremental construction
-  * of other structures (e.g. collections, models, files).
-  *
-  * It can be considered as a sink that drains streams of data.
-  *
-  * @author Tongfei Chen
-  * @since 0.1.0
-  */
+ * Represents builders, which are objects that allow incremental construction
+ * of other structures (e.g. collections, models, files).
+ *
+ * It can be considered as a sink that drains streams of data, and acts as a
+ * categorical dual of [[Iterator]]s.
+ *
+ * @author Tongfei Chen
+ * @since 0.1.0
+ */
 trait Builder[@sp(Int, Byte, Char) -T, +R] { self =>
 
   /**

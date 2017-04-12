@@ -22,7 +22,7 @@ trait Factory0[-T, +R] {
   def empty: R = newBuilder.result()
 
   /** Creates a collection by adding the arguments into it. */
-  def apply(xs: T*) = from(xs)
+  def apply(xs: T*) = from(xs.asPoly)
 
   /** Creates a collection by adding all the elements in the specific traversable sequence. */
   def from(xs: Traversable[T]) = {

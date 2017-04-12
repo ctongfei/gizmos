@@ -5,7 +5,7 @@ import poly.collection._
 import poly.collection.mut._
 
 /**
- * Utility for memoizing a recursive function.
+ * Memoized wrapper of a function.
  * @since 0.1.0
  * @author Tongfei Chen
  */
@@ -38,5 +38,7 @@ object Memoized {
    * as the hashing function for the memo.
    */
   def byDefaultHashing[K, R](f: K => R) = new Memoized(f)(Hashing.default[K])
+
+  def byRefHashing[K <: AnyRef, R](f: K => R) = new Memoized(f)(Hashing.byRef[K])
 
 }

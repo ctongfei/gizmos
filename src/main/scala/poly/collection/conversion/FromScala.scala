@@ -1,112 +1,49 @@
 package poly.collection.conversion
 
-import poly.algebra._
-import poly.algebra.conversion.ImplicitlyFromScala._
-import poly.collection._
-import poly.collection.mut._
-import poly.collection.node._
 import scala.{collection => sc}
 import scala.collection.{mutable => scm}
-import scala.language.implicitConversions
-
 /**
- * Provides implicit conversions of [[scala.collection]] structures to Poly-collection ones.
  * @author Tongfei Chen
- * @since 0.1.0
  */
 object FromScala {
 
-  implicit class scalaTraversableAsPoly[T](xs: sc.Traversable[T]) extends AbstractTraversable[T] {
-    def foreach[U](f: T => U) = xs foreach f
+  implicit class scalaTraversableAsPoly[T](val xs: sc.Traversable[T]) extends AnyVal {
+    def asPoly = new ScalaTraversableAsPoly(xs)
   }
-
-  implicit class scalaIteratorAsPoly[T](xs: sc.Iterator[T]) extends Iterator[T] {
-    var current: T = default[T]
-    def advance() = {
-      if (xs.hasNext) {
-        current = xs.next()
-        true
-      }
-      else false
-    }
+  implicit class scalaIteratorAsPoly[T](val xs: sc.Iterator[T]) extends AnyVal {
+    def asPoly = new ScalaIteratorAsPoly(xs)
   }
-
-  implicit class scalaIterableAsPoly[T](xs: sc.Iterable[T]) extends AbstractIterable[T] {
-    def newIterator = xs.iterator
+  implicit class scalaIterableAsPoly[T](val xs: sc.Iterable[T]) extends AnyVal {
+    def asPoly = new ScalaIterableAsPoly(xs)
   }
-
-  implicit class scalaLinearSeqAsPoly[T](xs: sc.LinearSeq[T]) extends AbstractSeq[T] {
-    class WrappedNode(val s: sc.LinearSeq[T], override val isDummy: Boolean = false) extends SeqNode[T] {
-      def data = s.head
-      def next = {
-        val t = s.tail
-        new WrappedNode(t, t.isEmpty)
-      }
-    }
-    override def newIterator = xs.iterator
-    def headNode = new WrappedNode(xs, xs.isEmpty)
-    override def apply(i: Int) = xs(i)
-    override def length = xs.length
+  implicit class scalaLinearSeqAsPoly[T](val xs: sc.LinearSeq[T]) extends AnyVal {
+    def asPoly = new ScalaLinearSeqAsPoly(xs)
   }
-
-  implicit class scalaIndexedSeqAsPoly[T](xs: sc.IndexedSeq[T]) extends AbstractIndexedSeq[T] {
-    def fastApply(i: Int) = xs.apply(i)
-    def fastLength = xs.length
+  implicit class scalaIndexedSeqAsPoly[T](val xs: sc.IndexedSeq[T]) extends AnyVal {
+    def asPoly = new ScalaIndexedSeqAsPoly(xs)
   }
-
-  implicit class scalaSetAsPoly[T](sset: sc.Set[T]) extends AbstractSet[T] {
-    def keyEq = Eq.default[T]
-    def keys = sset
-    def contains(x: T) = sset contains x
+  implicit class scalaSetAsPoly[T](val xs: sc.Set[T]) extends AnyVal {
+    def asPoly = new ScalaSetAsPoly(xs)
   }
-
-  implicit class scalaMapAsPoly[K, V](smap: sc.Map[K, V]) extends AbstractMap[K, V] {
-    def keySet = smap.keySet
-    override def pairs = scalaIterableAsPoly(smap)
-    def apply(k: K) = smap(k)
-    def ?(k: K) = smap get k
+  implicit class scalaSortedSetAsPoly[T](val xs: sc.SortedSet[T]) extends AnyVal {
+    def asPoly = new ScalaSortedSetAsPoly(xs)
   }
-
-  implicit class scalaSortedSetAsPoly[K](sset: sc.SortedSet[K]) extends AbstractSortedSet[K] {
-    def keys = scalaIterableAsPoly(sset).asIfSorted(sset.ordering)
-    def keyOrder = sset.ordering
-    def contains(x: K) = sset contains x
+  implicit class scalaMapAsPoly[K, V](val xs: sc.Map[K, V]) extends AnyVal {
+    def asPoly = new ScalaMapAsPoly(xs)
   }
-
-  implicit class scalaSortedMapAsPoly[K, V](smap: sc.SortedMap[K, V]) extends AbstractMap[K, V] with KeySortedMap[K, V] {
-    def keySet = smap.keySet
-    override def pairs = scalaIterableAsPoly(smap).asIfSorted(smap.ordering contramap first)
-    def apply(k: K) = smap(k)
-    def ?(k: K) = smap get k
+  implicit class scalaSortedMapAsPoly[K, V](val xs: sc.SortedMap[K, V]) extends AnyVal {
+    def asPoly = new ScalaSortedMapAsPoly(xs)
   }
-
-  implicit class scalaStackAsPoly[T](ss: scm.Stack[T]) extends Queue[T] {
-    def elements = scalaIterableAsPoly(ss)
-    def push(x: T) = ss push x
-    def top = ss.top
-    def pop() = ss.pop()
+  implicit class scalaStackAsPoly[T](val xs: scm.Stack[T]) extends AnyVal {
+    def asPoly = new ScalaStackAsPoly(xs)
   }
-
-  implicit class scalaArrayStackAsPoly[T](sas: scm.ArrayStack[T]) extends Queue[T] {
-    def elements = scalaIterableAsPoly(sas)
-    def push(x: T) = sas push x
-    def top = sas.top
-    def pop() = sas.pop()
+  implicit class scalaArrayStackAsPoly[T](val xs: scm.ArrayStack[T]) extends AnyVal {
+    def asPoly = new ScalaArrayStackAsPoly(xs)
   }
-
-  implicit class scalaQueueAsPoly[T](sq: scm.Queue[T]) extends Queue[T] {
-    def elements = scalaIterableAsPoly(sq)
-    def push(x: T) = sq += x
-    def top = sq.front
-    def pop() = sq.dequeue()
+  implicit class scalaQueueAsPoly[T](val xs: scm.Queue[T]) extends AnyVal {
+    def asPoly = new ScalaQueueAsPoly(xs)
   }
-
-  implicit class scalaPriorityQueueAsPoly[T](spq: scm.PriorityQueue[T]) extends PriorityQueue[T] {
-    def elements = scalaIterableAsPoly(spq)
-    def elementOrder = spq.ord
-    def push(x: T) = spq += x
-    def top = spq.head
-    def pop() = spq.dequeue()
-}
-
+  implicit class scalaPriorityQueueAsPoly[T](val xs: scm.PriorityQueue[T]) extends AnyVal {
+    def asPoly = new ScalaPriorityQueueAsPoly(xs)
+  }
 }

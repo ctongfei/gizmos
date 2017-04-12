@@ -2,7 +2,6 @@ package poly.collection.factory
 
 import poly.algebra._
 import poly.collection._
-import poly.collection.conversion.FromScala._
 import poly.collection.evidence._
 
 import scala.language.higherKinds

@@ -55,7 +55,7 @@ package object collection extends ImplicitOps {
    */
   private[poly] def getArrayFromVarargs[T](xs: scala.Seq[T]): Array[T] = xs match {
     case xs: scala.collection.mutable.WrappedArray[T] => xs.array
-    case _ => scalaIterableAsPoly(xs).to(ArraySeq).data.data.asInstanceOf[Array[T]] // this cast is safe!
+    case _ => xs.asPoly.to(ArraySeq).data.data.asInstanceOf[Array[T]] // this cast is safe!
   }
 
 

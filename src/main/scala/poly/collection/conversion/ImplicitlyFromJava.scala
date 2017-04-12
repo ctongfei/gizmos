@@ -2,10 +2,6 @@ package poly.collection.conversion
 
 import java.{lang => jl, util => ju, io => ji}
 import java.util.{stream => jus}
-import poly.algebra._
-import poly.algebra.conversion.ImplicitlyFromJava._
-import poly.collection._
-import poly.collection.mut._
 import scala.language.implicitConversions
 
 /**
@@ -30,7 +26,7 @@ object ImplicitlyFromJava {
   implicit def javaSetAsPoly[T](xs: ju.Set[T]) = new JavaSetAsPoly(xs)
   implicit def javaSortedSetAsPoly[T](xs: ju.SortedSet[T]) = new JavaSortedSetAsPoly(xs)
   implicit def javaMapAsPoly[K, V](xs: ju.Map[K, V]) = new JavaMapAsPoly(xs)
-
+  implicit def javaSortedMapAsPoly[K, V](xs: ju.SortedMap[K, V]) = new JavaSortedMapAsPoly(xs)
 
   // implicit def javaNavigableSetAsPoly[T](xs: ju.NavigableSet[T]) extends AbstractSortedSet[T] with BidiSortedSet[T] {
 

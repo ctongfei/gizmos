@@ -63,7 +63,7 @@ object DisjointSets {
     def isDummy = false
   }
 
-  def apply[T: Eq](xs: T*) = from(xs)
+  def apply[T: Eq](xs: T*) = from(xs.asPoly)
 
   def from[T: Eq](xs: Traversable[T]): DisjointSets[T] =
     new DisjointSets[T](AutoMap from xs.map(t => t -> new Node()))

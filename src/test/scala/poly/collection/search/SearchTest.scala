@@ -3,7 +3,6 @@ package poly.collection.search
 import poly.algebra.syntax._
 import poly.collection._
 import poly.collection.search.ops._
-import poly.collection.conversion.FromScala._
 
 /**
  * @author Tongfei Chen (ctongfei@gmail.com).

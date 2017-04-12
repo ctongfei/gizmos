@@ -1,7 +1,6 @@
 package poly.collection
 
 import poly.collection.mut._
-import poly.collection.conversion.FromScala._
 import scala.util.control.Breaks._
 
 /**

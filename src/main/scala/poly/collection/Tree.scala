@@ -1,8 +1,8 @@
 package poly.collection
 
 import poly.algebra.hkt._
-import poly.collection.conversion.FromScala._
 import poly.collection.node._
+import poly.collection.conversion.ImplicitlyFromScala._
 
 /**
  * Represents a multi-way tree in which the children of a node are not ordered.

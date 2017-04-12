@@ -32,11 +32,11 @@ object FBinaryTree {
     def isDummy = true
   }
 
-  case class Cons[+T](d: T, l: FBinaryTree[T] = Empty, r: FBinaryTree[T] = Empty) extends FBinaryTree[T] {
+  case class Cons[+T](h: T, l: FBinaryTree[T] = Empty, r: FBinaryTree[T] = Empty) extends FBinaryTree[T] {
     final def isDummy = false
     def leftNode = l
     def rightNode = r
-    def data = d
+    def data = h
   }
 
 }

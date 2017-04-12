@@ -24,7 +24,7 @@ trait Factory1[-E[_], +R[_], Ev[_]] {
   def empty[T: Ev]: R[T] = newBuilder[T].result
 
   /** Creates a collection by adding the arguments into it. */
-  def apply[T: Ev](xs: E[T]*): R[T] = from(xs)
+  def apply[T: Ev](xs: E[T]*): R[T] = from(xs.asPoly)
 
   /** Creates a collection by adding all the elements in the specific traversable sequence. */
   def from[T: Ev](xs: Traversable[E[T]]): R[T] = {
