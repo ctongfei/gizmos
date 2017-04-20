@@ -58,6 +58,11 @@ package object collection extends ImplicitOps {
     case _ => xs.asPoly.to(ArraySeq).data.data.asInstanceOf[Array[T]] // this cast is safe!
   }
 
+  private[poly] def getArrayFromString(s: String): Array[Char] = {
+    val f = classOf[String].getDeclaredField("value")
+    f.setAccessible(true)
+    f.get(s).asInstanceOf[Array[Char]]
+  }
 
   private[poly] implicit class WithModOps(val x: Int) extends AnyVal {
     def %+(mod: Int) = {

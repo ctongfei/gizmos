@@ -6,9 +6,9 @@ scalaVersion := "2.11.8"
 
 crossScalaVersions := Seq("2.11.8", "2.12.1")
 
-resolvers += Resolver.sonatypeRepo("snapshots")
+resolvers += Resolver.sonatypeRepo("releases")
 
-libraryDependencies += "me.tongfei"        %% "poly-algebra"    % "0.4.0-SNAPSHOT"
+libraryDependencies += "me.tongfei"        %% "poly-algebra"    % "0.4.0"
 
 libraryDependencies += "org.scalatest"     %% "scalatest"       % "3.0.0"           % Test
 libraryDependencies += "org.scalacheck"    %% "scalacheck"      % "1.13.4"          % Test

@@ -31,7 +31,7 @@ import scala.annotation.{unspecialized => unsp}
  * @since 0.1.0
  */
 // Specializes the types where a specialized iterator type (including InputStream / Reader) exists in Java 8
-trait Iterator[@sp(Int, Long, Double, Char, Byte) +T] { self =>
+trait Iterator[@sp(Int, Long, Double, Char, Byte, Boolean) +T] { self =>
 
   /** Returns the current element of this iterator. This method should be side-effect free. */
   def current: T
@@ -66,7 +66,7 @@ trait Iterator[@sp(Int, Long, Double, Char, Byte) +T] { self =>
   }
 
   /** Depletes all data from this iterator (source) to the given builder (sink). */
-  def >>>[R](builder: Builder[T, R]) = {
+  def >>>[@sp(Unit) R](builder: Builder[T, R]) = {
     run(builder.add)
   }
 
@@ -90,4 +90,4 @@ object Iterator {
   }
 }
 
-abstract class AbstractIterator[@sp(Int, Long, Double, Char, Byte) +T] extends Iterator[T]
+abstract class AbstractIterator[@sp(Int, Long, Double, Char, Byte, Boolean) +T] extends Iterator[T]

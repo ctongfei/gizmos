@@ -96,7 +96,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
       def advance(): Boolean = {
         while (i.advance()) {
           if (set notContains i.current) {
-            set add_! i.current
+            set += i.current
             return true
           }
         }
@@ -114,7 +114,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
         while (i.advance()) {
           val u = f(i.current)
           if (set notContains u) {
-            set add_! u
+            set += u
             return true
           }
         }
@@ -171,10 +171,10 @@ trait Iterable[+T] extends Traversable[T] { self =>
       def current = if (!last) i.current else u
     }
   }
-  override def tail = {
+  override def tail = ofIterator {
     val tailIterator = self.newIterator
     tailIterator.advance()
-    ofIterator(tailIterator)
+    tailIterator
   }
 
   override def init = ofIterator {
@@ -236,15 +236,30 @@ trait Iterable[+T] extends Traversable[T] { self =>
   }
 
   override def dropWhile(f: T => Boolean) = ofIterator {
-    val skippedIterator = self.newIterator
-    while (skippedIterator.advance() && f(skippedIterator.current)) {}
-    skippedIterator
+    new AbstractIterator[T] {
+      private[this] val outer = self.newIterator
+      private[this] var conditionMet = false
+      def current: T = outer.current
+      def advance(): Boolean = {
+        if (conditionMet) outer.advance()
+        else {
+          while (true) {
+            val r = outer.advance()
+            if (!r) return false
+            if (!f(outer.current)) {
+              conditionMet = true
+              return r
+            }
+          }
+          false
+        }
+      }
+    }
   }
 
   override def dropTo(f: T => Boolean) = ofIterator {
     val skippedIterator = self.newIterator
     while (skippedIterator.advance() && !f(skippedIterator.current)) {}
-    skippedIterator.advance()
     skippedIterator
   }
 
@@ -602,6 +617,7 @@ object Iterable {
     }
   }
 
+
   /** Constructs an infinite iterable stream of the given value. */
   def infinite[T](x: => T) = ofIterator {
     new AbstractIterator[T] {
@@ -616,7 +632,7 @@ object Iterable {
       def current = x
       def advance() = {
         r -= 1
-        r > 0
+        r >= 0
       }
     }
   }

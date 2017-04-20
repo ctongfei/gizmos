@@ -61,39 +61,48 @@ trait ImplicitOps {
      */
     def iterate(f: T => T) = Seq.iterate(x)(f)
 
-    def unfold[A](f: T => (A, Option[T])): Seq[A] = {
+    def unfold[A](f: T => (Option[T], A)): Seq[A] = {
       class UnfoldedNode(val state: Option[T]) extends SeqNode[A] {
         private[this] val m = state map f
-        def data = m.get._1
-        def next = new UnfoldedNode(m.get._2)
+        def data = m.get._2
+        def next = new UnfoldedNode(m.get._1)
         def isDummy = m.isEmpty
       }
       Seq.ofHeadNode(new UnfoldedNode(Some(x)))
     }
 
-    def unfoldInfinitely[A](f: T => (A, T)): Seq[A] = {
+    def unfoldInfinitely[A](f: T => (T, A)): Seq[A] = {
       class InfinitelyUnfoldedNode(val state: T) extends SeqNode[A] {
-        val (data, nextState) = f(state)
+        val (nextState, data) = f(state)
         def next = new InfinitelyUnfoldedNode(nextState)
         def isDummy = false
       }
       Seq.ofHeadNode(new InfinitelyUnfoldedNode(x))
     }
 
-    def unfoldToBinaryTree[A](f: T => (A, Option[T], Option[T])): BinaryTree[A] = {
+    def unfoldUntil[A](f: T => (T, A))(p: T => Boolean): Seq[A] = {
+      class UnfoldedUntilNode(val state: T) extends SeqNode[A] {
+        val (nextState, data) = f(state)
+        def next = new UnfoldedUntilNode(nextState)
+        def isDummy = p(state)
+      }
+      Seq.ofHeadNode(new UnfoldedUntilNode(x))
+    }
+
+    def unfoldToBinaryTree[A](f: T => (Option[T], A, Option[T])): BinaryTree[A] = {
       class UnfoldedNode2(val state: Option[T]) extends BinaryTreeNode[A] {
         private[this] val m = state map f
-        def leftNode = new UnfoldedNode2(m.get._2)
+        def leftNode = new UnfoldedNode2(m.get._1)
         def rightNode = new UnfoldedNode2(m.get._3)
         def isDummy = m.isEmpty
-        def data = m.get._1
+        def data = m.get._2
       }
       BinaryTree.ofRootNode(new UnfoldedNode2(Some(x)))
     }
 
-    def unfoldToBinaryTreeInfinitely[A](f: T => (A, T, T)): BinaryTree[A] = {
+    def unfoldToBinaryTreeInfinitely[A](f: T => (T, A, T)): BinaryTree[A] = {
       class InfinitelyUnfoldedNode2(val state: T) extends BinaryTreeNode[A] {
-        val (data, leftState, rightState) = f(state)
+        val (leftState, data, rightState) = f(state)
         def leftNode = new InfinitelyUnfoldedNode2(leftState)
         def rightNode = new InfinitelyUnfoldedNode2(rightState)
         def isDummy = false

@@ -10,7 +10,7 @@ import poly.collection.node._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait BinaryTree[+T] extends PartialFunction[Int, T] { self =>
+trait BinaryTree[+T] extends BinaryTreeLike[T, BinaryTreeNode[T]] { self =>
 
   import BinaryTree._
 
@@ -20,8 +20,6 @@ trait BinaryTree[+T] extends PartialFunction[Int, T] { self =>
     def rightNode: BinaryTreeNode[T] = rootNode
     def isDummy: Boolean = true
   }
-
-  def rootNode: BinaryTreeNode[T]
 
   /**
    * Returns the left subtree of this binary tree. $LAZY $CX_1
@@ -35,52 +33,6 @@ trait BinaryTree[+T] extends PartialFunction[Int, T] { self =>
    */
   def right: BinaryTree[T] = ofRootNode(rootNode.rightNode)
 
-  def root: T = rootNode.data
-
-  /** Returns the maximal height of this tree. */
-  def height: Int = fold(0) { (l, r, _) => math.max(l, r) + 1 }
-
-  /** Returns the number of nodes in this tree. */
-  def size: Int = rootNode.preOrderTraversal.size
-
-  def isEmpty = rootNode.isDummy
-
-  /**
-   * Returns the ''i''th node of this binary tree.
-   * The ordinal is defined as follows:
-   *  <ul>
-   *    <li> The index of the root node is 0; </li>
-   *    <li> The left child of node ''i'' is 2''i'' + 1; </li>
-   *    <li> The right child of node ''i'' is 2''i'' + 2. </li>
-   * </ul>
-   * @param i Index
-   * @return The ''i''th node with the index defined above
-   */
-  def node(i: Int): BinaryTreeNode[T] = {
-    val x = i + 1
-    var curr = dummy
-    var mask = nextPowerOfTwo(x)
-    if (mask > x) mask >>= 1
-
-    while (mask != 0) {
-      if ((x & mask) == 0)
-           curr = curr.leftNode
-      else curr = curr.rightNode
-      if (curr.isDummy) return dummy
-      mask >>= 1
-    }
-    curr
-  }
-
-  /** Returns the element on the ''i''th node of this binary tree. */
-  def apply(i: Int): T = {
-    val n = node(i)
-    if (n.isDummy) throw new KeyNotFoundException(i)
-    else n.data
-  }
-
-  def isDefinedAt(i: Int): Boolean = !(node(i).isDummy)
-
   // HELPER FUNCTIONS
 
   def map[U](f: T => U): BinaryTree[U] = {
@@ -93,20 +45,6 @@ trait BinaryTree[+T] extends PartialFunction[Int, T] { self =>
     ofRootNode(new MappedNode(self.rootNode))
   }
 
-  /** Folds a binary tree bottom-up. This is analogous to the sequence `foldRight` in that both
-   * are catamorphisms on recursive structures.
-   */ // Deliberately implemented in a non-recursive manner to boost performance
-  def fold[U](z: U)(f: (U, U, T) => U): U = {
-    val s = ArrayStack[U]()
-    for (n <- rootNode.postOrderTraversal) {
-      if (n.leftNode .isDummy) s += z
-      if (n.rightNode.isDummy) s += z
-      val a = s.pop()
-      val b = s.pop()
-      s += f(a, b, n.data)
-    }
-    s.top
-  }
 
   /**
    * Zips two binary trees into one. $LAZY
@@ -131,30 +69,6 @@ trait BinaryTree[+T] extends PartialFunction[Int, T] { self =>
   }
 
   /**
-   * '''Lazily''' traverses this binary tree in pre-order.
-   * @example {{{
-   *    ┌      a    ┐
-   *    │     / \   │
-   *    │    b   c  │
-   *    │   / \     │.preOrder == (a, b, d, e, c)
-   *    └  d   e    ┘
-   * }}}
-   */
-  def preOrder = rootNode.preOrderTraversal.map(_.data)
-
-  /**
-   * '''Lazily''' traverses this binary tree in in-order.
-   * @example {{{
-   *    ┌      a    ┐
-   *    │     / \   │
-   *    │    b   c  │
-   *    │   / \     │.inOrder == (d, b, e, a, c)
-   *    └  d   e    ┘
-   * }}}
-   */
-  def inOrder = rootNode.inOrderTraversal.map(_.data)
-
-  /**
    * Returns the reflected mirror image of this binary tree.
    * @example {{{
    *  ┌      a    ┐            ┌    a      ┐
@@ -177,33 +91,6 @@ trait BinaryTree[+T] extends PartialFunction[Int, T] { self =>
     }
   }
 
-  /**
-   * '''Lazily''' traverses this binary tree in post-order.
-   * @example {{{
-   *    ┌      a    ┐
-   *    │     / \   │
-   *    │    b   c  │
-   *    │   / \     │.postOrder = (d, e, b, c, a)
-   *    └  d   e    ┘
-   * }}}
-   */
-  def postOrder = rootNode.postOrderTraversal.map(_.data)
-
-  /**
-   * '''Lazily''' traverses this binary tree in level-order.
-   * @example {{{
-   *    ┌      a    ┐
-   *    │     / \   │
-   *    │    b   c  │
-   *    │   / \     │.levelOrder == (a, b, c, d, e)
-   *    └  d   e    ┘
-   * }}}
-   */
-  def levelOrder = rootNode.breadthFirstTreeTraversal.map(_.data)
-
-  def leafNodes = rootNode.preOrderTraversal.filter(_.isLeaf)
-
-  def leaves = leafNodes.map(_.data)
 
   /**
    * Performs inverse Knuth transform on this binary tree, i.e., recover the multi-way tree

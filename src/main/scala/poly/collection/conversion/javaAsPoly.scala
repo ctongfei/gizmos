@@ -168,7 +168,7 @@ class JavaQueueAsPoly[T](xs: java.util.Queue[T]) extends Queue[T] {
   def elements = new JavaIterableAsPoly(xs)
 }
 
-class JavaInputStreamAsPoly(jis: java.io.InputStream) extends Iterator[Byte] {
+class JavaInputStreamAsPoly(jis: java.io.InputStream) extends AbstractIterator[Byte] {
   private[this] var c: Int = 0
   def advance() = {
     if (c != -1) {
@@ -180,7 +180,7 @@ class JavaInputStreamAsPoly(jis: java.io.InputStream) extends Iterator[Byte] {
   override def readToArray(a: Array[Byte], off: Int, len: Int) = jis.read(a, off, len)
 }
 
-class JavaReaderAsPoly(jr: java.io.Reader) extends Iterator[Char] {
+class JavaReaderAsPoly(jr: java.io.Reader) extends AbstractIterator[Char] {
   private[this] var c: Int = 0
   def advance() = {
     if (c != -1) {
@@ -195,9 +195,11 @@ class JavaReaderAsPoly(jr: java.io.Reader) extends Iterator[Char] {
 class JavaOutputStreamAsPoly(jos: java.io.OutputStream) extends Builder[Byte, Unit] {
   def add(x: Byte) = jos.write(x)
   def result = jos.close()
+  override def writeFromArray(a: Array[Byte], off: Int, len: Int) = jos.write(a, off, len)
 }
 
 class JavaWriterAsPoly(jw: java.io.Writer) extends Builder[Char, Unit] {
   def add(x: Char) = jw.write(x)
   def result = jw.close()
+  override def writeFromArray(a: Array[Char], off: Int, len: Int) = jw.write(a, off, len)
 }

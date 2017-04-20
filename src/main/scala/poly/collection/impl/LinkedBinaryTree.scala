@@ -8,44 +8,20 @@ import poly.collection.node._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-class LinkedBinaryTree[T] extends BinaryTree[T] {
+/*
+abstract class LinkedBinaryTreeLike[T, N <: BinaryTreeNodeLike[T, N]] extends BinaryTreeLike[T, N] {
 
-  type Node = LinkedBinaryTree.Node[T]
 
-  final override val dummy: Node = new Node(default[T], dummy, dummy, dummy) {
-    override def isDummy = true
-  }
-  dummy.leftNode = dummy
-  dummy.rightNode = dummy
-  dummy.parent = dummy
+  val dummy: N
 
-  var rootNode: Node = dummy
-
-  def addRoot(x: T) = {
-    if (rootNode.isDummy) {
-      rootNode = new Node(x, dummy, dummy, dummy)
-      dummy.rightNode = rootNode
-    }
-  }
+  var rootNode: N = dummy
 
   /** Locates the binary tree node at the given index. */
-  def findNode(i: Int): Node = node(i).asInstanceOf[Node]
+  def findNode(i: Int): N = node(i).asInstanceOf[Node]
 
   def update(i: Int, x: T) = findNode(i).data = x
 
-  def leftmost(x: Node): Node = {
-    var l = x
-    while (l.leftNode.notDummy)
-      l = l.leftNode
-    l
-  }
 
-  def rightmost(x: Node): Node = {
-    var r = x
-    while (r.rightNode.notDummy)
-      r = r.rightNode
-    r
-  }
 
 
   /**
@@ -101,7 +77,7 @@ class LinkedBinaryTree[T] extends BinaryTree[T] {
     c.leftNode = p
   }
 
-  def inOrderSuccessor(t: Node): Node = {
+  def inOrderSuccessor(t: N): N = {
     if (t.rightNode.notDummy) leftmost(t.rightNode)
     else {
       var p = t.parent
@@ -114,7 +90,7 @@ class LinkedBinaryTree[T] extends BinaryTree[T] {
     }
   }
 
-  def inOrderPredecessor(t: Node): Node = {
+  def inOrderPredecessor(t: N): N = {
     if (t.leftNode.notDummy) rightmost(t.leftNode)
     else {
       var p = t.parent
@@ -142,3 +118,4 @@ object LinkedBinaryTree {
 
 }
 
+*/

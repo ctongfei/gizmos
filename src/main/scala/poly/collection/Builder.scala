@@ -1,7 +1,9 @@
 package poly.collection
 
 import poly.algebra.specgroup._
+import poly.macroutil._
 
+import scala.annotation.unchecked.{uncheckedVariance => uv}
 import scala.language.higherKinds
 
 /**
@@ -14,7 +16,7 @@ import scala.language.higherKinds
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait Builder[@sp(Int, Byte, Char) -T, +R] { self =>
+trait Builder[@sp(Int, Byte, Char) -T, @sp(Unit) +R] { self =>
 
   /**
     * Provides a hint to this builder about how many elements are expected to be added.
@@ -41,6 +43,14 @@ trait Builder[@sp(Int, Byte, Char) -T, +R] { self =>
    * @return A structure containing the added elements
    */
   def result(): R
+
+  def writeFromArray(a: Array[T @uv], off: Int, len: Int): Unit = {
+    FastLoop.ascending(off, off + len, 1) { i =>
+      self.add(a(i))
+    }
+  }
+
+  def writeFromArray(a: Array[T @uv]): Unit = writeFromArray(a, 0, a.length)
 
   /**
    * Adds a single element to this builder.

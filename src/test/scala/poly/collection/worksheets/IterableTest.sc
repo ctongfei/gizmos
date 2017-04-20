@@ -9,6 +9,7 @@ val em = Iterable.Empty
 
 val s = Iterable.iterate(0)(_ + 1).asLazyList
 
+Iterable.repeat(2)(2)
 
 e.chunk(2)
 

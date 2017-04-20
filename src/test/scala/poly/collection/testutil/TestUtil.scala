@@ -15,26 +15,30 @@ object TestUtil {
   class ElementMismatchException
     extends Exception
 
-  def checkTraversable[T](s: sc.Traversable[T], p: pc.Traversable[T]) = {
+  def checkTraversable[T](s: sc.Traversable[T], p: pc.Traversable[T]): Boolean = {
     val sa = scm.ArrayBuffer[T]()
     val pa = scm.ArrayBuffer[T]()
     s foreach sa.+=
     p foreach pa.+=
-    if (sa.length != pa.length) throw new SizeMismatchException
+    if (sa.length != pa.length) return false
     var i = 0
     while (i < sa.length) {
-      if (sa(i) != pa(i)) throw new ElementMismatchException
+      if (sa(i) != pa(i)) return false
       i += 1
     }
+    true
   }
 
-  def checkIterable[T](s: sc.Iterable[T], p: pc.Iterable[T]) = {
-    checkTraversable(s, p)
-    val si = s.iterator
-    val pi = p.newIterator
-    while (si.hasNext && pi.advance())
-      if (si.next() != pi.current) throw new ElementMismatchException
-    if (si.hasNext || pi.advance()) throw new SizeMismatchException
+  def checkIterable[T](s: sc.Iterable[T], p: pc.Iterable[T]): Boolean = {
+    if (checkTraversable(s, p)) {
+      val si = s.iterator
+      val pi = p.newIterator
+      while (si.hasNext && pi.advance())
+        if (si.next() != pi.current) return false
+      if (si.hasNext || pi.advance()) return false
+      true
+    }
+    else false
   }
 
   def checkSeq[T](s: sc.Seq[T], p: pc.Seq[T]) = {
