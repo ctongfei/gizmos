@@ -1,12 +1,16 @@
 lazy val commonSettings = Seq(
   organization := "me.tongfei",
   isSnapshot := true,
-  version := "0.0.10-SNAPSHOT",
   scalaVersion := "2.11.11",
   crossScalaVersions := Seq("2.11.11", "2.12.2"),
 
+  resolvers += Resolver.sonatypeRepo("snapshots"),
+
   libraryDependencies ++= Seq(
-    "me.tongfei"        %% "poly-algebra"    % "0.4.0",
+    "org.typelevel"     %% "cats-core"       % "0.9.0",
+    "org.typelevel"     %% "algebra"         % "0.6.0",
+    "org.typelevel"     %% "spire"           % "0.14.1",
+    "me.tongfei"        %% "poly-macroutil"  % "0.2.0",
     "org.scalatest"     %% "scalatest"       % "3.0.0"  % Test,
     "org.scalacheck"    %% "scalacheck"      % "1.13.4" % Test,
     "com.storm-enroute" %% "scalameter-core" % "0.8.2"  % Test
@@ -47,17 +51,32 @@ lazy val commonSettings = Seq(
 )
 
 lazy val core = (project in file("core")).settings(commonSettings: _*).settings(
-  name := "poly-collection-core"
+  name := "poly-collection-core",
+  version := "0.0.10-SNAPSHOT"
 )
 
 lazy val rangequery = (project in file("rangequery")).settings(commonSettings: _*)
   .dependsOn(core).settings(
-  name := "poly-collection-rangequery"
+  name := "poly-collection-rangequery",
+  version := "0.0.1-SNAPSHOT"
+)
+
+lazy val interval = (project in file("interval")).settings(commonSettings: _*)
+  .dependsOn(core).settings(
+  name := "poly-collection-interval",
+  version := "0.0.1-SNAPSHOT"
+)
+
+lazy val transient = (project in file("transient")).settings(commonSettings: _*)
+  .dependsOn(core).settings(
+  name := "poly-collection-transient",
+  version := "0.0.1-SNAPSHOT"
 )
 
 lazy val approx = (project in file("approx")).settings(commonSettings: _*)
   .dependsOn(core).settings(
-  name := "poly-collection-approx"
+  name := "poly-collection-approx",
+  version := "0.0.1-SNAPSHOT"
 )
 
 

@@ -1,7 +1,6 @@
 package poly.collection.mut
 
-import poly.algebra._
-import poly.algebra.ops._
+import cats.implicits._
 import poly.collection._
 import scala.language.higherKinds
 
@@ -16,12 +15,12 @@ class Beam[T] private(private val capacity: Int, private val pq: PriorityQueue[T
 
   override def size = pq.size
 
-  def push(x: T) = {
+  def enqueue(x: T) = {
     if (size < capacity)
-      pq push x
-    else if (x < pq.top) {
-      pq pop()
-      pq push x
+      pq enqueue x
+    else if (x < pq.front) {
+      pq dequeue()
+      pq enqueue x
     }
     else { /* discard this element */ }
   }
@@ -29,9 +28,9 @@ class Beam[T] private(private val capacity: Int, private val pq: PriorityQueue[T
   def elements = pq.elements
 
   /** Returns the '''LARGEST''' (not the smallest!) element in the beam. */
-  def top = pq.top
+  def front = pq.front
 
-  def pop() = pq.pop()
+  def dequeue() = pq.dequeue()
 }
 
 object Beam {

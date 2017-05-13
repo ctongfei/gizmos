@@ -1,6 +1,6 @@
 package poly.collection.impl.specialized
 
-import poly.algebra.specgroup._
+import poly.collection.specgroup._
 import poly.collection._
 import poly.macroutil._
 

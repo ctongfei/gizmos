@@ -1,7 +1,5 @@
 package poly.collection
 
-import poly.algebra._
-import poly.algebra.syntax._
 import poly.collection.impl._
 import poly.macroutil._
 
@@ -43,8 +41,8 @@ class Permutation private(private val a1: Array[Int], private val a2: Array[Int]
    * Casts this permutation as an order on the set '''Z''',,''n'',,.
    * @example Given a permutation (2, 0, 1), 2 < 0 < 1 holds under this order.
    */
-  def asOrder: SequentialOrder[Int] with Bounded[Int] = new SequentialOrder[Int] with Bounded[Int] {
-    def cmp(x: Int, y: Int) = a2(x) >?< a2(y)
+  def asOrder: SequentialOrder[Int] = new SequentialOrder[Int] {
+    def compare(x: Int, y: Int) = a2(x) - a2(y)
     def pred(x: Int) = a1((a2(x) - 1) % size)
     def succ(x: Int) = a1((a2(x) + 1) % size)
     def top = a1(size - 1)
@@ -110,9 +108,10 @@ object Permutation {
     new Permutation(a, a)
   }
 
-  def GroupAction[T](n: Int): GroupAction[IndexedSeq[T], Permutation] = new GroupAction[IndexedSeq[T], Permutation] {
+  def GroupAction[T](n: Int): Action[IndexedSeq[T], Permutation] = new Action[IndexedSeq[T], Permutation] {
+    def actl(g: Permutation, p: IndexedSeq[T]): IndexedSeq[T] = p permuteBy g
+    def actr(p: IndexedSeq[T], g: Permutation): IndexedSeq[T] = p permuteBy g
     def actorGroup: Group[Permutation] = Group(n)
-    def act(x: IndexedSeq[T], p: Permutation) = x permuteBy p
   }
 
   /**
@@ -122,9 +121,9 @@ object Permutation {
   def Group(n: Int): Group[Permutation] with Set[Permutation] = new Group[Permutation] with Set[Permutation] {
     require(n > 0)
 
-    def inv(x: Permutation) = x.inverse
-    def id = identity(n)
-    def op(x: Permutation, y: Permutation) = x compose y
+    def inverse(x: Permutation) = x.inverse
+    def empty = identity(n)
+    def combine(x: Permutation, y: Permutation) = x compose y
     def keyEq = LexicographicOrder
     def contains(x: Permutation) = x.size == n
 
@@ -155,7 +154,7 @@ object Permutation {
   }
 
   implicit object LexicographicOrder extends SequentialOrder[Permutation] {
-    def cmp(x: Permutation, y: Permutation): Int = {
+    def compare(x: Permutation, y: Permutation): Int = {
       FastLoop.ascending(0, x.size, 1) { i =>
         if (x(i) < y(i)) return -1
         if (x(i) > y(i)) return 1

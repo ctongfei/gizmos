@@ -1,7 +1,6 @@
 package poly.collection.mut
 
-import poly.algebra._
-import poly.algebra.ops._
+import cats.implicits._
 import poly.collection._
 import poly.collection.factory._
 

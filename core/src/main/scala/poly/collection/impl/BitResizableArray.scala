@@ -1,6 +1,6 @@
 package poly.collection.impl
 
-import poly.algebra.syntax._
+import cats.implicits._
 import poly.collection._
 import poly.macroutil._
 

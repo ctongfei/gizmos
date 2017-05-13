@@ -1,6 +1,5 @@
 package poly.collection.mut
 
-import poly.algebra._
 import poly.collection._
 import poly.collection.evidence._
 import poly.collection.factory._
@@ -16,7 +15,7 @@ class BitSet private(private final val data: BitResizableArray)
 
   //TODO: min and max could be optimized
 
-  implicit def keyOrder = std.IntStructure
+  implicit def keyOrder = Order[Int]
 
   def add_!(x: Int) = data(x) = true
 

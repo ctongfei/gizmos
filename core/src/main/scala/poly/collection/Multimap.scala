@@ -1,7 +1,5 @@
 package poly.collection
 
-import poly.algebra._
-import poly.algebra.hkt._
 import poly.collection.factory._
 import poly.collection.mut._
 
@@ -84,10 +82,9 @@ object Multimap extends Factory2[Tuple2, Multimap, Eq, Eq] {
 
   def newBuilder[A: Eq, B: Eq] = AutoMultimap.newBuilder
 
-  //implicit object Semicategory
-  //TODO: semicategory. does not have id.
-  //TODO: update poly.algebra.hkt.Semigroupoid
-
+  implicit object Semigroupoid extends cats.arrow.Compose[Multimap] {
+    def compose[A, B, C](f: Multimap[B, C], g: Multimap[A, B]): Multimap[A, C] = f compose g
+  }
 }
 
 abstract class AbstractMultimap[K, V] extends Multimap[K, V]
@@ -139,7 +136,7 @@ private[poly] object MultimapT {
 
   class BijectivelyMapped[K, V, W](self: Multimap[K, V], f: Bijection[V, W]) extends AbstractMultimap[K, W] {
     def keySet = self.keySet
-    def valueEq = self.valueEq contramap f.invert
+    def valueEq = self.valueEq on f.invert
     def apply(k: K) = self(k) map f
   }
 

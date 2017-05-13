@@ -1,7 +1,5 @@
 package poly.collection.mut
 
-import poly.algebra._
-import poly.algebra.conversion.ImplicitlyFromJava._
 import poly.collection._
 import poly.collection.conversion.ImplicitlyFromJava._
 import poly.collection.factory._
@@ -35,7 +33,7 @@ class RedBlackTreeMap[K, V] private(private val data: java.util.TreeMap[K, V])
   }
 
   override def pairs: SortedIterable[(K, V)] = new AbstractSortedIterable[(K, V)] {
-    def elementOrder = keyOrder contramap first
+    def elementOrder = keyOrder on first
     def newIterator = data.entrySet().elements.map(e => (e.getKey, e.getValue)).newIterator
   }
 
@@ -50,7 +48,7 @@ object RedBlackTreeMap extends MapFactory[RedBlackTreeMap, Order] {
   def newMapBuilder[K, V](implicit K: Order[K]): Builder[(K, V), RedBlackTreeMap[K, V]] =
     new Builder[(K, V), RedBlackTreeMap[K, V]] {
       private[this] val data = new java.util.TreeMap[K, V](new java.util.Comparator[K] {
-        def compare(a: K, b: K) = K.cmp(a, b)
+        def compare(a: K, b: K) = K.compare(a, b)
       })
       def result = new RedBlackTreeMap(data)
       def add(x: (K, V)) = data.put(x._1, x._2)

@@ -1,6 +1,5 @@
 package poly.collection
 
-import poly.algebra.hkt._
 import poly.collection.node._
 import poly.collection.conversion.ImplicitlyFromScala._
 
@@ -133,8 +132,9 @@ object Tree {
 //  }
 
   implicit object Comonad extends Comonad[Tree] {
-    def id[X](u: Tree[X]) = u.root
-    def extend[X, Y](wx: Tree[X])(f: Tree[X] => Y) = wx.subtrees map f
+    def extract[X](u: Tree[X]) = u.root
+    def coflatMap[X, Y](wx: Tree[X])(f: Tree[X] => Y) = wx.subtrees map f
+    def map[A, B](fa: Tree[A])(f: A => B): Tree[B] = fa map f
   }
 
 }

@@ -1,6 +1,6 @@
 package poly.collection
 
-import poly.algebra.specgroup._
+import poly.collection.specgroup._
 import scala.annotation.unchecked.{uncheckedVariance => uv}
 
 /**
@@ -17,7 +17,7 @@ trait KeySortedMap[@sp(Int) K, +V] extends Map[K, V] { self =>
 
   override def keys = keySet.keys
 
-  override def pairs: SortedIterable[(K, V @uv)] = keySet.keys.map(k => (k, apply(k))).asIfSorted(keyOrder contramap first)
+  override def pairs: SortedIterable[(K, V @uv)] = keys.map(k => (k, apply(k))) asIfSorted (keyOrder on first)
 
 }
 

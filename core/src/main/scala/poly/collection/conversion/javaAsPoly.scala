@@ -1,10 +1,7 @@
 package poly.collection.conversion
 
-import poly.algebra._
-import poly.algebra.conversion.ImplicitlyFromJava._
 import poly.collection._
 import poly.collection.mut._
-
 import scala.reflect._
 
 /**
@@ -14,16 +11,13 @@ class ArrayAsPoly[T](val underlying: Array[T]) extends ValueMutableIndexedSeq[T]
   def fastLength = underlying.length
   def fastApply(i: Int) = underlying(i)
   def update(i: Int, x: T) = underlying(i) = x
-
-  // directly obtains the underlying wrapped array
-  override def toArray[U >: T : ClassTag] = underlying.asInstanceOf[Array[U]]
 }
 
 class JavaCharSequenceAsPoly(val underlying: java.lang.CharSequence) extends IndexedSeq[Char] {
   def fastLength = underlying.length
   def fastApply(i: Int) = underlying.charAt(i)
+  override def slice(i: Int, j: Int) = underlying.subSequence(i, j)
 }
-
 
 class JavaStringBuilderAsPoly(val underlying: java.lang.StringBuilder) extends Builder[Char, String] {
   def add(x: Char) = underlying.append(x)
@@ -120,7 +114,7 @@ class JavaMapAsPoly[K, V](xs: java.util.Map[K, V]) extends AbstractMap[K, V] wit
 class JavaSetAsPoly[T](xs: java.util.Set[T]) extends AbstractSet[T] with KeyMutableSet[T] {
   def remove_!(x: T) = xs.remove(x)
   def add_!(x: T) = xs.add(x)
-  def keyEq = Eq.default[T]
+  def keyEq = Hashing.default[T]
   def contains(x: T) = xs.contains(x)
   override def size = xs.size()
   def keys = Iterable.ofIterator(new JavaIteratorAsPoly(xs.iterator()))
@@ -140,7 +134,7 @@ class JavaSortedMapAsPoly[K, V](xs: java.util.SortedMap[K, V]) extends AbstractK
   def keySet: SortedSet[K] = new SortedSet[K] {
     def keyOrder = xs.comparator()
     def keys = new SortedIterable[K] {
-      def elementOrder = xs.comparator()
+      def elementOrder: Order[K] = xs.comparator()
       def newIterator = new JavaIteratorAsPoly(xs.keySet().iterator())
     }
     def contains(x: K) = xs.containsKey(x)
@@ -148,7 +142,7 @@ class JavaSortedMapAsPoly[K, V](xs: java.util.SortedMap[K, V]) extends AbstractK
   def ?(k: K) = Option(xs.get(k))
   def apply(k: K) = xs.get(k)
   override def pairs = new SortedIterable[(K, V)] {
-    def elementOrder = xs.comparator() contramap first
+    def elementOrder: Order[(K, V)] = (xs.comparator(): Order[K]) on first
     def newIterator = Iterable.ofIterator(new JavaIteratorAsPoly(xs.entrySet().iterator())).map(e => e.getKey -> e.getValue).newIterator
   }
   def add_!(k: K, v: V) = xs.put(k, v)
@@ -162,9 +156,9 @@ class JavaSortedMapAsPoly[K, V](xs: java.util.SortedMap[K, V]) extends AbstractK
 //TODO: j.u.Deque
 
 class JavaQueueAsPoly[T](xs: java.util.Queue[T]) extends Queue[T] {
-  def push(x: T) = xs.add(x)
-  def top = xs.peek()
-  def pop() = xs.remove()
+  def enqueue(x: T) = xs.add(x)
+  def front = xs.peek()
+  def dequeue() = xs.remove()
   def elements = new JavaIterableAsPoly(xs)
 }
 

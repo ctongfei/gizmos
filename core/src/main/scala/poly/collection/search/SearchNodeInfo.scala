@@ -1,7 +1,5 @@
 package poly.collection.search
 
-import poly.algebra._
-import poly.algebra.implicits._
 import poly.collection.exception._
 import poly.collection.node._
 

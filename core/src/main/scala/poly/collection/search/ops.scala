@@ -1,6 +1,5 @@
 package poly.collection.search
 
-import poly.algebra._
 import poly.collection._
 
 /**
@@ -38,7 +37,7 @@ object ops extends LowerPriorityImplicits {
     /**
      * Performs uniform cost traversal given the transition function.
      */
-    def uniformCostTraversal[U >: T : Eq, R : OrderedAdditiveGroup](f: U => Traversable[(U, R)]) =
+    def uniformCostTraversal[U >: T : Eq, R : Order : AdditiveMonoid](f: U => Traversable[(U, R)]) =
       WeightedStateSpace(f).uniformCostTraversal(x)
   }
 

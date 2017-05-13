@@ -1,7 +1,5 @@
 package poly.collection.impl
 
-import poly.algebra._
-import poly.algebra.syntax._
 import poly.collection._
 
 /**
@@ -51,7 +49,7 @@ class BitArray(val data: Array[Byte], val fastLength: Int, val offset: Int = 0) 
   }
 
   override def equals(obj: Any) = obj match {
-    case that: BitArray => LexicographicOrder.cmp(this, that) == 0
+    case that: BitArray => LexicographicOrder.compare(this, that) == 0
     case _ => false
   }
 
@@ -64,7 +62,8 @@ object BitArray {
   final val ByteSize = 8
 
   implicit object LexicographicOrder extends Order[BitArray] {
-    def cmp(x: BitArray, y: BitArray): Int = { // manual implementation for zip: no boxing
+    val booleanOrder = cats.instances.boolean.catsKernelStdOrderForBoolean
+    def compare(x: BitArray, y: BitArray): Int = { // manual implementation for zip: no boxing
       var xi = x.newIterator
       var yi = y.newIterator
       while (xi.advance() && yi.advance()) {
@@ -73,7 +72,7 @@ object BitArray {
         if (!xc && yc) return -1
         if (xc && !yc) return 1
       }
-      xi.advance() >?< yi.advance()
+      booleanOrder.compare(xi.advance(), yi.advance())
     }
   }
 

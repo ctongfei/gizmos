@@ -1,7 +1,6 @@
 package poly.collection
 
-import poly.algebra._
-import poly.algebra.syntax._
+import cats.implicits._
 import poly.collection.node._
 import poly.macroutil._
 
@@ -34,7 +33,7 @@ trait Table[+T] extends PartialFunction[(Int, Int), T] { self =>
       val (i, j) = x
       i >= 0 && i < numRows && j >= 0 && j < numCols
     }
-    implicit def keyEq = Eq.default[(Int, Int)]
+    implicit def keyEq = Hashing.default[(Int, Int)]
   }
 
 
@@ -101,7 +100,7 @@ trait Table[+T] extends PartialFunction[(Int, Int), T] { self =>
 
   // OVERRIDING JAVA METHODS
   override def equals(that: Any) = that match {
-    case that: Table[T] => Table.Eq[T](Eq.default[T]).eq(self, that)
+    case that: Table[T] => Table.Eq[T](Hashing.default[T]).eqv(self, that)
     case _ => false
   }
 
@@ -157,12 +156,12 @@ private[poly] object TableT {
   }
 
   class TableEq[T](implicit T: Eq[T]) extends Eq[Table[T]] {
-    def eq(x: Table[T], y: Table[T]): Boolean = {
+    def eqv(x: Table[T], y: Table[T]): Boolean = {
       if (x.numRows != y.numRows) return false
       if (x.numCols != y.numCols) return false
       FastLoop.ascending(0, x.numRows, 1) { i =>
         FastLoop.ascending(0, x.numCols, 1) { j =>
-          if (x(i, j) !== y(i, j)) return false
+          if (x(i, j) =!= y(i, j)) return false
         }
       }
       true
@@ -176,8 +175,8 @@ private[poly] object TableT {
   }
 
   class ZippedWith[T, U, V](self: Table[T], that: Table[U], f: (T, U) => V) extends AbstractTable[V] {
-    val numRows = min(self.numRows, that.numRows)
-    val numCols = min(self.numRows, that.numRows)
+    val numRows = math.min(self.numRows, that.numRows)
+    val numCols = math.min(self.numRows, that.numRows)
     def apply(i: Int, j: Int) = f(self(i, j), that(i, j))
   }
 

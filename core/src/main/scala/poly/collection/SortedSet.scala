@@ -1,7 +1,6 @@
 package poly.collection
 
-import poly.algebra._
-import poly.algebra.specgroup._
+import poly.collection.specgroup._
 
 /**
  * Represents a set whose keys are sorted when being iterated.

@@ -1,7 +1,5 @@
 package poly.collection
 
-import poly.algebra._
-import poly.algebra.hkt._
 import poly.collection.mut._
 import poly.collection.node._
 
@@ -118,15 +116,17 @@ object OrderedTree {
   }
 
   implicit object Comonad extends Comonad[OrderedTree] {
-    def id[X](u: OrderedTree[X]): X = u.root
-    def extend[X, Y](wx: OrderedTree[X])(f: OrderedTree[X] => Y): OrderedTree[Y] = wx.subtrees.map(f)
+    def extract[X](u: OrderedTree[X]): X = u.root
+    def coflatMap[X, Y](wx: OrderedTree[X])(f: OrderedTree[X] => Y): OrderedTree[Y] = wx.subtrees map f
+    def map[A, B](fa: OrderedTree[A])(f: A => B): OrderedTree[B] = fa map f
+    override def coflatten[A](fa: OrderedTree[A]): OrderedTree[OrderedTree[A]] = fa.subtrees
   }
 
-  implicit object ZipIdiom extends Idiom[OrderedTree] {
-    def id[X](u: X) = OrderedTree.infinite(u)
-    def liftedMap[X, Y](mx: OrderedTree[X])(mf: OrderedTree[X => Y]) = (mx zipWith mf) { (x, f) => f(x) }
-    override def product[X, Y](mx: OrderedTree[X])(my: OrderedTree[Y]) = mx zip my
-    override def productMap[X, Y, Z](mx: OrderedTree[X], my: OrderedTree[Y])(f: (X, Y) => Z) = (mx zipWith my)(f)
+  implicit object ZipApplicative extends Applicative[OrderedTree] {
+    def pure[X](u: X) = OrderedTree.infinite(u)
+    def ap[X, Y](mf: OrderedTree[X => Y])(mx: OrderedTree[X]) = (mx zipWith mf) { (x, f) => f(x) }
+    override def product[X, Y](mx: OrderedTree[X], my: OrderedTree[Y]) = mx zip my
+    override def map2[X, Y, Z](mx: OrderedTree[X], my: OrderedTree[Y])(f: (X, Y) => Z) = (mx zipWith my)(f)
   }
 
 }

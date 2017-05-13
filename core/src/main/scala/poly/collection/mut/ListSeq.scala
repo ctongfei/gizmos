@@ -139,6 +139,8 @@ class ListSeq[T] private() extends AbstractSeq[T] with KeyMutableSeq[T] {
     } while (p.notDummy)
   }
 
+  override def factory = ListSeq
+
 }
 
 object ListSeq extends SeqFactory[ListSeq] {

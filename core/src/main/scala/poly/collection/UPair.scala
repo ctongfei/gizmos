@@ -1,8 +1,7 @@
 package poly.collection
 
-import poly.algebra._
-import poly.algebra.specgroup._
-import poly.algebra.syntax._
+import cats.implicits._
+import poly.collection.specgroup._
 import poly.collection.immut._
 
 /**
@@ -40,14 +39,14 @@ case class UPair[@sp(spTuple2) T: Eq](_1: T, _2: T) extends Set[T] {
 object UPair {
 
   class UPairEq[@sp(spTuple2) T: Eq] extends Eq[UPair[T]] {
-    def eq(x: UPair[T], y: UPair[T]) =
+    def eqv(x: UPair[T], y: UPair[T]) =
       ((x._1 === y._1) && (x._2 === y._2)) ||
         ((x._1 === y._2) && (x._2 === y._1))
   }
 
   // Does not inherit UPairEq because of specialization issues
   class UPairHashing[@sp(spTuple2) T: Hashing] extends Hashing[UPair[T]] {
-    def eq(x: UPair[T], y: UPair[T]) =
+    def eqv(x: UPair[T], y: UPair[T]) =
       ((x._1 === y._1) && (x._2 === y._2)) ||
         ((x._1 === y._2) && (x._2 === y._1))
     def hash(x: UPair[T]) = {

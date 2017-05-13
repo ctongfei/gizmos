@@ -1,7 +1,6 @@
 package poly.collection.mut
 
-import poly.algebra._
-import poly.algebra.syntax._
+import cats.implicits._
 import poly.collection._
 import poly.collection.exception._
 import poly.collection.factory._
@@ -45,12 +44,12 @@ class BinaryHeap[T] private(private val data: ResizableSeq[T])(implicit val elem
     data(p) = t
   }
 
-  def push(x: T) = {
+  def enqueue(x: T) = {
     data.append_!(x)
     siftUp(data.fastLength - 1)
   }
 
-  def pop() = {
+  def dequeue() = {
     val front = data(0)
     data.swap_!(0, data.length - 1)
     data.delete_!(data.length - 1)
@@ -58,7 +57,7 @@ class BinaryHeap[T] private(private val data: ResizableSeq[T])(implicit val elem
     front
   }
 
-  def top = if (data.length <= 0) throw new QueueEmptyException else data(0)
+  def front = if (data.length <= 0) throw new QueueEmptyException else data(0)
 
   def elements: Iterable[T] = data
 

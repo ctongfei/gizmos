@@ -1,8 +1,7 @@
 package poly.collection
 
-import poly.algebra._
-import poly.algebra.specgroup._
-import poly.algebra.syntax._
+import cats.implicits._
+import poly.collection.specgroup._
 import poly.collection.exception._
 import poly.collection.mut._
 import poly.collection.node._
@@ -73,7 +72,7 @@ trait IndexedSeq[+T] extends BidiSeq[T] { self =>
   def product[U](that: IndexedSeq[U]): IndexedSeq[(T, U)] = new IndexedSeqT.MonadicProduct(self, that)
 
   /**
-   * Returns the Cartesian product of two indexed sequences. The returning value is a table.
+   * $LAZY Returns the Cartesian product of two indexed sequences. The returning value is a table.
    */
   def tableProduct[U](that: IndexedSeq[U]): Table[(T, U)] = new IndexedSeqT.TableProduct(self, that)
 
@@ -136,7 +135,7 @@ trait IndexedSeq[+T] extends BidiSeq[T] { self =>
    */
   def permuteBy(p: Permutation): IndexedSeq[T] = new IndexedSeqT.Permuted(self, p)
 
-  override def asIfSorted(implicit T: Order[T]): SortedIndexedSeq[T @uv] = new IndexedSeqT.AsIfSorted(self, T)
+  override def asIfSorted[U >: T](implicit U: Order[U]): SortedIndexedSeq[U] = new IndexedSeqT.AsIfSorted(self, U)
 
   def asIndexedSeq: IndexedSeq[T] = new IndexedSeqT.Bare(self)
 
@@ -162,18 +161,7 @@ object IndexedSeq {
 
   def tabulate[T](n: Int)(f: Int => T): IndexedSeq[T] = new IndexedSeqT.Tabulated(f, n)
 
-  //TODO: should be implicit, but results in ambiguous implicits because of contravariant typeclass
-  def Eq[T: Eq]: Eq[IndexedSeq[T]] = new AbstractEq[IndexedSeq[T]] {
-    def eq(x: IndexedSeq[T], y: IndexedSeq[T]): Boolean = {
-      if (x.fastLength != y.fastLength) false
-      else {
-        FastLoop.ascending(0, x.fastLength, 1) { i =>
-          if (x(i) !== y(i)) return false
-        }
-        true
-      }
-    }
-  }
+  implicit def Eq[T: Eq]: Eq[IndexedSeq[T]] = new IndexedSeqT.IndexedSeqEq[T]
 
 }
 
@@ -181,6 +169,18 @@ object IndexedSeq {
 abstract class AbstractIndexedSeq[+T] extends IndexedSeq[T]
 
 private[poly] object IndexedSeqT {
+
+  class IndexedSeqEq[T: Eq] extends Eq[IndexedSeq[T]] {
+    def eqv(x: IndexedSeq[T], y: IndexedSeq[T]): Boolean = {
+      if (x.fastLength != y.fastLength) false
+      else {
+        FastLoop.ascending(0, x.fastLength, 1) { i =>
+          if (x(i) =!= y(i)) return false
+        }
+        true
+      }
+    }
+  }
 
   class DefaultIterator[T](self: IndexedSeq[T]) extends AbstractIterator[T] {
     private[this] var i: Int = -1

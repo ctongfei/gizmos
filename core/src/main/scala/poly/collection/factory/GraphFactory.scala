@@ -1,6 +1,5 @@
 package poly.collection.factory
 
-import poly.algebra._
 import poly.collection._
 import poly.collection.evidence._
 

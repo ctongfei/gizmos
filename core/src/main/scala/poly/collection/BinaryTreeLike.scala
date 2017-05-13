@@ -31,11 +31,11 @@ trait BinaryTreeLike[+T, +N <: BinaryTreeNodeLike[T, N]] extends PartialFunction
     for (n <- rootNode.postOrderTraversal) {
       if (n.leftNode .isDummy) s += z
       if (n.rightNode.isDummy) s += z
-      val a = s.pop()
-      val b = s.pop()
+      val a = s.dequeue()
+      val b = s.dequeue()
       s += f(a, b, n.data)
     }
-    s.top
+    s.front
   }
 
   /**
@@ -64,7 +64,6 @@ trait BinaryTreeLike[+T, +N <: BinaryTreeNodeLike[T, N]] extends PartialFunction
     }
     curr
   }
-
 
   /**
    * '''Lazily''' traverses this binary tree in pre-order.
@@ -118,20 +117,6 @@ trait BinaryTreeLike[+T, +N <: BinaryTreeNodeLike[T, N]] extends PartialFunction
 
   def leaves = leafNodes.map(_.data)
 
-  /*
-  def leftmost(x: N): N = {
-    var l = x
-    while (l.leftNode.notDummy)
-      l = l.leftNode
-    l
-  }
-
-  def rightmost(x: N): N = {
-    var r = x
-    while (r.rightNode.notDummy)
-      r = r.rightNode
-    r
-  }*/
 
   /** Returns the element on the ''i''th node of this binary tree. */
   def apply(i: Int): T = {

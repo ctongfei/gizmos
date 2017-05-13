@@ -1,7 +1,5 @@
 package poly.collection.impl
 
-import poly.algebra._
-import poly.algebra.syntax._
 import poly.collection._
 
 /**
@@ -38,13 +36,13 @@ object MurmurHash3 {
     h
   }
 
-  final def symmetricHash[T: Hashing](xs: Traversable[T], seed: Int = 0xb592f7ae) = {
+  final def symmetricHash[T](xs: Traversable[T], seed: Int = 0xb592f7ae)(implicit T: Hashing[T]) = {
     var n = 0
     var sum = 0
     var xor = 0
     var prod = 1
     for (x <- xs) {
-      val h = x.###
+      val h = T hash x
       sum += h
       xor ^= h
       if (h != 0) prod *= h
@@ -57,11 +55,11 @@ object MurmurHash3 {
     finalizeHash(h, n)
   }
 
-  final def sequentialHash[T: Hashing](xs: Traversable[T], seed: Int = 0xe73a8b15) = {
+  final def sequentialHash[T](xs: Traversable[T], seed: Int = 0xe73a8b15)(implicit T: Hashing[T]) = {
     var n = 0
     var h = seed
     for (x <- xs) {
-      h = mix(h, x.###)
+      h = mix(h, T hash x)
       n += 1
     }
     finalizeHash(h, n)

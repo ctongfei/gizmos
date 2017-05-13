@@ -1,13 +1,12 @@
 package poly.collection
 
-import poly.algebra.specgroup._
 
 /**
   * Represents a data structure that can be indexed by keys of a specific type.
   * @author Tongfei Chen
   * @since 0.1.0
   */
-trait KeyedLike[@sp(Int) K, +Coll <: KeyedLike[K, Coll]] extends Keyed[K] { self =>
+trait KeyedLike[@specialized(Int) K, +Coll <: KeyedLike[K, Coll]] extends Keyed[K] { self =>
 
   /** Tests if this structure contains an item with the specified key. */
   def containsKey(k: K): Boolean

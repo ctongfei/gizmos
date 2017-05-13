@@ -1,12 +1,12 @@
 package poly.collection.correct
 
+import cats.implicits._
 import org.scalacheck._
 import org.scalacheck.Prop._
 import poly.{collection => pc}
 
 import scala.{collection => sc}
 
-import poly.algebra.syntax._
 import poly.collection.conversion.FromScala._
 import poly.collection.testutil.TestUtil._
 

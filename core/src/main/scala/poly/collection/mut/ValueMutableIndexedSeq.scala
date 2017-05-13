@@ -1,7 +1,5 @@
 package poly.collection.mut
 
-import poly.algebra._
-import poly.algebra.syntax._
 import poly.collection._
 import poly.collection.impl._
 import poly.macroutil._
@@ -14,13 +12,13 @@ import poly.macroutil._
  */
 trait ValueMutableIndexedSeq[T] extends ValueMutableSeq[T] with IndexedSeq[T] {
 
-  /** Sorts this sequence in-place using the order provided. */
-  def sort_!()(implicit T: Order[T]) = Sorting.quickSort(this)
+  /** $Onlogn Sorts this sequence in-place using the order provided. */
+  def sort_![U >: T]()(implicit U: Order[U]) = Sorting.quickSort[T, U](this)
 
-  /** Sorts this sequence in-place using the weight provided in the given indexed sequence. */
+  /** $Onlogn Sorts this sequence in-place using the weight provided in the given indexed sequence. */
   def sortUsing_![U: Order](w: IndexedSeq[U]) = Sorting.quickSortUsing(this, w)
 
-  /** Reverses this sequence in-place. */
+  /** $On Reverses this sequence in-place. */
   def reverse_!(): Unit = {
     var l = 0
     var r = length - 1
@@ -31,14 +29,25 @@ trait ValueMutableIndexedSeq[T] extends ValueMutableSeq[T] with IndexedSeq[T] {
     }
   }
 
-  /** Transforms this sequence in-place given a function. */
+  /**
+   * $O1 Swaps two elements in this sequence in-place.
+   * @param i Index of the first element
+   * @param j Index of the second element
+   */
+  def swap_!(i: Int, j: Int): Unit = {
+    val t = this(i)
+    this(i) = this(j)
+    this(j) = t
+  }
+
+  /** $On Transforms this sequence in-place given a function. */
   override def map_!(f: T => T): Unit = {
     FastLoop.ascending(0, length, 1) { i =>
       this(i) = f(this(i))
     }
   }
 
-  /** Randomly shuffles this sequence in-place using the Fisher-Yates shuffling algorithm. */
+  /** $On Randomly shuffles this sequence in-place using the Fisher-Yates shuffling algorithm. */
   def shuffle_!(): Unit = {
     val r = new java.util.Random()
     FastLoop.descending(length - 1, 0, -1) { i =>

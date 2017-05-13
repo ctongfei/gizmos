@@ -1,13 +1,14 @@
 ## Poly-collection
 
-Poly-collection is a Scala (2.11/2.12) collection framework that aims to provide an alternative to the standard
+Poly-collection is a Scala collection framework that aims to provide an alternative to the standard
  Scala collection framework. It provides a large range of collection classes, and differs from
  the standard collection framework in several ways:
  
   - Full support for graphs, trees, multisets, multimaps and others with various functional operators defined on them.
   
-  - Concretely based on basic algebraic concepts through [Poly-algebra](https://github.com/ctongfei/poly-algebra) by extensive use
-     of typeclass patterns (`Eq`/`Order`/`Hashing`/...). This means the equivalence relation / hashing function for sets / maps 
+  - Concretely based on basic algebraic concepts through the Typelevel Scala family projects
+   [Cats](https://github.com/typelevel/cats), [Algebra](https://github.com/typelevel/algebra) and [Spire](https://github.com/non/spire)
+    by extensive use of typeclass patterns (`Eq`/`Order`/...). This means the equivalence relation / hashing function for sets / maps 
      can be customized via arbitrary typeclass instances.
      
   - Lazy by default: Higher-order transformational functions are nearly always executed in a non-strict manner:

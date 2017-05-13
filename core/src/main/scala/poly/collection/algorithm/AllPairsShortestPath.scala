@@ -1,7 +1,6 @@
 package poly.collection.algorithm
 
-import poly.algebra._
-import poly.algebra.syntax._
+import spire.syntax.all._
 import poly.collection._
 import poly.collection.mut._
 
@@ -11,7 +10,7 @@ import poly.collection.mut._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-class AllPairsShortestPath[K, E : OrderedAdditiveGroup : HasTop](val graph: Graph[K, E]) extends MetricSpace[K, E] {
+class AllPairsShortestPath[K, E : AdditiveMonoid : Order](val graph: Graph[K, E]) extends MetricSpace[K, E] {
 
   private[this] implicit val eq = graph.keyEq
 
@@ -35,7 +34,7 @@ class AllPairsShortestPath[K, E : OrderedAdditiveGroup : HasTop](val graph: Grap
     }
   }
 
-  def dist(i: K, j: K): E = distanceBetween(i, j).getOrElse(top[E])
+  def distance(i: K, j: K): E = distanceBetween(i, j).get
 
   /**
    * Returns the distance between two nodes in the graph.

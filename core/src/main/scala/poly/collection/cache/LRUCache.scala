@@ -1,6 +1,5 @@
 package poly.collection.cache
 
-import poly.algebra._
 import poly.collection._
 import poly.collection.mut._
 

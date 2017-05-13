@@ -1,6 +1,5 @@
 package poly.collection.mut
 
-import poly.algebra._
 import poly.collection._
 import poly.collection.evidence._
 import poly.collection.exception._
@@ -47,19 +46,19 @@ class ArrayQueue[T] private(private val data: ResizableArray[T]) extends Queue[T
 
   def elements = IndexedSeq.tabulate(size)(i => data((frontPtr + i) % data.capacity))
 
-  def top = {
+  def front = {
     if (isEmpty) throw new QueueEmptyException
     data(frontPtr)
   }
 
-  def push(x: T) = {
+  def enqueue(x: T) = {
     if (isFull) grow()
     data(backPtr) = x
     backPtr = (backPtr + 1) % data.capacity
   }
 
-  def pop(): T = {
-    val x = top
+  def dequeue(): T = {
+    val x = front
     frontPtr = (frontPtr + 1) % data.capacity
     x
   }

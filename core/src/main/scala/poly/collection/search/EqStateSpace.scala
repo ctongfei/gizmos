@@ -1,9 +1,8 @@
 package poly.collection.search
 
-import poly.algebra._
-import poly.algebra.syntax._
-import poly.algebra.specgroup._
+import cats.implicits._
 import poly.collection._
+import poly.collection.specgroup._
 
 /**
  * Represents a space of equatable search states, which can be considered as an implicit graph.
@@ -75,8 +74,7 @@ abstract class AbstractEqStateSpace[@sp(Int) S] extends EqStateSpace[S]
 
 private[poly] object EqStateSpaceT {
 
-  class BySucc[S](f: S => Traversable[S], val eq: Eq[S]) extends AbstractEqStateSpace[S] {
-    def keyEq = eq
+  class BySucc[S](f: S => Traversable[S], val keyEq: Eq[S]) extends AbstractEqStateSpace[S] {
     def succ(x: S) = f(x)
   }
 

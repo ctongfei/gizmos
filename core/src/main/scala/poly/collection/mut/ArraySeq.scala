@@ -14,19 +14,28 @@ class ArraySeq[T] private(private[poly] var data: ResizableSeq[T]) extends Abstr
 
   def fastLength = data.fastLength
 
+  /** $O1 @inheritdoc */
   def fastApply(i: Int) = data(i)
 
+  /** $O1 @inheritdoc */
   def update(i: Int, x: T) = data.update(i, x)
 
+  /** $On @inheritdoc */
   def insert_!(i: Int, x: T) = data.insert_!(i, x)
 
+  /** $On @inheritdoc */
   def delete_!(i: Int) = data.delete_!(i)
 
+  /** $On @inheritdoc */
   def prepend_!(x: T) = data.prepend_!(x)
 
+  /** $O1amortized @inheritdoc */
   def append_!(x: T) = data.append_!(x)
 
+  /** $O1 @inheritdoc */
   def clear_!() = data.clear_!()
+
+  override def factory = ArraySeq
 
 }
 

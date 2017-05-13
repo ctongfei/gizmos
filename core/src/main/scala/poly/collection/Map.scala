@@ -1,13 +1,12 @@
 package poly.collection
 
-import poly.algebra._
-import poly.algebra.syntax._
-import poly.algebra.hkt._
-import poly.algebra.specgroup._
+import cats.implicits._
 import poly.collection.exception._
 import poly.collection.factory._
 import poly.collection.impl._
 import poly.collection.mut._
+import poly.collection.typeclass._
+
 import scala.language.higherKinds
 import scala.language.reflectiveCalls
 
@@ -21,7 +20,7 @@ import scala.language.reflectiveCalls
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K, V] with Func[K, V] { self =>
+trait Map[@specialized(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K, V] with Func[K, V] { self =>
 
   /** Returns the set of the keys in this map. $LAZY */
   def keySet: Set[K]
@@ -180,7 +179,7 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
 
   def asMultimap[W >: V](implicit W: Eq[W]): Multimap[K, W] = new MapT.AsMultimap(self, W)
 
-  def asMultiset[W >: V](implicit W: OrderedRing[W]): WeightedSet[K, W] = new MapT.AsWeightedSet(self, W)
+  def asMultiset[W >: V](implicit wo: Order[W], wr: Ring[W]): WeightedSet[K, W] = new MapT.AsWeightedSet(self, wr, wo)
 
   // SYMBOLIC ALIASES
   def ×[L, W](that: Map[L, W]): Map[(K, L), (V, W)] = self product that
@@ -197,7 +196,7 @@ trait Map[@sp(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K
   override def toString = "{" + pairs.map { case (k, v) => s"$k -> $v" }.buildString(", ") + "}"
 
   override def equals(that: Any) = that match {
-    case that: Map[K, V] => Map.Eq(Eq.default[V]).eq(this, that)
+    case that: Map[K, V] => Map.Eq(Hashing.default[V]).eqv(this, that)
     case _ => false
   }
 
@@ -280,47 +279,50 @@ object Map extends MapFactory[Map, Eq] with MapLowPriorityTypeclassInstances {
   }
 
   /** Returns the vector space on maps given the value set of the map forms a field. */
-  implicit def VectorSpace[K: Eq, F: Field]: VectorSpace[Map[K, F], F] = new VectorSpace[Map[K, F], F] {
-    def scalarField = Field[F]
-    def scale(x: Map[K, F], k: F) = x map (_ * k)
-    def add(x: Map[K, F], y: Map[K, F]) = (x fullOuterJoin y) map {
+  implicit def VectorSpace[K: Eq, F](implicit F: Field[F]): VectorSpace[Map[K, F], F] = new VectorSpace[Map[K, F], F] {
+    import spire.syntax.field._
+    def scalar = F
+    def timesl(k: F, x: Map[K, F]) = x map (_ * k)
+    def plus(x: Map[K, F], y: Map[K, F]) = (x fullOuterJoin y) map {
       case (Some(a), Some(b)) => a + b
       case (Some(a), None) => a
       case (None, Some(b)) => b
-      case _ => function.zero[F]
+      case _ => scalar.zero
     }
     def zero = Map.empty[K]
+    def negate(x: Map[K, F]) = x map (_ * scalar.negate(scalar.one))
   }
 
 }
 
 trait MapLowPriorityTypeclassInstances {
   /** Returns the module on maps given the value set of the map forms a ring. */
-  implicit def Module[K: Eq, R: Ring]: Module[Map[K, R], R] = new Module[Map[K, R], R] {
-    private[this] val R = Ring[R]
-    def scalarRing = R
-    def scale(x: Map[K, R], k: R) = x map (_ * k)
-    def add(x: Map[K, R], y: Map[K, R]) = (x fullOuterJoin y) map {
+  implicit def Module[K: Eq, R](implicit R: Ring[R]): Module[Map[K, R], R] = new Module[Map[K, R], R] {
+    import spire.syntax.ring._
+    def scalar = R
+    def timesl(k: R, x: Map[K, R]) = x map (_ * k)
+    def plus(x: Map[K, R], y: Map[K, R]) = (x fullOuterJoin y) map {
       case (Some(a), Some(b)) => a + b
       case (Some(a), None) => a
       case (None, Some(b)) => b
       case _ => R.zero
     }
     def zero = Map.empty[K]
+    def negate(x: Map[K, R]) = x map (_ * scalar.negate(scalar.one))
   }
 }
 
 
-abstract class AbstractMap[@sp(Int) K, +V] extends Map[K, V]
+abstract class AbstractMap[@specialized(Int) K, +V] extends Map[K, V]
 
 private[poly] object MapT {
 
-  class DynamicEq[K, V: Eq] extends AbstractEq[Map[K, V]] {
-    def eq(x: Map[K, V], y: Map[K, V]) = (x, y) match {
-      case (x: IndexedSeq[V], y: IndexedSeq[V]) => IndexedSeq.Eq[V].eq(x, y)
-      case (x: Seq[V], y: Seq[V]) => Seq.Eq[V].eq(x, y)
-      case (x: Table[V], y: Table[V]) => Table.Eq[V].eq(x, y)
-      case _ => Map.Eq[K, V].eq(x, y)
+  class DynamicEq[K, V: Eq] extends Eq[Map[K, V]] {
+    def eqv(x: Map[K, V], y: Map[K, V]) = (x, y) match {
+      case (x: IndexedSeq[V], y: IndexedSeq[V]) => IndexedSeq.Eq[V].eqv(x, y)
+      case (x: Seq[V], y: Seq[V]) => Seq.Eq[V].eqv(x, y)
+      case (x: Table[V], y: Table[V]) => Table.Eq[V].eqv(x, y)
+      case _ => Map.Eq[K, V].eqv(x, y)
     }
   }
 
@@ -329,7 +331,7 @@ private[poly] object MapT {
   }
 
   class MapEq[K, V: Eq] extends Eq[Map[K, V]] {
-    def eq(x: Map[K, V], y: Map[K, V]) =
+    def eqv(x: Map[K, V], y: Map[K, V]) =
       (x.keys forall { k => x(k) === y(k) }) && (y.keys forall { k => y(k) === x(k) })
   }
 
@@ -438,8 +440,9 @@ private[poly] object MapT {
     }
   }
 
-  class AsWeightedSet[K, R](self: Map[K, R], implicit val R: OrderedRing[R]) extends AbstractWeightedSet[K, R] {
+  class AsWeightedSet[K, R](self: Map[K, R], implicit val R: Ring[R], O: Order[R]) extends AbstractWeightedSet[K, R] {
     implicit def weightRing = R
+    implicit def weightOrder = O
     def keySet = self.keySet
     def weight(k: K) = if (self.containsKey(k)) R.one else R.zero
   }

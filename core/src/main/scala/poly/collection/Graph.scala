@@ -1,13 +1,10 @@
 package poly.collection
 
-import poly.algebra._
-import poly.algebra.syntax._
-import poly.algebra.specgroup._
-import poly.collection.exception._
 import poly.collection.factory._
 import poly.collection.mut._
 import poly.collection.node._
 import poly.collection.search._
+import poly.collection.specgroup._
 
 import scala.language.higherKinds
 
@@ -136,9 +133,10 @@ object Graph {
     // special implementation: uses the eqOnKeys in the referring graph!
     // ensures that two NodeProxy objects are really referring to the same node in the graph
     override def equals(that: Any) = that match {
-      case that: NodeProxy[K, E] => (this.graph eq that.graph) && graph.keyEq.eq(this.key, that.key)
+      case that: NodeProxy[K, E] => (this.graph eq that.graph) && graph.keyEq.eqv(this.key, that.key)
       case _ => false
     }
+
     override def hashCode = hashByRef(graph) + (graph.keyEq match {
       case hk: Hashing[K] => hk.hash(key)
       case _ => key.##
@@ -146,8 +144,9 @@ object Graph {
 
   }
 
-  implicit class AsWeightedStateSpace[K, E: OrderedAdditiveGroup](g: Graph[K, E]) extends WeightedStateSpace[K, E] {
-    def costGroup = OrderedAdditiveGroup[E]
+  implicit class AsWeightedStateSpace[K, E](g: Graph[K, E])(implicit oe: Order[E], ge: AdditiveMonoid[E]) extends WeightedStateSpace[K, E] {
+    def costOrder = oe
+    def costMonoid = ge
     def succWithCost(x: K) = g.outgoingMap(x).pairs
     def keyEq = g.keyEq
   }

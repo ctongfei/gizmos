@@ -1,7 +1,6 @@
 package poly.collection.impl.hashtable
 
-import poly.algebra._
-import poly.algebra.syntax._
+import cats.implicits._
 import poly.collection._
 import poly.macroutil._
 
@@ -31,7 +30,7 @@ class OpenHashTable[K: Hashing, E >: Null <: OpenHashEntryLike[K, E]](initialSiz
   def locate(k: K): E = {
     val h = index(k.###)
     var e = table(h).asInstanceOf[E]
-    while (e != null && (e.key !== k))
+    while (e != null && (e.key =!= k))
       e = e.nextEntry
     e
   }
@@ -54,7 +53,7 @@ class OpenHashTable[K: Hashing, E >: Null <: OpenHashEntryLike[K, E]](initialSiz
         size -= 1
       } else {
         var ee = e.nextEntry
-        while (ee != null && (ee.key !== k)) {
+        while (ee != null && (ee.key =!= k)) {
           e = ee
           ee = ee.nextEntry
         }

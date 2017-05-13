@@ -1,6 +1,5 @@
 package poly.collection.mut
 
-import poly.algebra._
 import poly.collection._
 import poly.collection.conversion.FromScala._
 import poly.collection.node._
@@ -40,14 +39,14 @@ class DisjointSets[T] private(private val data: Map[T, DisjointSets.Node]) exten
 
   /** Joins the two sets in which the two specified elements resides. */
   def join(x: T, y: T): Unit = {
-    if (data.keyEq.eq(x, y)) return
+    if (data.keyEq.eqv(x, y)) return
     link(find(data(x)), find(data(y)))
     numSets -= 1
   }
 
   /** Tests if the two specified elements belong to the same set. */
-  def eq(x: T, y: T) = {
-    if (data.keyEq.eq(x, y)) true
+  def eqv(x: T, y: T) = {
+    if (data.keyEq.eqv(x, y)) true
     else find(data(x)) == find(data(y))
   }
 

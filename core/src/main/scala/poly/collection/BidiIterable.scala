@@ -1,26 +1,45 @@
 package poly.collection
 
 /**
- * Represents a collection that can be iterated in two directions, namely forward and backward.
+ * Represents a collection that can be iterated in both forward and backward directions.
  *
  * @author Tongfei Chen
  * @since 0.1.0
  */
 trait BidiIterable[+T] extends Iterable[T] { self =>
 
-  import BidiIterable._
-
   /** Returns an iterator that iterates through this collection in reverse order. */
   def newReverseIterator: Iterator[T]
 
-  /** Returns the reverse of this iterable collection. $LAZY */
+  /** $LAZY Reverses this iterable collection. */
   override def reverse: BidiIterable[T] = new AbstractBidiIterable[T] {
     def newReverseIterator = self.newIterator
     def newIterator = self.newReverseIterator
     override def reverse = self
   }
 
-  override def map[U](f: T => U): BidiIterable[U] = new AbstractBidiIterable[U] {
+  override def map[U](f: T => U): BidiIterable[U] = new BidiIterableT.Mapped(self, f)
+
+  override def last = reverse.head
+
+  def asBidiIterable: BidiIterable[T] = new BidiIterableT.Bare[T](self)
+
+}
+
+object BidiIterable {
+
+  def ofIterator[T](forward: => Iterator[T], backward: => Iterator[T]): BidiIterable[T] = new BidiIterable[T] {
+    def newReverseIterator = backward
+    def newIterator = forward
+  }
+
+}
+
+abstract class AbstractBidiIterable[+T] extends AbstractIterable[T] with BidiIterable[T]
+
+private[poly] object BidiIterableT {
+
+  class Mapped[T, U](self: BidiIterable[T], f: T => U) extends AbstractBidiIterable[U] {
     def newIterator = new AbstractIterator[U] {
       private[this] val i = self.newIterator
       def current = f(i.current)
@@ -37,22 +56,9 @@ trait BidiIterable[+T] extends Iterable[T] { self =>
     override def sizeKnown = self.sizeKnown
   }
 
-  override def last = reverse.head
-
-  def asBidiIterable = new AbstractBidiIterable[T] {
+  class Bare[+T](self: BidiIterable[T]) extends AbstractBidiIterable[T] {
     def newReverseIterator = self.newReverseIterator
     def newIterator = self.newIterator
   }
 
 }
-
-object BidiIterable {
-
-  def ofIterator[T](forward: => Iterator[T], backward: => Iterator[T]): BidiIterable[T] = new BidiIterable[T] {
-    def newReverseIterator = backward
-    def newIterator = forward
-  }
-
-}
-
-abstract class AbstractBidiIterable[+T] extends AbstractIterable[T] with BidiIterable[T]

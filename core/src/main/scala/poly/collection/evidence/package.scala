@@ -29,5 +29,4 @@ package object evidence {
   /** Forcibly prove that type K is `Int`. Use with caution. */
   private[poly] def evInt[K] = singletonIsIntEv.asInstanceOf[K =:= Int]
 
-
 }

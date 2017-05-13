@@ -1,7 +1,6 @@
 package poly.collection.mut
 
-import poly.algebra._
-import poly.algebra.syntax._
+import cats.implicits._
 import poly.collection._
 
 /**
@@ -20,7 +19,7 @@ class DistinctPriorityQueue[K: Eq, T] private(private val inner: PriorityQueue[T
 
   implicit def elementOrder = inner.elementOrder
 
-  def push(x: T) = {
+  def enqueue(x: T) = {
     val k = keySelector(x)
     if (seen notContainsKey k) { // node not seen
       inner += x
@@ -31,9 +30,9 @@ class DistinctPriorityQueue[K: Eq, T] private(private val inner: PriorityQueue[T
     } else { /* node is worse than what is seen, discard this node, do nothing */ }
   }
 
-  def top = inner.top
+  def front = inner.front
   
-  def pop() = inner.pop()
+  def dequeue() = inner.dequeue()
 
   def elements = inner.elements
 

@@ -1,6 +1,5 @@
 package poly.collection.mut
 
-import poly.algebra._
 import poly.collection._
 import poly.collection.evidence._
 import poly.collection.factory._
@@ -11,9 +10,9 @@ import scala.reflect._
  * Constructs a mutable set given an implicit equivalence relation on the keys.
  * The type of the resulting set is determined from the following fallback relation:
  * <ul>
- *   <li> If the key is endowed with a hashing instance ([[poly.algebra.Hashing]]),
+ *   <li> If the key is endowed with a hashing instance ([[poly.collection.typeclass.Hashing]]),
  *     the result type is [[poly.collection.mut.HashSet]]. Under this condition, the lookup complexity is amortized O(1). </li>
- *   <li> Else, if the key is endowed with a weak order ([[poly.algebra.Order]]),
+ *   <li> Else, if the key is endowed with a weak order ([[cats.Order]]),
  *     the result type is [[poly.collection.mut.RedBlackTreeSet]]. Under this condition, the lookup complexity is O(log ''n''). </li>
  *   <li> Else, the result type is [[poly.collection.mut.ListSet]]. Under this condition, the lookup complexity is O(''n''). </li>
  * </ul>
@@ -29,8 +28,12 @@ object AutoSet extends SetFactory[KeyMutableSet, Eq] {
 
   object Dense extends SetFactory[KeyMutableSet, (Eq & ClassTag)#λ] {
     implicit def newSetBuilder[K](implicit ev: Ev2[Eq, ClassTag, K]): Builder[K, KeyMutableSet[K]] = ev match {
-      case Product2(std.IntStructure, ClassTag.Int) => BitSet.newSetBuilder(evInt[K]).asInstanceOf[Builder[K, KeyMutableSet[K]]] // the cast is safe: K =:= Int
-      case _                                        => AutoSet.newSetBuilder(ev._1)
+      case Product2(intEq, ClassTag.Int)
+        if intEq.isInstanceOf[cats.kernel.instances.IntOrder] // standard Int equivalence
+      =>
+        BitSet.newSetBuilder(evInt[K]).asInstanceOf[Builder[K, KeyMutableSet[K]]] // the cast is safe: K =:= Int
+      case _
+      => AutoSet.newSetBuilder(ev._1)
     }
   }
 }

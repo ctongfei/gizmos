@@ -1,7 +1,6 @@
 package poly.collection.node
 
-import poly.algebra._
-import poly.algebra.syntax._
+import cats.implicits._
 import poly.collection._
 import poly.collection.search._
 
@@ -37,7 +36,7 @@ trait ForwardNodeLike[+T, +N <: ForwardNodeLike[T, N]] extends NodeLike[T, N] { 
 
 object ForwardNodeLike {
   implicit def StateSpace[T, N <: ForwardNodeLike[T, N]]: EqStateSpace[N] = new AbstractEqStateSpace[N] {
-    def keyEq = Eq.default[N]
+    def keyEq = Hashing.default[N]
     def succ(x: N) = x.succ
   }
 }

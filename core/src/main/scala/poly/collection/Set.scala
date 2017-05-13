@@ -1,8 +1,6 @@
 package poly.collection
 
-import poly.algebra._
-import poly.algebra.syntax._
-import poly.algebra.specgroup._
+import cats.kernel._
 import poly.collection.factory._
 import poly.collection.impl._
 import poly.collection.mut._
@@ -12,7 +10,7 @@ import poly.collection.mut._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
+trait Set[@specialized(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
 
   implicit def keyEq: Eq[T]
 
@@ -170,7 +168,7 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
 
   def exists(f: T => Boolean) = elements exists f
 
-  def sum[U >: T : AdditiveCMonoid] = elements.sum[U]
+  def sum[U >: T : AdditiveMonoid] = elements.sum[U]
 
   def max(implicit T: Order[T]) = elements.max
 
@@ -195,7 +193,7 @@ trait Set[@sp(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { self =>
    * Casts this set as a multiset in which each element appears exactly once.
    * @tparam R Type of the counts of elements in the multiset, can be `Int`, `Double`, etc.
    */
-  def asWeightedSet[R: OrderedRing]: WeightedSet[T, R] = new SetT.AsWeightedSet(self)
+  def asWeightedSet[R: Order : Ring]: WeightedSet[T, R] = new SetT.AsWeightedSet(self)
 
   //Symbolic aliases
   def &(that: Set[T]) = this intersect that
@@ -241,17 +239,17 @@ object Set extends Factory1[Id, Set, Eq] {
 
   def ContainmentOrder[T]: PartialOrder[Set[T]] = new SetT.ContainmentOrder[T]
 
-  /** Returns an instance that can compute the Jaccard similarity / distance between two sets. */
-  def Jaccard[T] = new SetT.Jaccard[T]
+  ///** Returns an instance that can compute the Jaccard similarity / distance between two sets. */
+  //def Jaccard[T] = new SetT.Jaccard[T]
 
 }
 
-abstract class AbstractSet[@sp(Int) T] extends Set[T]
+abstract class AbstractSet[@specialized(Int) T] extends Set[T]
 
 private[poly] object SetT {
 
   class SetEq[T] extends Eq[Set[T]] {
-    def eq(x: Set[T], y: Set[T]) = (x ⊆ y) && (x ⊇ y)
+    def eqv(x: Set[T], y: Set[T]) = (x ⊆ y) && (x ⊇ y)
   }
 
   class SetHashing[T: Hashing] extends SetT.SetEq[T] with Hashing[Set[T]] {
@@ -259,13 +257,22 @@ private[poly] object SetT {
   }
 
   class SetLattice[T] extends Lattice[Set[T]] {
-    def inf(x: Set[T], y: Set[T]) = x ∩ y
-    def sup(x: Set[T], y: Set[T]) = x ∪ y
+    def join(x: Set[T], y: Set[T]) = x ∩ y
+    def meet(x: Set[T], y: Set[T]) = x ∪ y
   }
 
   class ContainmentOrder[T] extends PartialOrder[Set[T]] {
-    override def eq(x: Set[T], y: Set[T]) = (x ⊆ y) && (x ⊇ y)
-    def le(x: Set[T], y: Set[T]) = x ⊆ y
+    override def eqv(x: Set[T], y: Set[T]) = (x ⊆ y) && (x ⊇ y)
+    def partialCompare(x: Set[T], y: Set[T]) = {
+      val l = x ⊆ y
+      val r = x ⊇ y
+      if (l && r) 0
+      else if (l && !r) -1
+      else if (!l && r) 1
+      else Double.NaN
+    }
+    override def lteqv(x: Set[T], y: Set[T]) = x ⊆ y
+    override def gteqv(x: Set[T], y: Set[T]) = x ⊇ y
   }
 
   class KeyFiltered[T](self: Set[T], f: T => Boolean) extends AbstractSet[T] {
@@ -296,7 +303,7 @@ private[poly] object SetT {
   }
 
   class BijectivelyMapped[T, U](self: Set[T], f: Bijection[T, U]) extends AbstractSet[U] {
-    def keyEq = self.keyEq contramap f.invert
+    def keyEq = self.keyEq on f.invert
     def keys = self.elements map f
     def contains(x: U) = self contains f.invert(x)
   }
@@ -316,14 +323,12 @@ private[poly] object SetT {
     override def outgoingMap(i: T) = self createMapOptionally  { j => f(i, j) }
   }
 
-  class AsWeightedSet[T, R: OrderedRing](self: Set[T]) extends AbstractWeightedSet[T, R] {
-    def weightRing = OrderedRing[R]
-    def weight(k: T) = if (self.contains(k)) one[R] else zero[R]
+  class AsWeightedSet[T, R](self: Set[T])(implicit val weightRing: Ring[R], val weightOrder: Order[R]) extends AbstractWeightedSet[T, R] {
+    def weight(k: T) = if (self.contains(k)) weightRing.one else weightRing.zero
     def keySet = self.keySet
   }
 
-  class Empty[T: Eq] extends AbstractSet[T] {
-    def keyEq = poly.algebra.Eq[T]
+  class Empty[T](implicit val keyEq: Eq[T]) extends AbstractSet[T] {
     override def size = 0
     def keys = Iterable.Empty
     def contains(x: T) = false
@@ -334,6 +339,7 @@ private[poly] object SetT {
     override def properSubsetOf(that: Set[T]) = that.size != 0
   }
 
+  /**
   class Jaccard[T] extends Similarity[Set[T], Double] with MetricSpace[Set[T], Double] {
     implicit def similarityOrder = poly.algebra.std.DoubleStructure
     def sim(x: Set[T], y: Set[T]) = {
@@ -342,5 +348,6 @@ private[poly] object SetT {
     }
     def dist(x: Set[T], y: Set[T]) = 1.0 - sim(x, y)
   }
+   */
 
 }
