@@ -1,7 +1,5 @@
 package poly.collection
 
-import poly.algebra._
-
 /**
  * @author Tongfei Chen
  * @since 0.1.0

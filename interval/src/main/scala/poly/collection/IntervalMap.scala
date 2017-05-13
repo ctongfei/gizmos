@@ -1,6 +1,6 @@
 package poly.collection
 
-import poly.algebra.specgroup._
+import poly.collection.specgroup._
 
 /**
  * @author Tongfei Chen

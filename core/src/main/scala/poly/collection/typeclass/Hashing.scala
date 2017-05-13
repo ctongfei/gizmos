@@ -26,6 +26,11 @@ object Hashing {
 
   def apply[T](implicit T: Hashing[T]) = T
 
+  implicit def anyVal[@sp T <: AnyVal]: Hashing[T] = new Hashing[T] {
+    def hash(x: T): Int = x.##
+    def eqv(x: T, y: T) = x == y
+  }
+
   /** Creates a `IntHashing` object from the specific hash function. */
   def create[@specialized X](fHash: X => Int)(implicit X: Eq[X]): Hashing[X] = new HashingT.OfHashFunc[X](fHash, X)
 

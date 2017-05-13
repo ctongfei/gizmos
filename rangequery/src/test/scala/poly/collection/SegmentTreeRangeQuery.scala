@@ -1,7 +1,6 @@
 package poly.collection
 
-import poly.algebra._
-import poly.algebra.syntax._
+import algebra.instances.int._
 import poly.collection.mut._
 
 /**
@@ -11,9 +10,12 @@ object SegmentTreeRangeQueryTest extends App {
 
   val a = ArraySeq(1, 2, 3, 4, 3, 2, 1)
 
-  val rsq = SegmentTreeRangeQuery.from(a)(Ring[Int].asMonoidWithAdd)
+  val rsq = SegmentTreeRangeQuery.from(a)
 
-  val rmq = SegmentTreeRangeQuery.from(a)(Monoid.create(Math.min, Int.MaxValue))
+  val rmq = SegmentTreeRangeQuery.from(a)(new Monoid[Int] {
+    def empty: Int = Int.MinValue
+    def combine(x: Int, y: Int): Int = x max y
+  })
 
 
 

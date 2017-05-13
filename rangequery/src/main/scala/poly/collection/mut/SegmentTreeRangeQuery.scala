@@ -1,7 +1,6 @@
 package poly.collection.mut
 
-import poly.algebra._
-import poly.algebra.syntax._
+import cats.implicits._
 import poly.collection._
 import poly.collection.factory._
 import poly.collection.impl._
@@ -25,7 +24,7 @@ class SegmentTreeRangeQuery[T] private(private val data: ResizableSeq[T])(implic
       var r = j
       if (j % 2 == 0) r = j + 1 // left child
       else l = j - 1 // right child
-      data(j / 2) = data(l) ⊕ data(r)
+      data(j / 2) = data(l) |+| data(r)
       j /= 2
     }
   }
@@ -35,14 +34,14 @@ class SegmentTreeRangeQuery[T] private(private val data: ResizableSeq[T])(implic
   def rangeAggregate(i: Int, j: Int) = {
     var l = length + i
     var r = length + j
-    var s = id[T]
+    var s = monoid.empty
     while (l <= r) {
       if (l % 2 == 1) {
-        s ⊕= data(l)
+        s |+|= data(l)
         l += 1
       }
       if (r % 2 == 0) {
-        s ⊕= data(r)
+        s |+|= data(r)
         r -= 1
       }
       l /= 2
@@ -66,7 +65,7 @@ object SegmentTreeRangeQuery extends Factory1[Id, SegmentTreeRangeQuery, Monoid]
         t(n + i) = array(i)
       }
       FastLoop.descending(n - 1, 0, -1) { i =>
-        t(i) = t(2 * i) ⊕ t(2 * i + 1)
+        t(i) = t(2 * i) |+| t(2 * i + 1)
       }
       new SegmentTreeRangeQuery[T](t)
     }
