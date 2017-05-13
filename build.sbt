@@ -80,3 +80,10 @@ lazy val approx = (project in file("approx")).settings(commonSettings: _*)
 )
 
 
+val root = (project in file(".")).
+  settings(commonSettings: _*).
+  enablePlugins(ScalaUnidocPlugin).
+  settings(
+    name := "poly-collection"
+  ).
+  aggregate(core, rangequery, interval, transient, approx)

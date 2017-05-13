@@ -1,6 +1,5 @@
 package poly.collection.approx
 
-import poly.algebra._
 import poly.collection._
 import poly.collection.impl.specialized._
 
