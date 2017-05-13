@@ -41,7 +41,7 @@ class SortedArrayMap[K, V] private(
   }
 
   def clear_!() = {
-    keyArray.clear()
+    keyArray.clear_!()
     valArray.clear_!()
   }
 

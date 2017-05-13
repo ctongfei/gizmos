@@ -7,12 +7,12 @@ import poly.collection._
  */
 trait MutableSortedIndexedSeq[T] extends SortedIndexedSeq[T] {
 
-  def add(x: T): Unit
+  def add_!(x: T): Unit
 
-  def remove(x: T): Unit
+  def remove_!(x: T): Unit
 
-  def deleteAt(i: Int): Unit
+  def deleteAt_!(i: Int): Unit
 
-  def clear(): Unit
+  def clear_!(): Unit
 
 }
