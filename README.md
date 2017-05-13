@@ -4,23 +4,23 @@ Poly-collection is a Scala collection framework that aims to provide an alternat
  Scala collection framework. It provides a large range of collection classes, and differs from
  the standard collection framework in several ways:
  
-  - Full support for graphs, trees, multisets, multimaps and others with various functional operators defined on them.
+  - Full support for **graphs, trees, multisets, multimaps** and others with various functional operators defined on them.
   
-  - Concretely based on basic algebraic concepts through the Typelevel Scala family projects
-   [Cats](https://github.com/typelevel/cats), [Algebra](https://github.com/typelevel/algebra) and [Spire](https://github.com/non/spire)
-    by extensive use of typeclass patterns (`Eq`/`Order`/...). This means the equivalence relation / hashing function for sets / maps 
+  - **Based on algebraic typeclasses through the Typelevel Scala family projects
+   [Cats](https://github.com/typelevel/cats), [Algebra](https://github.com/typelevel/algebra) and [Spire](https://github.com/non/spire)**
+    (`Eq`/`Order`/...). This means the equivalence relation / hashing function for sets / maps 
      can be customized via arbitrary typeclass instances.
      
-  - Lazy by default: Higher-order transformational functions are nearly always executed in a non-strict manner:
+  - **Lazy by default**: Higher-order transformational functions are nearly always executed in a non-strict manner:
    functions like `map`, `filter`, `flatMap` are nearly always evaluated lazily (like Spark). This allows chain application like 
    `xs map f filter g reduce h` to be much faster than the standard library.
   
-  - Returning-same-trait principle: Instead of the uniform-return-type principle of the Scala standard collection
+  - **Returning-same-trait principle**: Instead of the uniform-return-type principle of the Scala standard collection
    library, Poly-collection returns the most fined-grained trait possible without much performance loss.
     For example, a `map` applied on an `ArraySeq` would return a read-only view, 
     or a lazy `IndexedSeq` instead of a strict `ArraySeq`.
   
-  - `Map`s and `Set`s are not `Iterable`s, instead, `map.pairs` or `set.keys` are. The nonsensical behavior of `zip`/`tail` etc. 
+  - **`Map`s and `Set`s are not `Iterable`s**, instead, `map.pairs` or `set.keys` are. The nonsensical behavior of `zip`/`tail` etc. 
   for Sets/Maps in Scala is removed. `map.zip` now means zip-by-keys. 
   This also removes obscure bugs like `Set("ab", "bc").map(_.length).sum` (intuitively 4, but actually 2 in Scala collections).
 
