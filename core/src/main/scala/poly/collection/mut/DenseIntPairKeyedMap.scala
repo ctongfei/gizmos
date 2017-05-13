@@ -1,6 +1,5 @@
 package poly.collection.mut
 
-import poly.algebra._
 import poly.collection._
 import poly.collection.evidence._
 import poly.collection.factory._
@@ -19,9 +18,11 @@ class DenseIntPairKeyedMap[T] private(
 ) extends KeySortedMap[(Int, Int), T] with KeyMutableMap[(Int, Int), T] {
 
   def keySet: SortedSet[(Int, Int)] = new AbstractSortedSet[(Int, Int)] {
-    def keyOrder = Order.create { (p, q) =>
-      if (p._1 != q._1) p._1 - q._1
-      else p._2 - q._2
+    def keyOrder = new Order[(Int, Int)] {
+      override def compare(p: (Int, Int), q: (Int, Int)) = {
+        if (p._1 != q._1) p._1 - q._1
+        else p._2 - q._2
+      }
     }
     def keys = Range(data.rowCapacity).product(Range(data.colCapacity)).filter { case (i, j) => data.get(i, j) != null }.asIfSorted(keyOrder)
     def contains(x: (Int, Int)) = data.get(x._1, x._2) != null

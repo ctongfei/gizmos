@@ -111,6 +111,8 @@ class ListBidiSeq[T] private() extends AbstractBidiSeq[T] with KeyMutableSeq[T] 
       c = c.next
     }
   }
+
+  override def factory = ListBidiSeq
 }
 
 object ListBidiSeq extends SeqFactory[ListBidiSeq] {

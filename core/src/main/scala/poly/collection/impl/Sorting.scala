@@ -1,7 +1,6 @@
 package poly.collection.impl
 
-import poly.algebra._
-import poly.algebra.syntax._
+import cats.implicits._
 import poly.collection._
 import poly.collection.mut._
 
@@ -11,7 +10,8 @@ import poly.collection.mut._
  */
 object Sorting {
 
-  def quickSort[T: Order](a: ValueMutableIndexedSeq[T]): Unit = {
+  def quickSort[T, U >: T](a: ValueMutableIndexedSeq[T])(implicit U: Order[U]): Unit = {
+    implicit val T: Order[T] = U.on(identity)
     def quicksort0(i: Int, j: Int): Unit = {
       var l = i
       var r = j

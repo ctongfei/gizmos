@@ -1,6 +1,6 @@
 package poly.collection.impl.hashtable
 
-import poly.algebra.specgroup._
+import poly.collection.specgroup._
 
 /**
  * Represents an entry in an open hash table.

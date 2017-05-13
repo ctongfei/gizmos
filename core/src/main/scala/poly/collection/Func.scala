@@ -1,8 +1,8 @@
 package poly.collection
 
-import poly.algebra._
-import poly.algebra.hkt._
-import poly.algebra.specgroup._
+import cats.arrow._
+
+import scala.{specialized => sp}
 
 /**
  * Poly-collection's wrapper of [[scala.Function1]].
@@ -48,8 +48,8 @@ object Func {
     def id[X] = (x: X) => x
     def compose[X, Y, Z](g: Func[Y, Z], f: Func[X, Y]) = g compose f
     def lift[X, Y](f: X => Y) = f
-    def apply1[X, Y, Z](f: Func[X, Y]): Func[(X, Z), (Y, Z)] = { case (x, z) => (f(x), z) }
-    def apply2[X, Y, Z](f: Func[X, Y]): Func[(Z, X), (Z, Y)] = { case (z, x) => (z, f(x)) }
+    def first[A, B, C](f: Func[A, B]): Func[(A, C), (B, C)] = { case (x, z) => (f(x), z) }
+    override def second[X, Y, Z](f: Func[X, Y]): Func[(Z, X), (Z, Y)] = { case (z, x) => (z, f(x)) }
   }
 
 }

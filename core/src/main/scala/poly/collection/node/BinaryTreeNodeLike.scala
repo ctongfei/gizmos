@@ -30,9 +30,9 @@ trait BinaryTreeNodeLike[+T, +N <: BinaryTreeNodeLike[T, N]] extends ForwardNode
       private var curr: N = default[N]
       def advance(): Boolean = {
         if (s.isEmpty) return false
-        curr = s.pop()
-        if (curr.rightNode.notDummy) s.push(curr.rightNode)
-        if (curr.leftNode.notDummy) s.push(curr.leftNode)
+        curr = s.dequeue()
+        if (curr.rightNode.notDummy) s.enqueue(curr.rightNode)
+        if (curr.leftNode.notDummy) s.enqueue(curr.leftNode)
         true
       }
       def current = curr
@@ -53,13 +53,13 @@ trait BinaryTreeNodeLike[+T, +N <: BinaryTreeNodeLike[T, N]] extends ForwardNode
       private[this] def pushLeft(n: N) = {
         var node = n
         while (node.notDummy) {
-          s.push(node)
+          s.enqueue(node)
           node = node.leftNode
         }
       }
       def advance(): Boolean = {
         if (s.isEmpty) return false
-        v = s.pop()
+        v = s.dequeue()
         curr = v
         v = v.rightNode
         if (v.notDummy) pushLeft(v)
@@ -76,13 +76,13 @@ trait BinaryTreeNodeLike[+T, +N <: BinaryTreeNodeLike[T, N]] extends ForwardNode
       private[this] def pushRight(n: N) = {
         var node = n
         while (node.notDummy) {
-          s.push(node)
+          s.enqueue(node)
           node = node.rightNode
         }
       }
       def advance(): Boolean = {
         if (s.isEmpty) return false
-        v = s.pop()
+        v = s.dequeue()
         curr = v
         v = v.leftNode
         if (v.notDummy) pushRight(v)
@@ -107,16 +107,16 @@ trait BinaryTreeNodeLike[+T, +N <: BinaryTreeNodeLike[T, N]] extends ForwardNode
       private[this] def pushLeft(n: N) = {
         var node = n
         while (node.notDummy) {
-          s.push(node)
+          s.enqueue(node)
           node = node.leftNode
         }
       }
       def advance(): Boolean = {
         if (s.isEmpty) return false
-        v = s.pop()
+        v = s.dequeue()
         curr = v
-        if (s.notEmpty && (s.top.leftNode == v)) {
-          v = s.top.rightNode
+        if (s.notEmpty && (s.front.leftNode == v)) {
+          v = s.front.rightNode
           if (v.notDummy) pushLeft(v)
         }
         true

@@ -1,8 +1,6 @@
 package poly.collection.mut
 
-import poly.algebra._
 import poly.collection._
-import poly.collection.evidence._
 import poly.collection.exception._
 import poly.collection.factory._
 import poly.collection.impl._
@@ -18,19 +16,19 @@ class ArrayStack[T] private(private var data: ResizableSeq[T]) extends Queue[T] 
 
   override def size = data.fastLength
 
-  def push(x: T): Unit = data.append_!(x)
+  def enqueue(x: T): Unit = data.append_!(x)
 
-  override def pushAll(xs: Traversable[T]) = {
-    xs.reverse foreach push // retain the node visiting sequence for DFS
+  override def enqueueAll(xs: Traversable[T]) = {
+    xs.reverse foreach enqueue // retain the node visiting sequence for DFS
   }
 
-  def top: T = {
+  def front: T = {
     if (isEmpty) throw new QueueEmptyException
     data(data.fastLength - 1)
   }
 
-  def pop(): T = {
-    val x = top
+  def dequeue(): T = {
+    val x = front
     data.delete_!(data.fastLength - 1)
     x
   }

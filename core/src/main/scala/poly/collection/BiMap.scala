@@ -1,7 +1,6 @@
 package poly.collection
 
-import poly.algebra._
-import poly.algebra.syntax._
+import cats.kernel._
 
 /**
  * Represents a bijective map whose key-value pairs can be iterated.

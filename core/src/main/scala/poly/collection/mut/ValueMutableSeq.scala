@@ -16,22 +16,8 @@ trait ValueMutableSeq[T] extends Seq[T] { self =>
    */
   def update(i: Int, x: T): Unit
 
-  /**
-   * Swaps two elements in this sequence in-place.
-   * @param i Index of the first element
-   * @param j Index of the second element
-   */
-  def swap_!(i: Int, j: Int): Unit = {
-    val t = this(i)
-    this(i) = this(j)
-    this(j) = t
-  }
-
   /** Transforms each element of this sequence by the given function in place. */
-  def map_!(f: T => T): Unit = {
-    for (i <- Range(length))
-      update(i, f(apply(i)))
-  }
+  def map_!(f: T => T): Unit
 
   /** Reverses this sequence in place. */
   def reverse_!(): Unit

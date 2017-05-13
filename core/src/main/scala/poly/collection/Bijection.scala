@@ -1,14 +1,13 @@
 package poly.collection
 
-import poly.algebra.hkt._
-import poly.algebra.specgroup._
+import cats.arrow._
 
 /**
  * Represents an one-to-one (bijective) function between two types.
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait Bijection[@sp(Int, AnyRef) X, @sp(Int, AnyRef) Y] extends Func[X, Y] { self =>
+trait Bijection[@specialized(Int, AnyRef) X, @specialized(Int, AnyRef) Y] extends Func[X, Y] { self =>
 
   /** Given a value ''x'' in the domain, returns the unique value ''y'' in the codomain that ''x'' maps to. */
   def apply(x: X): Y
@@ -54,17 +53,17 @@ object Bijection {
 
 }
 
-abstract class AbstractBijection[@sp(Int, AnyRef) X, @sp(Int, AnyRef) Y] extends Bijection[X, Y]
+abstract class AbstractBijection[@specialized(Int, AnyRef) X, @specialized(Int, AnyRef) Y] extends Bijection[X, Y]
 
 private[poly] object BijectionT {
 
-  class Identity[@sp(Int, AnyRef) X] extends Bijection[X, X] {
+  class Identity[@specialized(Int, AnyRef) X] extends Bijection[X, X] {
     def invert(x: X) = x
     def apply(x: X) = x
     override def inverse = this
   }
 
-  class Inverse[@sp(Int, AnyRef) X, @sp(Int, AnyRef) Y](self: Bijection[X, Y]) extends Bijection[Y, X] {
+  class Inverse[@specialized(Int, AnyRef) X, @specialized(Int, AnyRef) Y](self: Bijection[X, Y]) extends Bijection[Y, X] {
     def invert(x: X) = self.apply(x)
     def apply(y: Y) = self.invert(y)
     override def inverse = self

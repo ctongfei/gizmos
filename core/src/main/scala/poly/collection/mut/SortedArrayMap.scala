@@ -1,6 +1,5 @@
 package poly.collection.mut
 
-import poly.algebra._
 import poly.collection._
 import poly.collection.evidence._
 import poly.collection.factory._
@@ -22,7 +21,9 @@ class SortedArrayMap[K, V] private(
     def contains(x: K) = keyArray contains x
   }
 
-  override def pairs = Range(size) map { i => (keyArray(i), valArray(i)) } asIfSorted(keyOrder contramap first)
+  override def size = keyArray.length
+
+  override def pairs = Range(size) map { i => (keyArray(i), valArray(i)) } asIfSorted(keyOrder on first)
 
   def ?(k: K) = keyArray.binarySearch(k) map valArray
 
@@ -62,12 +63,7 @@ object SortedArrayMap extends Factory2[Tuple2, SortedArrayMap, Order, NoneEv] {
     def add(x: (K, V)) = kva :+= x
     def result = {
       kva.sort_!()(Order by first)
-      val ka = ArraySeq[K]()
-      val va = ArraySeq[V]()
-      for ((k, v) <- kva) {
-        ka :+= k
-        va :+= v
-      }
+      val (ka, va) = kva.unzipE
       new SortedArrayMap(new SortedArraySeq(ka.data), va.data)
     }
   }

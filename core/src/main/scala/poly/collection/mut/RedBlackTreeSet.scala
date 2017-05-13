@@ -1,7 +1,5 @@
 package poly.collection.mut
 
-import poly.algebra._
-import poly.algebra.conversion.ImplicitlyFromJava._
 import poly.collection._
 import poly.collection.conversion.ImplicitlyFromJava._
 import poly.collection.factory._
@@ -36,7 +34,7 @@ object RedBlackTreeSet extends SetFactory[RedBlackTreeSet, Order] {
   def newSetBuilder[K](implicit K: Order[K]): Builder[K, RedBlackTreeSet[K]] =
     new Builder[K, RedBlackTreeSet[K]] {
       private[this] val data = new java.util.TreeSet[K](new java.util.Comparator[K] {
-        def compare(a: K, b: K) = K.cmp(a, b)
+        def compare(a: K, b: K) = K.compare(a, b)
       })
       def add(x: K) = data.add(x)
       def result = new RedBlackTreeSet(data)

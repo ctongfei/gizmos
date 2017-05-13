@@ -1,6 +1,5 @@
 package poly.collection
 
-import poly.algebra._
 import poly.collection.node._
 import poly.collection.search._
 

@@ -1,8 +1,6 @@
 package poly.collection
 
-import poly.algebra.hkt._
 import poly.collection.exception._
-import poly.collection.mut._
 import poly.collection.node._
 
 /**
@@ -184,15 +182,16 @@ object BinaryTree {
     override def rootNode = n
   }
 
-  implicit object ZipIdiom extends Idiom[BinaryTree] {
-    def id[X](u: X): BinaryTree[X] = infinite(u)
-    def liftedMap[X, Y](mx: BinaryTree[X])(mf: BinaryTree[X => Y]): BinaryTree[Y] = (mx zip mf).map { case (x, f) => f(x) }
+  implicit object ZipApplicative extends Applicative[BinaryTree] {
+    def pure[X](u: X): BinaryTree[X] = infinite(u)
+    def ap[X, Y](mf: BinaryTree[X => Y])(mx: BinaryTree[X]): BinaryTree[Y] = (mx zip mf).map { case (x, f) => f(x) }
     override def map[T, U](t: BinaryTree[T])(f: T => U): BinaryTree[U] = t map f
   }
 
   implicit object Comonad extends Comonad[BinaryTree] {
-    def id[X](u: BinaryTree[X]) = u.root
-    def extend[X, Y](wx: BinaryTree[X])(f: BinaryTree[X] => Y) = wx.subtrees map f
+    def extract[X](u: BinaryTree[X]) = u.root
+    def coflatMap[X, Y](wx: BinaryTree[X])(f: BinaryTree[X] => Y) = wx.subtrees map f
+    def map[A, B](fa: BinaryTree[A])(f: A => B): BinaryTree[B] = fa map f
   }
 
 }

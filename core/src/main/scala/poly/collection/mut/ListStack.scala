@@ -1,6 +1,5 @@
 package poly.collection.mut
 
-import poly.algebra._
 import poly.collection._
 import poly.collection.evidence._
 import poly.collection.factory._
@@ -17,14 +16,14 @@ class ListStack[T] private(private var data: List[T]) extends Queue[T] {
 
   override def size = s
 
-  def push(x: T): Unit = {
+  def enqueue(x: T): Unit = {
     s += 1
     data = x :: data
   }
 
-  def top: T = data.head
+  def front: T = data.head
 
-  def pop(): T = {
+  def dequeue(): T = {
     val t = data.head
     data = data.tail
     s -= 1

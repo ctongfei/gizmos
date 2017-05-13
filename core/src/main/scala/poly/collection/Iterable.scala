@@ -1,14 +1,11 @@
 package poly.collection
 
-import poly.algebra._
-import poly.algebra.hkt._
-import poly.algebra.specgroup._
-import poly.algebra.syntax._
+import cats.implicits._
 import poly.collection.exception._
 import poly.collection.immut._
 import poly.collection.mut._
-
 import scala.annotation.unchecked.{uncheckedVariance => uv}
+
 import scala.language.implicitConversions
 
 /**
@@ -27,8 +24,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
   /** Returns a new iterator that can be used to iterate through this collection. */
   def newIterator: Iterator[T]
 
-  def foreach[@sp(Unit) V](f: T => V) = newIterator run f
-
+  def foreach[V](f: T => V) = newIterator run f
 
   //region MONADIC OPS
 
@@ -90,9 +86,9 @@ trait Iterable[+T] extends Traversable[T] { self =>
   //region SET OPS
 
 
-  override def distinct(implicit T: Eq[T]): Iterable[T] = ofIterator {
+  override def distinct[U >: T](implicit U: Eq[U]): Iterable[U] = ofIterator {
     new AbstractIterator[T] {
-      private[this] val set = AutoSet[T]()
+      private[this] val set = AutoSet[U]()
       private[this] val i = self.newIterator
       def current = i.current
       def advance(): Boolean = {
@@ -127,10 +123,10 @@ trait Iterable[+T] extends Traversable[T] { self =>
 
   def union[U >: T : Eq](that: Iterable[U]): Iterable[U] = (this concat that).distinct
 
-  def intersect[U >: T : Eq](that: Iterable[U]): Iterable[U] = {
+  def intersect[U >: T](that: Iterable[U])(implicit U: Eq[U]): Iterable[U] = {
     if (this.sizeKnown && that.sizeKnown && this.size < that.size) // short circuit!
       (that filter (this: Iterable[U]).to(AutoSet)).distinct
-    else (this filter that.to(AutoSet)).distinct
+    else (this filter that.to(AutoSet)).distinct(U)
   }
 
 
@@ -346,9 +342,9 @@ trait Iterable[+T] extends Traversable[T] { self =>
 
   override def scan[U >: T](z: U)(f: (U, U) => U) = scanLeft(z)(f)
 
-  override def scanByMonoid[U >: T : Monoid] = scanLeft(id)(_ <> _)
+  override def scanByMonoid[U >: T](implicit U: Monoid[U]) = scanLeft(U.empty)(U.combine)
 
-  override def diffByGroup[U >: T](implicit U: Group[U]) = slidingPairsWith((x, y) => U.op(y, U.inv(x)))
+  override def diffByGroup[U >: T](implicit U: Group[U]) = slidingPairsWith((x, y) => U.combine(y, U.inverse(x)))
 
   //endregion
 
@@ -443,7 +439,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
    *   (1, 1, 2, 2, 2, 0).groupConsecutively == ((1, 1), (2, 2, 2), (0))
    * }}}
    */
-  def groupConsecutively[U >: T : Eq]: Iterable[Iterable[T]] = groupConsecutivelyBy(identity)
+  def groupConsecutively[U >: T](implicit U: Eq[U]): Iterable[Iterable[U]] = groupConsecutivelyBy[U](identity)
 
   /**
    * Groups the elements into groups if the consecutive elements
@@ -521,11 +517,10 @@ trait Iterable[+T] extends Traversable[T] { self =>
   //region DECORATION OPS
   /**
    * Pretends that this sequence is sorted under the given implicit order.
-   * @param T The implicit order
    * @note Actual orderedness is not guaranteed! The user should make sure that it is sorted.
    */
-  def asIfSorted(implicit T: Order[T]): SortedIterable[T @uv] = new SortedIterable[T] {
-    def elementOrder = T
+  def asIfSorted[U >: T](implicit U: Order[U]): SortedIterable[U] = new SortedIterable[U] {
+    def elementOrder = U
     def newIterator = self.newIterator
   }
 
@@ -647,19 +642,20 @@ object Iterable {
   }
 
   /** Returns the natural monad on Iterables. */
-  implicit object Monad extends ConcatenativeMonad[Iterable] {
+  implicit object Monad extends MonadCombine[Iterable] {
+    def tailRecM[A, B](a: A)(f: (A) => Iterable[Either[A, B]]): Iterable[B] = ???
     def flatMap[X, Y](mx: Iterable[X])(f: X => Iterable[Y]): Iterable[Y] = mx.flatMap(f)
     override def map[X, Y](mx: Iterable[X])(f: X => Y): Iterable[Y] = mx.map(f)
-    def id[X](u: X): Iterable[X] = Iterable.single(u)
+    def pure[X](u: X): Iterable[X] = Iterable.single(u)
     def empty[X]: Iterable[X] = Iterable.Empty
-    def concat[X](a: Iterable[X], b: Iterable[X]) = a.concat(b)
+    def combineK[X](a: Iterable[X], b: Iterable[X]) = a.concat(b)
     override def filter[X](mx: Iterable[X])(f: X => Boolean) = mx.filter(f)
   }
 
-  object ZipIdiom extends Idiom[Iterable] {
-    def id[X](u: X) = Iterable.infinite(u)
-    def liftedMap[X, Y](mx: Iterable[X])(mf: Iterable[X => Y]) = (mx zipWith mf) { case (x, f) => f(x) }
-    override def product[X, Y](mx: Iterable[X])(my: Iterable[Y]) = mx zip my
+  implicit object ZipApplicative extends Applicative[Iterable] {
+    def pure[X](u: X) = Iterable.infinite(u)
+    def ap[X, Y](mf: Iterable[X => Y])(mx: Iterable[X]) = (mx zipWith mf) { case (x, f) => f(x) }
+    override def product[X, Y](mx: Iterable[X], my: Iterable[Y]) = mx zip my
   }
 
   /** Implicitly converts an `Option` to an `Iterable` that contains one or zero element. */

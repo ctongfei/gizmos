@@ -34,10 +34,3 @@ trait Factory0[-T, +R] {
 
 }
 
-object Factory0 {
-
-  def ofBuilder[T, R](b: => Builder[T, R]): Factory0[T, R] = new Factory0[T, R] {
-    def newBuilder = b
-  }
-
-}

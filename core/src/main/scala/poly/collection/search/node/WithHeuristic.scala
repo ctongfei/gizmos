@@ -1,7 +1,6 @@
 package poly.collection.search.node
 
-import poly.algebra._
-import poly.algebra.syntax._
+import poly.collection._
 import poly.collection.exception._
 import poly.collection.search._
 
@@ -31,7 +30,7 @@ object WithHeuristic extends WithHeuristicLowPriorityImplicits {
     def isDummy = false
   }
 
-  def dummy[S, C: OrderedAdditiveGroup]: WithHeuristic[S, C] = new WithHeuristic[S, C] {
+  def dummy[S, C: Order : AdditiveMonoid]: WithHeuristic[S, C] = new WithHeuristic[S, C] {
     def state: Nothing = throw new DummyNodeException
     val depth: Int = -1
     val h = zero[C]
@@ -39,7 +38,7 @@ object WithHeuristic extends WithHeuristicLowPriorityImplicits {
     def isDummy = true
   }
 
-  def WeightedSearchNodeInfo[S, C: OrderedAdditiveGroup](h: S => C): WeightedSearchNodeInfo[WithHeuristic[S, C], S, C]
+  def WeightedSearchNodeInfo[S, C: Order : AdditiveMonoid](h: S => C): WeightedSearchNodeInfo[WithHeuristic[S, C], S, C]
   = new WeightedSearchNodeInfo[WithHeuristic[S, C], S, C] {
     def startNode(s: S) = WithHeuristic(s, 0, h(s), dummy[S, C])
     def state(n: WithHeuristic[S, C]) = n.state
@@ -48,5 +47,5 @@ object WithHeuristic extends WithHeuristicLowPriorityImplicits {
 }
 
 private[collection] trait WithHeuristicLowPriorityImplicits {
-  implicit def order[S, C: OrderedAdditiveGroup]: Order[WithHeuristic[S, C]] = Order.by(_.h)
+  implicit def order[S, C: Order : AdditiveMonoid]: Order[WithHeuristic[S, C]] = Order by { _.h }
 }

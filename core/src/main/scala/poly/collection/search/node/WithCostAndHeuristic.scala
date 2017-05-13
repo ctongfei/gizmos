@@ -1,7 +1,7 @@
 package poly.collection.search.node
 
-import poly.algebra._
-import poly.algebra.syntax._
+import spire.syntax.additiveMonoid._
+import poly.collection._
 import poly.collection.exception._
 import poly.collection.search._
 
@@ -15,13 +15,13 @@ trait WithCostAndHeuristic[S, C] extends WithCost[S, C] with WithHeuristic[S, C]
 
   def parent: WithCostAndHeuristic[S, C]
 
-  def f(implicit C: OrderedAdditiveGroup[C]) = g + h
+  def f(implicit C: AdditiveMonoid[C]) = g + h
 }
 
 
 object WithCostAndHeuristic {
 
-  implicit def order[S, C: OrderedAdditiveGroup]: Order[WithCostAndHeuristic[S, C]] = Order.by(_.f)
+  implicit def order[S, C: Order : AdditiveMonoid]: Order[WithCostAndHeuristic[S, C]] = Order.by(_.f)
 
   def apply[S, C](s: S, d: Int, gv: C, hv: C, p: WithCostAndHeuristic[S, C]): WithCostAndHeuristic[S, C] = new WithCostAndHeuristic[S, C] {
     val state = s
@@ -32,7 +32,7 @@ object WithCostAndHeuristic {
     def isDummy = false
   }
 
-  def dummy[S, C: OrderedAdditiveGroup]: WithCostAndHeuristic[S, C] = new WithCostAndHeuristic[S, C] {
+  def dummy[S, C: Order : AdditiveMonoid]: WithCostAndHeuristic[S, C] = new WithCostAndHeuristic[S, C] {
     def state: Nothing = throw new DummyNodeException
     val depth: Int = -1
     val g = zero[C]
@@ -41,7 +41,7 @@ object WithCostAndHeuristic {
     def isDummy = true
   }
 
-  def WeightedSearchNodeInfo[S, C: OrderedAdditiveGroup](heuristic: S => C): WeightedSearchNodeInfo[WithCostAndHeuristic[S, C], S, C]
+  def WeightedSearchNodeInfo[S, C: Order : AdditiveMonoid](heuristic: S => C): WeightedSearchNodeInfo[WithCostAndHeuristic[S, C], S, C]
     = new WeightedSearchNodeInfo[WithCostAndHeuristic[S, C], S, C] {
     def startNode(s: S) = WithCostAndHeuristic(s, 0, zero[C], heuristic(s), dummy[S, C])
     def state(n: WithCostAndHeuristic[S, C]) = n.state

@@ -1,7 +1,6 @@
 package poly.collection
 
-import poly.algebra._
-import poly.algebra.specgroup._
+import cats.kernel._
 
 /**
  * Marker trait for any data structure that contains keys (unique identifiers).
@@ -15,7 +14,7 @@ import poly.algebra.specgroup._
  * @define O1amortized Time complexity: Amortized O(1).
  * @define O1 Time complexity: O(1).
  */
-trait Keyed[@sp(Int) K] {
+trait Keyed[@specialized(Int) K] {
 
   /** Returns the equivalence relation on the set of keys. */
   def keyEq: Eq[K]

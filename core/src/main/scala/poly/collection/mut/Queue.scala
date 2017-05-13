@@ -3,7 +3,14 @@ package poly.collection.mut
 import poly.collection._
 
 /**
- * Represents a mutable queue/stack/priority queue.
+ * Represents a mutable structure where elements can be inserted, but at every time only one element can be removed.
+ * This encapsulates the following data structures:
+ * <ul>
+ *   <li> Stacks ([[ArrayStack]], [[ListStack]]): LIFO (last-in first-out) queues; </li>
+ *   <li> Queues ([[ArrayQueue]]): FIFO (first-in first-out) queues; </li>
+ *   <li> Priority queues ([[BinaryHeap]], etc.): at every time the removed element is the one associated with the least priority values; </li>
+ *   <li> Random queues ([[RandomQueue]]): at every tiem a random element is to be removed.
+ * </ul>
  * @author Tongfei Chen
  * @since 0.1.0
  */
@@ -19,30 +26,30 @@ trait Queue[T] {
   def notEmpty: Boolean = size != 0
 
   /** Pushes the specified element into this queue. */
-  def push(x: T): Unit
+  def enqueue(x: T): Unit
 
   /** Returns the top element of the queue. */
-  def top: T
+  def front: T
 
   /** Removes the top element from the queue and returns it. */
-  def pop(): T
+  def dequeue(): T
 
   /** Returns the number of elements in this queue. */
   def size: Int = elements.size
 
   /** Pushes the specified element into this queue. */
-  final def +=(x: T): Unit = push(x)
+  final def +=(x: T): Unit = enqueue(x)
 
   /** Pushes all the specified elements into this queue. */
-  def pushAll(xs: Traversable[T]) = xs foreach +=
+  def enqueueAll(xs: Traversable[T]) = xs foreach +=
 
   /** Pushes all the specified elements into this queue. */
-  final def ++=(xs: Traversable[T]) = pushAll(xs)
+  final def ++=(xs: Traversable[T]) = enqueueAll(xs)
 
-  final def enqueue(x: T) = push(x)
-  final def dequeue() = pop()
-  final def front = top
+  final def push(x: T) = enqueue(x)
+  final def pop() = dequeue()
+  final def pushAll(xs: Traversable[T]) = enqueueAll(xs)
 
-  override def toString = "[" + elements.buildString(", ") + "]"
+  override def toString = "[" + elements.toString0 + "]"
 
 }

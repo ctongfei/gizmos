@@ -1,7 +1,6 @@
 package poly.collection.mut
 
-import poly.algebra._
-import poly.algebra.specgroup._
+import poly.collection.specgroup._
 import poly.collection._
 import poly.collection.factory._
 

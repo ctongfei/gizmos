@@ -1,6 +1,5 @@
 package poly.collection.factory
 
-import poly.algebra._
 import poly.collection._
 import poly.collection.evidence._
 
@@ -13,23 +12,23 @@ import scala.language.higherKinds
  */
 trait SeqFactory[+C[_]] extends Factory1[Id, C, NoneEv] {
 
-  def newBuilder[T : NoneEv] = newSeqBuilder[T]
+  final def newBuilder[T : NoneEv] = newSeqBuilder[T]
 
   def newSeqBuilder[T]: Builder[T, C[T]]
 
+  /**
+   * Generates an empty sequence, but size hinted (ensures enough space for sequences such as [[mut.ArraySeq]]).
+   */
   def withSizeHint[T](n: Int): C[T] = {
     val b = newBuilder[T]
     b.sizeHint(n)
     b.result
   }
 
-  /** Creates a collection by adding the non-null arguments into it. */
-  def applyNonNull[T](xs: T*): C[T] = {
-    val b = newBuilder[T]
-    for (x <- xs if x != null) b add x
-    b.result
-  }
-
+  /**
+   * Generates a sequence containing a specific element (call-by-name: each time computed differently) multiple times.
+   * @example `Seq.fill(3)(random)` may be `(0.767, -0.331, 0.016)`
+   */
   def fill[T](n: Int)(x: => T): C[T] = {
     var i = n
     val b = newBuilder[T]
@@ -52,22 +51,8 @@ trait SeqFactory[+C[_]] extends Factory1[Id, C, NoneEv] {
     b.result
   }
 
-  def iterateN[T](start: T, n: Int)(f: T => T): C[T] = {
-    var i = n
-    val b = newBuilder[T]
-    b.sizeHint(n)
-    if (i > 0) {
-      var x = start
-      b add x
-      i -= 1
-      while (i > 0) {
-        x = f(x)
-        b add x
-        i -= 1
-      }
-    }
-    b.result
-  }
+  def iterateN[T](start: T, n: Int)(f: T => T): C[T] =
+    unfoldN(start, n)(s => (f(s), s))
 
   def iterateTo[T](start: T, goal: T => Boolean)(f: T => T): C[T] = {
     val b = newBuilder[T]
@@ -89,5 +74,21 @@ trait SeqFactory[+C[_]] extends Factory1[Id, C, NoneEv] {
     }
     b.result
   }
+
+  def unfoldN[S, T](start: S, n: Int)(f: S => (S, T)): C[T] = {
+    var i = n
+    var s = start
+    val b = newBuilder[T]
+    b.sizeHint(n)
+    while (i > 0) {
+      val (s1, t) = f(s)
+      s = s1
+      b << t
+      i -= 1
+    }
+    b.result()
+  }
+
+  //todo: unfoldTo, unfoldUntil
 
 }

@@ -12,13 +12,15 @@ import scala.language.higherKinds
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait Factory2[-E[_, _], +R[_, _], Ev1[_], Ev2[_]] {
+trait Factory2[-E[_, _], +R[_, _], Ev1[_], Ev2[_]] { self =>
 
   /** Returns a new builder of this collection type. */
   def newBuilder[A : Ev1, B: Ev2]: Builder[E[A, B], R[A, B]]
 
   /** Grounds this factory by providing a type parameter and associated evidences. */
-  implicit def ground[A : Ev1, B : Ev2] = Factory0 ofBuilder newBuilder[A, B]
+  implicit def ground[A : Ev1, B : Ev2]: Factory0[E[A, B], R[A, B]] = new Factory0[E[A, B], R[A, B]] {
+    def newBuilder: Builder[E[A, B], R[A, B]] = self.newBuilder
+  }
 
   /** Creates an empty collection. */
   def empty[A : Ev1, B: Ev2] = newBuilder[A, B].result()

@@ -1,8 +1,6 @@
 package poly.collection
 
-import poly.algebra._
-import poly.algebra.syntax._
-import poly.collection.exception._
+import cats.implicits._
 import poly.collection.mut._
 
 /**
@@ -74,7 +72,7 @@ private[poly] object SortedIterableT {
       def current = curr
       def advance(): Boolean = {
         while (it.advance()) {
-          if (first || (it.current !== curr)) {
+          if (first || (it.current =!= curr)) {
             first = false
             curr = it.current
             return true

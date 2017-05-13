@@ -1,6 +1,7 @@
 package poly.collection
 
-import poly.algebra.syntax._
+import cats.implicits._
+import algebra.instances._
 
 /**
  * Trait for an indexed sorted sequence.
@@ -115,10 +116,11 @@ private[poly] object SortedIndexedSeqT {
 
   class AsWeightedSet[T](self: SortedIndexedSeq[T]) extends AbstractWeightedSet[T, Int] {
     def keySet: SortedSet[T] = new AsSet(self)
-    def weightRing = poly.algebra.std.IntStructure
+    def weightRing = algebra.instances.int.intAlgebra
+    def weightOrder = cats.Order[Int]
     def weight(k: T) = {
       val l = self.lowerBound(k)
-      if (self(l) !== k) 0
+      if (self(l) =!= k) 0
       else {
         var r = l
         while (self(r) === k) r += 1

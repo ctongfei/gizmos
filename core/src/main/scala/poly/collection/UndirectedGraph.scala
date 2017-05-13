@@ -1,10 +1,7 @@
 package poly.collection
 
-import poly.algebra._
-import poly.algebra.syntax._
-import poly.algebra.specgroup._
 import poly.collection.mut._
-import poly.collection.node._
+import poly.collection.specgroup._
 
 /**
  * Represents an undirected graph.

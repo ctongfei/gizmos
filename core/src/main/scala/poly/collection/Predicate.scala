@@ -1,12 +1,10 @@
 package poly.collection
 
-import poly.algebra.{BooleanAlgebra, _}
-import poly.algebra.hkt._
-import poly.algebra.specgroup._
+import algebra.lattice._
+import cats.functor._
 import poly.collection.immut._
 
 import scala.language.implicitConversions
-import scala.runtime._
 
 /**
  * Represents a pure, mathematical set (equivalent to a predicate).
@@ -15,7 +13,7 @@ import scala.runtime._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait Predicate[@sp(spFunc1) -T] extends Func[T, Boolean] { self =>
+trait Predicate[@specialized(Int, Long, Float, Double) -T] extends Func[T, Boolean] { self =>
 
   def anyOf(xs: T*) = xs exists self
 
@@ -62,24 +60,24 @@ object Predicate {
   // TYPECLASS INSTANCES
 
   /** Predicate sets form a contravariant functor. */
-  implicit object ContravariantFunctor extends ContravariantFunctor[Predicate] {
+  implicit object ContravariantFunctor extends Contravariant[Predicate] {
     def contramap[X, Y](sx: Predicate[X])(f: Y => X): Predicate[Y] = sx contramap f
   }
 
-  /** Predicate sets form a Boolean algebra. */
-  implicit def BooleanAlgebra[T]: BooleanAlgebra[Predicate[T]] = new PredicateT.BooleanAlgebra[T]
+  /** Predicate sets form a boolean algebra. */
+  implicit def BooleanAlgebra[T]: Bool[Predicate[T]] = new PredicateT.BooleanAlgebra[T]
 }
 
-abstract class AbstractPredicate[@sp(spFunc1) -T] extends Predicate[T]
+abstract class AbstractPredicate[@specialized(Int, Long, Float, Double) -T] extends Predicate[T]
 
 private[poly] object PredicateT {
 
-  class BooleanAlgebra[T] extends poly.algebra.BooleanAlgebra[Predicate[T]] {
+  class BooleanAlgebra[T] extends Bool[Predicate[T]] {
     def and(x: Predicate[T], y: Predicate[T]) = x union y
-    def top = Predicate.universal[T]
-    def not(x: Predicate[T]) = !x
+    def one = Predicate.universal[T]
+    def complement(x: Predicate[T]) = !x
     def or(x: Predicate[T], y: Predicate[T]) = x intersect y
-    def bot = Predicate.empty
+    def zero = Predicate.empty
   }
   // PartialOrder or Eq will not be implemented: not computable on a Turing machine!
 

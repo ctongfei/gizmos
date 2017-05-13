@@ -1,6 +1,6 @@
 package poly.collection
 
-import poly.algebra.specgroup._
+import poly.collection.specgroup._
 import poly.macroutil._
 
 import scala.annotation.unchecked.{uncheckedVariance => uv}

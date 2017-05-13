@@ -1,7 +1,7 @@
 package poly.collection.search.node
 
-import poly.algebra._
-import poly.algebra.syntax._
+import spire.syntax.additiveMonoid._
+import poly.collection._
 import poly.collection.exception._
 import poly.collection.search._
 
@@ -28,7 +28,7 @@ object WithCost extends WithCostLowPriorityImplicit {
     def isDummy = false
   }
 
-  def dummy[S, C: OrderedAdditiveGroup]: WithCost[S, C] = new WithCost[S, C] {
+  def dummy[S, C: Order : AdditiveMonoid]: WithCost[S, C] = new WithCost[S, C] {
     def state: Nothing = throw new DummyNodeException
     val depth: Int = -1
     val g = zero[C]
@@ -36,7 +36,7 @@ object WithCost extends WithCostLowPriorityImplicit {
     def isDummy = true
   }
 
-  implicit def WeightedSearchNodeInfo[S, C: OrderedAdditiveGroup]: WeightedSearchNodeInfo[WithCost[S, C], S, C] =
+  implicit def WeightedSearchNodeInfo[S, C: Order : AdditiveMonoid]: WeightedSearchNodeInfo[WithCost[S, C], S, C] =
     new WeightedSearchNodeInfo[WithCost[S, C], S, C] {
       def startNode(s: S) = WithCost(s, 0, zero[C], dummy[S, C])
       def state(n: WithCost[S, C]) = n.state
@@ -46,5 +46,5 @@ object WithCost extends WithCostLowPriorityImplicit {
 
 // This should have lower priority than SearchNodeWithHeuristic.order
 private[collection] trait WithCostLowPriorityImplicit {
-  implicit def order[S, C: OrderedAdditiveGroup]: Order[WithCost[S, C]] = Order.by(_.g)
+  implicit def order[S, C: Order : AdditiveMonoid]: Order[WithCost[S, C]] = Order by { _.g }
 }

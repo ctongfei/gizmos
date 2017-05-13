@@ -1,8 +1,8 @@
 package poly.collection.search
 
-import poly.algebra._
-import poly.algebra.specgroup._
+import algebra.ring.AdditiveMonoid
 import poly.collection._
+import poly.collection.specgroup._
 
 /**
  * Represents a search state space whose edges are weighted (and states are equatable).
@@ -11,7 +11,8 @@ import poly.collection._
  */
 trait WeightedStateSpace[S, @sp(fdi) C] extends EqStateSpace[S] {
 
-  implicit def costGroup: OrderedAdditiveGroup[C]
+  implicit def costMonoid: AdditiveMonoid[C]
+  implicit def costOrder: Order[C]
   def succWithCost(x: S): Traversable[(S, C)]
   def succ(x: S) = succWithCost(x) map first
 
@@ -37,8 +38,9 @@ trait WeightedStateSpace[S, @sp(fdi) C] extends EqStateSpace[S] {
 
 object WeightedStateSpace {
 
-  def apply[S: Eq, C: OrderedAdditiveGroup](f: S => Traversable[(S, C)]): WeightedStateSpace[S, C] = new WeightedStateSpace[S, C] {
-    def costGroup = OrderedAdditiveGroup[C]
+  def apply[S: Eq, C: Order : AdditiveMonoid](f: S => Traversable[(S, C)]): WeightedStateSpace[S, C] = new WeightedStateSpace[S, C] {
+    def costMonoid = AdditiveMonoid[C]
+    def costOrder = Order[C]
     def keyEq = Eq[S]
     def succWithCost(x: S) = f(x)
   }

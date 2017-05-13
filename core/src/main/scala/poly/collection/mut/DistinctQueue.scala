@@ -1,6 +1,5 @@
 package poly.collection.mut
 
-import poly.algebra._
 import poly.collection._
 import scala.language.higherKinds
 
@@ -12,12 +11,12 @@ class DistinctQueue[T: Eq] private(private val inner: Queue[T]) extends Queue[T]
 
   private[this] val seen = AutoSet[T]()
 
-  def push(x: T) = if (!seen(x)) {
+  def enqueue(x: T) = if (!seen(x)) {
     inner += x
     seen += x
   }
 
-  override def pushAll(xs: Traversable[T]) = {
+  override def enqueueAll(xs: Traversable[T]) = {
     val buf = ArraySeq[T]()
     for (x <- xs)
       if (!seen(x)) {
@@ -27,9 +26,9 @@ class DistinctQueue[T: Eq] private(private val inner: Queue[T]) extends Queue[T]
     inner ++= buf
   }
 
-  def top = inner.top
+  def front = inner.front
 
-  def pop() = inner.pop()
+  def dequeue() = inner.dequeue()
 
   def elements = inner.elements
 

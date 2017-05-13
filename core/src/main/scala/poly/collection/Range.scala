@@ -1,9 +1,9 @@
 package poly.collection
 
-import poly.algebra._
-import poly.algebra.specgroup._
-import poly.algebra.syntax._
+import cats.implicits._
+import poly.collection.specgroup._
 import poly.macroutil._
+
 import scala.reflect.macros.blackbox._
 import scala.language.experimental.macros
 
@@ -62,9 +62,9 @@ object Range {
     def fast = new FastTraversable(this)
 
     def intersect(that: Range.Ascending) = {
-      val right = function.min(this.right, that.right)
-      val step = lcm(this.step, that.step)
-      if ((this.left - that.left) % gcd(this.step, that.step) != 0)
+      val right = math.min(this.right, that.right)
+      val step = spire.math.lcm(this.step, that.step).toInt
+      if ((this.left - that.left) % spire.math.gcd(this.step, that.step) != 0)
         new Range.Ascending(this.right, that.right, step) // empty range if (this.left != that.left) mod gcd
       else {
         val r1 = if (this.left < that.left) that else this

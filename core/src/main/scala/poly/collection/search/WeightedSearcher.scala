@@ -1,6 +1,5 @@
 package poly.collection.search
 
-import poly.algebra._
 import poly.collection._
 import poly.collection.mut._
 import poly.collection.search.node._
@@ -36,7 +35,7 @@ abstract class WeightedSearcher[S, N, C](val fringe: KeyedPriorityQueue[S, N], v
 
   def advance() = {
     if (fringe.notEmpty) {
-      curr = fringe.pop()
+      curr = fringe.dequeue()
       if (!prune(curr))
         fringe ++= curr.state.succWithCost.map { case (next, cost) =>
           curr.next(next, cost)
@@ -47,7 +46,7 @@ abstract class WeightedSearcher[S, N, C](val fringe: KeyedPriorityQueue[S, N], v
   }
 }
 
-class UniformCostIterator[S, C: OrderedAdditiveGroup](val stateSpace: WeightedStateSpace[S, C], start: S)
+class UniformCostIterator[S, C: Order : AdditiveMonoid](val stateSpace: WeightedStateSpace[S, C], start: S)
   extends WeightedSearcher[S, WithCost[S, C], C](
     DistinctPriorityQueue[S, WithCost[S, C]](BinaryHeap(), _.state)(stateSpace.keyEq),
     start)
@@ -56,7 +55,7 @@ class UniformCostIterator[S, C: OrderedAdditiveGroup](val stateSpace: WeightedSt
   def prune(n: WithCost[S, C]) = false
 }
 
-class GreedyBestFirstIterator[S, C: OrderedAdditiveGroup](val stateSpace: WeightedStateSpace[S, C], start: S, val heuristic: S => C)
+class GreedyBestFirstIterator[S, C: Order : AdditiveMonoid](val stateSpace: WeightedStateSpace[S, C], start: S, val heuristic: S => C)
   extends WeightedSearcher[S, WithHeuristic[S, C], C](
     DistinctPriorityQueue[S, WithHeuristic[S, C]](BinaryHeap(), _.state)(stateSpace.keyEq),
     start)
@@ -65,7 +64,7 @@ class GreedyBestFirstIterator[S, C: OrderedAdditiveGroup](val stateSpace: Weight
   def prune(n: WithHeuristic[S, C]) = false
 }
 
-class AStarIterator[S, C: OrderedAdditiveGroup](val stateSpace: WeightedStateSpace[S, C], start: S, val heuristic: S => C)
+class AStarIterator[S, C: Order : AdditiveMonoid](val stateSpace: WeightedStateSpace[S, C], start: S, val heuristic: S => C)
   extends WeightedSearcher[S, WithCostAndHeuristic[S, C], C](
     DistinctPriorityQueue[S, WithCostAndHeuristic[S, C]](BinaryHeap()(WithCostAndHeuristic.order), _.state)(stateSpace.keyEq),
     start) { //TODO: contravariant typeclass implicit resolution bug SI-2509

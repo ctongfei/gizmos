@@ -36,7 +36,7 @@ abstract class Searcher[S, N](val fringe: Queue[N], val start: S) extends Search
 
   def advance() = {
     if (fringe.notEmpty) {
-      curr = fringe.pop()
+      curr = fringe.dequeue()
       if (!prune(curr))
         fringe ++= curr.state.succ map curr.next
       true
@@ -70,14 +70,14 @@ class BreadthFirstIterator[S](val stateSpace: EqStateSpace[S], start: S) extends
 }
 
 class DepthFirstBacktrackableIterator[S](val stateSpace: EqStateSpace[S], start: S) extends Searcher[S, WithParent[S]](
-  DistinctQueue[WithParent[S]](ArrayStack())(stateSpace.keyEq contramap { _.state }), start
+  DistinctQueue[WithParent[S]](ArrayStack())(stateSpace.keyEq on { _.state }), start
 ) {
   def prune(n: WithParent[S]) = false
   def searchNodeInfo = WithParent.SearchNodeInfo[S]
 }
 
 class BreadthFirstBacktrackableIterator[S](val stateSpace: EqStateSpace[S], start: S) extends Searcher[S, WithParent[S]](
-  DistinctQueue[WithParent[S]](ArrayQueue())(stateSpace.keyEq contramap { _.state }), start
+  DistinctQueue[WithParent[S]](ArrayQueue())(stateSpace.keyEq on { _.state }), start
 ) {
   def prune(n: WithParent[S]) = false
   def searchNodeInfo = WithParent.SearchNodeInfo[S]

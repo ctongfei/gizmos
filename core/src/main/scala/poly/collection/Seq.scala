@@ -1,15 +1,11 @@
 package poly.collection
 
-import poly.algebra._
-import poly.algebra.hkt._
-import poly.algebra.syntax._
-import poly.collection.evidence._
+import cats.implicits._
 import poly.collection.exception._
 import poly.collection.factory._
 import poly.collection.impl._
 import poly.collection.mut._
 import poly.collection.node._
-
 import scala.annotation.unchecked.{uncheckedVariance => uv}
 
 /**
@@ -158,25 +154,7 @@ trait Seq[+T] extends Iterable[T] with PartialFunction[Int, T] { self =>
 
   //region SET OPS
 
-  override def distinct(implicit T: Eq[T]): Seq[T] = {
-    val set = AutoSet[T]()
-    class DistinctNode(outer: SeqNode[T]) extends SeqNode[T] {
-      def next: DistinctNode = {
-        var n = outer.next
-        while (n.notDummy) {
-          if (set notContains n.data) {
-            set += n.data
-            return new DistinctNode(n)
-          }
-          n = n.next
-        }
-        new DistinctNode(n)
-      }
-      def data = outer.data
-      def isDummy = outer.isDummy
-    }
-    ofDummyNode(new DistinctNode(self.dummy))
-  }
+  override def distinct[U >: T](implicit U: Eq[U]): Seq[U] = distinctBy[U](identity)
 
   override def distinctBy[U: Eq](f: T => U): Seq[T] = {
     val set = AutoSet[U]()
@@ -201,7 +179,7 @@ trait Seq[+T] extends Iterable[T] with PartialFunction[Int, T] { self =>
 
   def union[U >: T : Eq](that: Seq[U]): Seq[U] = (this concat that).distinct
 
-  def intersect[U >: T : Eq](that: Seq[U]): Seq[U] = (this filter AutoSet.from(that)).distinct
+  def intersect[U >: T : Eq](that: Seq[U]): Seq[U] = (this filter AutoSet.from(that)).distinct[U]
 
   //endregion
 
@@ -377,9 +355,9 @@ trait Seq[+T] extends Iterable[T] with PartialFunction[Int, T] { self =>
 
   override def scan[U >: T](z: U)(f: (U, U) => U) = scanLeft(z)(f)
 
-  override def scanByMonoid[U >: T : Monoid] = scanLeft(id[U])(_ <> _)
+  override def scanByMonoid[U >: T](implicit U: Monoid[U]) = scanLeft(U.empty)(U.combine)
 
-  override def diffByGroup[U >: T](implicit U: Group[U]) = slidingPairsWith((x, y) => U.op(y, U.inv(x)))
+  override def diffByGroup[U >: T](implicit U: Group[U]) = slidingPairsWith((x, y) => U.combine(y, U.inverse(x)))
 
   //endregion
 
@@ -448,7 +426,7 @@ trait Seq[+T] extends Iterable[T] with PartialFunction[Int, T] { self =>
       iHasNext = i.advance()
       jHasNext = j.advance()
       if (!iHasNext || !jHasNext) return !jHasNext
-      if (j.current !== i.current)
+      if (j.current =!= i.current)
         return false
     }
     false
@@ -463,9 +441,13 @@ trait Seq[+T] extends Iterable[T] with PartialFunction[Int, T] { self =>
 
   //region DECORATION OPS
 
-  override def asIfSorted(implicit T: Order[T]): SortedSeq[T @uv] = new SortedSeq[T] {
-    def elementOrder = T
+  override def asIfSorted[U >: T](implicit U: Order[U]): SortedSeq[U] = new SortedSeq[U] {
+    def elementOrder = U
     def headNode: SeqNode[T] = self.headNode
+  }
+
+  def asIfNonEmpty: NonEmptySeq[T] = new NonEmptySeq[T] {
+    def headNode = self.headNode
   }
   //endregion
 
@@ -479,6 +461,9 @@ trait Seq[+T] extends Iterable[T] with PartialFunction[Int, T] { self =>
    */
   def asMap: KeySortedMap[Int, T] = new SeqT.AsMap(self)
 
+  /**
+   * Returns a factory object that can used to build sequences that uses the same structure as this sequence.
+   */
   def factory: SeqFactory[Seq] = ArraySeq
 
   //endregion
@@ -498,7 +483,7 @@ trait Seq[+T] extends Iterable[T] with PartialFunction[Int, T] { self =>
   override def withFilter(f: T => Boolean) = filter(f)
 
   override def equals(that: Any) = that match {
-    case (that: Seq[T]) => Eq[T](poly.algebra.Eq.default[T]).eq(this, that)
+    case (that: Seq[T]) => Seq.Eq[T](Hashing.default[T]).eqv(this, that)
     case _ => false
   }
 
@@ -565,12 +550,12 @@ object Seq extends SeqFactory[Seq] {
 
   //TODO: should be implicit, but results in ambiguous implicits because of problems with contravariant typeclass (SI-2509)
   implicit def Eq[T: Eq]: Eq[Seq[T]] = new Eq[Seq[T]] {
-    def eq(x: Seq[T], y: Seq[T]): Boolean = {
+    def eqv(x: Seq[T], y: Seq[T]): Boolean = {
       //TODO: faster implementation using iterators?
       var xn = x.headNode
       var yn = y.headNode
       while (xn.notDummy && yn.notDummy) {
-        if (xn.data !== yn.data) return false
+        if (xn.data =!= yn.data) return false
         xn = xn.next
         yn = yn.next
       }
@@ -583,13 +568,13 @@ object Seq extends SeqFactory[Seq] {
   /**
    * Returns the lexicographic order on sequences if an order on the elements is given.
    */
-  def LexicographicOrder[T: Order]: Order[Seq[T]] = new Order[Seq[T]] {
-    def cmp(x: Seq[T], y: Seq[T]): Int = {
+  def LexicographicOrder[T](implicit T: Order[T]): Order[Seq[T]] = new Order[Seq[T]] {
+    def compare(x: Seq[T], y: Seq[T]): Int = {
       //TODO: faster implementation using iterators?
       var xn = x.headNode
       var yn = y.headNode
       while (xn.notDummy && yn.notDummy) {
-        val cmp = xn.data >?< yn.data
+        val cmp = T.compare(xn.data, yn.data)
         if (cmp != 0) return cmp
         xn = xn.next
         yn = yn.next
@@ -603,34 +588,31 @@ object Seq extends SeqFactory[Seq] {
    * Returns the Levenshtein distance on sequences if an equivalence relation on the elements is given.
    */
   def LevenshteinDistance[T: Eq]: MetricSpace[Seq[T], Int] = new MetricSpace[Seq[T], Int] {
-    def dist(x: Seq[T], y: Seq[T]) = { // by dynamic programming
+    import math._
+    def distance(x: Seq[T], y: Seq[T]) = { // by dynamic programming
       val d = Array.ofDim[Int](x.length + 1, y.length + 1)
       for (i <- 0 to x.length) d(i)(0) = i
       for (j <- 0 to y.length) d(0)(j) = j
       for (j <- 1 to y.length; i <- 1 to x.length) {
         if (x(i - 1) == y(j - 1)) d(i)(j) = d(i - 1)(j - 1)
-        else d(i)(j) = min(d(i - 1)(j), d(i)(j - 1), d(i - 1)(j - 1)) + 1
+        else d(i)(j) = min(d(i - 1)(j), min(d(i)(j - 1), d(i - 1)(j - 1))) + 1
       }
       d(x.length)(y.length)
     }
   }
 
-  implicit object Monad extends ConcatenativeMonad[Seq] {
-    def id[X](u: X) = mut.ListSeq(u)
+  implicit object Monad extends Monad[Seq] {
+    def pure[X](u: X) = mut.ListSeq(u)
     def flatMap[X, Y](mx: Seq[X])(f: X => Seq[Y]) = mx flatMap f
-    def empty[X] = Seq.Empty
-    def concat[X](sx: Seq[X], sy: Seq[X]) = sx concat sy
+    def tailRecM[A, B](a: A)(f: (A) => Seq[Either[A, B]]): Seq[B] = ??? //TODO: does not know how to implement this
   }
 
-  implicit def FreeMonoid[T]: ConcatenativeMonoid[Seq[T]] = new ConcatenativeMonoid[Seq[T]] {
-    def concat(x: Seq[T], y: Seq[T]) = x ++ y
-    def empty = Seq.Empty
-  }
-
+  //TODO: actually should be Comonad[NonEmptySeq] ?
   implicit object Comonad extends Comonad[Seq] {
-    //TODO: actually should be Comonad[NonEmptySeq] ?
-    def id[X](u: Seq[X]) = u.head
-    def extend[X, Y](wx: Seq[X])(f: Seq[X] => Y) = wx.suffixes map f
+    def extract[X](u: Seq[X]) = u.head
+    def coflatMap[X, Y](f: Seq[X] => Y)(wx: Seq[X]) = wx.suffixes map f
+    def coflatMap[A, B](fa: Seq[A])(f: (Seq[A]) => B): Seq[B] = ???
+    def map[A, B](fa: Seq[A])(f: A => B): Seq[B] = fa map f
   }
 }
 

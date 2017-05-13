@@ -1,7 +1,5 @@
 package poly.collection.conversion
 
-import poly.algebra._
-import poly.algebra.conversion.ImplicitlyFromScala._
 import poly.collection._
 import poly.collection.mut._
 import poly.collection.node._
@@ -45,7 +43,7 @@ class ScalaIndexedSeqAsPoly[T](xs: sc.IndexedSeq[T]) extends AbstractIndexedSeq[
 }
 
 class ScalaSetAsPoly[T](xs: sc.Set[T]) extends AbstractSet[T] {
-  def keyEq = Eq.default[T]
+  def keyEq = Hashing.default[T]
   def keys = new ScalaIterableAsPoly(xs)
   def contains(x: T): Boolean = xs contains x
 }
@@ -67,34 +65,34 @@ class ScalaSortedMapAsPoly[K, V](xs: sc.SortedMap[K, V]) extends AbstractKeySort
   def keySet = new ScalaSortedSetAsPoly(xs.keySet)
   def ?(k: K) = xs get k
   def apply(k: K) = xs(k)
-  override def pairs = new ScalaIterableAsPoly(xs).asIfSorted(xs.ordering contramap first)
+  override def pairs = new ScalaIterableAsPoly(xs).asIfSorted((xs.ordering: Order[K]) on first)
 }
 
 class ScalaStackAsPoly[T](ss: scm.Stack[T]) extends Queue[T] {
   def elements = new ScalaIterableAsPoly(ss)
-  def push(x: T) = ss push x
-  def top = ss.top
-  def pop() = ss.pop()
+  def enqueue(x: T) = ss push x
+  def front = ss.top
+  def dequeue() = ss.pop()
 }
 
 class ScalaArrayStackAsPoly[T](sas: scm.ArrayStack[T]) extends Queue[T] {
   def elements = new ScalaIterableAsPoly(sas)
-  def push(x: T) = sas push x
-  def top = sas.top
-  def pop() = sas.pop()
+  def enqueue(x: T) = sas push x
+  def front = sas.top
+  def dequeue() = sas.pop()
 }
 
 class ScalaQueueAsPoly[T](sq: scm.Queue[T]) extends Queue[T] {
   def elements = new ScalaIterableAsPoly(sq)
-  def push(x: T) = sq += x
-  def top = sq.front
-  def pop() = sq.dequeue()
+  def enqueue(x: T) = sq += x
+  def front = sq.front
+  def dequeue() = sq.dequeue()
 }
 
 class ScalaPriorityQueueAsPoly[T](spq: scm.PriorityQueue[T]) extends PriorityQueue[T] {
   def elements = new ScalaIterableAsPoly(spq)
   def elementOrder = spq.ord
-  def push(x: T) = spq += x
-  def top = spq.head
-  def pop() = spq.dequeue()
+  def enqueue(x: T) = spq += x
+  def front = spq.head
+  def dequeue() = spq.dequeue()
 }

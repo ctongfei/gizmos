@@ -5,6 +5,7 @@ import poly.collection._
 /**
  * Represents a simple state space that is specified by a state transition function.
  * @author Tongfei Chen
+ * @author Yuhuan Jiang
  * @since 0.1.0
  */
 trait StateSpace[S] { self =>

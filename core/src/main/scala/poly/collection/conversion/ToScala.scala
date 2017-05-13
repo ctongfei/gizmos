@@ -1,6 +1,5 @@
 package poly.collection.conversion
 
-import poly.algebra.conversion.ToScala._
 import poly.collection._
 import poly.collection.mut._
 import scala.{collection => sc}

@@ -1,6 +1,5 @@
 package poly.collection.algorithm
 
-import poly.algebra._
 import poly.collection._
 import poly.collection.search._
 
@@ -9,7 +8,7 @@ import poly.collection.search._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-class SingleSourceShortestPath[K, E: OrderedAdditiveGroup](val graph: Graph[K, E], val source: K) {
+class SingleSourceShortestPath[K, E: Order : AdditiveMonoid](val graph: Graph[K, E], val source: K) {
 
   private[this] val searcher = new UniformCostIterator(graph, source)
   searcher run { _ => }
