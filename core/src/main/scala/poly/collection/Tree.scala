@@ -85,7 +85,7 @@ trait Tree[+T] { self =>
   override def toString = self match {
     case Empty       => ""
     case Tree(r, cs) => cs match {
-      case Iterable.Empty() => s"$r"
+      case Iterable.empty() => s"$r"
       case _                => s"($r ${cs.map(_.toString).buildString(" ")})"
     }
   }
@@ -117,7 +117,7 @@ object Tree {
 
   def single[T](x: => T): Tree[T] = ofRootNode {
     new TreeNode[T] {
-      def children = Iterable.Empty
+      def children = Iterable.empty
       def data = x
       def isDummy = false
     }

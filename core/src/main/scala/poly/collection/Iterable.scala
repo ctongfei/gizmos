@@ -337,9 +337,7 @@ trait Iterable[+T] extends Traversable[T] { self =>
     }
   }
 
-  override def scan[U >: T](z: U)(f: (U, U) => U) = scanLeft(z)(f)
-
-  override def scanByMonoid[U >: T](implicit U: Monoid[U]) = scanLeft(U.empty)(U.combine)
+  override def scanLeftByMonoid[U >: T](implicit U: Monoid[U]) = scanLeft(U.empty)(U.combine)
 
   override def diffByGroup[U >: T](implicit U: Group[U]) = slidingPairsWith((x, y) => U.combine(y, U.inverse(x)))
 
@@ -611,7 +609,7 @@ object Iterable extends UnfoldFactory[Iterable] {
     def flatMap[X, Y](mx: Iterable[X])(f: X => Iterable[Y]): Iterable[Y] = mx.flatMap(f)
     override def map[X, Y](mx: Iterable[X])(f: X => Y): Iterable[Y] = mx.map(f)
     def pure[X](u: X): Iterable[X] = Iterable.single(u)
-    def empty[X]: Iterable[X] = Iterable.Empty
+    def empty[X]: Iterable[X] = Iterable.empty
     def combineK[X](a: Iterable[X], b: Iterable[X]) = a.concat(b)
     override def filter[X](mx: Iterable[X])(f: X => Boolean) = mx.filter(f)
   }
@@ -625,7 +623,7 @@ object Iterable extends UnfoldFactory[Iterable] {
   /** Implicitly converts an `Option` to an `Iterable` that contains one or zero element. */
   implicit def fromOption[T](o: Option[T]): Iterable[T] = o match {
     case Some(x) => Iterable.single(x)
-    case None    => Iterable.Empty
+    case None    => Iterable.empty
   }
 
 

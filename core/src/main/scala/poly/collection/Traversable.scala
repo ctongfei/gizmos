@@ -270,14 +270,14 @@ trait Traversable[+T] { self =>
   }
 
   /**
-   * Returns the list of tails (suffixes) of this collection.
+   * Returns the list of suffixes of this collection.
    * @example {{{(1, 2, 3).suffixes == ((1, 2, 3), (2, 3), (3))}}}
    */
   def suffixes: Iterable[Iterable[T]] = to(ArraySeq).suffixes
 
   /**
-   * Returns the list of inits (prefixes) of this collection.
-   * @example {{{(1, 2, 3).prefixes == ((1, 2, 3), (1, 2), (1))}}}
+   * Returns the list of prefixes of this collection.
+   * @example {{{(1, 2, 3).prefixes == ((1), (1, 2), (1, 2, 3)}}}
    */
   def prefixes: Iterable[Iterable[T]] = to(ArraySeq).prefixes
 
@@ -402,13 +402,13 @@ trait Traversable[+T] { self =>
   def scanRight[U](z: U)(f: (T, U) => U) = self.reverse.scanLeft(z)((x, y) => f(y, x)).reverse
 
   /** $LAZY $O1 */
-  def scan[U >: T](z: U)(f: (U, U) => U): Traversable[U] = scanLeft(z)(f)
+  def scanLeftByMonoid[U >: T](implicit U: Monoid[U]): Traversable[U] = scanLeft(U.empty)(U.combine)
 
   /** $LAZY $O1 */
-  def scanByMonoid[U >: T](implicit U: Monoid[U]): Traversable[U] = scanLeft(U.empty)(U.combine)
+  def scanRightByMonoid[U >: T](implicit U: Monoid[U]): Traversable[U] = scanRight(U.empty)(U.combine)
 
   /** $LAZY $O1 */
-  def diffByGroup[U >: T](implicit U: Group[U]) = slidingPairsWith(U.remove)
+  def diffByGroup[U >: T](implicit U: Group[U]) = slidingPairsWith((x, y) => U.remove(y, x))
 
   /** $On Checks if the given predicate holds for all elements in this collection. */
   def forall(f: T => Boolean): Boolean = {
@@ -440,7 +440,7 @@ trait Traversable[+T] { self =>
    * @tparam X Supertype of the type of elements: must be endowed with an additive monoid
    * @return The prefix sums sequence
    */
-  def prefixSums[X >: T](implicit X: AdditiveMonoid[X]) = scan(X.zero)(X.plus)
+  def prefixSums[X >: T](implicit X: AdditiveMonoid[X]) = scanLeft(X.zero)(X.plus)
 
   /**
    * Returns the consecutive differences sequence of this collection.
@@ -1021,12 +1021,16 @@ object Traversable extends UnfoldFactory[Traversable] {
 
   class Sliding[T](self: Traversable[T], n: Int, step: Int) extends AbstractTraversable[IndexedSeq[T]] {
     def foreach[V](f: IndexedSeq[T] => V) = {
-      var buf = ArraySeq.withSizeHint[T](n)
+      val q = ArrayQueue.withSizeHint[T](n)
+      var p = 0
       for (x <- self) {
-        buf :+= x
-        if (buf.size == n) {
-          f(buf)
-          buf = buf drop step to ArraySeq
+        q += x
+        if (p < 0) q.dequeue()
+        p += 1
+        if (p == n) {
+          f(q.elements to ArraySeq)
+          FastLoop.ascending(0, n min step, 1) { _ => q.dequeue() }
+          p -= step
         }
       }
     }
@@ -1050,9 +1054,9 @@ object Traversable extends UnfoldFactory[Traversable] {
     def foreach[V](f: T => V) = {
       var first = true
       for (x <- self) {
-        f(x)
         if (first) first = false
         else f(u)
+        f(x)
       }
     }
   }

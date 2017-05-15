@@ -37,7 +37,7 @@ trait TreeNodeLike[+T, +N <: TreeNodeLike[T, N]] extends ForwardNodeLike[T, N] {
             if (l) prevNode = c; prevLast = l; // a subtree is completely traversed if l == true
             return true
           } else {
-            val children = c.children to Seq
+            val children = c.children to ListSeq
             if (children.isEmpty) {
               curr = c
               s.dequeue()
@@ -61,7 +61,7 @@ trait TreeNode[+T] extends ForwardNode[T] with TreeNodeLike[T, TreeNode[T]]
 object TreeNode {
 
   object Dummy extends TreeNode[Nothing] {
-    def children = Iterable.Empty
+    def children = Iterable.empty
     def data = throw new NoSuchElementException
     def isDummy = true
   }

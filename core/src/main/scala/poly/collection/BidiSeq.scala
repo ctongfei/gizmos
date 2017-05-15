@@ -64,12 +64,12 @@ trait BidiSeq[+T] extends Seq[T] with BidiIterable[T] { self =>
 
   override def prefixes = {
     class Until(val n: BidiSeqNode[T]) extends BidiSeqNode[BidiSeq[T]] {
-      def data = ofHeadAndLastNode(n.reverse, self.headNode.reverse)
-      def next = new Until(n.prev)
-      def prev = new Until(n.next)
+      def data = ofHeadAndLastNode(self.headNode, n)
+      def next = new Until(n.next)
+      def prev = new Until(n.prev)
       def isDummy = n.isDummy
     }
-    ofHeadAndLastNode(new Until(self.lastNode), new Until(self.headNode))
+    ofHeadAndLastNode(new Until(self.headNode), new Until(self.lastNode))
   }
 
   override def slidingPairsWith[U](f: (T, T) => U): BidiSeq[U] = {

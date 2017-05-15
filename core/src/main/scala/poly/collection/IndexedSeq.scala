@@ -101,7 +101,7 @@ trait IndexedSeq[+T] extends BidiSeq[T] { self =>
 
   override def suffixes = Range(length) map drop
 
-  override def prefixes = Range(length, 0, -1) map take
+  override def prefixes = Range(1, length + 1) map take
 
   override def take(n: Int) = slice(0, n)
 

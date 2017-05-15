@@ -34,6 +34,8 @@ trait Queue[T] {
   /** Removes the top element from the queue and returns it. */
   def dequeue(): T
 
+//  def clear_!(): Unit
+
   /** Returns the number of elements in this queue. */
   def size: Int = elements.size
 

@@ -330,7 +330,7 @@ private[poly] object SetT {
 
   class Empty[T](implicit val keyEq: Eq[T]) extends AbstractSet[T] {
     override def size = 0
-    def keys = Iterable.Empty
+    def keys = Iterable.empty
     def contains(x: T) = false
     override def union(that: Set[T]) = that
     override def diff(that: Set[T]) = this
