@@ -56,9 +56,9 @@ class SortedArrayMap[K, V] private(
 
 }
 
-object SortedArrayMap extends Factory2[Tuple2, SortedArrayMap, Order, NoneEv] {
+object SortedArrayMap extends Factory2[Tuple2, SortedArrayMap, Order, Trivial.P1] {
   
-  def newBuilder[K: Order, V: NoneEv] = new Builder[(K, V), SortedArrayMap[K, V]] {
+  def newBuilder[K: Order, V: Trivial.P1] = new Builder[(K, V), SortedArrayMap[K, V]] {
     private[this] val kva = ArraySeq[(K, V)]()
     def add(x: (K, V)) = kva :+= x
     def result = {

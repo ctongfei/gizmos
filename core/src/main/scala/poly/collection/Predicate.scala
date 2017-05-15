@@ -19,6 +19,8 @@ trait Predicate[@specialized(Int, Long, Float, Double) -T] extends Func[T, Boole
 
   def allOf(xs: T*) = xs forall self
 
+  def contains(x: T) = apply(x)
+
   /** Returns the negation/complement of this predicate. */
   def complement: Predicate[T] = new PredicateT.Complement(self)
 

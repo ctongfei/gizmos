@@ -146,8 +146,13 @@ package object collection extends ImplicitOps {
   private[collection] type Cloning[T]         = poly.collection.typeclass.Cloning[T]
   private[collection] val  Cloning            = poly.collection.typeclass.Cloning
 
+  private[collection] type Show[T]            = cats.Show[T]
+  private[collection] val  Show               = cats.Show
+  private[collection] implicit val ShowString = cats.Show.fromToString[String]
+
   private[collection] type SequentialOrder[T] = poly.collection.typeclass.SequentialOrder[T]
 
+  private[collection] val  Trivial            = cats.Trivial
   private[collection] type Id[T]              = cats.Id[T]
   private[collection] type Functor[F[_]]      = cats.Functor[F]
   private[collection] type Applicative[F[_]]  = cats.Applicative[F]
@@ -156,5 +161,6 @@ package object collection extends ImplicitOps {
   private[collection] type Comonad[F[_]]      = cats.Comonad[F]
   private[collection] type Category[->[_, _]] = cats.arrow.Category[->]
   private[collection] type Arrow[->[_, _]]    = cats.arrow.Arrow[->]
+
 
 }

@@ -25,6 +25,8 @@ import scala.reflect._
  */
 trait Traversable[+T] { self =>
 
+  import Traversable._
+  
   /**
    * $On Applies a specific callback function to each element in this collection.
    * @param f The function to be applied. Return values are discarded.
@@ -64,7 +66,7 @@ trait Traversable[+T] { self =>
    * $LAZY Returns a new collection by applying a function to all elements in this collection.
    * @example {{{(1, 2, 3) map { _ + 1 } == (2, 3, 4)}}}
    */
-  def map[U](f: T => U): Traversable[U] = new TraversableT.Mapped(self, f)
+  def map[U](f: T => U): Traversable[U] = new Mapped(self, f)
 
   /**
    * $LAZY Builds a new collection by applying a function to all elements of this collection
@@ -72,7 +74,7 @@ trait Traversable[+T] { self =>
    * This is the direct equivalent of the Haskell function `bind`/`>>=`.
    * @example {{{(0, 1, 2, 3) flatMap { i => i repeat i } == (1, 2, 2, 3, 3, 3)}}}
    */
-  def flatMap[U](f: T => Traversable[U]): Traversable[U] = new TraversableT.FlatMapped(self, f)
+  def flatMap[U](f: T => Traversable[U]): Traversable[U] = new FlatMapped(self, f)
 
   /**
    * $LAZY Returns the monadic product of two traversable collections, i.e., a collection
@@ -91,9 +93,12 @@ trait Traversable[+T] { self =>
   def productWith[U, X](that: Traversable[U])(f: (T, U) => X): Traversable[X] =
     for (x <- self; y <- that) yield f(x, y)
 
-  def zip[U](that: Iterable[U]): Traversable[(T, U)] = new TraversableT.ZippedWith(self, that, (t: T, u: U) => (t, u))
+  /**
+   * Zips this traversable collection with an [[Iterable]].
+   */
+  def zip[U](that: Iterable[U]): Traversable[(T, U)] = new ZippedWith(self, that, (t: T, u: U) => (t, u))
 
-  def zipWith[U, X](that: Iterable[U])(f: (T, U) => X): Traversable[X] = new TraversableT.ZippedWith(self, that, f)
+  def zipWith[U, X](that: Iterable[U])(f: (T, U) => X): Traversable[X] = new ZippedWith(self, that, f)
   //endregion
 
   //region FILTERING OPS
@@ -101,7 +106,7 @@ trait Traversable[+T] { self =>
    * $LAZY Selects only the elements that satisfy the specified predicate.
    * @example {{{(1, 2, 3, 4) filter { _ > 2 } == (3, 4)}}}
    */
-  def filter(f: T => Boolean): Traversable[T] = new TraversableT.Filtered(self, f)
+  def filter(f: T => Boolean): Traversable[T] = new Filtered(self, f)
 
   /** $LAZY Selects the elements that do not satisfy the specified predicate. */
   def filterNot(f: T => Boolean): Traversable[T] = filter(!f)
@@ -110,13 +115,13 @@ trait Traversable[+T] { self =>
    * $LAZY Returns a collection by applying the specified partial function to
    * all elements of this collection on which the function is defined.
    */
-  def collect[U](pf: PartialFunction[T, U]): Traversable[U] = new TraversableT.Collected(self, pf)
+  def collect[U](pf: PartialFunction[T, U]): Traversable[U] = new Collected(self, pf)
 
   /**
    * $LAZY Returns a collection by applying the specific function to all elements,
    * and then collect those whose result is not `None`.
    */
-  def collectOption[U](f: T => Option[U]): Traversable[U] = new TraversableT.OptionallyCollected(self, f)
+  def collectOption[U](f: T => Option[U]): Traversable[U] = new OptionallyCollected(self, f)
 
   /** $On Counts the number of elements in this collection that satisfy the specified predicate. */
   def count(f: T => Boolean): Int = {
@@ -188,8 +193,8 @@ trait Traversable[+T] { self =>
    * $LAZY Returns the unique elements in this collection while retaining its original order.
    * This function requires that an equivalence relation is endowed on the type of the elements.
    * @note The performance when being iterated depends on the equivalence relation: <ul>
-   *           <li> [[poly.algebra.Hashing]]: amortized O(''n''); </li>
-   *           <li> [[poly.algebra.Order]]: O(''n'' log ''n''); </li>
+   *           <li> [[Hashing]]: amortized O(''n''); </li>
+   *           <li> [[Order]]: O(''n'' log ''n''); </li>
    *           <li> otherwise: O(''n''^2^).
    *         </ul>
    * @example {{{
@@ -198,7 +203,7 @@ trait Traversable[+T] { self =>
    */
   def distinct[U >: T](implicit U: Eq[U]): Traversable[U] = distinctBy[U](identity)
 
-  def distinctBy[U: Eq](f: T => U): Traversable[T] = new TraversableT.DistinctBy(self, f, Eq[U])
+  def distinctBy[U: Eq](f: T => U): Traversable[T] = new DistinctBy(self, f, Eq[U])
 
   def union[U >: T : Eq](that: Traversable[U]): Traversable[U] =
     (this concat that).distinct
@@ -208,27 +213,13 @@ trait Traversable[+T] { self =>
       (that filter (this: Traversable[U]).to(AutoSet)).distinct
     else (this filter that.to(AutoSet)).distinct[U]
 
-  /** $On Checks if the given predicate holds for all elements in this collection. */
-  def forall(f: T => Boolean): Boolean = {
-    for (x <- self)
-      if (!f(x)) return false
-    true
-  }
-
-  /** $On Checks if the given predicate holds for at least one element in this collection. */
-  def exists(f: T => Boolean): Boolean = {
-    for (x <- self)
-      if (f(x)) return true
-    false
-  }
-
   /**
    * $On Returns a weighted set (multiset) of all the elements in this collection.
    * @example {{{ (a, b, c, a, b).occCounts == {a: 2, b: 2, c: 1} }}}
    */
   def occCounts[U >: T : Eq]: WeightedSet[U, Int] = {
-    //TODO: for unknown reasons, the compiler cannot find the instance for Order[Int]
-    PairWeightedSet.of[Int](cats.instances.int.catsKernelStdOrderForInt, algebra.ring.Ring[Int]) from self
+    import algebra.instances.int._
+    PairWeightedSet.of[Int] from self
   }
   //endregion
 
@@ -237,13 +228,13 @@ trait Traversable[+T] { self =>
    * $LAZY Concatenates two traversable collections into one.
    * @example {{{(1, 2, 3) ++ (4, 5) == (1, 2, 3, 4, 5)}}}
    */
-  def concat[U >: T](that: Traversable[U]): Traversable[U] = new TraversableT.Concatenated(self, that)
+  def concat[U >: T](that: Traversable[U]): Traversable[U] = new Concatenated(self, that)
 
   /** $LAZY Prepends an element to the beginning of this collection. */
-  def prepend[U >: T](x: U): Traversable[U] = new TraversableT.Prepended(self, x)
+  def prepend[U >: T](x: U): Traversable[U] = new Prepended(self, x)
 
   /** $LAZY Appends an element to the end of this collection. */
-  def append[U >: T](x: U): Traversable[U] = new TraversableT.Appended(self, x)
+  def append[U >: T](x: U): Traversable[U] = new Appended(self, x)
 
   /** $EAGER $O1 Returns the first element of this collection. */
   def head: T = {
@@ -253,7 +244,7 @@ trait Traversable[+T] { self =>
   }
 
   /** $LAZY Returns the collection without the first element. */
-  def tail: Traversable[T] = new TraversableT.Tail(self)
+  def tail: Traversable[T] = new Tail(self)
 
   /** $EAGER $On Returns the last element of this collection. */
   def last: T = {
@@ -263,7 +254,7 @@ trait Traversable[+T] { self =>
   }
 
   /** $LAZY Returns the collection without the last element. */
-  def init: Traversable[T] = new TraversableT.Init(self)
+  def init: Traversable[T] = new Init(self)
 
   /** $EAGER $O1 */
   def headOption: Option[T] = {
@@ -290,19 +281,19 @@ trait Traversable[+T] { self =>
    */
   def prefixes: Iterable[Iterable[T]] = to(ArraySeq).prefixes
 
-  def take(n: Int): Traversable[T] = new TraversableT.Taken(self, n)
+  def take(n: Int): Traversable[T] = new Taken(self, n)
 
-  def takeWhile(f: T => Boolean): Traversable[T] = new TraversableT.TakenWhile(self, f)
+  def takeWhile(f: T => Boolean): Traversable[T] = new TakenWhile(self, f)
 
-  def takeTo(f: T => Boolean): Traversable[T] = new TraversableT.TakenTo(self, f)
+  def takeTo(f: T => Boolean): Traversable[T] = new TakenTo(self, f)
 
   def takeUntil(f: T => Boolean): Traversable[T] = takeWhile(!f)
 
-  def drop(n: Int): Traversable[T] = new TraversableT.Dropped(self, n)
+  def drop(n: Int): Traversable[T] = new Dropped(self, n)
 
-  def dropWhile(f: T => Boolean): Traversable[T] = new TraversableT.DroppedWhile(self, f)
+  def dropWhile(f: T => Boolean): Traversable[T] = new DroppedWhile(self, f)
 
-  def dropTo(f: T => Boolean): Traversable[T] = new TraversableT.DroppedTo(self, f)
+  def dropTo(f: T => Boolean): Traversable[T] = new DroppedTo(self, f)
 
   def dropUntil(f: T => Boolean): Traversable[T] = dropWhile(!f)
 
@@ -312,25 +303,25 @@ trait Traversable[+T] { self =>
    * Pairs each element in this collection with an index while traversing.
    * @example {{{ (a, b, c).withIndex == ((0, a), (1, b), (2, c)) }}}
    */
-  def withIndex: Traversable[(Int, T)] = new TraversableT.WithIndex(self)
+  def withIndex: Traversable[(Int, T)] = new WithIndex(self)
 
   /**
    * Repeats this collection for a specific number of times. $LAZY
    * @example {{{ (1, 2, 3) repeat 2 == (1, 2, 3, 1, 2, 3) }}}
    */
-  def repeat(n: Int): Traversable[T] = new TraversableT.Repeated(self, n)
+  def repeat(n: Int): Traversable[T] = new Repeated(self, n)
 
   /**
    * Infinitely cycles through this collection. $LAZY
    * @example {{{(1, 2, 3).cycle == (1, 2, 3, 1, 2, 3, 1, 2, ...)}}}
    */
-  def cycle: Traversable[T] = new TraversableT.Cycled(self)
+  def cycle: Traversable[T] = new Cycled(self)
 
   /**
    * Intersperses this collection with the given element.
    * @example {{{(1, 2, 3) intersperse 0 == (1, 0, 2, 0, 3)}}}
    */
-  def intersperse[U >: T](u: U): Traversable[U] = new TraversableT.Interspersed(self, u)
+  def intersperse[U >: T](u: U): Traversable[U] = new Interspersed(self, u)
 
   //endregion
 
@@ -399,7 +390,7 @@ trait Traversable[+T] { self =>
    *   (1, 2, 3, 4).scanLeft(0)(_+_) == (1, 3, 6, 10)
    * }}}
    */
-  def scanLeft[U](z: U)(f: (U, T) => U): Traversable[U] = new TraversableT.Scanned(self, z, f)
+  def scanLeft[U](z: U)(f: (U, T) => U): Traversable[U] = new Scanned(self, z, f)
 
   /** $EAGER
    * Performs a suffix scan (right-to-left) of this collection.
@@ -418,6 +409,20 @@ trait Traversable[+T] { self =>
 
   /** $LAZY $O1 */
   def diffByGroup[U >: T](implicit U: Group[U]) = slidingPairsWith(U.remove)
+
+  /** $On Checks if the given predicate holds for all elements in this collection. */
+  def forall(f: T => Boolean): Boolean = {
+    for (x <- self)
+      if (!f(x)) return false
+    true
+  }
+
+  /** $On Checks if the given predicate holds for at least one element in this collection. */
+  def exists(f: T => Boolean): Boolean = {
+    for (x <- self)
+      if (f(x)) return true
+    false
+  }
 
   /**
    * Returns the sum of the elements in this collection.
@@ -441,12 +446,15 @@ trait Traversable[+T] { self =>
    * Returns the consecutive differences sequence of this collection.
    *
    * @example {{{
-   *   (1, 3, 6, 10).differences == (2, 3, 4)
+   *   (1, 3, 6, 10).differences == (1, 2, 3, 4)
+   * }}}
+   * @note The following invariant should hold: {{{
+   *   xs.prefixSums.differences == xs
    * }}}
    * @tparam X Supertype of the type of elements: must be endowed with an additive group (to enable the `sub(-)` operation).
    * @return The consecutive differences sequence
    */
-  def differences[X >: T](implicit X: AdditiveGroup[X]) = slidingPairsWith((x, y) => X.minus(y, x))
+  def differences[X >: T](implicit X: AdditiveGroup[X]) = slidingPairsWith((x, y) => X.minus(y, x)).prepend(head)
 
   /** $EAGER $On Returns the minimum element in this collection. */
   def min[U >: T](implicit U: Order[U]): T = reduce(U.refine[T].min)
@@ -457,6 +465,7 @@ trait Traversable[+T] { self =>
   /**
    * $EAGER '''O(''n'' log ''k''): '''
    * Returns the top-''k'' elements in this collection.
+   * @note The internal implementation is a beam.
    */
   def top[U >: T](k: Int)(implicit U: Order[U]) = {
     val beam = Beam.ofSize[T](k)(U.refine[T].reverse)
@@ -464,7 +473,7 @@ trait Traversable[+T] { self =>
     beam.elements
   }
 
-  /**
+  /** $EAGER $On
    * Returns the first element in this collection that makes the specific function least.
    * @example {{{
    *   (1, 2, 3, 4, 5) argmin { _ % 4 } == 4
@@ -552,10 +561,9 @@ trait Traversable[+T] { self =>
   //region SEQUENTIAL GROUPING OPS
   /**
    * $LAZY
-   *
    * @example {{{ (0, 1, 3, 6, 10).slidingPairsWith((x, y) => y - x) == (1, 2, 3, 4) }}}
    */
-  def slidingPairsWith[U](f: (T, T) => U): Traversable[U] = new TraversableT.Consecutive(self, f)
+  def slidingPairsWith[U](f: (T, T) => U): Traversable[U] = new Consecutive(self, f)
 
   def slidingPairs: Traversable[(T, T)] = slidingPairsWith((x, y) => (x, y))
 
@@ -566,11 +574,14 @@ trait Traversable[+T] { self =>
    * standard library's `iterator.sliding(n).withPartial(false)`.
    * @param windowSize The size of the sliding window
    * @param step Step size. The default value is 1.
-   * @example {{{(1, 2, 3, 4).sliding(2) == ((1, 2), (2, 3), (3, 4))}}}
+   * @example {{{
+   *   (1, 2, 3, 4).sliding(2) == ((1, 2), (2, 3), (3, 4))
+   *   (1).sliding(2) == (())
+   * }}}
    */
-  def sliding(windowSize: Int, step: Int = 1): Traversable[IndexedSeq[T]] = new TraversableT.Sliding(self, windowSize, step)
+  def sliding(windowSize: Int, step: Int = 1): Traversable[IndexedSeq[T]] = new Sliding(self, windowSize, step)
 
-  def chunk(chunkSize: Int): Traversable[IndexedSeq[T]] = new TraversableT.Chunked(self, chunkSize)
+  def chunk(chunkSize: Int): Traversable[IndexedSeq[T]] = new Chunked(self, chunkSize)
 
   //TODO: groupConsecutively, split, splitBy
   //endregion
@@ -592,7 +603,7 @@ trait Traversable[+T] { self =>
    * @param n Rotation starts here
    */
   def rotate(n: Int) = (self drop n) concat (self take n)
-  
+
   /**
    * $EAGER $Onlogn Sorts this collection in ascending order using the implicitly provided order.
    * @example {{{
@@ -607,11 +618,14 @@ trait Traversable[+T] { self =>
   }
 
   /**
-   * $EAGER $Onlogn
+   * $EAGER $Onlogn Sorts this collection in ascending order by the value results from the given function.
+   * @example {{{
+   *   ("abc", "mn", "z").sortBy(_.length) == ("z", "mn", "abc")
+   * }}}
    */
   def sortBy[U: Order](f: T => U): SortedIndexedSeq[T @uv] = {
     val seq = self to ArraySeq
-    val w = ArraySeq.tabulate(seq.length)(i => f(seq(i))) // cache the weights of each term!
+    val w = ArraySeq.tabulate(seq.length)(i => f(seq(i))) // cache the weights of each term (just O(n) computations, instead of worst case O(n^2) computations of weights)!
     seq sortUsing_! w
     seq asIfSorted (Order by f)
   }
@@ -619,8 +633,14 @@ trait Traversable[+T] { self =>
 
   //region BUILDING OPS
 
+  /** $EAGER $On
+   * Pipes the elements in this collection to a builder.
+   */
   def >>>[R](builder: Builder[T, R]): Unit = builder <<< self
 
+  /** $EAGER $On
+   * Pipes the elements in this collection to a builder, then close the builder and return the built result.
+   */
   def >>>![R](builder: Builder[T, R]) = {
     builder <<< self
     builder.result()
@@ -630,6 +650,7 @@ trait Traversable[+T] { self =>
    * Converts this traversable collection to any collection type.
    * @param factory Grounded factory (may require evidences)
    * @example {{{
+   *   Seq(1, 2, 4, 8).to[ListSeq[Int]]
    *   Seq(1, 2, 4, 8).to[BitSet]
    * }}}
    */
@@ -692,7 +713,6 @@ trait Traversable[+T] { self =>
   def :+[U >: T](x: U) = this append x
   def +:[U >: T](x: U) = this prepend x
   def ++[U >: T](that: Traversable[U]) = this concat that
-  def |*|[U](that: Traversable[U]) = this product that
 
   //endregion
 
@@ -719,7 +739,7 @@ trait Traversable[+T] { self =>
   //endregion
 }
 
-object Traversable {
+object Traversable extends UnfoldFactory[Traversable] {
 
   // CONSTRUCTORS
 
@@ -729,6 +749,19 @@ object Traversable {
 
   def single[T](e: T): Traversable[T] = new AbstractTraversable[T] {
     def foreach[U](f: T => U) = f(e)
+  }
+
+  def unfold[S, T](s0: S)(f: S => (S, T)): Traversable[T] = new AbstractTraversable[T] {
+    def foreach[U](g: T => U) = {
+      var s = s0
+      var t = default[T]
+      while (true) {
+        val (newS, newT) = f(s)
+        s = newS
+        t = newT
+        g(t)
+      }
+    }
   }
 
   // TYPECLASS INSTANCES
@@ -770,15 +803,15 @@ object Traversable {
       (ak.result, av.result)
     }
 
+    /**
+     * Builds a collection type with two type parameters using this traversable collection of pairs.
+     * @example {{{
+     *   ((1, 2), (3, 4), (5, 6)) to HashMap == {1 -> 2, 3 -> 4, 5 -> 6}
+     * }}}
+     */
     def to[M[_, _], EvA[_], EvB[_]](factory: Factory2[Tuple2, M, EvA, EvB])(implicit A: EvA[A], B: EvB[B]) = factory from underlying
 
   }
-
-}
-
-abstract class AbstractTraversable[+T] extends Traversable[T]
-
-private[poly] object TraversableT {
 
   class Mapped[T, U](self: Traversable[T], f: T => U) extends AbstractTraversable[U] {
     def foreach[V](g: U => V) = {
@@ -1034,4 +1067,8 @@ private[poly] object TraversableT {
     }
   }
 
+
 }
+
+abstract class AbstractTraversable[+T] extends Traversable[T]
+

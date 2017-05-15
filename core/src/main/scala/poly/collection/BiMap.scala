@@ -77,13 +77,13 @@ trait BiMap[K, V] extends Map[K, V] with Bijection[K, V] { self =>
    */
   override def contramap[J](f: Bijection[J, K]): BiMap[J, V] = new BiMapT.BijectivelyContramapped(self, f)
 
-  override def toString = "{" + pairs.map { case (k, v) => s"$k <->︎ $v" }.buildString(", ") + "}"
+  override def toString = "{" + pairs.map { case (k, v) => s"$k <-> $v" }.buildString(", ") + "}"
 
 }
 
 abstract class AbstractBiMap[K, V] extends AbstractMap[K, V] with BiMap[K, V]
 
-object BiMapT {
+private[poly] object BiMapT {
 
   class Inverse[K, V](self: BiMap[K, V]) extends AbstractBiMap[V, K] {
     def keySet = self.valueSet

@@ -1,5 +1,6 @@
 package poly.collection.factory
 
+import cats.Trivial
 import poly.collection._
 import poly.collection.evidence._
 
@@ -8,11 +9,11 @@ import scala.language.higherKinds
 /**
  * @author Tongfei Chen
  */
-trait GraphFactory[+G[_, _], Ev[_]] extends Factory2[({type λ[K, E] = (K, K, E)})#λ, G, Ev, NoneEv] {
+trait GraphFactory[+G[_, _], Ev[_]] extends Factory2[({type λ[K, E] = (K, K, E)})#λ, G, Ev, Trivial.P1] {
 
   def newGraphBuilder[K: Ev, E]: GraphBuilder[K, E, G[K, E]]
 
-  def newBuilder[K: Ev, E: NoneEv]: GraphBuilder[K, E, G[K, E]] = newGraphBuilder
+  def newBuilder[K: Ev, E: Trivial.P1]: GraphBuilder[K, E, G[K, E]] = newGraphBuilder
 
   def fromKeysAndArcs[K: Ev, E](ks: Traversable[K], kkes: Traversable[(K, K, E)]) = {
     val b = newBuilder[K, E]

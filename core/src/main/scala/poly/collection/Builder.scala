@@ -34,7 +34,10 @@ trait Builder[@sp(Int, Byte, Char) -T, @sp(Unit, AnyRef) +R] { self =>
     * Adds all elements provided to this builder.
     * @param xs The elements to be added
     */
-  @unsp def addAll(xs: Traversable[T]) = xs foreach add
+  @unsp def addAll(xs: Traversable[T]) = {
+    if (xs.sizeKnown) sizeHint(xs.size)
+    xs foreach add
+  }
 
   /**
    * Returns the structure built from this builder.

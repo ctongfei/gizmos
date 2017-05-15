@@ -10,9 +10,9 @@ import scala.language.higherKinds
   * This trait should be inherited by companion objects of sequence implementation classes.
   * @author Tongfei Chen
  */
-trait SeqFactory[+C[_]] extends Factory1[Id, C, NoneEv] {
+trait SeqFactory[+C[_]] extends Factory1[Id, C, Trivial.P1] {
 
-  final def newBuilder[T : NoneEv] = newSeqBuilder[T]
+  final def newBuilder[T : Trivial.P1] = newSeqBuilder[T]
 
   def newSeqBuilder[T]: Builder[T, C[T]]
 

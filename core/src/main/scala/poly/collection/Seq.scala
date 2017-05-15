@@ -6,6 +6,7 @@ import poly.collection.factory._
 import poly.collection.impl._
 import poly.collection.mut._
 import poly.collection.node._
+
 import scala.annotation.unchecked.{uncheckedVariance => uv}
 
 /**
@@ -23,7 +24,7 @@ trait Seq[+T] extends Iterable[T] with PartialFunction[Int, T] { self =>
   def headNode: SeqNode[T]
 
   /** Returns a dummy node whose next node is the head of this sequence. */
-  def dummy: SeqNode[T] = new SeqT.DummyNode[T](self)
+  def dummy: SeqNode[T] = new DummyNode[T](self)
 
   /** Returns the length of this sequence. $On */
   def length: Int = {
@@ -63,18 +64,18 @@ trait Seq[+T] extends Iterable[T] with PartialFunction[Int, T] { self =>
     }
   }
 
-  def newIterator: Iterator[T] = new SeqT.DefaultIterator(self)
+  def newIterator: Iterator[T] = new DefaultIterator(self)
 
   override def isEmpty = headNode.isDummy
 
   def indexSet = Range(length).asSet
 
   /** Returns the indices of this sequence. */
-  def indices: SortedSeq[Int] = new SeqT.Keys(self)
+  def indices: SortedSeq[Int] = new Keys(self)
 
   //region MONADIC OPS
 
-  override def map[U](f: T => U): Seq[U] = new SeqT.Mapped(self, f)
+  override def map[U](f: T => U): Seq[U] = new Mapped(self, f)
 
   def flatMap[U](f: T => Seq[U]): Seq[U] = {
     class FlatMappedSeqNode(val outer: SeqNode[T], val inner: SeqNode[U]) extends SeqNode[U] {
@@ -304,7 +305,7 @@ trait Seq[+T] extends Iterable[T] with PartialFunction[Int, T] { self =>
     }
   }
 
-  override def withIndex: SortedSeq[(Int, T @uv)] = new SeqT.Pairs(self)
+  override def withIndex: SortedSeq[(Int, T @uv)] = new Pairs(self)
 
   override def repeat(n: Int): Seq[T] = {
     if (n <= 0) return Seq.Empty
@@ -459,7 +460,7 @@ trait Seq[+T] extends Iterable[T] with PartialFunction[Int, T] { self =>
    * Casts this sequence as a map which maps indices to values. $LAZY
    * @example {{{ (a, b, c).asMap == {0: a, 1: b, 2: c} }}}
    */
-  def asMap: KeySortedMap[Int, T] = new SeqT.AsMap(self)
+  def asMap: KeySortedMap[Int, T] = new AsMap(self)
 
   /**
    * Returns a factory object that can used to build sequences that uses the same structure as this sequence.
@@ -494,13 +495,9 @@ trait Seq[+T] extends Iterable[T] with PartialFunction[Int, T] { self =>
 
 }
 
-object Seq extends SeqFactory[Seq] {
-
+object Seq extends UnfoldFactory[Seq] {
 
   // EXTRACTORS
-
-  /** Returns a new builder of this collection type. */
-  def newSeqBuilder[T] = ArraySeq.newSeqBuilder[T]
 
   /** Decomposes a sequence into its head and its tail. */
   def unapply[T](xs: Seq[T]) = {
@@ -512,8 +509,6 @@ object Seq extends SeqFactory[Seq] {
 
   def apply[T](xs: T*) =
     arrayAsPoly(getArrayFromVarargs(xs)) // directly wraps the inner Scala array without element copying
-
-  def from[T](xs: Traversable[T]) = xs to ArraySeq
 
   object Empty extends Seq[Nothing] {
     def headNode = SeqNode.dummy
@@ -529,25 +524,20 @@ object Seq extends SeqFactory[Seq] {
     def headNode = h
   }
 
-  def iterate[T](s: T)(f: T => T): Seq[T] = {
-    class IteratedSeqNode(val data: T) extends SeqNode[T] {
-      def next = new IteratedSeqNode(f(data))
+  def unfold[S, T](s0: S)(f: S => (S, T)): Seq[T] = {
+    class UnfoldedNode(s: S, t: T) extends SeqNode[T] {
+      def next = {
+        val (newS, newT) = f(s)
+        new UnfoldedNode(newS, newT)
+      }
+      def data: T = t
       def isDummy = false
     }
-    ofHeadNode(new IteratedSeqNode(s))
-  }
-
-  def infinite[T](x: => T): Seq[T] = {
-    class InfiniteSeqNode extends SeqNode[T] {
-      def next = this
-      def data = x
-      def isDummy = false
-    }
-    ofHeadNode(new InfiniteSeqNode)
+    val (s1, t1) = f(s0)
+    ofHeadNode(new UnfoldedNode(s1, t1))
   }
 
   // TYPECLASS INSTANCES
-
   //TODO: should be implicit, but results in ambiguous implicits because of problems with contravariant typeclass (SI-2509)
   implicit def Eq[T: Eq]: Eq[Seq[T]] = new Eq[Seq[T]] {
     def eqv(x: Seq[T], y: Seq[T]): Boolean = {
@@ -563,6 +553,12 @@ object Seq extends SeqFactory[Seq] {
       if (yn.notDummy) return false
       true
     }
+  }
+
+  /** The cloner for sequences. */
+  implicit def Cloning[T](implicit T: Cloning[T]): Cloning[Seq[T]] = new Cloning[Seq[T]] {
+    def clone(x: Seq[T]): Seq[T] =
+      x.factory.newSeqBuilder[T] <<<! x
   }
 
   /**
@@ -614,17 +610,14 @@ object Seq extends SeqFactory[Seq] {
     def coflatMap[A, B](fa: Seq[A])(f: (Seq[A]) => B): Seq[B] = ???
     def map[A, B](fa: Seq[A])(f: A => B): Seq[B] = fa map f
   }
-}
 
-abstract class AbstractSeq[+T] extends AbstractIterable[T] with Seq[T]
 
-private[poly] object SeqT {
 
   class AsMap[T](self: Seq[T]) extends IntKeyedSortedMap[T] {
     def keySet = self.indexSet
     def ?(i: Int) = if (i >= 0 && i < self.length) Some(this(i)) else None
     def apply(k: Int) = self(k)
-}
+  }
 
   class DummyNode[T](self: Seq[T]) extends SeqNode[T] {
     def next = self.headNode
@@ -673,3 +666,5 @@ private[poly] object SeqT {
   }
 
 }
+
+abstract class AbstractSeq[+T] extends AbstractIterable[T] with Seq[T]

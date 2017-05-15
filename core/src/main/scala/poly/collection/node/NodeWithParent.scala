@@ -1,6 +1,7 @@
 package poly.collection.node
 
 import poly.collection._
+import poly.collection.immut._
 import poly.collection.mut._
 
 /**
@@ -11,7 +12,7 @@ trait NodeWithParentLike[+T, +N <: NodeWithParentLike[T, N]] extends BackwardNod
   /** Gets the unique parent node of this node. */
   def parent: N
 
-  def pred: Iterable[N] = ListSeq(parent).filter(_.notDummy)
+  def pred: Iterable[N] = if (parent.isDummy) parent :: List.Empty else List.Empty
 
   /** Backtracks from this node to the initial node. */
   def pathToRoot: Seq[N] = self.iterate(_.parent).takeUntil(_.isDummy)

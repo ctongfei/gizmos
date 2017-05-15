@@ -11,7 +11,7 @@ import poly.collection.specgroup._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-class AdjacencyListUndirectedGraph[@sp(Int) K: Eq, E] private(private val r: KeyMutableMap[K, AdjacencyListBidiGraph.VertexInfo[K, E]])
+class AdjacencyListUndirectedGraph[K: Eq, E] private(private val r: KeyMutableMap[K, AdjacencyListBidiGraph.VertexInfo[K, E]])
   extends AdjacencyListBidiGraph(r) with UndirectedGraph[K, E]
 {
   def containsEdge(i: K, j: K) = r(i).succ containsKey j

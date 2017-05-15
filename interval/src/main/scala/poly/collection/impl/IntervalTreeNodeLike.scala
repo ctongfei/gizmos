@@ -1,7 +1,6 @@
 package poly.collection.impl
 
-import poly.algebra.specgroup._
-import poly.collection.Interval
+import poly.collection._
 import poly.collection.specgroup._
 
 /**

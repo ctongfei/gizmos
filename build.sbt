@@ -8,7 +8,7 @@ lazy val commonSettings = Seq(
 
   libraryDependencies ++= Seq(
     "org.typelevel"     %% "cats-core"       % "0.9.0",
-    "org.typelevel"     %% "algebra"         % "0.6.0",
+    "org.typelevel"     %% "algebra"         % "0.7.0",
     "org.typelevel"     %% "spire"           % "0.14.1",
     "me.tongfei"        %% "poly-macroutil"  % "0.2.0",
     "org.scalatest"     %% "scalatest"       % "3.0.0"  % Test,
@@ -79,6 +79,12 @@ lazy val approx = (project in file("approx")).settings(commonSettings: _*)
   version := "0.0.1-SNAPSHOT"
 )
 
+lazy val automata = (project in file("automata")).settings(commonSettings: _*)
+  .dependsOn(core).settings(
+  name := "poly-collection-automata",
+  version := "0.0.1-SNAPSHOT"
+)
+
 
 val root = (project in file(".")).
   settings(commonSettings: _*).
@@ -86,4 +92,4 @@ val root = (project in file(".")).
   settings(
     name := "poly-collection"
   ).
-  aggregate(core, rangequery, interval, transient, approx)
+  aggregate(core, rangequery, interval, transient, approx, automata)
