@@ -407,8 +407,15 @@ trait Traversable[+T] { self =>
   /** $LAZY $O1 */
   def scanRightByMonoid[U >: T](implicit U: Monoid[U]): Traversable[U] = scanRight(U.empty)(U.combine)
 
-  /** $LAZY $O1 */
-  def diffByGroup[U >: T](implicit U: Group[U]) = slidingPairsWith((x, y) => U.remove(y, x))
+  def unscanLeft[U >: T, V](z: U)(f: (U, U) => V) = (z +: self) slidingPairsWith f
+
+  def unscanRight[U >: T, V](z: U)(f: (U, U) => V) = (self :+ z) slidingPairsWith f
+
+  /** $LAZY */
+  def unscanLeftByGroup[U >: T](implicit U: Group[U]) = unscanLeft(U.empty)((x, y) => U.remove(y, x))
+
+  /** $LAZY */
+  def unscanRightByGroup[U >: T](implicit U: Group[U]) = unscanRight(U.empty)(U.remove)
 
   /** $On Checks if the given predicate holds for all elements in this collection. */
   def forall(f: T => Boolean): Boolean = {
@@ -440,7 +447,7 @@ trait Traversable[+T] { self =>
    * @tparam X Supertype of the type of elements: must be endowed with an additive monoid
    * @return The prefix sums sequence
    */
-  def prefixSums[X >: T](implicit X: AdditiveMonoid[X]) = scanLeft(X.zero)(X.plus)
+  def prefixSums[X >: T](implicit X: AdditiveMonoid[X]) = scanLeftByMonoid(X.additive)
 
   /**
    * Returns the consecutive differences sequence of this collection.
@@ -454,7 +461,7 @@ trait Traversable[+T] { self =>
    * @tparam X Supertype of the type of elements: must be endowed with an additive group (to enable the `sub(-)` operation).
    * @return The consecutive differences sequence
    */
-  def differences[X >: T](implicit X: AdditiveGroup[X]) = slidingPairsWith((x, y) => X.minus(y, x)).prepend(head)
+  def differences[X >: T](implicit X: AdditiveGroup[X]) = unscanLeftByGroup(X.additive)
 
   /** $EAGER $On Returns the minimum element in this collection. */
   def min[U >: T](implicit U: Order[U]): T = reduce(U.refine[T].min)
@@ -623,11 +630,10 @@ trait Traversable[+T] { self =>
    *   ("abc", "mn", "z").sortBy(_.length) == ("z", "mn", "abc")
    * }}}
    */
-  def sortBy[U: Order](f: T => U): SortedIndexedSeq[T @uv] = {
-    val seq = self to ArraySeq
-    val w = ArraySeq.tabulate(seq.length)(i => f(seq(i))) // cache the weights of each term (just O(n) computations, instead of worst case O(n^2) computations of weights)!
-    seq sortUsing_! w
-    seq asIfSorted (Order by f)
+  def sortBy[U](f: T => U)(implicit U: Order[U]): SortedIndexedSeq[T @uv] = {
+    val seq = self map { x => x -> f(x) } to ArraySeq
+    seq.sort_!()(U on second[T, U])
+    seq map first asIfSorted (Order by f)
   }
   //endregion
 

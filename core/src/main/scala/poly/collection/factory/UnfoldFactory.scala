@@ -13,7 +13,7 @@ trait UnfoldFactory[CC[+_]] {
    */
   def unfold[S, T](s0: S)(f: S => (S, T)): CC[T]
 
-  def iterate[T](t0: T)(f: T => T): CC[T] = unfold(t0)(s => (s, s))
+  def iterate[T](t0: T)(f: T => T): CC[T] = unfold(t0)(s => (f(s), s))
 
   def infinite[T](t: => T): CC[T] = unfold(())(_ => ((), t))
 

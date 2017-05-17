@@ -15,9 +15,6 @@ trait ValueMutableIndexedSeq[T] extends ValueMutableSeq[T] with IndexedSeq[T] {
   /** $Onlogn Sorts this sequence in-place using the order provided. */
   def sort_![U >: T]()(implicit U: Order[U]) = Sorting.quickSort[T, U](this)
 
-  /** $Onlogn Sorts this sequence in-place using the weight provided in the given indexed sequence. */
-  def sortUsing_![U: Order](w: IndexedSeq[U]) = Sorting.quickSortUsing(this, w)
-
   /** $On Reverses this sequence in-place. */
   def reverse_!(): Unit = {
     var l = 0

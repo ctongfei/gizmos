@@ -11,7 +11,7 @@ import poly.collection.mut._
 object Sorting {
 
   def quickSort[T, U >: T](a: ValueMutableIndexedSeq[T])(implicit U: Order[U]): Unit = {
-    implicit val T: Order[T] = U.on(identity)
+    implicit val T = U.refine[T]
     def quicksort0(i: Int, j: Int): Unit = {
       var l = i
       var r = j
@@ -29,27 +29,6 @@ object Sorting {
       if (l < j) quicksort0(l, j)
     }
     quicksort0(0, a. length - 1)
-  }
-
-  def quickSortUsing[T, U: Order](a: ValueMutableIndexedSeq[T], w: IndexedSeq[U]): Unit = {
-    require(a.length == w.length)
-    def quicksort0(i: Int, j: Int): Unit = {
-      var l = i
-      var r = j
-      val pivot = w(l + (r - l) / 2)
-      while (l <= r) {
-        while (w(l) < pivot) l += 1
-        while (w(r) > pivot) r -= 1
-        if (l <= r) {
-          a.swap_!(l, r)
-          l += 1
-          r -= 1
-        }
-      }
-      if (i < r) quicksort0(i, r)
-      if (l < j) quicksort0(l, j)
-    }
-    quicksort0(0, a.length - 1)
   }
 
 }

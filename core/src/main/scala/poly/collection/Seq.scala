@@ -356,7 +356,7 @@ trait Seq[+T] extends Iterable[T] with PartialFunction[Int, T] { self =>
 
   override def scanLeftByMonoid[U >: T](implicit U: Monoid[U]) = scanLeft(U.empty)(U.combine)
 
-  override def diffByGroup[U >: T](implicit U: Group[U]) = slidingPairsWith((x, y) => U.combine(y, U.inverse(x)))
+  override def unscanLeftByGroup[U >: T](implicit U: Group[U]) = slidingPairsWith((x, y) => U.combine(y, U.inverse(x)))
 
   //endregion
 
