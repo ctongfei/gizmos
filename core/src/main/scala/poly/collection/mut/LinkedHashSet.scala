@@ -5,6 +5,7 @@ import poly.collection.exception._
 import poly.collection.factory._
 import poly.collection.impl.hashtable._
 import poly.collection.node._
+import poly.collection.typeclass._
 
 /**
  * Represents a linked hash set.

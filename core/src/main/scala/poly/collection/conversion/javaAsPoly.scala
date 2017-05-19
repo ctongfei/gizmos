@@ -2,6 +2,7 @@ package poly.collection.conversion
 
 import poly.collection._
 import poly.collection.mut._
+import poly.collection.typeclass._
 import scala.reflect._
 
 /**

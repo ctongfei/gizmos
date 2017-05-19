@@ -1,7 +1,6 @@
 package poly.collection
 
 import cats.implicits._
-import algebra.instances.int._
 import poly.collection.exception._
 import poly.collection.factory._
 import poly.collection.mut._
@@ -384,7 +383,7 @@ trait Traversable[+T] { self =>
   def reduceBySemigroup[U >: T : Semigroup]: U = reduceLeft[U](_ |+| _)
 
   /** $LAZY
-   * Performs a prefix scan (left-to-right) of this collection.
+   * Performs a prefix scan (left-to-right) on this collection.
    * @note The behavior is different from the Scala standard library: The starting element [[z]] is not returned.
    * @example {{{
    *   (1, 2, 3, 4).scanLeft(0)(_+_) == (1, 3, 6, 10)
@@ -393,7 +392,7 @@ trait Traversable[+T] { self =>
   def scanLeft[U](z: U)(f: (U, T) => U): Traversable[U] = new Scanned(self, z, f)
 
   /** $EAGER
-   * Performs a suffix scan (right-to-left) of this collection.
+   * Performs a suffix scan (right-to-left) on this collection.
    * @note The behavior is different from the Scala standard library: The starting element [[z]] is not returned.
    * @example {{{
    *   (1, 2, 3, 4).scanRight(0)(_+_) == (10, 9, 7, 4)
@@ -407,8 +406,20 @@ trait Traversable[+T] { self =>
   /** $LAZY $O1 */
   def scanRightByMonoid[U >: T](implicit U: Monoid[U]): Traversable[U] = scanRight(U.empty)(U.combine)
 
+  /**
+   * $LAZY Performs a left-to-right unscan (inverse operation on scan) on this collection.
+   * @example {{{
+   *    (1, 3, 6, 10).unscanLeft(0)((x, y) => y - x) == (1, 2, 3, 4)
+   * }}}
+   */
   def unscanLeft[U >: T, V](z: U)(f: (U, U) => V) = (z +: self) slidingPairsWith f
 
+  /**
+   * $LAZY Performs a right-to-left unscan on this collection.
+   * @example {{{
+   *   (16, 8, 4, 2).unscanRight(1)(_/_) == (2, 2, 2, 2)
+   * }}}
+   */
   def unscanRight[U >: T, V](z: U)(f: (U, U) => V) = (self :+ z) slidingPairsWith f
 
   /** $LAZY */
@@ -451,7 +462,6 @@ trait Traversable[+T] { self =>
 
   /**
    * Returns the consecutive differences sequence of this collection.
-   *
    * @example {{{
    *   (1, 3, 6, 10).differences == (1, 2, 3, 4)
    * }}}
@@ -606,10 +616,16 @@ trait Traversable[+T] { self =>
 
   /**
    * $LAZY Rotates this collection from the index specified.
-   * @example {{{(1, 2, 3, 4).rotate(1) == (2, 3, 4, 1)}}}
+   * @example {{{
+   *   (1, 2, 3, 4).rotate(1) == (2, 3, 4, 1)
+   *   (1, 2, 3, 4).rotate(-1) == (4, 1, 2, 3)
+   * }}}
    * @param n Rotation starts here
    */
-  def rotate(n: Int) = (self drop n) concat (self take n)
+  def rotate(n: Int) = {
+    val m = n %+ size
+    (self drop m) ++ (self take m)
+  }
 
   /**
    * $EAGER $Onlogn Sorts this collection in ascending order using the implicitly provided order.
@@ -631,7 +647,7 @@ trait Traversable[+T] { self =>
    * }}}
    */
   def sortBy[U](f: T => U)(implicit U: Order[U]): SortedIndexedSeq[T @uv] = {
-    val seq = self map { x => x -> f(x) } to ArraySeq
+    val seq = self map { x => x -> f(x) } to ArraySeq // just compute the weights (U) once!
     seq.sort_!()(U on second[T, U])
     seq map first asIfSorted (Order by f)
   }

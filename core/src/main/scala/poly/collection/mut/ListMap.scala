@@ -2,7 +2,7 @@ package poly.collection.mut
 
 import cats.implicits._
 import poly.collection._
-import poly.collection.evidence._
+import poly.collection.typeclass._
 import poly.collection.exception._
 import poly.collection.factory._
 import poly.collection.impl.linkedlist._

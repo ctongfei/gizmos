@@ -3,6 +3,7 @@ package poly.collection
 import cats.implicits._
 import poly.collection.specgroup._
 import poly.collection.immut._
+import poly.collection.typeclass._
 
 /**
  * Represents an unordered pair.

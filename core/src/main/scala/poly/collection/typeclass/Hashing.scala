@@ -24,7 +24,7 @@ trait Hashing[@sp X] extends Eq[X] with scala.util.hashing.Hashing[X] { self =>
 
 object Hashing {
 
-  def apply[T](implicit T: Hashing[T]) = T
+  @inline def apply[T](implicit T: Hashing[T]) = T
 
   implicit def anyVal[@sp T <: AnyVal]: Hashing[T] = new Hashing[T] {
     def hash(x: T): Int = x.##
@@ -91,16 +91,16 @@ private[poly] object HashingT {
 
   class EitherHashing[A, B](A: Hashing[A], B: Hashing[B]) extends Hashing[Either[A, B]] {
     def hash(x: Either[A, B]) = x match {
-      case Left(l)  => Left(A.hash(l)).hashCode
-      case Right(r) => Right(B.hash(r)).hashCode
+      case Left(l)  => Left(A.hash(l)).##
+      case Right(r) => Right(B.hash(r)).##
     }
     override def eqv(x: Either[A, B], y: Either[A, B]): Boolean = x match {
       case Left(xl) => y match {
-        case Left(yl) => xl == yl
+        case Left(yl) => A.eqv(xl, yl)
         case _ => false
       }
       case Right(xr) => y match {
-        case Right(yr) => xr == yr
+        case Right(yr) => B.eqv(xr, yr)
         case _ => false
       }
     }

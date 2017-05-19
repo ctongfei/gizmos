@@ -2,6 +2,7 @@ package poly.collection.impl.hashtable
 
 import cats.implicits._
 import poly.collection._
+import poly.collection.typeclass._
 import poly.macroutil._
 
 /**

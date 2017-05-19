@@ -1,9 +1,9 @@
 package poly.collection
 
-import cats.kernel._
 import poly.collection.factory._
 import poly.collection.impl._
 import poly.collection.mut._
+import poly.collection.typeclass._
 
 /**
  * Basic trait for sets whose elements can be iterated.

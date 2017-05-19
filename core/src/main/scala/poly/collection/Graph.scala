@@ -5,6 +5,7 @@ import poly.collection.mut._
 import poly.collection.node._
 import poly.collection.search._
 import poly.collection.specgroup._
+import poly.collection.typeclass._
 
 import scala.language.higherKinds
 

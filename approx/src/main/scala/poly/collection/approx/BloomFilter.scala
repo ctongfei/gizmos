@@ -2,6 +2,7 @@ package poly.collection.approx
 
 import poly.collection._
 import poly.collection.impl._
+import poly.collection.typeclass._
 
 /**
  * @author Tongfei Chen

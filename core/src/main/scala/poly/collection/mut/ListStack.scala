@@ -1,7 +1,7 @@
 package poly.collection.mut
 
 import poly.collection._
-import poly.collection.evidence._
+import poly.collection.typeclass._
 import poly.collection.factory._
 import poly.collection.immut._
 

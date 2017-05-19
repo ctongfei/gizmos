@@ -1,4 +1,4 @@
-package poly.collection.evidence
+package poly.collection.typeclass
 
 import scala.language.higherKinds
 

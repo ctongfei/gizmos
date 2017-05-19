@@ -1,6 +1,7 @@
 package poly.collection.impl
 
 import poly.collection._
+import poly.collection.typeclass._
 
 /**
  * Adapted from the public-domain code from

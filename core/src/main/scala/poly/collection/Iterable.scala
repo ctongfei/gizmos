@@ -5,7 +5,6 @@ import poly.collection.exception._
 import poly.collection.factory._
 import poly.collection.immut._
 import poly.collection.mut._
-import poly.collection.specgroup._
 
 import scala.annotation.unchecked.{uncheckedVariance => uv}
 import scala.language.implicitConversions
@@ -321,17 +320,10 @@ trait Iterable[+T] extends Traversable[T] { self =>
     new AbstractIterator[U] {
       private[this] val i = self.newIterator
       private[this] var accum = z
-      private[this] var first = true
       def advance() = {
-        if (first) {
-          first = false
-          true
-        }
-        else {
-          val r = i.advance()
-          if (r) accum = f(accum, i.current)
-          r
-        }
+        val r = i.advance()
+        if (r) accum = f(accum, i.current)
+        r
       }
       def current = accum
     }
@@ -339,9 +331,13 @@ trait Iterable[+T] extends Traversable[T] { self =>
 
   override def scanLeftByMonoid[U >: T](implicit U: Monoid[U]) = scanLeft(U.empty)(U.combine)
 
-  //TODO: unscanL / unscanR
+  override def unscanLeft[U >: T, V](z: U)(f: (U, U) => V) = (z +: self) slidingPairsWith f
 
-  override def unscanLeftByGroup[U >: T](implicit U: Group[U]) = slidingPairsWith((x, y) => U.combine(y, U.inverse(x)))
+  override def unscanRight[U >: T, V](z: U)(f: (U, U) => V) = (self :+ z) slidingPairsWith f
+
+  override def unscanLeftByGroup[U >: T](implicit U: Group[U]) = unscanLeft(U.empty)((x, y) => U.remove(y, x))
+
+  override def unscanRightByGroup[U >: T](implicit U: Group[U]) = unscanRight(U.empty)(U.remove)
 
   //endregion
 
@@ -392,6 +388,14 @@ trait Iterable[+T] extends Traversable[T] { self =>
             newWindow.append_!(window(i + step))
             i += 1
           }
+
+          var j = step - windowSize
+          while (j > 0) {
+            val t = it.advance()
+            if (!t) return false
+            j -= 1
+          }
+
           while (i < windowSize && { val t = it.advance(); if (!t) return false; t }) {
             newWindow.append_!(it.current)
             i += 1
@@ -507,7 +511,10 @@ trait Iterable[+T] extends Traversable[T] { self =>
 
   //region REORDERING OPS
 
-  override def rotate(n: Int): Iterable[T] = self.drop(n) ++ self.take(n)
+  override def rotate(n: Int): Iterable[T] = {
+    val m = n %+ size
+    self.drop(m) ++ self.take(m)
+  }
 
   //endregion
 

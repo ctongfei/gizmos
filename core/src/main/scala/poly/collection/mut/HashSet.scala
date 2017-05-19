@@ -3,6 +3,7 @@ package poly.collection.mut
 import poly.collection._
 import poly.collection.factory._
 import poly.collection.impl.hashtable._
+import poly.collection.typeclass._
 
 /**
  * A hash set.

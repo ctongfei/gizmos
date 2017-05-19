@@ -1,7 +1,6 @@
 package poly.collection.mut
 
 import poly.collection._
-import poly.collection.evidence._
 import poly.collection.exception._
 import poly.collection.factory._
 import poly.collection.impl._

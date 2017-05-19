@@ -2,6 +2,7 @@ package poly.collection.cache
 
 import poly.collection._
 import poly.collection.mut._
+import poly.collection.typeclass._
 
 /**
  * An LRU cache of a function.

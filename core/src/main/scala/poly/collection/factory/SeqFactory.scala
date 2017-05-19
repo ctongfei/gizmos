@@ -1,7 +1,6 @@
 package poly.collection.factory
 
 import poly.collection._
-import poly.collection.evidence._
 
 import scala.language.higherKinds
 

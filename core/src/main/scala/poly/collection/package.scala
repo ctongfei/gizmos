@@ -1,9 +1,9 @@
 package poly
 
-import cats.kernel._
 import poly.collection.conversion._
 import poly.collection.conversion.FromScala._
 import poly.collection.mut._
+import poly.collection.typeclass._
 
 import scala.language.higherKinds
 import scala.language.implicitConversions
@@ -19,7 +19,6 @@ package object collection extends ImplicitOps {
   //@inline def second[@sp(di) α, @sp(di) β](a: α, b: β) = b
 
   /** Returns the first element of a pair. */
-  scala.Tuple2
   @inline def first[@specialized(Int, Long, Double, Char, Boolean) α, @specialized(Int, Long, Double, Char, Boolean) β]
   (pair: (α, β)) = pair._1
 
@@ -139,12 +138,6 @@ package object collection extends ImplicitOps {
   private[collection] type Action[T, R]       = spire.algebra.Action[T, R]
   private[collection] type MetricSpace[T, F]  = spire.algebra.MetricSpace[T, F]
   private[collection] type VectorSpace[T, F]  = spire.algebra.VectorSpace[T, F]
-
-  private[collection] type Hashing[T]         = poly.collection.typeclass.Hashing[T]
-  private[collection] val  Hashing            = poly.collection.typeclass.Hashing
-
-  private[collection] type Cloning[T]         = poly.collection.typeclass.Cloning[T]
-  private[collection] val  Cloning            = poly.collection.typeclass.Cloning
 
   private[collection] type Show[T]            = cats.Show[T]
   private[collection] val  Show               = cats.Show

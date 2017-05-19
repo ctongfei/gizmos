@@ -2,8 +2,8 @@ package poly.collection.mut
 
 import spire.syntax.ring._
 import poly.collection._
-import poly.collection.evidence._
 import poly.collection.factory._
+import poly.collection.typeclass._
 
 import scala.language.reflectiveCalls
 import scala.language.higherKinds

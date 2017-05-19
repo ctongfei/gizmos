@@ -3,6 +3,7 @@ package poly.collection.node
 import cats.implicits._
 import poly.collection._
 import poly.collection.search._
+import poly.collection.typeclass._
 
 /**
  * Basic trait for forward nodes. A forward node may contain a list of successor nodes.

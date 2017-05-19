@@ -2,7 +2,6 @@ package poly.collection.factory
 
 import cats.Trivial
 import poly.collection._
-import poly.collection.evidence._
 
 import scala.language.higherKinds
 

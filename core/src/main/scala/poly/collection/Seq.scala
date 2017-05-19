@@ -6,6 +6,7 @@ import poly.collection.factory._
 import poly.collection.impl._
 import poly.collection.mut._
 import poly.collection.node._
+import poly.collection.typeclass._
 
 import scala.annotation.unchecked.{uncheckedVariance => uv}
 
@@ -348,7 +349,7 @@ trait Seq[+T] extends Iterable[T] with PartialFunction[Int, T] { self =>
       }
       def isDummy = false
     }
-    ofHeadNode(new ScannedNode(self.dummy, z))
+    ofDummyNode(new ScannedNode(self.dummy, z))
   }
 
   override def scanRight[U](z: U)(f: (T, U) => U): BidiSeq[U] =
@@ -356,7 +357,13 @@ trait Seq[+T] extends Iterable[T] with PartialFunction[Int, T] { self =>
 
   override def scanLeftByMonoid[U >: T](implicit U: Monoid[U]) = scanLeft(U.empty)(U.combine)
 
-  override def unscanLeftByGroup[U >: T](implicit U: Group[U]) = slidingPairsWith((x, y) => U.combine(y, U.inverse(x)))
+  override def unscanLeft[U >: T, V](z: U)(f: (U, U) => V) = (z +: self) slidingPairsWith f
+
+  override def unscanRight[U >: T, V](z: U)(f: (U, U) => V) = (self :+ z) slidingPairsWith f
+
+  override def unscanLeftByGroup[U >: T](implicit U: Group[U]) = unscanLeft(U.empty)((x, y) => U.remove(y, x))
+
+  override def unscanRightByGroup[U >: T](implicit U: Group[U]) = unscanRight(U.empty)(U.remove)
 
   //endregion
 
@@ -377,7 +384,10 @@ trait Seq[+T] extends Iterable[T] with PartialFunction[Int, T] { self =>
 
   //region REORDERING OPS
 
-  override def rotate(i: Int) = self.drop(i) ++ self.take(i)
+  override def rotate(i: Int) = {
+    val m = i %+ length
+    self.drop(m) ++ self.take(m)
+  }
 
   override def reverse: BidiSeq[T] = self.to(ArraySeq).reverse
 

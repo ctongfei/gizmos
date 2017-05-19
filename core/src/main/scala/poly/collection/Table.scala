@@ -3,6 +3,7 @@ package poly.collection
 import cats.implicits._
 import poly.collection.node._
 import poly.macroutil._
+import poly.collection.typeclass._
 
 /**
  * Represents a table, which is a rectangular (not jagged) indexed 2-D array.

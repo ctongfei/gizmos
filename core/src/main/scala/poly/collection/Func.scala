@@ -22,17 +22,11 @@ trait Func[@sp(Int) -A, @sp(Int) +B] extends (A => B) { self =>
 
   def contramap[C](f: C => A): Func[C, B] = f map self
 
-  /** Returns the Cartesian product of two functions. */
-  def product[C, D](that: C => D): Func[(A, C), (B, D)] = {
-    ac: (A, C) => (self(ac._1), that(ac._2))
-  }
-
   def zipWith[A1 <: A, C, D](that: A1 => C)(f: (B, C) => D): Func[A1, D] = (a: A1) => f(self(a), that(a))
 
   def zip[A1 <: A, C](that: A1 => C) = (a: A1) => (self(a), that(a))
 
   def ∘[C](that: C => A) = compose(that)
-  def ×[C, D](that: C => D) = product(that)
 
 }
 
