@@ -9,7 +9,7 @@ import poly.collection.typeclass._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-class LRUCache[K: Hashing, +R] private(f: K => R, n: Int) extends CachedFunction[K, R] {
+class LRUCache[K: Hash, +R] private(f: K => R, n: Int) extends CachedFunction[K, R] {
 
   private[this] val c = LinkedHashMap[K, R]()
 
@@ -46,17 +46,17 @@ object LRUCache {
    * high-cost function (e.g. reading from files).
    * @param n Capacity of this cache
    */
-  def apply[K: Hashing, R](n: Int)(f: K => R) = new LRUCache(f, n)
+  def apply[K: Hash, R](n: Int)(f: K => R) = new LRUCache(f, n)
 
   /**
    * Creates an LRU cache of a function using the default `hashCode` method on inputs
    * as the hashing function for the keys.
    */
-  def byDefaultHashing[K, R](n: Int)(f: K => R) = new LRUCache(f, n)(Hashing.default[K])
+  def byDefaultHashing[K, R](n: Int)(f: K => R) = new LRUCache(f, n)(Hash.default[K])
 
   /**
    * Creates an LRU cache of a function using the reference (pointer) of the keys for hashing.
    */
-  def byRefHashing[K <: AnyRef, R](n: Int)(f: K => R) = new LRUCache(f, n)(Hashing.byRef[K])
+  def byRefHashing[K <: AnyRef, R](n: Int)(f: K => R) = new LRUCache(f, n)(Hash.byRef[K])
 
 }

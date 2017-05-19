@@ -8,7 +8,7 @@ import poly.macroutil._
 /**
  * @author Tongfei Chen
  */
-class OpenHashTable[K: Hashing, E >: Null <: OpenHashEntryLike[K, E]](initialSize: Int = Settings.ArrayInitialSize) {
+class OpenHashTable[K: Hash, E >: Null <: OpenHashEntryLike[K, E]](initialSize: Int = Settings.ArrayInitialSize) {
 
   var table: Array[AnyRef] = Array.ofDim[AnyRef](initialSize)
   var size: Int = 0

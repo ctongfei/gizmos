@@ -1,5 +1,6 @@
 package poly.collection.factory
 
+import cats.data._
 import scala.language.higherKinds
 
 /**
@@ -15,6 +16,10 @@ trait UnfoldFactory[CC[+_]] {
    */
   def unfold[S, T](s0: S)(f: S => (S, T)): CC[T]
 
+  /** $LAZY
+   * Given a starting state [[s0]], infinitely unfolds into an iterable sequence using the given [[cats.data.State]] monad instance.
+   */
+  def unfoldByState[S, T](s0: S)(f: State[S, T]) = unfold(s0)(s => f.run(s).value)
 
   //def unfoldUntil[S, T](s0: S, sf: S => Boolean)(f: S => (S, T)): CC[T]
 

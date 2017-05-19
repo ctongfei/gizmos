@@ -10,12 +10,12 @@ import poly.collection.impl.hashtable._
  * @since 0.1.0
  * @author Tongfei Chen
  */
-class HashMap[K: Hashing, V] private(private val data: OpenHashTable[K, HashMap.Entry[K, V]]) extends KeyMutableMap[K, V] {
+class HashMap[K: Hash, V] private(private val data: OpenHashTable[K, HashMap.Entry[K, V]]) extends KeyMutableMap[K, V] {
 
   import HashMap._
 
   def keySet: Set[K] = new AbstractSet[K] {
-    def keyEq = Hashing[K]
+    def keyEq = Hash[K]
     def contains(k: K) = data.locate(k) != null
     def keys = data.entries.map(_.key)
   }
@@ -45,11 +45,11 @@ class HashMap[K: Hashing, V] private(private val data: OpenHashTable[K, HashMap.
 
 }
 
-object HashMap extends MapFactory[HashMap, Hashing] {
+object HashMap extends MapFactory[HashMap, Hash] {
 
   private[poly] class Entry[K, V](val key: K, var value: V) extends OpenHashEntryLike[K, Entry[K, V]]
 
-  implicit def newMapBuilder[K: Hashing, V]: Builder[(K, V), HashMap[K, V]] = new Builder[(K, V), HashMap[K, V]] {
+  implicit def newMapBuilder[K: Hash, V]: Builder[(K, V), HashMap[K, V]] = new Builder[(K, V), HashMap[K, V]] {
     private[this] val ht = new OpenHashTable[K, Entry[K, V]]()
     private[this] val m = new HashMap(ht)
     override def sizeHint(n: Int) = ht.grow(n)

@@ -46,7 +46,7 @@ object UPair {
   }
 
   // Does not inherit UPairEq because of specialization issues
-  class UPairHashing[@sp(spTuple2) T: Hashing] extends Hashing[UPair[T]] {
+  class UPairHash[@sp(spTuple2) T: Hash] extends Hash[UPair[T]] {
     def eqv(x: UPair[T], y: UPair[T]) =
       ((x._1 === y._1) && (x._2 === y._2)) ||
         ((x._1 === y._2) && (x._2 === y._1))
@@ -58,10 +58,10 @@ object UPair {
   }
 
   implicit def Eq[@sp(spTuple2) T](implicit T: Eq[T]): Eq[UPair[T]] = T match {
-    case ht: Hashing[T] => new UPairHashing[T]()(ht)
+    case ht: Hash[T] => new UPairHash[T]()(ht)
     case _ => new UPairEq[T]()(T)
   }
 
-  def Hashing[@sp(spTuple2) T](implicit T: Hashing[T]): Hashing[UPair[T]] = new UPairHashing()(T)
+  def Hashing[@sp(spTuple2) T](implicit T: Hash[T]): Hash[UPair[T]] = new UPairHash()(T)
 
 }

@@ -215,7 +215,7 @@ trait Set[@specialized(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { 
     case _ => false
   }
 
-  override def hashCode = MurmurHash3.symmetricHash(self.elements)(Hashing.default[T])
+  override def hashCode = MurmurHash3.symmetricHash(self.elements)(Hash.default[T])
 }
 
 object Set extends Factory1[Id, Set, Eq] {
@@ -228,11 +228,11 @@ object Set extends Factory1[Id, Set, Eq] {
 
   /** Returns a new builder of this collection type. */
   implicit def Eq[T](implicit T: Eq[T]): Eq[Set[T]] = T match {
-    case th: Hashing[T] => new SetT.SetHashing[T]()(th)
+    case th: Hash[T] => new SetT.SetHash[T]()(th)
     case _ => new SetT.SetEq[T]
   }
 
-  def Hashing[T: Hashing]: Hashing[Set[T]] = new SetT.SetHashing[T]
+  def Hashing[T: Hash]: Hash[Set[T]] = new SetT.SetHash[T]
 
   /** Returns the lattice on sets. */
   implicit def Lattice[T]: Lattice[Set[T]] = new SetT.SetLattice[T]
@@ -252,7 +252,7 @@ private[poly] object SetT {
     def eqv(x: Set[T], y: Set[T]) = (x ⊆ y) && (x ⊇ y)
   }
 
-  class SetHashing[T: Hashing] extends SetT.SetEq[T] with Hashing[Set[T]] {
+  class SetHash[T: Hash] extends SetT.SetEq[T] with Hash[Set[T]] {
     def hash(x: Set[T]) = MurmurHash3.symmetricHash(x.elements)
   }
 

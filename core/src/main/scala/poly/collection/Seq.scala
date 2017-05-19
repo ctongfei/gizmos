@@ -492,13 +492,13 @@ trait Seq[+T] extends Iterable[T] with PartialFunction[Int, T] { self =>
   override def withFilter(f: T => Boolean) = filter(f)
 
   override def equals(that: Any) = that match {
-    case (that: Seq[T]) => Seq.Eq[T](Hashing.default[T]).eqv(this, that)
+    case (that: Seq[T]) => Seq.Eq[T](Hash.default[T]).eqv(this, that)
     case _ => false
   }
 
   override def toString = super[Iterable].toString
 
-  override def hashCode = MurmurHash3.sequentialHash(self)(Hashing.default[T])
+  override def hashCode = MurmurHash3.sequentialHash(self)(Hash.default[T])
   //endregion
 
 }
@@ -614,8 +614,7 @@ object Seq extends UnfoldFactory[Seq] {
   //TODO: actually should be Comonad[NonEmptySeq] ?
   implicit object Comonad extends Comonad[Seq] {
     def extract[X](u: Seq[X]) = u.head
-    def coflatMap[X, Y](f: Seq[X] => Y)(wx: Seq[X]) = wx.suffixes map f
-    def coflatMap[A, B](fa: Seq[A])(f: (Seq[A]) => B): Seq[B] = ???
+    def coflatMap[A, B](fa: Seq[A])(f: (Seq[A]) => B): Seq[B] = fa.suffixes map f
     def map[A, B](fa: Seq[A])(f: A => B): Seq[B] = fa map f
   }
 

@@ -196,11 +196,11 @@ trait Map[@specialized(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialF
   override def toString = "{" + pairs.map { case (k, v) => s"$k -> $v" }.buildString(", ") + "}"
 
   override def equals(that: Any) = that match {
-    case that: Map[K, V] => Map.Eq(Hashing.default[V]).eqv(this, that)
+    case that: Map[K, V] => Map.Eq(Hash.default[V]).eqv(this, that)
     case _ => false
   }
 
-  override def hashCode = MurmurHash3.symmetricHash(self.pairs)(Hashing.default[(K, V)])
+  override def hashCode = MurmurHash3.symmetricHash(self.pairs)(Hash.default[(K, V)])
 
 }
 
@@ -264,7 +264,7 @@ object Map extends MapFactory[Map, Eq] with MapLowPriorityTypeclassInstances {
   // TYPECLASS INSTANCES
 
   implicit def __dynamicEq[K, V](implicit K: Eq[K], V: Eq[V]): Eq[Map[K, V]] = (K, V) match {
-    case (vk: Hashing[K], vh: Hashing[V]) => new MapT.MapHashing[K, V]()(vk, vh)
+    case (vk: Hash[K], vh: Hash[V]) => new MapT.MapHash[K, V]()(vk, vh)
     case _ => new MapT.DynamicEq[K, V]
   }
 
@@ -326,8 +326,8 @@ private[poly] object MapT {
     }
   }
 
-  class MapHashing[K: Hashing, V: Hashing] extends MapEq[K, V] with Hashing[Map[K, V]] {
-    def hash(x: Map[K, V]) = MurmurHash3.symmetricHash(x.pairs)(Hashing.onTuple2[K, V])
+  class MapHash[K: Hash, V: Hash] extends MapEq[K, V] with Hash[Map[K, V]] {
+    def hash(x: Map[K, V]) = MurmurHash3.symmetricHash(x.pairs)(Hash.onTuple2[K, V])
   }
 
   class MapEq[K, V: Eq] extends Eq[Map[K, V]] {

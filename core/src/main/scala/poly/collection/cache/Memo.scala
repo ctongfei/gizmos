@@ -24,7 +24,8 @@ object Memo {
 
   /**
    * Returns a memoized version of a unary function.
-   * @note The equivalence relation on inputs should preferably be an instance of [[Hashing]] to ensure fast memoization.
+ *
+   * @note The equivalence relation on inputs should preferably be an instance of [[Hash]] to ensure fast memoization.
    * @example A memoized recursive implementation of a Fibonacci sequence: {{{
    * val f: Int => Int = Memo {
    *   case 0 => 0
@@ -40,7 +41,7 @@ object Memo {
    * as the hashing function for the memo.
    */
   def byDefaultHashing[K, R](f: K => R) = {
-    implicit val eq = Hashing.default[K]
+    implicit val eq = Hash.default[K]
     new Memo(f, HashMap[K, R]())
   }
 
@@ -49,7 +50,7 @@ object Memo {
    * hash function for the memo.
    */
   def byRefHashing[K <: AnyRef, R](f: K => R) = {
-    implicit val eq = Hashing.byRef[K] // use this as the Eq instance
+    implicit val eq = Hash.byRef[K] // use this as the Eq instance
     new Memo(f, HashMap[K, R]())
   }
 

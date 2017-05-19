@@ -22,35 +22,27 @@ Poly-collection is a Scala collection framework that aims to provide an alternat
   
   - **`Map`s and `Set`s are not `Iterable`s**, instead, `map.pairs` or `set.keys` are. The nonsensical behavior of `zip`/`tail` etc. 
   for Sets/Maps in Scala is removed. `map.zip` now means zip-by-keys. 
-  This also removes obscure bugs like `Set("ab", "bc").map(_.length).sum` (intuitively 4, but actually 2 in Scala collections).
 
   - Various algorithms / data structures provided out of the box: binary search, disjoint sets, Fenwick trees, etc.
   
     - A fully-fledged `search` subpackage that enables the execution of common search algorithms (BFS, DFS, A*, etc.) on very
    generic state spaces (of course lazily!).
    
-    - Caching utilities: `LRUCache`, `Memoized`.
+    - Caching utilities: `LRUCache`, `Memo`.
   
 Implicit conversions from/to Scala & from Java collections to Poly-collections are provided by importing the
 objects `poly.collection.conversion.{FromJava, FromScala, ToScala}`.
 
 Poly-collection is currently in alpha stage and is progressing into the 0.1 release.
-The current version is 0.1-SNAPSHOT.
-
-### Installation
 
 ```scala
-resolvers += Resolver.sonatypeRepo("snapshots")
-libraryDependencies += "me.tongfei" %% "poly-collection" % "0.1.0-SNAPSHOT"
+libraryDependencies += "me.tongfei" %% "poly-collection" % "0.1.0"
 ```
-
-### Documentation
-TODO
 
 #### Pending Scala issues
  - [SI-2509: Contravariant implicits](https://issues.scala-lang.org/browse/SI-2509) influences the use of contravariant typeclasses `Eq`/`Order`/`Hashing`.
  - [SI-2712: Higher-order unification](https://issues.scala-lang.org/browse/SI-2712) influences the `to` method on `Traversable`s when piping to a `BitSet`/`DenseIntKeyedMap`.
   
- 
- 
+#### Todo
+ - Remove Spire from the dependencies.
  

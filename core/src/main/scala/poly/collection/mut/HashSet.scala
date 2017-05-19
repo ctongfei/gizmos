@@ -9,11 +9,11 @@ import poly.collection.typeclass._
  * A hash set.
  * @author Tongfei Chen
  */
-class HashSet[T: Hashing] private(val data: OpenHashTable[T, HashSet.Entry[T]]) extends KeyMutableSet[T] {
+class HashSet[T: Hash] private(val data: OpenHashTable[T, HashSet.Entry[T]]) extends KeyMutableSet[T] {
 
   import HashSet._
 
-  def keyEq = Hashing[T]
+  def keyEq = Hash[T]
 
   def add_!(x: T) = if (!contains(x)) data.addEntry(new Entry(x)) // TODO: calculate hash function only once?
 
@@ -30,11 +30,11 @@ class HashSet[T: Hashing] private(val data: OpenHashTable[T, HashSet.Entry[T]]) 
   override def size = data.size
 }
 
-object HashSet extends SetFactory[HashSet, Hashing] {
+object HashSet extends SetFactory[HashSet, Hash] {
 
   private[poly] class Entry[K](val key: K) extends OpenHashEntryLike[K, Entry[K]]
 
-  def newSetBuilder[T: Hashing]: Builder[T, HashSet[T]] = new Builder[T, HashSet[T]] {
+  def newSetBuilder[T: Hash]: Builder[T, HashSet[T]] = new Builder[T, HashSet[T]] {
     private[this] val ht = new OpenHashTable[T, Entry[T]]()
     private[this] val s = new HashSet[T](ht)
     def add(x: T) = s.add_!(x)

@@ -105,7 +105,7 @@ package object collection extends ImplicitOps {
   }
 
   implicit class HashingOps[T](val t: T) extends AnyVal {
-    def ###(implicit h: Hashing[T]) = h hash t
+    def ###(implicit h: Hash[T]) = h hash t
   }
 
   implicit def arrayAsPoly[T](a: Array[T]): IndexedSeq[T] = new ArrayAsPoly[T](a)

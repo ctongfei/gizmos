@@ -115,7 +115,7 @@ class JavaMapAsPoly[K, V](xs: java.util.Map[K, V]) extends AbstractMap[K, V] wit
 class JavaSetAsPoly[T](xs: java.util.Set[T]) extends AbstractSet[T] with KeyMutableSet[T] {
   def remove_!(x: T) = xs.remove(x)
   def add_!(x: T) = xs.add(x)
-  def keyEq = Hashing.default[T]
+  def keyEq = Hash.default[T]
   def contains(x: T) = xs.contains(x)
   override def size = xs.size()
   def keys = Iterable.ofIterator(new JavaIteratorAsPoly(xs.iterator()))

@@ -15,7 +15,7 @@ import poly.collection.typeclass._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-class LinkedHashMap[K: Hashing, V] private(private[poly] val data: OpenHashTable[K, LinkedHashMap.Entry[K, V]]) extends KeyMutableMap[K, V] {
+class LinkedHashMap[K: Hash, V] private(private[poly] val data: OpenHashTable[K, LinkedHashMap.Entry[K, V]]) extends KeyMutableMap[K, V] {
 
   import LinkedHashMap._
 
@@ -66,7 +66,7 @@ class LinkedHashMap[K: Hashing, V] private(private[poly] val data: OpenHashTable
   def keySet: Set[K] = new AbstractSet[K] {
     def keys = pairs map first
     def contains(x: K) = data.locate(x) != null
-    def keyEq = Hashing[K]
+    def keyEq = Hash[K]
   }
 
   override def pairs: BidiSeq[(K, V)] = BidiSeq.ofDummyNode(dummy)
@@ -75,7 +75,7 @@ class LinkedHashMap[K: Hashing, V] private(private[poly] val data: OpenHashTable
 
 }
 
-object LinkedHashMap extends MapFactory[LinkedHashMap, Hashing] {
+object LinkedHashMap extends MapFactory[LinkedHashMap, Hash] {
 
   private[poly] class Entry[K, V](val key: K, var value: V, var prev: Entry[K, V], var next: Entry[K, V])
     extends OpenHashEntryLike[K, Entry[K, V]] with BidiSeqNode[(K, V)] {
@@ -83,7 +83,7 @@ object LinkedHashMap extends MapFactory[LinkedHashMap, Hashing] {
     def isDummy = false
   }
 
-  def newMapBuilder[K: Hashing, V]: Builder[(K, V), LinkedHashMap[K, V]] = new Builder[(K, V), LinkedHashMap[K, V]] {
+  def newMapBuilder[K: Hash, V]: Builder[(K, V), LinkedHashMap[K, V]] = new Builder[(K, V), LinkedHashMap[K, V]] {
     private[this] val m = new LinkedHashMap[K, V](new OpenHashTable[K, Entry[K, V]])
     def add(x: (K, V)) = m.add_!(x)
     def result = m

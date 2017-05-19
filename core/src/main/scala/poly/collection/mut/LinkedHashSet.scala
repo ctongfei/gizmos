@@ -14,7 +14,7 @@ import poly.collection.typeclass._
  * @author Tongfei Chen
  * @since 0.1.0
  */
-class LinkedHashSet[T: Hashing] private(val data: OpenHashTable[T, LinkedHashSet.Entry[T]]) extends KeyMutableSet[T] {
+class LinkedHashSet[T: Hash] private(val data: OpenHashTable[T, LinkedHashSet.Entry[T]]) extends KeyMutableSet[T] {
 
   import LinkedHashSet._
 
@@ -41,7 +41,7 @@ class LinkedHashSet[T: Hashing] private(val data: OpenHashTable[T, LinkedHashSet
     data.removeEntry(x)
   }
 
-  def keyEq = Hashing[T]
+  def keyEq = Hash[T]
 
   def keys: BidiSeq[T] = BidiSeq.ofDummyNode(dummy)
 
@@ -50,7 +50,7 @@ class LinkedHashSet[T: Hashing] private(val data: OpenHashTable[T, LinkedHashSet
   def contains(x: T) = data.locate(x) != null
 }
 
-object LinkedHashSet extends Factory1[Id, LinkedHashSet, Hashing] {
+object LinkedHashSet extends Factory1[Id, LinkedHashSet, Hash] {
 
   private[poly] class Entry[K](val key: K, var prev: Entry[K], var next: Entry[K])
     extends OpenHashEntryLike[K, Entry[K]] with BidiSeqNode[K] {
@@ -58,7 +58,7 @@ object LinkedHashSet extends Factory1[Id, LinkedHashSet, Hashing] {
     def isDummy = false
   }
 
-  implicit def newBuilder[T: Hashing]: Builder[T, LinkedHashSet[T]] = new Builder[T, LinkedHashSet[T]] {
+  implicit def newBuilder[T: Hash]: Builder[T, LinkedHashSet[T]] = new Builder[T, LinkedHashSet[T]] {
     private[this] val s = new LinkedHashSet[T](new OpenHashTable[T, Entry[T]]())
     def add(x: T) = s.add_!(x)
     def result = s

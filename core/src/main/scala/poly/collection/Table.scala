@@ -34,7 +34,7 @@ trait Table[+T] extends PartialFunction[(Int, Int), T] { self =>
       val (i, j) = x
       i >= 0 && i < numRows && j >= 0 && j < numCols
     }
-    implicit def keyEq = Hashing.default[(Int, Int)]
+    implicit def keyEq = Hash.default[(Int, Int)]
   }
 
 
@@ -101,7 +101,7 @@ trait Table[+T] extends PartialFunction[(Int, Int), T] { self =>
 
   // OVERRIDING JAVA METHODS
   override def equals(that: Any) = that match {
-    case that: Table[T] => Table.Eq[T](Hashing.default[T]).eqv(self, that)
+    case that: Table[T] => Table.Eq[T](Hash.default[T]).eqv(self, that)
     case _ => false
   }
 

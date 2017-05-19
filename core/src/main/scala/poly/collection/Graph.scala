@@ -139,7 +139,7 @@ object Graph {
     }
 
     override def hashCode = hashByRef(graph) + (graph.keyEq match {
-      case hk: Hashing[K] => hk.hash(key)
+      case hk: Hash[K] => hk.hash(key)
       case _ => key.##
     })
 

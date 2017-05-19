@@ -44,7 +44,7 @@ class ScalaIndexedSeqAsPoly[T](xs: sc.IndexedSeq[T]) extends AbstractIndexedSeq[
 }
 
 class ScalaSetAsPoly[T](xs: sc.Set[T]) extends AbstractSet[T] {
-  def keyEq = Hashing.default[T]
+  def keyEq = Hash.default[T]
   def keys = new ScalaIterableAsPoly(xs)
   def contains(x: T): Boolean = xs contains x
 }

@@ -37,7 +37,7 @@ object MurmurHash3 {
     h
   }
 
-  final def symmetricHash[T](xs: Traversable[T], seed: Int = 0xb592f7ae)(implicit T: Hashing[T]) = {
+  final def symmetricHash[T](xs: Traversable[T], seed: Int = 0xb592f7ae)(implicit T: Hash[T]) = {
     var n = 0
     var sum = 0
     var xor = 0
@@ -56,7 +56,7 @@ object MurmurHash3 {
     finalizeHash(h, n)
   }
 
-  final def sequentialHash[T](xs: Traversable[T], seed: Int = 0xe73a8b15)(implicit T: Hashing[T]) = {
+  final def sequentialHash[T](xs: Traversable[T], seed: Int = 0xe73a8b15)(implicit T: Hash[T]) = {
     var n = 0
     var h = seed
     for (x <- xs) {
