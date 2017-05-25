@@ -46,7 +46,7 @@ sealed abstract class List[+T] extends AbstractSeq[T] with SeqNodeLike[T, List[T
 
   final override def dropTo(f: T => Boolean) = dropUntil(f).tail
 
-
+  override def factory = List
 
   override def toString = super[AbstractSeq].toString
 }

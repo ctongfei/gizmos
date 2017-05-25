@@ -269,16 +269,24 @@ trait Traversable[+T] { self =>
   }
 
   /**
-   * Returns the list of suffixes of this collection.
-   * @example {{{(1, 2, 3).suffixes == ((1, 2, 3), (2, 3), (3))}}}
-   */
-  def suffixes: Iterable[Iterable[T]] = to(ArraySeq).suffixes
-
-  /**
-   * Returns the list of prefixes of this collection.
-   * @example {{{(1, 2, 3).prefixes == ((1), (1, 2), (1, 2, 3)}}}
+   * Returns the list of prefixes of this collection. The size of the returned collection
+   * is the same as the original collection.
+   * @example {{{(1, 2, 3).prefixes == ((1), (1, 2), (1, 2, 3))}}}
+   * @note Difference from Scala's `inits`:
+   *   - Empty prefix is omitted;
+   *   - The order is starting from the shortest prefix, instead of `inits`, where
+   *   the first element is the longest prefix (the whole sequence).
    */
   def prefixes: Iterable[Iterable[T]] = to(ArraySeq).prefixes
+
+  /**
+   * Returns the list of suffixes of this collection. The size of the returned collection
+   * is the same as the original collection.
+   * @example {{{(1, 2, 3).suffixes == ((1, 2, 3), (2, 3), (3))}}}
+   * @note Difference from Scala's `tails`:
+   *   - Empty suffix is omitted.
+   */
+  def suffixes: Iterable[Iterable[T]] = to(ArraySeq).suffixes
 
   def take(n: Int): Traversable[T] = new Taken(self, n)
 

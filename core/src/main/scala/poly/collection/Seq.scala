@@ -222,13 +222,19 @@ trait Seq[+T] extends Iterable[T] with PartialFunction[Int, T] { self =>
 
   override def tail: Seq[T] = ofHeadNode(headNode.next)
 
-  override def init = {
-    class InitNode(val n0: SeqNode[T], val n1: SeqNode[T]) extends SeqNode[T] {
-      def data = n0.data
-      def next = new InitNode(n1, n1.next)
-      def isDummy = n0.isDummy || n1.isDummy
+  override def init = slidingPairsWith((a, _) => a)
+
+  override def prefixes = {
+    class UntilNode(val current: SeqNode[T], val right: SeqNode[T], val isDummy: Boolean) extends SeqNode[T] {
+      def next = new UntilNode(current.next, right, current == right)
+      def data = current.data
     }
-    ofDummyNode(new InitNode(self.dummy, self.headNode))
+    class InitsNode(val outer: SeqNode[T]) extends SeqNode[Seq[T]] {
+      def data = ofHeadNode(new UntilNode(headNode, outer, headNode.isDummy))
+      def next = new InitsNode(outer.next)
+      def isDummy = outer.isDummy
+    }
+    ofHeadNode(new InitsNode(self.headNode))
   }
 
   override def suffixes = { // comonadic operation!
