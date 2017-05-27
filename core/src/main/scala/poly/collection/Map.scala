@@ -1,5 +1,6 @@
 package poly.collection
 
+import cats.data._
 import cats.implicits._
 import poly.collection.exception._
 import poly.collection.factory._
@@ -144,7 +145,7 @@ trait Map[@specialized(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialF
    * Returns the full outer join of two maps by their keys.
    * It is similar to the SQL expression `SELECT * FROM self FULL OUTER JOIN that ON self.key == that.key`.
    */
-  def fullOuterJoin[W](that: Map[K, W]): Map[K, (Option[V], Option[W])] = new MapT.FullOuterJoined(self, that)
+  def fullOuterJoin[W](that: Map[K, W]): Map[K, V Ior W] = new MapT.FullOuterJoined(self, that)
 
   /**
    * Returns the symmetric difference of the two maps. $LAZY
@@ -284,10 +285,10 @@ object Map extends MapFactory[Map, Eq] with MapLowPriorityTypeclassInstances {
     def scalar = F
     def timesl(k: F, x: Map[K, F]) = x map (_ * k)
     def plus(x: Map[K, F], y: Map[K, F]) = (x fullOuterJoin y) map {
-      case (Some(a), Some(b)) => a + b
-      case (Some(a), None) => a
-      case (None, Some(b)) => b
-      case _ => scalar.zero
+      case Ior.Both(a, b) => a + b
+      case Ior.Left(a)    => a
+      case Ior.Right(b)   => b
+      case _              => F.zero
     }
     def zero = Map.empty[K]
     def negate(x: Map[K, F]) = x map (_ * scalar.negate(scalar.one))
@@ -302,16 +303,15 @@ trait MapLowPriorityTypeclassInstances {
     def scalar = R
     def timesl(k: R, x: Map[K, R]) = x map (_ * k)
     def plus(x: Map[K, R], y: Map[K, R]) = (x fullOuterJoin y) map {
-      case (Some(a), Some(b)) => a + b
-      case (Some(a), None) => a
-      case (None, Some(b)) => b
-      case _ => R.zero
+      case Ior.Both(a, b) => a + b
+      case Ior.Left(a)    => a
+      case Ior.Right(b)   => b
+      case _              => R.zero
     }
     def zero = Map.empty[K]
     def negate(x: Map[K, R]) = x map (_ * scalar.negate(scalar.one))
   }
 }
-
 
 abstract class AbstractMap[@specialized(Int) K, +V] extends Map[K, V]
 
@@ -393,12 +393,19 @@ private[poly] object MapT {
     override def pairs = that.pairs map { case (k, w) => (k, (self ? k, w)) }
   }
 
-  class FullOuterJoined[K, V, W](self: Map[K, V], that: Map[K, W]) extends AbstractMap[K, (Option[V], Option[W])] {
+  class FullOuterJoined[K, V, W](self: Map[K, V], that: Map[K, W]) extends AbstractMap[K, Ior[V, W]] {
     def keySet = self.keySet union that.keySet
-    def apply(k: K) = (self ? k, that ? k)
+    def apply(k: K) = (self ? k, that ? k) match {
+      case (Some(v), Some(w)) => Ior.both(v, w)
+      case (Some(v), None)    => Ior.left(v)
+      case (None, Some(w))    => Ior.right(w)
+      case _                  => throw new KeyNotFoundException(k)
+    }
     def ?(k: K) = (self ? k, that ? k) match {
-      case (None, None) => None
-      case res => Some(res)
+      case (Some(v), Some(w)) => Some(Ior.both(v, w))
+      case (Some(v), None)    => Some(Ior.left(v))
+      case (None, Some(w))    => Some(Ior.right(w))
+      case _                  => None
     }
   }
 

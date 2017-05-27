@@ -1,6 +1,7 @@
 package poly.collection.mut
 
 import poly.collection._
+import poly.collection.exception._
 import poly.collection.typeclass._
 import poly.collection.factory._
 import poly.collection.impl._
@@ -25,19 +26,27 @@ class SortedArrayMap[K, V] private(
 
   override def pairs = Range(size) map { i => (keyArray(i), valArray(i)) } asIfSorted(keyOrder on first)
 
-  def ?(k: K) = keyArray.binarySearch(k) map valArray
+  def ?(k: K) = keyArray.binarySearch(k) match {
+    case BinarySearchResult.Found(i) => Some(valArray(i))
+    case _ => None
+  }
 
-  def apply(k: K) = valArray(keyArray.binarySearch(k).get)
+  def apply(k: K) = keyArray.binarySearch(k) match {
+    case BinarySearchResult.Found(i) => valArray(i)
+    case _ => throw new KeyNotFoundException(k)
+  }
 
   def add_!(k: K, v: V) = {
-    val i = keyArray.lowerBound(k)
+    val i = keyArray.indexOfLowerBound(k)
     keyArray.data.insert_!(i, k)
     valArray.insert_!(i, v)
   }
 
-  def remove_!(k: K) = for (i <- keyArray.binarySearch(k)) {
-    keyArray.data.delete_!(i)
-    valArray.delete_!(i)
+  def remove_!(k: K) = keyArray.binarySearch(k) match {
+    case BinarySearchResult.Found(i) =>
+      keyArray.data.delete_!(i)
+      valArray.delete_!(i)
+    case _ => /* do nothing */
   }
 
   def clear_!() = {

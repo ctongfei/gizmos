@@ -111,9 +111,19 @@ object BidiSeq {
     def lastNode = d.prev
   }
 
-  def ofHeadAndLastNode[T](hn: BidiSeqNode[T], ln: BidiSeqNode[T]): BidiSeq[T] = new AbstractBidiSeq[T] {
-    def headNode = hn
-    def lastNode = ln
+  def ofHeadAndLastNode[T](hn: BidiSeqNode[T], ln: BidiSeqNode[T]): BidiSeq[T] = {
+    class ConstrainedNode(val node: BidiSeqNode[T]) extends BidiSeqNode[T] {
+      def prev = if (node == hn) BidiSeqNode.dummy else new ConstrainedNode(node.prev)
+      def next = if (node == ln) BidiSeqNode.dummy else new ConstrainedNode(node.next)
+      def data = node.data
+      def isDummy = node.isDummy
+    }
+    ofDummyNode(new BidiSeqNode[T] {
+      def next = new ConstrainedNode(hn)
+      def prev = new ConstrainedNode(ln)
+      def data = throw new NoSuchElementException
+      def isDummy = true
+    })
   }
 
   object empty extends BidiSeq[Nothing] {

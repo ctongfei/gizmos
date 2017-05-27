@@ -19,20 +19,19 @@ trait SortedIterable[T] extends Iterable[T] { self =>
 
   /**
    * Returns the unique elements of this iterable collection while retaining their original order.
-   * The equivalence function is this sorted iterable collection's inherent order.
+   * The equivalence function is this sorted collection's inherent order.
    */
-  def distinct: SortedIterable[T] = new SortedIterableT.Distinct(self)
+  def distinct(): SortedIterable[T] = new SortedIterableT.Distinct(self)
 
   /**
-   * Merges two sorted iterable collection into one sorted iterable collection. $LAZY
+   * $LAZY Merges two sorted iterable collection into one sorted iterable collection.
    * @param that Another sorted sequence. These two sequences must be sorted under the same order.
-   * @return A merged sorted sequence
    */
   def merge(that: SortedIterable[T]): SortedIterable[T] = new SortedIterableT.Merged(self, that)
 
-  def min = self.head
+  def min() = self.head
 
-  def max = self.last
+  def max() = self.last
 
   /** Merges two sorted iterables eagerly into a sorted sequence. */
   def mergeE(that: SortedIterable[T]): SortedSeq[T] = {

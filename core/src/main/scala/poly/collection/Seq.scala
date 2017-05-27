@@ -571,8 +571,7 @@ object Seq extends UnfoldFactory[Seq] {
 
   /** The cloner for sequences. */
   implicit def Cloning[T](implicit T: Cloning[T]): Cloning[Seq[T]] = new Cloning[Seq[T]] {
-    def clone(x: Seq[T]): Seq[T] =
-      x.factory.newSeqBuilder[T] <<<! x
+    def clone(x: Seq[T]): Seq[T] = x.factory from x
   }
 
   /**

@@ -121,6 +121,8 @@ trait Set[@specialized(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { 
 
   def filter(f: T => Boolean): Set[T] = filterKeys(f)
 
+  def filterNot(f: T => Boolean): Set[T] = filterKeys(x => !f(x))
+
   def map[U: Eq](f: T => U): Set[U] = elements map f to AutoSet
 
   def map[U](f: Bijection[T, U]): Set[U] = new SetT.BijectivelyMapped(self, f)

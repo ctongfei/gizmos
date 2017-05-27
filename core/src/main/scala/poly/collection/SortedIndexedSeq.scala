@@ -1,7 +1,6 @@
 package poly.collection
 
 import cats.implicits._
-import algebra.instances._
 
 /**
  * Trait for an indexed sorted sequence.
@@ -11,19 +10,22 @@ import algebra.instances._
 trait SortedIndexedSeq[T] extends SortedSeq[T] with IndexedSeq[T] { self =>
 
   /**
-   * Checks if this sorted sequence contains the specific element.
-   * The equivalence relation used for checking is the order of this sequence. $Ologn
+   * $Ologn Checks if this sorted sequence contains the specific element.
+   * The equivalence relation used for checking is the order of this sequence.
    */
   def contains(x: T) = tryBinarySearch(x) >= 0
 
   /**
-   * Finds the key in a sorted sequence using binary search. $Ologn
+   * $Ologn Finds the key in a sorted sequence using binary search.
    * @param x The key to be found
-   * @return Index of key. If not found, None.
+   * @return An object of type `BinarySearchResult`. Can be either:
+   *   - Found(i): the given key is found at ''i''
+   *   - InsertionPoint(i): the given key is not found. If it should be inserted to the sequence, it should be located at ''i''.
    */
-  def binarySearch(x: T) = tryBinarySearch(x) match {
-    case x if x >= 0 => Some(x)
-    case _ => None
+  def binarySearch(x: T): BinarySearchResult = {
+    val i = tryBinarySearch(x)
+    if (i >= 0) BinarySearchResult.Found(i)
+    else BinarySearchResult.InsertionPoint(~i)
   }
 
   /**
@@ -54,7 +56,7 @@ trait SortedIndexedSeq[T] extends SortedSeq[T] with IndexedSeq[T] { self =>
    * @param key The key to be found
    * @return The index of the first element that is greater than the key.
    */
-  def upperBound(key: T): Int = {
+  def indexOfUpperBound(key: T): Int = {
     var len = length
     var first = 0
     while (len > 0) {
@@ -74,7 +76,7 @@ trait SortedIndexedSeq[T] extends SortedSeq[T] with IndexedSeq[T] { self =>
    * @param key The key to be found
    * @return The index of the first element that is not less than the key.
    */
-  def lowerBound(key: T): Int = {
+  def indexOfLowerBound(key: T): Int = {
     var len = length
     var first = 0
     while (len > 0) {
@@ -119,7 +121,7 @@ private[poly] object SortedIndexedSeqT {
     def weightRing = algebra.instances.int.intAlgebra
     def weightOrder = cats.Order[Int]
     def weight(k: T) = {
-      val l = self.lowerBound(k)
+      val l = self.indexOfLowerBound(k)
       if (self(l) =!= k) 0
       else {
         var r = l
@@ -128,5 +130,16 @@ private[poly] object SortedIndexedSeqT {
       }
     }
   }
+
+}
+
+/**
+ * Represents the result of a binary search over a sorted indexed sequence.
+ */
+sealed trait BinarySearchResult
+object BinarySearchResult {
+
+  case class Found(index: Int) extends BinarySearchResult
+  case class InsertionPoint(index: Int) extends BinarySearchResult
 
 }

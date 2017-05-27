@@ -11,11 +11,14 @@ class SortedArraySeq[T] private[poly](private[poly] val data: ResizableSeq[T])(i
 
   def fastLength = data.fastLength
 
-  def add_!(x: T) = data.insert_!(lowerBound(x), x)
+  def add_!(x: T) = data.insert_!(indexOfLowerBound(x), x)
 
   def fastApply(i: Int) = data.apply(i)
 
-  def remove_!(x: T) = binarySearch(x) foreach data.delete_!
+  def remove_!(x: T) = binarySearch(x) match {
+    case BinarySearchResult.Found(i) => data.delete_!(i)
+    case _ => /* do nothing */
+  }
 
   def deleteAt_!(i: Int) = data.delete_!(i)
 
