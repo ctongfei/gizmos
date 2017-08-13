@@ -27,12 +27,12 @@ class SortedArrayMap[K, V] private(
   override def pairs = Range(size) map { i => (keyArray(i), valArray(i)) } asIfSorted(keyOrder on first)
 
   def ?(k: K) = keyArray.binarySearch(k) match {
-    case BinarySearchResult.Found(i) => Some(valArray(i))
+    case Right(i) => Some(valArray(i))
     case _ => None
   }
 
   def apply(k: K) = keyArray.binarySearch(k) match {
-    case BinarySearchResult.Found(i) => valArray(i)
+    case Right(i) => valArray(i)
     case _ => throw new KeyNotFoundException(k)
   }
 
@@ -43,7 +43,7 @@ class SortedArrayMap[K, V] private(
   }
 
   def remove_!(k: K) = keyArray.binarySearch(k) match {
-    case BinarySearchResult.Found(i) =>
+    case Right(i) =>
       keyArray.data.delete_!(i)
       valArray.delete_!(i)
     case _ => /* do nothing */

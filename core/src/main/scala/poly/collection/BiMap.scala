@@ -10,6 +10,8 @@ import cats.kernel._
  */
 trait BiMap[K, V] extends Map[K, V] with Bijection[K, V] { self =>
 
+  import BiMap._
+
   /** Returns the set of values in this map. */
   def valueSet: Set[V]
 
@@ -32,7 +34,7 @@ trait BiMap[K, V] extends Map[K, V] with Bijection[K, V] { self =>
   // HELPER FUNCTIONS
 
   /** Returns the inverse map that maps values to keys. $LAZY */
-  override def inverse: BiMap[V, K] = new BiMapT.Inverse(self)
+  override def inverse: BiMap[V, K] = new Inverse(self)
 
   /**
    * Pipes two bijective maps, this coming first.
@@ -41,7 +43,7 @@ trait BiMap[K, V] extends Map[K, V] with Bijection[K, V] { self =>
    *    self   andThen   that     ==    result
    * }}}
    */
-  def andThen[W](that: BiMap[V, W]): BiMap[K, W] = new BiMapT.AndThen(self, that)
+  def andThen[W](that: BiMap[V, W]): BiMap[K, W] = new AndThen(self, that)
 
   /**
    * Pipes two bijective maps, this coming last.
@@ -50,7 +52,7 @@ trait BiMap[K, V] extends Map[K, V] with Bijection[K, V] { self =>
    *    self   compose   that     ==    result
    * }}}
    */
-  def compose[J](that: BiMap[J, K]): BiMap[J, V] = new BiMapT.AndThen(that, self)
+  def compose[J](that: BiMap[J, K]): BiMap[J, V] = new AndThen(that, self)
 
   /** Alias to `andThen`. */
   def map[W](that: BiMap[V, W]): BiMap[K, W] = self andThen that
@@ -65,7 +67,7 @@ trait BiMap[K, V] extends Map[K, V] with Bijection[K, V] { self =>
    *    self   map   that     ==    result
    * }}}
    */
-  override def map[W](f: Bijection[V, W]): BiMap[K, W] = new BiMapT.BijectivelyMapped(self, f)
+  override def map[W](f: Bijection[V, W]): BiMap[K, W] = new BijectivelyMapped(self, f)
 
 
   /**
@@ -75,15 +77,16 @@ trait BiMap[K, V] extends Map[K, V] with Bijection[K, V] { self =>
    *    self   contramap   that     ==    result
    * }}}
    */
-  override def contramap[J](f: Bijection[J, K]): BiMap[J, V] = new BiMapT.BijectivelyContramapped(self, f)
+  override def contramap[J](f: Bijection[J, K]): BiMap[J, V] = new BijectivelyContramapped(self, f)
+
+  override def unapply(v: V) = invertOption(v)
 
   override def toString = "{" + pairs.map { case (k, v) => s"$k <-> $v" }.buildString(", ") + "}"
 
 }
 
-abstract class AbstractBiMap[K, V] extends AbstractMap[K, V] with BiMap[K, V]
+object BiMap {
 
-private[poly] object BiMapT {
 
   class Inverse[K, V](self: BiMap[K, V]) extends AbstractBiMap[V, K] {
     def keySet = self.valueSet
@@ -124,4 +127,8 @@ private[poly] object BiMapT {
     def ?(k: J) = self ? f(k)
   }
 
+
 }
+
+abstract class AbstractBiMap[K, V] extends AbstractMap[K, V] with BiMap[K, V]
+

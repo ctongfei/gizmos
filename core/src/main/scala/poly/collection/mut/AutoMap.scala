@@ -23,7 +23,7 @@ import scala.reflect._
 object AutoMap extends MapFactory[KeyMutableMap, Eq] {
 
   def newMapBuilder[K: Eq, V]: Builder[(K, V), KeyMutableMap[K, V]] = Eq[K] match {
-    case kh: Hash[K] => HashMap        .newMapBuilder[K, V](kh)
+    case kh: Hash[K]    => HashMap        .newMapBuilder[K, V](kh)
     case ko: Order[K]   => RedBlackTreeMap.newMapBuilder[K, V](ko)
     case ke             => ListMap        .newMapBuilder[K, V](ke)
   }

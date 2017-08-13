@@ -10,6 +10,8 @@ import poly.collection.specgroup._
  */
 trait UndirectedGraph[@sp(Int) K, +E] extends BidiGraph[K, E] { self =>
 
+  import UndirectedGraph._
+
   def edge(i: K, j: K) = (UPair(i, j), self(i, j))
 
   def edges = {
@@ -47,26 +49,21 @@ trait UndirectedGraph[@sp(Int) K, +E] extends BidiGraph[K, E] { self =>
 
   override def reverse = self
 
-  override def map[F](f: E => F): UndirectedGraph[K, F] = new UndirectedGraphT.Mapped(self, f)
+  override def map[F](f: E => F): UndirectedGraph[K, F] = new Mapped(self, f)
 
-  def mapWithKeys[F](f: (UPair[K], E) => F): UndirectedGraph[K, F] = new UndirectedGraphT.MappedWithKeys(self, f)
+  def mapWithKeys[F](f: (UPair[K], E) => F): UndirectedGraph[K, F] = new MappedWithKeys(self, f)
 
   def zip[F](that: UndirectedGraph[K, F]) = zipWith(that) { case (e, f) => (e, f) }
 
-  def zipWith[F, X](that: UndirectedGraph[K, F])(f: (E, F) => X): UndirectedGraph[K, X] = new UndirectedGraphT.ZippedWith(self, that, f)
+  def zipWith[F, X](that: UndirectedGraph[K, F])(f: (E, F) => X): UndirectedGraph[K, X] = new ZippedWith(self, that, f)
 
-  override def asMultimap: BiMultimap[K, K] = new UndirectedGraphT.AsMultimap(self)
+  override def asMultimap: BiMultimap[K, K] = new AsMultimap(self)
 
   override def toString = "{" + edges.map(e => s"{${e._1._1}, ${e._1._2}}: ${e._2}").buildString(", ") + "}"
 }
 
 object UndirectedGraph {
 
-}
-
-abstract class AbstractUndirectedGraph[K, +E] extends AbstractBidiGraph[K, E] with UndirectedGraph[K, E]
-
-private[poly] object UndirectedGraphT {
 
   class Mapped[K, E, F](self: UndirectedGraph[K, E], f: E => F) extends AbstractUndirectedGraph[K, F] {
     def keySet = self.keySet
@@ -98,5 +95,7 @@ private[poly] object UndirectedGraphT {
     def keySet = self.keySet
     def valueSet = self.keySet
   }
-
+  
 }
+
+abstract class AbstractUndirectedGraph[K, +E] extends AbstractBidiGraph[K, E] with UndirectedGraph[K, E]

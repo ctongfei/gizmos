@@ -34,6 +34,8 @@ trait Bijection[@specialized(Int, AnyRef) X, @specialized(Int, AnyRef) Y] extend
   final def ∘[W](that: Bijection[W, X]): Bijection[W, Y] = compose(that)
   final def ×[U, V](that: Bijection[U, V]): Bijection[(X, U), (Y, V)] = product(that)
 
+  def unapply(y: Y): Option[X] = Some(invert(y))
+
 }
 
 object Bijection {

@@ -148,6 +148,7 @@ package object collection extends ImplicitOps {
   private[collection] val  Trivial            = cats.Trivial
   private[collection] type Id[T]              = cats.Id[T]
   private[collection] type Functor[F[_]]      = cats.Functor[F]
+  private[collection] type Apply[F[_]]        = cats.Apply[F]
   private[collection] type Applicative[F[_]]  = cats.Applicative[F]
   private[collection] type Monad[F[_]]        = cats.Monad[F]
   private[collection] type MonadCombine[F[_]] = cats.MonadCombine[F]

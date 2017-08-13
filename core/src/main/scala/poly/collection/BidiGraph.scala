@@ -29,17 +29,17 @@ trait BidiGraph[@sp(Int) K, +E] extends Graph[K, E] { self =>
   def pred(i: K) = incomingKeys(i)
 
   // HELPER FUNCTIONS
-  override def reverse: BidiGraph[K, E] = new BidiGraphT.Reversed(self)
+  override def reverse: BidiGraph[K, E] = new Reversed(self)
 
-  override def map[F](f: E => F): BidiGraph[K, F] = new BidiGraphT.Mapped(self, f)
+  override def map[F](f: E => F): BidiGraph[K, F] = new Mapped(self, f)
 
-  override def mapWithKeys[F](f: (K, K, E) => F): BidiGraph[K, F] = new BidiGraphT.MappedWithKeys(self, f)
+  override def mapWithKeys[F](f: (K, K, E) => F): BidiGraph[K, F] = new MappedWithKeys(self, f)
 
-  override def filterKeys(f: K => Boolean): BidiGraph[K, E] = new BidiGraphT.KeyFiltered(self, f)
+  override def filterKeys(f: K => Boolean): BidiGraph[K, E] = new KeyFiltered(self, f)
 
   def zip[F](that: BidiGraph[K, F]) = zipWith(that)((e, f) => (e, f))
 
-  def zipWith[F, X](that: BidiGraph[K, F])(f: (E, F) => X): BidiGraph[K, X] = new BidiGraphT.ZippedWith(self, that, f)
+  def zipWith[F, X](that: BidiGraph[K, F])(f: (E, F) => X): BidiGraph[K, X] = new ZippedWith(self, that, f)
 
   override def asMultimap: BiMultimap[K, K] = new AbstractBiMultimap[K, K] {
     def valueSet = self.keySet
@@ -51,18 +51,13 @@ trait BidiGraph[@sp(Int) K, +E] extends Graph[K, E] { self =>
 }
 
 object BidiGraph {
-  class NodeProxy[K, +E](override val graph: BidiGraph[K, E], override val key: K) extends Graph.NodeProxy[K, E](graph, key) { //TODO: BiNode
+
+  class NodeProxy[K, +E](override val graph: BidiGraph[K, E], override val key: K) extends Graph.NodeProxy[K, E](graph, key) with BidiNodeLike[K, NodeProxy[K, E]] {
     def incomingMap = graph.incomingMap(key)
     def pred = graph.pred(key) map { i => new NodeProxy(graph, i) }
     override def succ = graph.succ(key) map { i => new NodeProxy(graph, i) }
     def incomingKeySet = graph.incomingKeySet(key)
   }
-
-}
-
-abstract class AbstractBidiGraph[K, +E] extends AbstractGraph[K, E] with BidiGraph[K, E]
-
-private[poly] object BidiGraphT {
 
   class Reversed[K, +E](self: BidiGraph[K, E]) extends AbstractBidiGraph[K, E] {
     def keySet = self.keySet
@@ -74,20 +69,24 @@ private[poly] object BidiGraphT {
     def apply(i: K, j: K) = self.apply(i, j)
   }
 
-  class Mapped[K, E, F](self: BidiGraph[K, E], f: E => F) extends GraphT.Mapped(self, f) with BidiGraph[K, F] {
+  class Mapped[K, E, F](self: BidiGraph[K, E], f: E => F) extends Graph.Mapped(self, f) with BidiGraph[K, F] {
     def incomingKeySet(i: K) = self.incomingKeySet(i)
   }
 
-  class MappedWithKeys[K, E, F](self: BidiGraph[K, E], f: (K, K, E) => F) extends GraphT.MappedWithKeys(self, f) with BidiGraph[K, F] {
+  class MappedWithKeys[K, E, F](self: BidiGraph[K, E], f: (K, K, E) => F) extends Graph.MappedWithKeys(self, f) with BidiGraph[K, F] {
     def incomingKeySet(i: K) = self.incomingKeySet(i)
   }
 
-  class KeyFiltered[K, E](self: BidiGraph[K, E], f: K => Boolean) extends GraphT.KeyFiltered(self, f) with BidiGraph[K, E] {
+  class KeyFiltered[K, E](self: BidiGraph[K, E], f: K => Boolean) extends Graph.KeyFiltered(self, f) with BidiGraph[K, E] {
     def incomingKeySet(i: K) = self.incomingKeySet(i) filter f
   }
 
-  class ZippedWith[K, E, F, X](self: BidiGraph[K, E], that: BidiGraph[K, F], f: (E, F) => X) extends GraphT.ZippedWith(self, that, f) with BidiGraph[K, X] {
+  class ZippedWith[K, E, F, X](self: BidiGraph[K, E], that: BidiGraph[K, F], f: (E, F) => X) extends Graph.ZippedWith(self, that, f) with BidiGraph[K, X] {
     def incomingKeySet(i: K) = self.incomingKeySet(i) intersect that.incomingKeySet(i)
   }
 
+
 }
+
+abstract class AbstractBidiGraph[K, +E] extends AbstractGraph[K, E] with BidiGraph[K, E]
+

@@ -19,13 +19,13 @@ trait SortedIndexedSeq[T] extends SortedSeq[T] with IndexedSeq[T] { self =>
    * $Ologn Finds the key in a sorted sequence using binary search.
    * @param x The key to be found
    * @return An object of type `BinarySearchResult`. Can be either:
-   *   - Found(i): the given key is found at ''i''
-   *   - InsertionPoint(i): the given key is not found. If it should be inserted to the sequence, it should be located at ''i''.
+   *   - Right(i): the given key is found at ''i''
+   *   - Left(i): the given key is not found. If it should be inserted to the sequence, it should be located at ''i''.
    */
-  def binarySearch(x: T): BinarySearchResult = {
+  def binarySearch(x: T): Either[Int, Int] = {
     val i = tryBinarySearch(x)
-    if (i >= 0) BinarySearchResult.Found(i)
-    else BinarySearchResult.InsertionPoint(~i)
+    if (i >= 0) Right(i)
+    else Left(~i)
   }
 
   /**
@@ -112,7 +112,7 @@ private[poly] object SortedIndexedSeqT {
 
   class AsSet[T](self: SortedIndexedSeq[T]) extends AbstractSortedSet[T] {
     def keyOrder = self.elementOrder
-    def keys = self.distinct
+    def keys = self.distinct()
     def contains(x: T) = self.contains(x)
   }
 
@@ -130,16 +130,5 @@ private[poly] object SortedIndexedSeqT {
       }
     }
   }
-
-}
-
-/**
- * Represents the result of a binary search over a sorted indexed sequence.
- */
-sealed trait BinarySearchResult
-object BinarySearchResult {
-
-  case class Found(index: Int) extends BinarySearchResult
-  case class InsertionPoint(index: Int) extends BinarySearchResult
 
 }

@@ -21,7 +21,7 @@ trait MapFactory[+M[_, _], Ev[_]] extends Factory2[Tuple2, M, Ev, Trivial.P1] {
    * @param s Restricted domain
    * @note This is equivalent to `s createMap f` but eagerly evaluated.
    */
-  def restrict[K: Ev, V](f: K => V, s: Set[K]) = {
+  def restrictOn[K: Ev, V](s: Set[K])(f: K => V) = {
     val b = newMapBuilder[K, V]
     for (x <- s) b << (x, f(x))
     b.result()

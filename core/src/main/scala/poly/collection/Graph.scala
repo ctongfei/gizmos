@@ -85,19 +85,19 @@ trait Graph[@sp(Int) K, @sp(Double) +E] extends EqStateSpace[K] with KeyedLike[K
 
   // HELPER FUNCTIONS
 
-  /** Transforms the data on all the arcs of this graph. */
-  def map[F](f: E => F): Graph[K, F] = new GraphT.Mapped(self, f)
+  /** Transforms the data on all the arcs of this graph given the specific transformation function. */
+  def map[F](f: E => F): Graph[K, F] = new Mapped(self, f)
 
-  def mapWithKeys[F](f: (K, K, E) => F): Graph[K, F] = new GraphT.MappedWithKeys(self, f)
+  def mapWithKeys[F](f: (K, K, E) => F): Graph[K, F] = new MappedWithKeys(self, f)
 
-  override def filterKeys(f: K => Boolean): Graph[K, E] = new GraphT.KeyFiltered(self, f)
+  override def filterKeys(f: K => Boolean): Graph[K, E] = new KeyFiltered(self, f)
 
   def zip[F](that: Graph[K, F]): Graph[K, (E, F)] = zipWith(that)((e, f) => (e, f))
 
-  def zipWith[F, X](that: Graph[K, F])(f: (E, F) => X): Graph[K, X] = new GraphT.ZippedWith(self, that, f)
+  def zipWith[F, X](that: Graph[K, F])(f: (E, F) => X): Graph[K, X] = new ZippedWith(self, that, f)
 
   /** Wraps the keys of this graph by a bijective function. */
-  def contramap[J](f: Bijection[J, K]): Graph[J, E] = new GraphT.Contramapped(self, f)
+  def contramap[J](f: Bijection[J, K]): Graph[J, E] = new Contramapped(self, f)
 
   /**
    * Returns the reverse/transpose graph of the original graph.
@@ -111,7 +111,7 @@ trait Graph[@sp(Int) K, @sp(Double) +E] extends EqStateSpace[K] with KeyedLike[K
   }
 
   /** Casts this graph as a multimap that maps a key to the outgoing set of that key. */
-  def asMultimap: Multimap[K, K] = new GraphT.AsMultimap(self)
+  def asMultimap: Multimap[K, K] = new AsMultimap(self)
 
   def to[G[_, _], Ev[_], F >: E](factory: GraphFactory[G, Ev])(implicit K: Ev[K]): G[K, F] = {
     val b = factory.newBuilder[K, F]
@@ -152,11 +152,6 @@ object Graph {
     def keyEq = g.keyEq
   }
 
-}
-
-abstract class AbstractGraph[@sp(Int) K, +E] extends Graph[K, E]
-
-private[poly] object GraphT {
 
   class Mapped[K, E, F](self: Graph[K, E], f: E => F) extends AbstractGraph[K, F] {
     def apply(i: K, j: K) = f(self(i, j))
@@ -205,3 +200,6 @@ private[poly] object GraphT {
   }
 
 }
+
+abstract class AbstractGraph[@sp(Int) K, +E] extends Graph[K, E]
+

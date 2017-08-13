@@ -138,8 +138,3 @@ object Tree {
   }
 
 }
-
-private[poly] object TreeT {
-
-
-}

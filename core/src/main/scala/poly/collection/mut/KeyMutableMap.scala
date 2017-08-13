@@ -9,6 +9,8 @@ import poly.collection._
  */
 trait KeyMutableMap[K, V] extends ValueMutableMap[K, V] { self =>
 
+  import KeyMutableMap._
+  
   /**
    * Adds a key-value pair into this map.
    * If the key exists, the corresponding value would be updated to the given value.
@@ -40,13 +42,13 @@ trait KeyMutableMap[K, V] extends ValueMutableMap[K, V] { self =>
    *  map += "peach" -> 'C'
    * }}}
    */
-  override def contramap[J](f: Bijection[J, K]): KeyMutableMap[J, V] = new KeyMutableMapT.Contramapped(self, f)
+  override def contramap[J](f: Bijection[J, K]): KeyMutableMap[J, V] = new Contramapped(self, f)
 
   /**
    * Wraps around this map and modified its behavior:
    * When an absent key is accessed, returns the given default value. But this key would not be added to the map.
    */
-  def withDefault(default: => V): KeyMutableMap[K, V] = new KeyMutableMapT.WithDefault(self, default)
+  def withDefault(default: => V): KeyMutableMap[K, V] = new WithDefault(self, default)
 
   /**
    * Wraps around this map and modified its behavior:
@@ -56,17 +58,17 @@ trait KeyMutableMap[K, V] extends ValueMutableMap[K, V] { self =>
    *   map(k) :+= v
    * }}}
    */
-  def withDefaultUpdate(default: => V): KeyMutableMap[K, V] = new KeyMutableMapT.WithDefaultUpdate(self, default)
+  def withDefaultUpdate(default: => V): KeyMutableMap[K, V] = new WithDefaultUpdate(self, default)
 
   final def +=(k: K, v: V) = add_!(k, v)
   final def +=(kv: (K, V)) = add_!(kv)
   final def -=(k: K) = remove_!(k)
 }
 
-private[poly] object KeyMutableMapT {
+object KeyMutableMap {
 
   class Contramapped[K, V, J](self: KeyMutableMap[K, V], f: Bijection[J, K])
-    extends MapT.Contramapped[K, V, J](self, f) with KeyMutableMap[J, V]
+    extends Map.Contramapped[K, V, J](self, f) with KeyMutableMap[J, V]
   {
     def add_!(k: J, v: V) = self.add_!(f(k), v)
     def remove_!(k: J) = self.remove_!(f(k))
@@ -75,7 +77,7 @@ private[poly] object KeyMutableMapT {
   }
 
   class WithDefault[K, V](self: KeyMutableMap[K, V], default: => V)
-    extends MapT.WithDefault[K, V, V](self, default) with KeyMutableMap[K, V]
+    extends Map.WithDefault[K, V, V](self, default) with KeyMutableMap[K, V]
   {
     def add_!(k: K, v: V) = self.add_!(k, v)
     def remove_!(k: K) = self.remove_!(k)

@@ -23,6 +23,8 @@ import scala.language.reflectiveCalls
  */
 trait Map[@specialized(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K, V] with Func[K, V] { self =>
 
+  import Map._
+
   /** Returns the set of the keys in this map. $LAZY */
   def keySet: Set[K]
 
@@ -74,9 +76,10 @@ trait Map[@specialized(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialF
 
   def isEmpty = size != 0
 
+
   def notEmpty = !isEmpty
 
-  def filterKeys(f: K => Boolean): Map[K, V] = new MapT.KeyFiltered(self, f)
+  def filterKeys(f: K => Boolean): Map[K, V] = new KeyFiltered(self, f)
 
   /**
    * Transforms the values of this map according to the specified function.
@@ -91,9 +94,9 @@ trait Map[@specialized(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialF
    * @param f The specific function
    * @return A map view that maps every key of this map to `f(this(key))`.
    */
-  override def map[W](f: V => W): Map[K, W] = new MapT.Mapped(self, f)
+  override def map[W](f: V => W): Map[K, W] = new Mapped(self, f)
 
-  def mapWithKeys[W](f: (K, V) => W): Map[K, W] = new MapT.MappedWithKeys(self, f)
+  def mapWithKeys[W](f: (K, V) => W): Map[K, W] = new MappedWithKeys(self, f)
 
   /**
    * Returns the Cartesian product map of two maps. $LAZY
@@ -107,7 +110,7 @@ trait Map[@specialized(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialF
    */
   def product[L, W](that: Map[L, W]): Map[(K, L), (V, W)] = productWith(that)((v, w) => (v, w))
 
-  def productWith[L, W, X](that: Map[L, W])(f: (V, W) => X): Map[(K, L), X] = new MapT.ProductWith(self, that, f)
+  def productWith[L, W, X](that: Map[L, W])(f: (V, W) => X): Map[(K, L), X] = new ProductWith(self, that, f)
 
   /**
    * Zips two maps with the same key type into one map that maps keys to a pair of values. $LAZY
@@ -121,7 +124,7 @@ trait Map[@specialized(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialF
   /**
    * @note `(a zipWith b)(f)` is equivalent to `a zip b map f` but may be faster.
    */
-  def zipWith[W, X](that: Map[K, W])(f: (V, W) => X): Map[K, X] = new MapT.ZippedWith(self, that, f)
+  def zipWith[W, X](that: Map[K, W])(f: (V, W) => X): Map[K, X] = new ZippedWith(self, that, f)
 
   /**
    * Returns the inner join of two maps by their keys.
@@ -133,19 +136,19 @@ trait Map[@specialized(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialF
    * Returns the left outer join of two maps by their keys.
    * It is similar to the SQL expression `SELECT * FROM self LEFT OUTER JOIN that ON self.key == that.key`.
    */
-  def leftOuterJoin[W](that: Map[K, W]): Map[K, (V, Option[W])] = new MapT.LeftOuterJoined(self, that)
+  def leftOuterJoin[W](that: Map[K, W]): Map[K, (V, Option[W])] = new LeftOuterJoined(self, that)
 
   /**
    * Returns the right outer join of two maps by their keys.
    * It is similar to the SQL expression `SELECT * FROM self RIGHT OUTER JOIN that ON self.key == that.key`.
    */
-  def rightOuterJoin[W](that: Map[K, W]): Map[K, (Option[V], W)] = new MapT.RightOuterJoined(self, that)
+  def rightOuterJoin[W](that: Map[K, W]): Map[K, (Option[V], W)] = new RightOuterJoined(self, that)
 
   /**
    * Returns the full outer join of two maps by their keys.
    * It is similar to the SQL expression `SELECT * FROM self FULL OUTER JOIN that ON self.key == that.key`.
    */
-  def fullOuterJoin[W](that: Map[K, W]): Map[K, V Ior W] = new MapT.FullOuterJoined(self, that)
+  def fullOuterJoin[W](that: Map[K, W]): Map[K, V Ior W] = new FullOuterJoined(self, that)
 
   /**
    * Returns the symmetric difference of the two maps. $LAZY
@@ -154,7 +157,7 @@ trait Map[@specialized(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialF
    *   {2 -> b, 3 -> c} == {1 -> Left(a), 3 -> Right(c)}
    * }}}
    */
-  def symmetricDiff[W](that: Map[K, W]): Map[K, Either[V, W]] = new MapT.SymmetricDiff(self, that)
+  def symmetricDiff[W](that: Map[K, W]): Map[K, Either[V, W]] = new SymmetricDiff(self, that)
 
   /**
    * Wraps the keys of this map with a bijection. $LAZY
@@ -168,19 +171,19 @@ trait Map[@specialized(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialF
    *   == {'a' -> 'A', 'b' -> 'B'}
    * }}}
    */
-  def contramap[J](f: Bijection[J, K]): Map[J, V] = new MapT.Contramapped(self, f)
+  def contramap[J](f: Bijection[J, K]): Map[J, V] = new Contramapped(self, f)
 
   /**
    * Wraps around this map and modified its behavior:
    * When an absent key is accessed, returns the given default value. But this key would not be added to the map.
    */
-  def withDefaultValue[W >: V](default: => W): Map[K, W] = new MapT.WithDefault[K, V, W](self, default)
+  def withDefaultValue[W >: V](default: => W): Map[K, W] = new WithDefault[K, V, W](self, default)
 
-  def asMap: Map[K, V] = new MapT.Bare(self)
+  def asMap: Map[K, V] = new Bare(self)
 
-  def asMultimap[W >: V](implicit W: Eq[W]): Multimap[K, W] = new MapT.AsMultimap(self, W)
+  def asMultimap[W >: V](implicit W: Eq[W]): Multimap[K, W] = new AsMultimap(self, W)
 
-  def asMultiset[W >: V](implicit wo: Order[W], wr: Ring[W]): WeightedSet[K, W] = new MapT.AsWeightedSet(self, wr, wo)
+  def asMultiset[W >: V](implicit wo: Order[W], wr: Ring[W]): WeightedSet[K, W] = new AsWeightedSet(self, wr, wo)
 
   // SYMBOLIC ALIASES
   def ×[L, W](that: Map[L, W]): Map[(K, L), (V, W)] = self product that
@@ -264,19 +267,18 @@ object Map extends MapFactory[Map, Eq] with MapLowPriorityTypeclassInstances {
 
   // TYPECLASS INSTANCES
 
-  implicit def __dynamicEq[K, V](implicit K: Eq[K], V: Eq[V]): Eq[Map[K, V]] = (K, V) match {
-    case (vk: Hash[K], vh: Hash[V]) => new MapT.MapHash[K, V]()(vk, vh)
-    case _ => new MapT.DynamicEq[K, V]
-  }
-
-  //TODO: should be implicit, but contravariant typeclass implicit resolution is buggy (SI-2509)
   /** Returns the equivalence relation on maps as long as there is an equivalence relation on the value type. */
-  def Eq[K, V: Eq]: Eq[Map[K, V]] = new MapT.MapEq[K, V]
+  implicit def Eq[K, V: Eq]: Eq[Map[K, V]] = new MapEq[K, V]
 
-  /** Returns the functor on maps. */
-  //TODO: this should be stronger than a functor but less than an applicative functor (no unit element)
-  implicit def Functor[K]: Functor[({type λ[+V] = Map[K, V]})#λ] = new Functor[({type λ[+V] = Map[K, V]})#λ] {
+  /**
+   * The functor on maps.
+   * This functor is stronger than a [[Functor]] but weaker than an [[Applicative]]
+   * because it has [[ap]] but not `pure`.
+   */
+  implicit def Functor[K]: Apply[({type λ[+V] = Map[K, V]})#λ] = new Apply[({type λ[+V] = Map[K, V]})#λ] {
     def map[X, Y](mx: Map[K, X])(f: X => Y): Map[K, Y] = mx map f
+    def ap[A, B](ff: Map[K, A => B])(fa: Map[K, A]): Map[K, B] = (ff zipWith fa)((f, a) => f(a))
+    override def product[A, B](fa: Map[K, A], fb: Map[K, B]): Map[K, (A, B)] = fa zip fb
   }
 
   /** Returns the vector space on maps given the value set of the map forms a field. */
@@ -294,37 +296,6 @@ object Map extends MapFactory[Map, Eq] with MapLowPriorityTypeclassInstances {
     def negate(x: Map[K, F]) = x map (_ * scalar.negate(scalar.one))
   }
 
-}
-
-trait MapLowPriorityTypeclassInstances {
-  /** Returns the module on maps given the value set of the map forms a ring. */
-  implicit def Module[K: Eq, R](implicit R: Ring[R]): Module[Map[K, R], R] = new Module[Map[K, R], R] {
-    import spire.syntax.ring._
-    def scalar = R
-    def timesl(k: R, x: Map[K, R]) = x map (_ * k)
-    def plus(x: Map[K, R], y: Map[K, R]) = (x fullOuterJoin y) map {
-      case Ior.Both(a, b) => a + b
-      case Ior.Left(a)    => a
-      case Ior.Right(b)   => b
-      case _              => R.zero
-    }
-    def zero = Map.empty[K]
-    def negate(x: Map[K, R]) = x map (_ * scalar.negate(scalar.one))
-  }
-}
-
-abstract class AbstractMap[@specialized(Int) K, +V] extends Map[K, V]
-
-private[poly] object MapT {
-
-  class DynamicEq[K, V: Eq] extends Eq[Map[K, V]] {
-    def eqv(x: Map[K, V], y: Map[K, V]) = (x, y) match {
-      case (x: IndexedSeq[V], y: IndexedSeq[V]) => IndexedSeq.Eq[V].eqv(x, y)
-      case (x: Seq[V], y: Seq[V]) => Seq.Eq[V].eqv(x, y)
-      case (x: Table[V], y: Table[V]) => Table.Eq[V].eqv(x, y)
-      case _ => Map.Eq[K, V].eqv(x, y)
-    }
-  }
 
   class MapHash[K: Hash, V: Hash] extends MapEq[K, V] with Hash[Map[K, V]] {
     def hash(x: Map[K, V]) = MurmurHash3.symmetricHash(x.pairs)(Hash.onTuple2[K, V])
@@ -453,4 +424,25 @@ private[poly] object MapT {
     def keySet = self.keySet
     def weight(k: K) = if (self.containsKey(k)) R.one else R.zero
   }
+
 }
+
+trait MapLowPriorityTypeclassInstances {
+  /** Returns the module on maps given the value set of the map forms a ring. */
+  implicit def Module[K: Eq, R](implicit R: Ring[R]): Module[Map[K, R], R] = new Module[Map[K, R], R] {
+    import spire.syntax.ring._
+    def scalar = R
+    def timesl(k: R, x: Map[K, R]) = x map (_ * k)
+    def plus(x: Map[K, R], y: Map[K, R]) = (x fullOuterJoin y) map {
+      case Ior.Both(a, b) => a + b
+      case Ior.Left(a)    => a
+      case Ior.Right(b)   => b
+      case _              => R.zero
+    }
+    def zero = Map.empty[K]
+    def negate(x: Map[K, R]) = x map (_ * scalar.negate(scalar.one))
+  }
+}
+
+abstract class AbstractMap[@specialized(Int) K, +V] extends Map[K, V]
+

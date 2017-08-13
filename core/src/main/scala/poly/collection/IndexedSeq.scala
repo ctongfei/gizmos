@@ -19,6 +19,8 @@ import scala.language.implicitConversions
  */
 trait IndexedSeq[+T] extends BidiSeq[T] { self =>
 
+  import IndexedSeq._
+
   /** Returns the length of this indexed sequence. */
   def fastLength: Int
 
@@ -29,11 +31,11 @@ trait IndexedSeq[+T] extends BidiSeq[T] { self =>
 
   @inline final override def length = fastLength
 
-  /** Returns the ''i''-th element of this sequence. $O1 (sometimes O(log ''n''): e.g. [[poly.collection.mut.FenwickTree]]). */
+  /** Returns the ''i''-th element of this sequence. */
   @inline final override def apply(i: Int) = fastApply(i)
 
   // Overridden newIterator method for performance.
-  override def newIterator: Iterator[T] = new IndexedSeqT.DefaultIterator[T](self)
+  override def newIterator: Iterator[T] = new DefaultIterator[T](self)
 
   // Overridden foreach method for performance.
   override def foreach[@sp(Unit) V](f: T => V): Unit = {
@@ -67,20 +69,20 @@ trait IndexedSeq[+T] extends BidiSeq[T] { self =>
 
   override def isEmpty = fastLength <= 0
 
-  override def map[U](f: T => U): IndexedSeq[U] = new IndexedSeqT.Mapped(self, f)
+  override def map[U](f: T => U): IndexedSeq[U] = new Mapped(self, f)
 
-  def product[U](that: IndexedSeq[U]): IndexedSeq[(T, U)] = new IndexedSeqT.MonadicProduct(self, that)
+  def product[U](that: IndexedSeq[U]): IndexedSeq[(T, U)] = new MonadicProduct(self, that)
 
   /**
    * $LAZY Returns the Cartesian product of two indexed sequences. The returning value is a table.
    */
-  def tableProduct[U](that: IndexedSeq[U]): Table[(T, U)] = new IndexedSeqT.TableProduct(self, that)
+  def tableProduct[U](that: IndexedSeq[U]): Table[(T, U)] = new TableProduct(self, that)
 
-  def concat[U >: T](that: IndexedSeq[U]): IndexedSeq[U] = new IndexedSeqT.Concatenated(self, that)
+  def concat[U >: T](that: IndexedSeq[U]): IndexedSeq[U] = new Concatenated(self, that)
 
-  override def prepend[U >: T](x: U): IndexedSeq[U] = new IndexedSeqT.Prepended(self, x)
+  override def prepend[U >: T](x: U): IndexedSeq[U] = new Prepended(self, x)
 
-  override def append[U >: T](x: U): IndexedSeq[U] = new IndexedSeqT.Appended(self, x)
+  override def append[U >: T](x: U): IndexedSeq[U] = new Appended(self, x)
 
   override def reduce[U >: T](f: (U, U) => U): U = {
     if (length == 0) throw new EmptyCollectionReductionException
@@ -110,22 +112,22 @@ trait IndexedSeq[+T] extends BidiSeq[T] { self =>
   override def slice(_i: Int, _j: Int): IndexedSeq[T] = {
     val i = if (_i < 0) _i + length else _i
     val j = if (_j < 0) _j + length else _j
-    new IndexedSeqT.Sliced(self, i, j)
+    new Sliced(self, i, j)
   }
 
-  override def rotate(j: Int): IndexedSeq[T] = new IndexedSeqT.Rotated(self, j)
+  override def rotate(j: Int): IndexedSeq[T] = new Rotated(self, j)
 
-  override def reverse: IndexedSeq[T] = new IndexedSeqT.Reversed(self)
+  override def reverse: IndexedSeq[T] = new Reversed(self)
 
-  override def repeat(n: Int): IndexedSeq[T] = new IndexedSeqT.Repeated(self, n)
+  override def repeat(n: Int): IndexedSeq[T] = new Repeated(self, n)
 
-  override def sliding(windowSize: Int, step: Int = 1): IndexedSeq[IndexedSeq[T]] = new IndexedSeqT.Sliding(self, windowSize, step)
+  override def sliding(windowSize: Int, step: Int = 1): IndexedSeq[IndexedSeq[T]] = new Sliding(self, windowSize, step)
 
   def zip[U](that: IndexedSeq[U]): IndexedSeq[(T, U)] = zipWith(that) { (t, u) => (t, u) }
 
-  def zipWith[U, V](that: IndexedSeq[U])(f: (T, U) => V): IndexedSeq[V] = new IndexedSeqT.ZippedWith(self, that, f)
+  def zipWith[U, V](that: IndexedSeq[U])(f: (T, U) => V): IndexedSeq[V] = new ZippedWith(self, that, f)
 
-  def interleave[U >: T](that: IndexedSeq[U]): IndexedSeq[U] = new IndexedSeqT.Interleaved(self, that)
+  def interleave[U >: T](that: IndexedSeq[U]): IndexedSeq[U] = new Interleaved(self, that)
 
   /**
    * Rearranges the elements in this indexed sequence according to a permutation. $LAZY
@@ -133,11 +135,11 @@ trait IndexedSeq[+T] extends BidiSeq[T] { self =>
    * @return A permuted sequence
    * @example {{{('a', 'b', 'c') permuteBy Permutation(1, 2, 0) == ('b', 'c', 'a')}}}
    */
-  def permuteBy(p: Permutation): IndexedSeq[T] = new IndexedSeqT.Permuted(self, p)
+  def permuteBy(p: Permutation): IndexedSeq[T] = new Permuted(self, p)
 
-  override def asIfSorted[U >: T](implicit U: Order[U]): SortedIndexedSeq[U] = new IndexedSeqT.AsIfSorted(self, U)
+  override def asIfSorted[U >: T](implicit U: Order[U]): SortedIndexedSeq[U] = new AsIfSorted(self, U)
 
-  def asIndexedSeq: IndexedSeq[T] = new IndexedSeqT.Bare(self)
+  def asIndexedSeq: IndexedSeq[T] = new Bare(self)
 
   // SYMBOLIC ALIASES
 
@@ -157,18 +159,11 @@ object IndexedSeq {
     def fastLength: Int = 0
   }
 
-  def fill[T](n: Int)(x: => T): IndexedSeq[T] = new IndexedSeqT.Filled(x, n)
+  def fill[T](n: Int)(x: => T): IndexedSeq[T] = new Filled(x, n)
 
-  def tabulate[T](n: Int)(f: Int => T): IndexedSeq[T] = new IndexedSeqT.Tabulated(f, n)
+  def tabulate[T](n: Int)(f: Int => T): IndexedSeq[T] = new Tabulated(f, n)
 
-  implicit def Eq[T: Eq]: Eq[IndexedSeq[T]] = new IndexedSeqT.IndexedSeqEq[T]
-
-}
-
-
-abstract class AbstractIndexedSeq[+T] extends IndexedSeq[T]
-
-private[poly] object IndexedSeqT {
+  implicit def Eq[T: Eq]: Eq[IndexedSeq[T]] = new IndexedSeqEq[T]
 
   class IndexedSeqEq[T: Eq] extends Eq[IndexedSeq[T]] {
     def eqv(x: IndexedSeq[T], y: IndexedSeq[T]): Boolean = {
@@ -290,5 +285,9 @@ private[poly] object IndexedSeqT {
     def fastLength: Int = n
     def fastApply(i: Int): T = f(i)
   }
-
+  
 }
+
+
+abstract class AbstractIndexedSeq[+T] extends IndexedSeq[T]
+

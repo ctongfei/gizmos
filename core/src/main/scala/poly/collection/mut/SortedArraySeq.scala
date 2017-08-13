@@ -16,7 +16,7 @@ class SortedArraySeq[T] private[poly](private[poly] val data: ResizableSeq[T])(i
   def fastApply(i: Int) = data.apply(i)
 
   def remove_!(x: T) = binarySearch(x) match {
-    case BinarySearchResult.Found(i) => data.delete_!(i)
+    case Right(i) => data.delete_!(i)
     case _ => /* do nothing */
   }
 

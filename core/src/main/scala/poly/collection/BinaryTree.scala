@@ -1,6 +1,7 @@
 package poly.collection
 
 import poly.collection.exception._
+import poly.collection.immut._
 import poly.collection.node._
 
 /**
@@ -45,7 +46,7 @@ trait BinaryTree[+T] extends BinaryTreeLike[T, BinaryTreeNode[T]] { self =>
 
 
   /**
-   * Zips two binary trees into one. $LAZY
+   * $LAZY Zips two binary trees into one.
    * @example {{{
    *   ┌      a    ┐     ┌    1      ┐    ┌               ┐
    *   │     / \   │     │   / \     │    │     (a,1)     │
@@ -64,6 +65,18 @@ trait BinaryTree[+T] extends BinaryTreeLike[T, BinaryTreeNode[T]] { self =>
       def isDummy = m.isDummy || n.isDummy
     }
     ofRootNode(new ZippedWithNode(self.rootNode, that.rootNode))
+  }
+
+  def scan[U](z: U)(f: (U, U, T) => U) = ???
+
+  def scanFromTop[U](z: U)(fLeft: (U, T) => U, fRight: (U, T) => U): BinaryTree[U] = {
+    class FromTopScannedNode(node: BinaryTreeNode[T], u: U) extends BinaryTreeNode[U] {
+      def leftNode = new FromTopScannedNode(node.leftNode, fLeft(u, node.leftNode.data))
+      def rightNode = new FromTopScannedNode(node.rightNode, fRight(u, node.rightNode.data))
+      def data = u
+      def isDummy = node.isDummy
+    }
+    ofDummyNode(new FromTopScannedNode(self.dummy, z))
   }
 
   /**
@@ -180,6 +193,11 @@ object BinaryTree {
 
   def ofRootNode[T](n: BinaryTreeNode[T]): BinaryTree[T] = new BinaryTree[T] {
     override def rootNode = n
+  }
+
+  def ofDummyNode[T](n: BinaryTreeNode[T]): BinaryTree[T] = new BinaryTree[T] {
+    override def dummy = n
+    def rootNode = n.rightNode
   }
 
   implicit object ZipApplicative extends Applicative[BinaryTree] {
