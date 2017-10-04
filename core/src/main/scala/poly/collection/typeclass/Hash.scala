@@ -14,9 +14,9 @@ trait Hash[@sp X] extends Eq[X] with scala.util.hashing.Hashing[X] { self =>
   /** Returns the hash value of the given input using this hashing instance. */
   def hash(x: X): Int
 
-  override def on[@sp Y](f: Y => X): Hash[Y] = new HashingT.Contramapped(self, f)
+  override def on[@sp Y](f: Y => X): Hash[Y] = new HashT.Contramapped(self, f)
 
-  def coproduct[Y](that: Hash[Y]): Hash[Either[X, Y]] = new HashingT.EitherHash(self, that)
+  def coproduct[Y](that: Hash[Y]): Hash[Either[X, Y]] = new HashT.EitherHash(self, that)
 }
 
 object Hash {
@@ -29,26 +29,26 @@ object Hash {
   }
 
   /** Creates a `IntHashing` object from the specific hash function. */
-  def create[@specialized X](fHash: X => Int)(implicit X: Eq[X]): Hash[X] = new HashingT.OfHashFunc[X](fHash, X)
+  def create[@specialized X](fHash: X => Int)(implicit X: Eq[X]): Hash[X] = new HashT.OfHashFunc[X](fHash, X)
 
-  def by[@specialized(Int) X, @specialized(Int) Y](f: Y => X)(implicit X: Hash[X]) = new HashingT.Contramapped(X, f)
+  def by[@specialized(Int) X, @specialized(Int) Y](f: Y => X)(implicit X: Hash[X]) = new HashT.Contramapped(X, f)
 
   /** Creates an `Hashing` object from a type's inherent `hashCode`/`##` method. */
-  def default[@specialized X]: Hash[X] = new HashingT.Default[X]
+  def default[@specialized X]: Hash[X] = new HashT.Default[X]
 
   /** Creates an `Hashing` object using the identity (by-reference) hashing function and identity equivalence relation. */
-  def byRef[X <: AnyRef]: Hash[X] = new HashingT.ByRef[X]
+  def byRef[X <: AnyRef]: Hash[X] = new HashT.ByRef[X]
 
-  def onTuple1[@sp(spTuple1) A](implicit A: Hash[A]): Hash[Tuple1[A]] = new HashingT.Tuple1Hash(A)
-  def onTuple2[@sp(spTuple2) A, @sp(spTuple2) B](implicit A: Hash[A], B: Hash[B]): Hash[(A, B)] = new HashingT.Tuple2Hash(A, B)
-  def onTuple3[A, B, C](implicit A: Hash[A], B: Hash[B], C: Hash[C]): Hash[(A, B, C)] = new HashingT.Tuple3Hash(A, B, C)
-  def onEither[A, B](implicit A: Hash[A], B: Hash[B]): Hash[Either[A, B]] = new HashingT.EitherHash(A, B)
+  def onTuple1[@sp(spTuple1) A](implicit A: Hash[A]): Hash[Tuple1[A]] = new HashT.Tuple1Hash(A)
+  def onTuple2[@sp(spTuple2) A, @sp(spTuple2) B](implicit A: Hash[A], B: Hash[B]): Hash[(A, B)] = new HashT.Tuple2Hash(A, B)
+  def onTuple3[A, B, C](implicit A: Hash[A], B: Hash[B], C: Hash[C]): Hash[(A, B, C)] = new HashT.Tuple3Hash(A, B, C)
+  def onEither[A, B](implicit A: Hash[A], B: Hash[B]): Hash[Either[A, B]] = new HashT.EitherHash(A, B)
 
 }
 
 abstract class AbstractHash[@sp X] extends Hash[X]
 
-private[poly] object HashingT {
+private[poly] object HashT {
   class OfHashFunc[@sp(Int, Long, Float, Double) X](fHash: X ⇒ Int, X: Eq[X]) extends Hash[X] {
     def hash(x: X) = fHash(x)
     def eqv(x: X, y: X) = X.eqv(x, y)

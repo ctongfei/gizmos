@@ -21,7 +21,7 @@ import scala.language.reflectiveCalls
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait Map[@specialized(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K, V] with Func[K, V] { self =>
+trait Map[@specialized(Int) K, +V] extends KeyedLike[K, Map[K, V]] with PartialFunction[K, V] with Func1[K, V] { self =>
 
   import Map._
 
@@ -293,7 +293,7 @@ object Map extends MapFactory[Map, Eq] with MapLowPriorityTypeclassInstances {
       case _              => F.zero
     }
     def zero = Map.empty[K]
-    def negate(x: Map[K, F]) = x map (_ * scalar.negate(scalar.one))
+    def negate(x: Map[K, F]) = x map (_ * F.negate(F.one))
   }
 
 

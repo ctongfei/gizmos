@@ -1,13 +1,11 @@
 package poly.collection
 
-import cats.arrow._
-
 /**
  * Represents an one-to-one (bijective) function between two types.
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait Bijection[@specialized(Int, AnyRef) X, @specialized(Int, AnyRef) Y] extends Func[X, Y] { self =>
+trait Bijection[@specialized(Int, AnyRef) X, @specialized(Int, AnyRef) Y] extends Func1[X, Y] { self =>
 
   /** Given a value ''x'' in the domain, returns the unique value ''y'' in the codomain that ''x'' maps to. */
   def apply(x: X): Y

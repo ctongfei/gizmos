@@ -13,7 +13,7 @@ import scala.language.implicitConversions
  * @author Tongfei Chen
  * @since 0.1.0
  */
-trait Predicate[@specialized(Int, Long, Float, Double) -T] extends Func[T, Boolean] { self =>
+trait Predicate[@specialized(Int, Long, Float, Double) -T] extends Func1[T, Boolean] { self =>
 
   def anyOf(xs: T*) = xs exists self
 

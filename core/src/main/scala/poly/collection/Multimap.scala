@@ -71,6 +71,7 @@ trait Multimap[K, V] extends KeyedLike[K, Multimap[K, V]] with PartialFunction[K
 
   def inverse: Multimap[V, K] = pairs map { _.swap } to AutoMultimap
 
+
   /**
    * Casts this multimap of type `Multimap[K, V]` to the equivalent map of type `Map[ K , Set[V] ]`.
    */

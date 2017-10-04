@@ -35,7 +35,7 @@ trait SortedSet[@sp(Int) T] extends Set[T] { self =>
 
   //TODO: subsetBetween, subsetUpTo, subsetFrom?
 
-  override def createMap[V](f: T => V): KeySortedMap[T, V] = new SortedSetT.MapByFunc(self, f)
+  override def createMap[V](f: T => V): KeySortedMap[T, V] = new SortedSetT.MapByFunction(self, f)
 
 }
 
@@ -49,7 +49,7 @@ private[poly] object SortedSetT {
     def keys = self.keys filter f
   }
 
-  class MapByFunc[T, V](self: SortedSet[T], f: T => V) extends SetT.MapByFunc[T, V](self, f) with KeySortedMap[T, V] {
+  class MapByFunction[T, V](self: SortedSet[T], f: T => V) extends SetT.MapByFunction[T, V](self, f) with KeySortedMap[T, V] {
     override def keySet = self.keySet
   }
 }

@@ -7,7 +7,7 @@ import poly.collection.typeclass._
 /**
  * @author Tongfei Chen
  */
-class CountMinSketch[K] private(val numBuckets: Int, private[this] val table: SpArrayTable[Int], val hashes: IndexedSeq[Hash[K]]) extends Func[K, Int] {
+class CountMinSketch[K] private(val numBuckets: Int, private[this] val table: SpArrayTable[Int], val hashes: IndexedSeq[Hash[K]]) extends Func1[K, Int] {
 
   def add_!(x: K) = {
     var i = 0

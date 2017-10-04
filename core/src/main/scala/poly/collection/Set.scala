@@ -104,11 +104,11 @@ trait Set[@specialized(Int) T] extends Predicate[T] with KeyedLike[T, Set[T]] { 
   def product[U](that: Set[U]): Set[(T, U)] = new SetT.Product(self, that)
 
   /** Using this set as the key set, construct a map by the given function. */
-  def createMap[V](f: T => V): Map[T, V] = new SetT.MapByFunc(self, f)
+  def createMap[V](f: T => V): Map[T, V] = new SetT.MapByFunction(self, f)
 
   def createMapPartially[V](f: PartialFunction[T, V]): Map[T, V] = createMapOptionally(f.lift)
 
-  def createMapOptionally[V](f: T => Option[V]): Map[T, V] = new SetT.MapByOptionalFunc(self, f)
+  def createMapOptionally[V](f: T => Option[V]): Map[T, V] = new SetT.MapByOptionalFunction(self, f)
 
   /**
    * Creates a graph where:
@@ -290,14 +290,14 @@ private[poly] object SetT {
     def contains(k: (T, U)) = self.containsKey(k._1) && that.containsKey(k._2)
   }
 
-  class MapByFunc[T, U](self: Set[T], f: T => U) extends AbstractMap[T, U] {
+  class MapByFunction[T, U](self: Set[T], f: T => U) extends AbstractMap[T, U] {
     def keySet = self
     def apply(k: T) = f(k)
     def ?(k: T) = if (self contains k) Some(f(k)) else None
     override def size = self.size
   }
 
-  class MapByOptionalFunc[T, U](self: Set[T], f: T => Option[U]) extends AbstractMap[T, U] {
+  class MapByOptionalFunction[T, U](self: Set[T], f: T => Option[U]) extends AbstractMap[T, U] {
     def keySet = self filter { k => f(k).isDefined }
     def apply(k: T) = f(k).get
     def ?(k: T) = if (self contains k) f(k) else None
@@ -341,15 +341,15 @@ private[poly] object SetT {
     override def properSubsetOf(that: Set[T]) = that.size != 0
   }
 
-  /**
+  /*
   class Jaccard[T] extends Similarity[Set[T], Double] with MetricSpace[Set[T], Double] {
-    implicit def similarityOrder = poly.algebra.std.DoubleStructure
+    implicit def similarityOrder = cats.instances.double.catsKernelStdOrderForDouble
     def sim(x: Set[T], y: Set[T]) = {
       val n = x.elements.count(y)
       n / (x.size + y.size - n)
     }
     def dist(x: Set[T], y: Set[T]) = 1.0 - sim(x, y)
   }
-   */
+  */
 
 }

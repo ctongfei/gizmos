@@ -23,6 +23,8 @@ trait BiMultimap[K, V] extends KeyedLike[K, BiMultimap[K, V]] with Multimap[K, V
 
   override def inverse: BiMultimap[V, K] = new BiMultimapT.Inverse(self)
 
+  def unapply(v: V): Option[Set[K]] = Some(invert(v))
+
 }
 
 abstract class AbstractBiMultimap[K, V] extends BiMultimap[K, V]

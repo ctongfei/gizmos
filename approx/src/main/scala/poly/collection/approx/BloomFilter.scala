@@ -7,7 +7,7 @@ import poly.collection.typeclass._
 /**
  * @author Tongfei Chen
  */
-class BloomFilter[K] private(val numBuckets: Int, private[this] val table: BitResizableArray, val hashes: IndexedSeq[Hash[K]]) extends Func[K, Boolean] {
+class BloomFilter[K] private(val numBuckets: Int, private[this] val table: BitResizableArray, val hashes: IndexedSeq[Hash[K]]) extends Func1[K, Boolean] {
 
   def add_!(x: K) = { // explicit imperative style for speed
     var i = 0

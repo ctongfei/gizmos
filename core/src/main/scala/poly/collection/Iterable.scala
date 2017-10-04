@@ -462,8 +462,10 @@ trait Iterable[+T] extends Traversable[T] { self =>
         while (it.advance()) {
           val curr = it.current
           val currKey = f(curr)
-          if (key === currKey || buf.isEmpty)
+          if (key === currKey || buf.isEmpty) {
             buf :+= curr
+            key = currKey
+          }
           else {
             g = buf to ArraySeq
             buf.clear_!()
